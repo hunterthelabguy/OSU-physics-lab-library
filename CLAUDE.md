@@ -51,3 +51,15 @@
   content-unchanged check (docs/conversion-spec.md).
 - Roles, not names. No em dashes. No invented record data.
 - Original source files are in `../Unsorted Legacy Resources/` and are unvetted.
+
+## Deploy
+
+- Vercel project `osu-physics-lab-library`, deploying from `main`. Production
+  is `https://osu-physics-lab-library.vercel.app`, unlisted (ledger 37, 47).
+- Vercel Authentication and password protection are both off (ledger 48).
+  Unlisted means `noindex` plus the banner, not access control.
+- The build settings are in the project, not in this repo (ledger 39, 49).
+  To set the same thing up on any host:
+  - Framework: none. Install command: `echo no install step`.
+  - Build command: `curl -sSL -o p.tgz https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-linux-amd64.tar.gz && tar xzf p.tgz && PANDOC=$PWD/pandoc-3.11/bin/pandoc python3 tools/render.py --site`
+  - Output directory: `build/site`.

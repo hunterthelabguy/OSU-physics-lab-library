@@ -268,3 +268,27 @@ are recorded as entries too, so the gap is on the record.
     modernized page, where the legend's claim about bold is false. That is
     the comparison entry 28 exists to provoke, so it stays until the
     content-change phase.
+
+## 2026-09-19 (first deploy)
+
+47. **Deployed unlisted, 2026-09-19.** Vercel project
+    `osu-physics-lab-library` on the personal account, deploying from `main`
+    of this repo (entry 40). Production is
+    `https://osu-physics-lab-library.vercel.app`, with
+    `osu-physics-lab-library-hunterthelabguy.vercel.app` and the
+    `git-main` URL as further aliases. First production deployment built
+    commit 8377eac.
+48. **Vercel Authentication was turned off; password protection stays off.**
+    The new project came with Vercel Authentication on by default, which
+    would have required a Vercel login to view and defeated entry 37's
+    purpose, namely that the owner can open the site anywhere and show a
+    colleague. The owner ruled on 2026-09-19 to leave password protection
+    open as well. So unlisted means `noindex`, `robots.txt` and the banner,
+    not access control: the default URL is guessable from the repo name, and
+    anyone holding it can read the site. Revisit if the audience widens
+    before the license settles.
+49. **Build settings live in the project, not in the repo** (entry 39). No
+    `vercel.json` or equivalent is committed, so nothing in the repo knows
+    which host serves it. The settings are written down in `CLAUDE.md` so
+    another host can be set up from the same three lines. Moving hosts stays
+    a settings change.
