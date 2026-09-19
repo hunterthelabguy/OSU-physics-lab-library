@@ -101,6 +101,7 @@ def site_vars(depth):
         "-M", "homehref=" + (r or "./"),
         "-M", "indexhref=" + r + "courses/",
         "-M", "methodhref=" + r + "how-this-was-made/",
+        "-M", "simshref=" + r + "sims/",
     ]
 
 
@@ -252,6 +253,91 @@ def redirect_page(out, target):
     return out
 
 
+# A sim ships as one self-contained page that must keep working offline from
+# disk, so the site chrome is injected into the copy that is published and the
+# source file is never touched. It has to be small: the sim's layout is ruled
+# to fit a 1280x720 laptop without page scrolling, and every pixel here is
+# taken from that budget. So it carries ledger 37's sentence and nothing more,
+# not the longer note the other pages show. The sim's own Content Security
+# Policy is `default-src 'none'` with inline styles allowed, so an inline
+# <style> works and anything fetched would not.
+SIM_CHROME = """<style>
+.lib-bar {{
+  flex: 0 0 auto;
+  display: flex; flex-wrap: wrap; gap: .1rem 1rem;
+  align-items: baseline; justify-content: space-between;
+  background: #d73f09; color: #fff;
+  padding: .3rem .75rem;
+  font: 600 .85rem/1.4 ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+}}
+.lib-bar a {{ color: #fff; font-weight: 400; }}
+.lib-bar .lib-links {{ display: flex; gap: 1rem; }}
+@media print {{ .lib-bar {{ display: none; }} }}
+</style>
+<div class="lib-bar">
+<span>{banner}</span>
+<span class="lib-links"><a href="{home}">Library home</a><a href="{sims}">Sims</a></span>
+</div>
+"""
+
+BODY_TAG = re.compile(r"(<body[^>]*>)", re.I)
+
+
+def sims():
+    """Self-contained sim pages: one directory each, holding an index.html."""
+    found = {}
+    pattern = os.path.join(ROOT, "sims", "*", "index.html")
+    for path in sorted(glob.glob(pattern)):
+        sim_id = os.path.basename(os.path.dirname(path))
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+        m = re.search(r"<title>(.*?)</title>", text, re.S | re.I)
+        found[sim_id] = {
+            "path": path,
+            "title": m.group(1).strip() if m else sim_id,
+            "text": text,
+        }
+    return found
+
+
+def render_sim(sim_id, sim, site):
+    """Publish a sim page with the banner and a way back, source untouched."""
+    out = os.path.join(site, "sims", sim_id, "index.html")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    chrome = SIM_CHROME.format(banner=html.escape(BANNER_MAIN),
+                               home=up(2), sims=up(1))
+    text, count = BODY_TAG.subn(lambda m: m.group(1) + "\n" + chrome,
+                                sim["text"], count=1)
+    if count != 1:
+        raise SystemExit("no <body> tag in " + sim["path"])
+    with open(out, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
+    return out
+
+
+def sims_index_markdown(found):
+    """The sims page. It says what each sim is and claims nothing else.
+
+    In particular it does not say which lab a sim serves: nothing in the
+    original materials states that, and inventing it is not an option.
+    """
+    e = html.escape
+    parts = ["# Sims\n",
+             "Small tools students use during a lab. Each one is a single "
+             "page that runs in the browser, keeps nothing, and sends "
+             "nothing. Which lab each sim belongs to is not recorded here "
+             "yet.\n"]
+    items = []
+    for sim_id, sim in found.items():
+        items.append(
+            '<li class="converted">\n'
+            '<p class="lab-title"><a href="{}/">{}</a></p>\n'
+            '<p class="lab-state">Runs in the browser. Nothing is stored and '
+            "nothing is sent.</p>\n</li>".format(e(sim_id), e(sim["title"])))
+    parts.append('<ul class="lab-list">\n' + "\n".join(items) + "\n</ul>\n")
+    return "\n".join(parts)
+
+
 def build_site(out_dir):
     site = os.path.join(out_dir, "site")
     if os.path.isdir(site):
@@ -292,6 +378,14 @@ def build_site(out_dir):
         footnote="This page is built from VISION.md in the project's "
                  "repository; ledger numbers refer to the dated decision "
                  "ledger kept there."))
+
+    found = sims()
+    for sim_id, sim in found.items():
+        written.append(render_sim(sim_id, sim, site))
+    if found:
+        written.append(render_page(
+            sims_index_markdown(found), "Sims",
+            os.path.join(site, "sims", "index.html"), 1))
 
     robots = os.path.join(site, "robots.txt")
     with open(robots, "w", encoding="utf-8", newline="\n") as fh:

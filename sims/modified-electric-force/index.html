@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<link rel="icon" href="data:,">
+<title>Electric Force</title>
+<style>
+  /* Palette: Beaver Orange, Paddletail Black, Bucktooth White from ../OSU-style-guide.md.
+     Greys and the pale tints are PLACEHOLDER neutrals (not in the OSU palette), chosen for WCAG AA contrast. */
+  :root {
+    --orange: #D73F09;
+    --black: #000000;
+    --white: #FFFFFF;
+    --muted: #4d4d4d;   /* PLACEHOLDER neutral: 8.4:1 on white */
+    --line: #767676;    /* PLACEHOLDER neutral: 4.5:1 on white, used for borders and guides */
+    --tint: #fff3ee;    /* PLACEHOLDER neutral tint behind messages; black text on it is above 19:1 */
+    --panel: #f6f6f6;   /* PLACEHOLDER neutral panel tint; black text on it is above 19:1 */
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { color-scheme: light; -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--white); color: var(--black);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 1rem; line-height: 1.4;
+    min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
+  }
+  #app { flex: 1 0 auto; display: flex; flex-direction: column; }
+  .wrap { width: 100%; max-width: 84rem; margin: 0 auto; padding: 0 16px; }
+  p { margin: 0; }
+  h1 { font-size: 1.5rem; line-height: 1.2; margin: 0; }
+  h2 { font-size: 1.125rem; margin: 0; }
+  label { font-weight: 600; }
+  input[type="text"] {
+    font: inherit; min-height: 44px; padding: 6px 10px; width: 100%; min-width: 0;
+    border: 2px solid var(--line); border-radius: 6px; background: var(--white); color: var(--black);
+  }
+  input[type="text"][aria-invalid="true"] { border: 3px solid var(--black); background: var(--tint); }
+  input[type="range"] { display: block; width: 100%; height: 44px; margin: 0; accent-color: var(--orange); }
+  button, summary.btn {
+    font: inherit; min-height: 44px; min-width: 44px; padding: 6px 14px; cursor: pointer;
+    border: 2px solid var(--black); border-radius: 6px; background: var(--white); color: var(--black);
+  }
+  button:hover, summary.btn:hover { background: var(--tint); }
+  button.primary {
+    background: var(--orange); border-color: var(--orange); color: var(--white);
+    font-weight: 700; font-size: 1.25rem; padding: 8px 24px;
+  }
+  button.primary:hover { background: var(--black); border-color: var(--black); }
+  :focus-visible { outline: 3px solid var(--black); outline-offset: 2px; }
+  .msg { padding: 4px 10px; border-left: 4px solid var(--orange); background: var(--tint); font-weight: 600; }
+  .msg[hidden], .note[hidden] { display: none; }
+  .note { font-size: 0.875rem; color: var(--muted); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  /* Top bar: title, law code, help */
+  .topbar { border-top: 6px solid var(--orange); }
+  .topbar .wrap { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding-top: 4px; padding-bottom: 4px; }
+  .topbar h1 { margin-right: auto; }
+  .codebox { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .codebox input { width: 4.5rem; }
+  .codebox .inuse { font-size: 0.9375rem; }
+  #code-msg { flex-basis: 100%; }
+
+  /* Pop-over disclosures (Help, About). Content is plain HTML; no script needed to read it. */
+  details.pop > summary { display: inline-flex; align-items: center; min-height: 44px; list-style: none; font-weight: 600; cursor: pointer; }
+  details.pop > summary::-webkit-details-marker { display: none; }
+  details.pop > summary::after { content: " +"; white-space: pre; }
+  details.pop[open] > summary::after { content: " -"; }
+  .pop-body {
+    position: absolute; z-index: 10; width: min(34rem, calc(100vw - 32px));
+    max-height: min(70vh, 34rem); overflow: auto;
+    background: var(--white); border: 2px solid var(--black); border-radius: 8px;
+    padding: 12px 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); font-size: 0.9375rem;
+  }
+  .pop-body p, .pop-body ul { margin: 0 0 8px; }
+  .pop-body ul { padding-left: 1.25rem; }
+  .pop-body h3 { font-size: 1rem; margin: 8px 0 4px; }
+  .topbar .pop-body { top: 100%; right: 16px; }
+
+  /* Main layout */
+  .layout { flex: 1 0 auto; display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); padding-bottom: 12px; }
+  .panel { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+  @media (min-width: 60rem) {
+    .layout { grid-template-columns: minmax(0, 1fr) minmax(22rem, 27rem); grid-template-rows: auto 1fr; }
+    .data { grid-column: 2; grid-row: 1 / span 2; }
+  }
+
+  /* Bench */
+  #bench-wrap { width: 100%; }
+  #bench { display: block; width: 100%; height: 152px; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  #bench text { font-family: inherit; font-size: 12px; fill: var(--black); }
+  #bench .sign { font-size: 18px; font-weight: 700; }
+  #bench .name { font-size: 14px; font-weight: 600; }
+  #bench .sub { font-size: 10px; }
+  #bench .hit { fill: transparent; }
+  #bench .ring { fill: none; stroke: var(--black); stroke-width: 2.5; stroke-dasharray: 4 3; visibility: hidden; }
+  #m2 { cursor: grab; outline: none; }
+  #m2:focus-visible .ring { visibility: visible; }
+  .axis { stroke: var(--black); stroke-width: 1.5; }
+  .tick { stroke: var(--black); stroke-width: 1.25; }
+  .guide { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 3; }
+  .arr-lin { stroke: var(--black); stroke-width: 2.5; fill: none; }
+  .head-lin { fill: var(--black); stroke: none; }
+  .arr-log { stroke: var(--orange); stroke-width: 2.5; fill: none; stroke-dasharray: 6 4; }
+  .head-log { stroke: var(--orange); stroke-width: 2.5; fill: none; stroke-linejoin: miter; }
+  .edge-mark { fill: var(--black); }
+  .caption { font-size: 0.875rem; color: var(--muted); }
+  .vectors { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 6px; }
+  .vector { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+  .choice {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin: 0;
+    padding: 4px 10px; border: 2px solid var(--line); border-radius: 6px; cursor: pointer;
+  }
+  .choice input { width: 20px; height: 20px; margin: 0; accent-color: var(--orange); }
+  .choice:has(input:checked) { border-color: var(--black); }
+  .key { display: block; height: 26px; max-width: 100%; }
+  .key text { font-family: inherit; font-size: 12px; fill: var(--black); }
+  .desc { margin-top: 6px; padding: 4px 10px; min-height: 3.2em; border-left: 4px solid var(--black); background: var(--panel); font-size: 0.875rem; }
+
+  /* Controls: one row per quantity */
+  .controls { display: grid; gap: 8px; }
+  .qrow { display: grid; gap: 4px 8px; align-items: center;
+    grid-template-columns: 3.5rem minmax(0, 1fr) 44px;
+    grid-template-areas: "lab text sign" "slide slide slide"; }
+  .qrow .lab { grid-area: lab; }
+  .qrow input[type="text"] { grid-area: text; }
+  .qrow .signbtn { grid-area: sign; }
+  .qrow input[type="range"] { grid-area: slide; }
+  .qrow .msg, .qrow .note { grid-column: 1 / -1; }
+  .rrow { display: grid; gap: 4px 8px; align-items: center;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    grid-template-areas: "lab text" "go go"; }
+  .rrow .lab { grid-area: lab; }
+  .rrow input[type="text"] { grid-area: text; }
+  .rrow .go { grid-area: go; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+  .rrow .msg { grid-column: 1 / -1; }
+  /* Narrow screens: Take measurement and the result ride in a bar fixed to the bottom of the screen. */
+  @media (max-width: 59.99rem) {
+    html { scroll-padding-bottom: 80px; }
+    body { padding-bottom: 68px; }
+    .rrow .go {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; justify-content: space-between;
+      padding: 8px 16px; background: var(--white); border-top: 2px solid var(--black);
+    }
+  }
+  @media (max-width: 33.99rem) {
+    .topbar .help { order: 1; }
+    .topbar .codebox { order: 2; flex-basis: 100%; }
+  }
+  @media (min-width: 34rem) {
+    .qrow { grid-template-columns: 3.5rem 8rem 44px minmax(6rem, 1fr); grid-template-areas: "lab text sign slide"; }
+    .rrow { grid-template-columns: 3.5rem 8rem minmax(0, 1fr); grid-template-areas: "lab text go"; }
+    .rrow .go { justify-content: flex-end; }
+  }
+  .signbtn { width: 44px; padding: 0; font-size: 1.375rem; font-weight: 700; line-height: 1; color: var(--white); }
+  .signbtn[data-sign="+"] { background: var(--orange); border-color: var(--orange); }
+  .signbtn[data-sign="-"] { background: var(--black); border-color: var(--black); }
+  .signbtn:hover { background: var(--white); color: var(--black); }
+  .result { min-height: 1.5em; font-size: 1.0625rem; font-weight: 700; }
+
+  /* Data */
+  .data { display: flex; flex-direction: column; gap: 6px; }
+  .data-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .data-head h2 { margin-right: auto; }
+  .status { min-height: 1.4em; font-size: 0.9375rem; font-weight: 600; }
+  .table-wrap { position: relative; height: 20rem; }
+  @media (min-width: 60rem) { .table-wrap { flex: 1 1 auto; height: auto; min-height: 12rem; } }
+  .table-scroll { position: absolute; inset: 0; overflow: auto; border: 1px solid var(--line); border-radius: 6px; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 0.9375rem; }
+  th, td { padding: 4px 6px; text-align: right; white-space: nowrap; border-bottom: 1px solid #d0d0d0; } /* PLACEHOLDER neutral rule */
+  th { position: sticky; top: 0; z-index: 1; background: var(--white); border-bottom: 2px solid var(--black); }
+  td.empty { text-align: left; color: var(--muted); white-space: normal; }
+  td button { padding: 0 10px; font-size: 1.25rem; line-height: 1; }
+
+  footer.site { border-top: 1px solid var(--line); }
+  footer.site .wrap { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
+  footer.site .pop-body { bottom: 100%; right: 16px; }
+  /* Wide screens: the footer sits under the data column, where the table's flexible height absorbs it. */
+  @media (min-width: 60rem) {
+    body { position: relative; }
+    .data { margin-bottom: 44px; }
+    footer.site { position: absolute; left: 0; right: 0; bottom: 0; border-top: 0; }
+    footer.site .wrap { justify-content: flex-end; min-height: 52px; padding-bottom: 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<form id="app" novalidate>
+<header class="topbar">
+  <div class="wrap">
+    <h1>Electric Force</h1>
+    <div class="codebox">
+      <label for="code-text">Law code</label>
+      <input id="code-text" type="text" inputmode="numeric" value="0" autocomplete="off" spellcheck="false" aria-describedby="code-msg">
+      <button type="button" id="code-random">Random code</button>
+      <span class="inuse">In use: <strong id="code-active">0</strong></span>
+      <span id="code-status" class="sr-only" role="status"></span>
+    </div>
+    <details class="pop help">
+      <summary class="btn">How to use</summary>
+      <div class="pop-body">
+        <h3>Taking measurements</h3>
+        <ul>
+          <li>Enter the law code your instructor assigns (0 to 30). Every row in the table records it.</li>
+          <li>Set q1 and q2 in coulombs: type a value (plain or scientific notation, for example 0.25 or 2.5e-1), or use the slider (0.1 C to 10 C) and the sign button.</li>
+          <li>Set r in meters: type it, drag charge 2 on the bench, or tap the ruler.</li>
+          <li>Press Take measurement (or Enter in any box). Each press adds a row to the table.</li>
+        </ul>
+        <h3>The bench</h3>
+        <ul>
+          <li>Keyboard: select charge 2 with Tab, then use the arrow keys. Page Up and Page Down take bigger steps; Home and End go to 0.1 m and 10 m.</li>
+          <li>The ruler is logarithmic: 0.1 m to 1 m is as long as 1 m to 10 m. The gap between q1 and 0.1 m is not to scale.</li>
+          <li>Linear scale vector: solid line, filled head. Length is proportional to the force; full length is 100 N. A larger force is drawn at full length with a double head.</li>
+          <li>Log scale vector: dashed line, open head. Zero length is 1e-6 N and full length is 1e7 N; each tick is a factor of 10. A smaller force is not drawn; a larger one is drawn at full length with a double head.</li>
+          <li>The arrows show the picture. The table is the record.</li>
+        </ul>
+        <h3>The table</h3>
+        <ul>
+          <li>The table is not saved. Copy it or download it before you close this page.</li>
+          <li>Copy table, then paste into cell A1 in Excel. Download CSV saves electric-force-data.csv, which Excel opens directly.</li>
+        </ul>
+      </div>
+    </details>
+    <p id="code-msg" class="msg" hidden></p>
+  </div>
+</header>
+
+<main class="wrap layout">
+  <section class="panel bench" aria-labelledby="bench-h">
+    <h2 id="bench-h" class="sr-only">Bench</h2>
+    <div id="bench-wrap">
+      <svg id="bench" aria-labelledby="bench-h">
+        <g id="ruler" aria-hidden="true"></g>
+        <g id="guides" aria-hidden="true"></g>
+        <g id="arrows" aria-hidden="true"></g>
+        <g id="m1" aria-hidden="true">
+          <circle class="body" r="16"></circle>
+          <text class="sign" text-anchor="middle" dy="0.35em">+</text>
+          <text class="name" text-anchor="middle" y="36">q<tspan class="sub" dy="3">1</tspan></text>
+        </g>
+        <g id="m2" tabindex="0" role="slider" aria-label="Charge 2 position, sets the distance r" aria-orientation="horizontal" aria-valuemin="0.1" aria-valuemax="10" aria-valuenow="1" aria-valuetext="r = 1 m" aria-describedby="bench-keys">
+          <circle class="hit" r="24"></circle>
+          <circle class="ring" r="22"></circle>
+          <circle class="body" r="16"></circle>
+          <text class="sign" text-anchor="middle" dy="0.35em">+</text>
+          <text class="name" text-anchor="middle" y="36">q<tspan class="sub" dy="3">2</tspan></text>
+        </g>
+        <g id="indicators" aria-hidden="true"></g>
+      </svg>
+    </div>
+    <p id="bench-keys" class="sr-only">Arrow keys move charge 2. Page Up and Page Down take bigger steps. Home and End go to the ends of the ruler.</p>
+    <p class="caption">Log ruler: 0.1 m to 1 m is as long as 1 m to 10 m. The gap before 0.1 m is not to scale.</p>
+    <div class="vectors" role="group" aria-label="Force vectors">
+      <div class="vector">
+        <label class="choice"><input type="checkbox" id="show-lin" aria-describedby="key-lin-text"> Linear scale vector</label>
+        <svg class="key" id="key-lin" aria-hidden="true"></svg>
+        <span id="key-lin-text" class="sr-only">Solid line, filled head, full length 100 N.</span>
+      </div>
+      <div class="vector">
+        <label class="choice"><input type="checkbox" id="show-log" aria-describedby="key-log-text"> Log scale vector</label>
+        <svg class="key" id="key-log" aria-hidden="true"></svg>
+        <span id="key-log-text" class="sr-only">Dashed line, open head, zero length 1e-6 N, full length 1e7 N, one tick per factor of 10.</span>
+      </div>
+    </div>
+    <p id="bench-desc" class="desc"></p>
+  </section>
+
+  <section class="panel controls" aria-labelledby="controls-h">
+    <h2 id="controls-h" class="sr-only">Charges and distance</h2>
+    <div class="qrow">
+      <label class="lab" for="q1-text">q<sub>1</sub> (C)</label>
+      <input id="q1-text" type="text" value="1" autocomplete="off" spellcheck="false" aria-describedby="q1-msg">
+      <button type="button" class="signbtn" id="q1-sign" data-sign="+" aria-label="Sign of q1: positive. Press to flip.">+</button>
+      <label class="sr-only" for="q1-slider">q1 size, 0.1 C to 10 C</label>
+      <input id="q1-slider" type="range" min="0" max="180" step="1" value="90" aria-describedby="q1-note">
+      <p id="q1-msg" class="msg" hidden></p>
+      <p id="q1-note" class="note" hidden>The typed value is outside the slider range (0.1 C to 10 C).</p>
+    </div>
+    <div class="qrow">
+      <label class="lab" for="q2-text">q<sub>2</sub> (C)</label>
+      <input id="q2-text" type="text" value="1" autocomplete="off" spellcheck="false" aria-describedby="q2-msg">
+      <button type="button" class="signbtn" id="q2-sign" data-sign="+" aria-label="Sign of q2: positive. Press to flip.">+</button>
+      <label class="sr-only" for="q2-slider">q2 size, 0.1 C to 10 C</label>
+      <input id="q2-slider" type="range" min="0" max="180" step="1" value="90" aria-describedby="q2-note">
+      <p id="q2-msg" class="msg" hidden></p>
+      <p id="q2-note" class="note" hidden>The typed value is outside the slider range (0.1 C to 10 C).</p>
+    </div>
+    <div class="rrow">
+      <label class="lab" for="r-text">r (m)</label>
+      <input id="r-text" type="text" value="1" autocomplete="off" spellcheck="false" aria-describedby="r-msg">
+      <div class="go">
+        <p id="result" class="result" aria-live="polite"></p>
+        <button type="submit" id="measure" class="primary">Take measurement</button>
+      </div>
+      <p id="r-msg" class="msg" hidden></p>
+    </div>
+    <p id="measure-msg" class="msg" hidden></p>
+  </section>
+
+  <section class="panel data" aria-labelledby="data-h">
+    <div class="data-head">
+      <h2 id="data-h">Data</h2>
+      <button type="button" id="copy">Copy table</button>
+      <button type="button" id="download">Download CSV</button>
+      <button type="button" id="clear">Clear all</button>
+    </div>
+    <p class="note">Not saved. Copy or download before you close this page.</p>
+    <p id="data-status" class="status" role="status"></p>
+    <div class="table-wrap">
+      <div class="table-scroll" tabindex="0" role="region" aria-labelledby="data-h">
+        <table>
+          <caption class="sr-only">Measurements, one row per trial</caption>
+          <thead>
+            <tr>
+              <th scope="col">Trial</th>
+              <th scope="col">Code</th>
+              <th scope="col">q1 (C)</th>
+              <th scope="col">q2 (C)</th>
+              <th scope="col">r (m)</th>
+              <th scope="col">F (N)</th>
+              <th scope="col"><span class="sr-only">Delete</span></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+</form>
+
+<footer class="site">
+  <div class="wrap">
+    <p>Oregon State University, Department of Physics</p>
+    <details class="about pop"><summary>About</summary>
+      <div class="pop-body">
+        <p>Created by Hunter Reaves.</p>
+        <!-- PLACEHOLDER: contact line, to be supplied by the owner (a department page or shared address is preferred over a personal email). -->
+        <p>Version 1.1, 2026-09-19.</p>
+        <!-- PLACEHOLDER: license line, pending a check of OSU policy on instructional software. -->
+        <p>License: not yet determined.</p>
+        <p>This page stores nothing and sends nothing over the network. Your table exists only until you close the page.</p>
+      </div>
+    </details>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // BEGIN CORE (pure functions, no DOM access; test-law.mjs extracts and runs this block)
+  const NOISE_MIN = 0.9;
+  const NOISE_MAX = 1.1;
+  const LAW_DEFAULT = Object.freeze({ k: Math.PI, n1: 3, n2: 1, nr: 2 });
+  const LAW_CODE_MAX = 30;
+  // Law code table. A code in a row sets that row's parameter to its default plus
+  // 0.1 per step, counted from the row's first code. Extend the scheme here only.
+  const LAW_CODE_TABLE = Object.freeze([
+    { first: 1, last: 10, param: "n1" },
+    { first: 11, last: 20, param: "n2" },
+    { first: 21, last: 30, param: "nr" },
+  ]);
+
+  function lawParams(code) {
+    if (!Number.isInteger(code) || code < 0 || code > LAW_CODE_MAX) return null;
+    const p = Object.assign({}, LAW_DEFAULT);
+    for (const row of LAW_CODE_TABLE) {
+      if (code >= row.first && code <= row.last) {
+        p[row.param] = (Math.round(LAW_DEFAULT[row.param] * 10) + (code - row.first + 1)) / 10;
+      }
+    }
+    return Object.freeze(p);
+  }
+
+  function signedPow(x, n) {
+    return Math.sign(x) * Math.abs(x) ** n;
+  }
+
+  function lawForce(q1, q2, r, p, u) {
+    return p.k * signedPow(q1, p.n1) * signedPow(q2, p.n2) * r ** p.nr * u;
+  }
+
+  function drawNoise(rand) {
+    return NOISE_MIN + (NOISE_MAX - NOISE_MIN) * rand();
+  }
+
+  function randomLawCode(rand) {
+    return 1 + Math.floor(rand() * LAW_CODE_MAX);
+  }
+
+  const NUMBER_RE = /^[+-]?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i;
+
+  function parseNumberText(text) {
+    const t = String(text).trim();
+    if (t === "") return { ok: false, message: "Enter a value." };
+    if (!NUMBER_RE.test(t)) {
+      return { ok: false, message: "Not a number. Use plain or scientific notation, for example 0.25 or 2.5e-1." };
+    }
+    const v = Number(t);
+    if (!Number.isFinite(v)) return { ok: false, message: "That number is too large." };
+    return { ok: true, value: v };
+  }
+
+  function parseDistance(text) {
+    const p = parseNumberText(text);
+    if (p.ok && p.value < 0) return { ok: false, message: "Distance cannot be negative." };
+    return p;
+  }
+
+  function parseLawCode(text) {
+    const t = String(text).trim();
+    if (t === "") return { ok: false, message: "Enter a law code from 0 to 30." };
+    if (!/^\d+$/.test(t)) return { ok: false, message: "The law code is a whole number from 0 to 30." };
+    const code = Number(t);
+    if (code > LAW_CODE_MAX) return { ok: false, message: "Code not assigned. Use a code from 0 to 30." };
+    return { ok: true, value: code };
+  }
+
+  function formatInput(v) {
+    return String(v);
+  }
+
+  function formatForce(F) {
+    return F.toExponential(3);
+  }
+
+  const EXPORT_HEADER = Object.freeze(["Trial", "Law code", "q1 (C)", "q2 (C)", "r (m)", "F (N)"]);
+
+  function rowFields(row) {
+    return [String(row.trial), String(row.code), formatInput(row.q1), formatInput(row.q2),
+      formatInput(row.r), formatForce(row.F)];
+  }
+
+  function buildDelimited(rows, sep) {
+    const lines = [EXPORT_HEADER.join(sep)];
+    for (const row of rows) lines.push(rowFields(row).join(sep));
+    return lines.join("\r\n") + "\r\n";
+  }
+
+  // Two-significant-figure values from 0.1 to 10: the slider stops and the bench snap points.
+  const GRID = (function () {
+    const g = [];
+    for (let m = 10; m < 100; m++) g.push(Number((m / 100).toPrecision(2)));
+    for (let m = 10; m < 100; m++) g.push(Number((m / 10).toPrecision(2)));
+    g.push(10);
+    return Object.freeze(g);
+  })();
+
+  function nearestGridIndex(v) {
+    if (!(v > 0)) return 0;
+    const lv = Math.log10(v);
+    let best = 0;
+    for (let i = 1; i < GRID.length; i++) {
+      if (Math.abs(Math.log10(GRID[i]) - lv) < Math.abs(Math.log10(GRID[best]) - lv)) best = i;
+    }
+    return best;
+  }
+
+  function stepGrid(v, steps) {
+    if (steps > 0) {
+      let i = GRID.findIndex((g) => g > v * (1 + 1e-9));
+      if (i < 0) return GRID[GRID.length - 1];
+      return GRID[Math.min(GRID.length - 1, i + steps - 1)];
+    }
+    let i = -1;
+    for (let j = GRID.length - 1; j >= 0; j--) { if (GRID[j] < v * (1 - 1e-9)) { i = j; break; } }
+    if (i < 0) return GRID[0];
+    return GRID[Math.max(0, i + steps + 1)];
+  }
+  // END CORE
+
+  // Scale settings confirmed by the owner 2026-09-19 (BUILD-PROMPT.md).
+  const LIN_FULL_SCALE = 100;   // N
+  const LOG_FLOOR_EXP = -6;     // 1e-6 N at zero length
+  const LOG_TOP_EXP = 7;        // 1e7 N at full length
+  const RULER_MIN = 0.1, RULER_MAX = 10; // m
+  const SLIDER_MIN = 0.1, SLIDER_MAX = 10; // C
+
+  // Bench layout (pixels). Layout choices, not physics.
+  const H = 152;
+  const ROW = { lin1: 10, lin2: 22, log1: 38, log2: 50, marker: 82, axis: 126, label: 147 };
+  const GAP = 46;               // q1 to the 0.1 m tick; keeps the largest markers apart
+  const RAD_MIN = 12, RAD_MAX = 20;
+
+  const $ = (id) => document.getElementById(id);
+  const svg = $("bench"), m1 = $("m1"), m2 = $("m2");
+
+  // PLACEHOLDER: starting values (not specified in BUILD-PROMPT.md).
+  const state = { q1: 1, q2: 1, r: 1, code: 0, params: lawParams(0), showLin: false, showLog: false };
+  const rows = [];
+  let nextTrial = 1;
+  const geo = { W: 0, Lmax: 0, xq1: 0, x0: 0, x1: 0 };
+
+  // ---------- helpers ----------
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const f1 = (v) => Math.round(v * 10) / 10;
+
+  function showMsg(el, text) {
+    el.textContent = text;
+    el.hidden = !text;
+  }
+
+  function setFieldError(input, msgEl, text) {
+    showMsg(msgEl, text);
+    if (text) input.setAttribute("aria-invalid", "true");
+    else input.removeAttribute("aria-invalid");
+  }
+
+  // ---------- geometry ----------
+  function layout() {
+    const W = Math.max(280, Math.round($("bench-wrap").clientWidth));
+    geo.W = W;
+    geo.Lmax = Math.round(clamp(W * 0.15, 44, 140));
+    geo.xq1 = geo.Lmax + 12;
+    geo.x0 = geo.xq1 + GAP;
+    geo.x1 = W - geo.Lmax - 12;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  }
+
+  function xOfR(r) {
+    if (!(r > RULER_MIN)) return geo.x0;
+    const lr = Math.log10(Math.min(r, RULER_MAX));
+    return geo.x0 + (lr - Math.log10(RULER_MIN)) / (Math.log10(RULER_MAX) - Math.log10(RULER_MIN)) * (geo.x1 - geo.x0);
+  }
+
+  function rOfX(x) {
+    const t = (clamp(x, geo.x0, geo.x1) - geo.x0) / (geo.x1 - geo.x0);
+    const r = 10 ** (Math.log10(RULER_MIN) + t * (Math.log10(RULER_MAX) - Math.log10(RULER_MIN)));
+    return GRID[nearestGridIndex(r)];
+  }
+
+  function radiusOf(q) {
+    const a = Math.abs(q);
+    if (a === 0) return RAD_MIN;
+    const t = (Math.log10(clamp(a, SLIDER_MIN, SLIDER_MAX)) + 1) / 2;
+    return RAD_MIN + t * (RAD_MAX - RAD_MIN);
+  }
+
+  // ---------- static drawing ----------
+  function buildRuler() {
+    const y = ROW.axis;
+    let s = '<line class="axis" x1="' + geo.xq1 + '" y1="' + y + '" x2="' + geo.x1 + '" y2="' + y + '"/>';
+    // Break mark: the stretch from q1 to 0.1 m is not to scale.
+    const bx = (geo.xq1 + geo.x0) / 2;
+    s += '<rect x="' + (bx - 5) + '" y="' + (y - 4) + '" width="10" height="8" fill="#fff"/>';
+    s += '<line class="tick" x1="' + (bx - 7) + '" y1="' + (y + 6) + '" x2="' + (bx - 1) + '" y2="' + (y - 6) + '"/>';
+    s += '<line class="tick" x1="' + (bx + 1) + '" y1="' + (y + 6) + '" x2="' + (bx + 7) + '" y2="' + (y - 6) + '"/>';
+    s += '<line class="tick" x1="' + geo.xq1 + '" y1="' + y + '" x2="' + geo.xq1 + '" y2="' + (y + 8) + '"/>';
+    s += '<text x="' + geo.xq1 + '" y="' + ROW.label + '" text-anchor="middle">0</text>';
+    for (const dec of [0.1, 1]) {
+      for (let m = 1; m <= 10; m++) {
+        const v = Number((m * dec).toPrecision(2));
+        if (m === 10 && dec === 0.1) continue;
+        const x = f1(xOfR(v));
+        const major = m === 1 || v === 10;
+        s += '<line class="tick" x1="' + x + '" y1="' + y + '" x2="' + x + '" y2="' + (y + (major ? 8 : 4)) + '"/>';
+        if (major) s += '<text x="' + x + '" y="' + ROW.label + '" text-anchor="middle">' + v + ' m</text>';
+      }
+    }
+    $("ruler").innerHTML = s;
+  }
+
+  function headMarkup(tip, y, dir, size, kind) {
+    const b = tip - dir * size;
+    if (kind === "lin") {
+      return '<polygon class="head-lin" points="' + f1(tip) + ',' + y + ' ' + f1(b) + ',' + (y - 5) + ' ' + f1(b) + ',' + (y + 5) + '"/>';
+    }
+    return '<polyline class="head-log" points="' + f1(b) + ',' + (y - 5) + ' ' + f1(tip) + ',' + y + ' ' + f1(b) + ',' + (y + 5) + '"/>';
+  }
+
+  function arrowMarkup(x, y, dir, len, kind, off) {
+    if (len < 0.5) return "";
+    const tip = x + dir * len;
+    const head = Math.min(10, len);
+    const shaftEnd = kind === "lin" ? tip - dir * head * 0.9 : tip;
+    let s = '<line class="arr-' + kind + '" x1="' + f1(x) + '" y1="' + y + '" x2="' + f1(shaftEnd) + '" y2="' + y + '"/>';
+    s += headMarkup(tip, y, dir, head, kind);
+    if (off) s += headMarkup(tip - dir * head, y, dir, head, kind);
+    return s;
+  }
+
+  // Scale keys: an arrow exactly as long as a full-scale bench arrow, labeled at both ends.
+  function buildKeys() {
+    const L = geo.Lmax, x = 46, y = 12, w = x + L + 44;
+    const lin = $("key-lin");
+    lin.setAttribute("viewBox", "0 0 " + w + " 26");
+    lin.setAttribute("width", w);
+    lin.innerHTML = arrowMarkup(x, y, 1, L, "lin", false)
+      + '<text x="' + (x - 4) + '" y="' + (y + 4) + '" text-anchor="end">0 N</text>'
+      + '<text x="' + (x + L + 4) + '" y="' + (y + 4) + '" text-anchor="start">100 N</text>';
+    const log = $("key-log");
+    log.setAttribute("viewBox", "0 0 " + w + " 26");
+    log.setAttribute("width", w);
+    let s = arrowMarkup(x, y, 1, L, "log", false);
+    const decades = LOG_TOP_EXP - LOG_FLOOR_EXP;
+    for (let i = 0; i <= decades; i++) {
+      const tx = f1(x + L * i / decades);
+      s += '<line class="tick" x1="' + tx + '" y1="' + (y + 5) + '" x2="' + tx + '" y2="' + (y + 10) + '"/>';
+    }
+    s += '<text x="' + (x - 4) + '" y="' + (y + 4) + '" text-anchor="end">1e-6 N</text>'
+      + '<text x="' + (x + L + 4) + '" y="' + (y + 4) + '" text-anchor="start">1e7 N</text>';
+    log.innerHTML = s;
+  }
+
+  // ---------- dynamic drawing ----------
+  function paintMarker(g, x, q) {
+    const rad = radiusOf(q);
+    g.setAttribute("transform", "translate(" + f1(x) + " " + ROW.marker + ")");
+    const body = g.querySelector(".body");
+    body.setAttribute("r", f1(rad));
+    const sign = g.querySelector(".sign");
+    if (q > 0) {
+      body.setAttribute("style", "fill:#D73F09;stroke:#D73F09;stroke-width:2");
+      sign.textContent = "+"; sign.setAttribute("style", "fill:#fff");
+    } else if (q < 0) {
+      body.setAttribute("style", "fill:#000;stroke:#000;stroke-width:2");
+      sign.textContent = "-"; sign.setAttribute("style", "fill:#fff");
+    } else {
+      body.setAttribute("style", "fill:#fff;stroke:#000;stroke-width:2;stroke-dasharray:4 3");
+      sign.textContent = "0"; sign.setAttribute("style", "fill:#000");
+    }
+    const ring = g.querySelector(".ring");
+    if (ring) ring.setAttribute("r", f1(rad + 5));
+    const hit = g.querySelector(".hit");
+    if (hit) hit.setAttribute("r", f1(Math.max(24, rad + 4)));
+  }
+
+  function pct(frac) {
+    const p = Math.round(frac * 100);
+    return p < 1 ? "under 1%" : p + "%";
+  }
+
+  function render() {
+    const F = lawForce(state.q1, state.q2, state.r, state.params, 1);
+    const x2 = xOfR(state.r);
+    paintMarker(m1, geo.xq1, state.q1);
+    paintMarker(m2, x2, state.q2);
+
+    const rText = formatInput(state.r) + " m";
+    const offLow = state.r < RULER_MIN, offHigh = state.r > RULER_MAX;
+    m2.setAttribute("aria-valuenow", String(clamp(state.r, RULER_MIN, RULER_MAX)));
+    m2.setAttribute("aria-valuetext", "r = " + rText + (offLow ? ", below the ruler" : offHigh ? ", beyond the ruler" : ""));
+
+    let ind = "";
+    if (offLow) {
+      const x = geo.x0 - 12;
+      ind = '<polygon class="edge-mark" points="' + (x - 6) + ',' + ROW.axis + ' ' + x + ',' + (ROW.axis - 5) + ' ' + x + ',' + (ROW.axis + 5) + '"/>';
+    } else if (offHigh) {
+      const x = geo.x1 + 12;
+      ind = '<polygon class="edge-mark" points="' + (x + 6) + ',' + ROW.axis + ' ' + x + ',' + (ROW.axis - 5) + ' ' + x + ',' + (ROW.axis + 5) + '"/>';
+    }
+    $("indicators").innerHTML = ind;
+
+    const parts = [];
+    let arrows = "", guides = "";
+    const anyOn = state.showLin || state.showLog;
+    if (offLow) parts.push("r = " + rText + " is below the ruler, so charge 2 is drawn at 0.1 m.");
+    if (offHigh) parts.push("r = " + rText + " is beyond the ruler, so charge 2 is drawn at 10 m.");
+
+    if (!anyOn) {
+      parts.push("Turn on a force vector to see the force on each charge.");
+    } else if (Number.isNaN(F)) {
+      parts.push("The force cannot be drawn at these values.");
+    } else if (F === 0) {
+      parts.push("The force is zero at these settings, so no arrows are drawn.");
+    } else {
+      const d1 = F > 0 ? -1 : 1;
+      const mag = Math.abs(F);
+      parts.push(F > 0 ? "The forces are repulsive: the arrows point apart." : "The forces are attractive: the arrows point toward each other.");
+      if (state.showLin) {
+        const frac = mag / LIN_FULL_SCALE;
+        const off = frac > 1;
+        const len = Math.min(frac, 1) * geo.Lmax;
+        arrows += arrowMarkup(geo.xq1, ROW.lin1, d1, len, "lin", off) + arrowMarkup(x2, ROW.lin2, -d1, len, "lin", off);
+        parts.push(off ? "Linear vector: off scale, over 100 N." :
+          "Linear vector: " + pct(frac) + " of full scale." + (len < 2 ? " Too short to see." : ""));
+      }
+      if (state.showLog) {
+        const frac = (Math.log10(mag) - LOG_FLOOR_EXP) / (LOG_TOP_EXP - LOG_FLOOR_EXP);
+        if (frac <= 0) {
+          parts.push("Log vector: below the 1e-6 N floor, not drawn.");
+        } else {
+          const off = frac > 1;
+          const len = Math.min(frac, 1) * geo.Lmax;
+          arrows += arrowMarkup(geo.xq1, ROW.log1, d1, len, "log", off) + arrowMarkup(x2, ROW.log2, -d1, len, "log", off);
+          parts.push(off ? "Log vector: off scale, over 1e7 N." : "Log vector: " + pct(frac) + " of full length.");
+        }
+      }
+      for (const [x, q] of [[geo.xq1, state.q1], [x2, state.q2]]) {
+        const top = ROW.marker - radiusOf(q) - 3;
+        guides += '<line class="guide" x1="' + f1(x) + '" y1="4" x2="' + f1(x) + '" y2="' + f1(top) + '"/>';
+      }
+    }
+    $("arrows").innerHTML = arrows;
+    $("guides").innerHTML = guides;
+    $("bench-desc").textContent = parts.join(" ");
+  }
+
+  function redraw() {
+    layout();
+    buildRuler();
+    buildKeys();
+    render();
+  }
+
+  // ---------- charge controls ----------
+  function setupCharge(key) {
+    const text = $(key + "-text"), slider = $(key + "-slider"), signBtn = $(key + "-sign");
+    const msg = $(key + "-msg"), note = $(key + "-note");
+    let sign = state[key] < 0 ? -1 : 1;   // kept when the charge is zero, used by the slider
+
+    function showSign() {
+      const s = sign < 0 ? "-" : "+";
+      signBtn.textContent = s;
+      signBtn.dataset.sign = s;
+      signBtn.setAttribute("aria-label", "Sign of " + key + ": " + (sign < 0 ? "negative" : "positive") + ". Press to flip.");
+    }
+
+    function sync(v, rewriteText) {
+      state[key] = v;
+      if (rewriteText) text.value = formatInput(v);
+      if (v < 0) sign = -1;
+      else if (v > 0) sign = 1;
+      showSign();
+      const mag = Math.abs(v);
+      const i = nearestGridIndex(mag);
+      slider.value = String(i);
+      slider.setAttribute("aria-valuetext", GRID[i] + " C");
+      note.hidden = !(mag !== 0 && (mag < SLIDER_MIN || mag > SLIDER_MAX));
+      render();
+    }
+
+    text.addEventListener("input", () => {
+      const p = parseNumberText(text.value);
+      if (p.ok) { setFieldError(text, msg, ""); sync(p.value, false); }
+    });
+    text.addEventListener("change", () => {
+      const p = parseNumberText(text.value);
+      setFieldError(text, msg, p.ok ? "" : p.message);
+    });
+    slider.addEventListener("input", () => {
+      setFieldError(text, msg, "");
+      sync(sign * GRID[Number(slider.value)], true);
+    });
+    signBtn.addEventListener("click", () => {
+      sign = -sign;
+      setFieldError(text, msg, "");
+      sync(sign * Math.abs(state[key]), true);
+    });
+    sync(state[key], true);
+  }
+
+  // ---------- distance ----------
+  const rInput = $("r-text"), rMsg = $("r-msg");
+
+  function setR(r, rewriteText) {
+    state.r = r;
+    if (rewriteText) { rInput.value = formatInput(r); setFieldError(rInput, rMsg, ""); }
+    render();
+  }
+
+  rInput.addEventListener("input", () => {
+    const p = parseDistance(rInput.value);
+    if (p.ok) { setFieldError(rInput, rMsg, ""); setR(p.value, false); }
+  });
+  rInput.addEventListener("change", () => {
+    const p = parseDistance(rInput.value);
+    setFieldError(rInput, rMsg, p.ok ? "" : p.message);
+  });
+
+  // Bench: pointer dragging.
+  let drag = null;
+  function localX(e) {
+    const rect = svg.getBoundingClientRect();
+    return { x: (e.clientX - rect.left) * geo.W / rect.width, y: (e.clientY - rect.top) * H / rect.height };
+  }
+  svg.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    const pt = localX(e);
+    if (m2.contains(e.target)) {
+      drag = { offset: pt.x - xOfR(state.r) };
+    } else if (pt.y >= ROW.marker - RAD_MAX - 4 && pt.x >= geo.x0 - 24 && pt.x <= geo.x1 + 24) {
+      drag = { offset: 0 };
+      setR(rOfX(pt.x), true);
+    } else {
+      return;
+    }
+    svg.setPointerCapture(e.pointerId);
+  });
+  svg.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const r = rOfX(localX(e).x - drag.offset);
+    if (r !== state.r) setR(r, true);
+  });
+  const endDrag = () => { drag = null; };
+  svg.addEventListener("pointerup", endDrag);
+  svg.addEventListener("pointercancel", endDrag);
+
+  // Bench: keyboard.
+  m2.addEventListener("keydown", (e) => {
+    let r = null;
+    switch (e.key) {
+      case "ArrowRight": case "ArrowUp": r = stepGrid(state.r, 1); break;
+      case "ArrowLeft": case "ArrowDown": r = stepGrid(state.r, -1); break;
+      case "PageUp": r = stepGrid(state.r, 10); break;
+      case "PageDown": r = stepGrid(state.r, -10); break;
+      case "Home": r = RULER_MIN; break;
+      case "End": r = RULER_MAX; break;
+      default: return;
+    }
+    e.preventDefault();
+    setR(r, true);
+  });
+
+  // ---------- law code ----------
+  const codeInput = $("code-text"), codeMsg = $("code-msg");
+  function applyCode(code) {
+    state.code = code;
+    state.params = lawParams(code);
+    $("code-active").textContent = String(code);
+    render();
+  }
+  codeInput.addEventListener("input", () => {
+    const p = parseLawCode(codeInput.value);
+    if (p.ok) { setFieldError(codeInput, codeMsg, ""); applyCode(p.value); }
+  });
+  codeInput.addEventListener("change", () => {
+    const p = parseLawCode(codeInput.value);
+    setFieldError(codeInput, codeMsg, p.ok ? "" : p.message);
+  });
+  $("code-random").addEventListener("click", () => {
+    const code = randomLawCode(Math.random);
+    codeInput.value = String(code);
+    setFieldError(codeInput, codeMsg, "");
+    applyCode(code);
+    $("code-status").textContent = "Law code set to " + code + ".";
+  });
+
+  // ---------- vectors ----------
+  $("show-lin").addEventListener("change", (e) => { state.showLin = e.target.checked; render(); });
+  $("show-log").addEventListener("change", (e) => { state.showLog = e.target.checked; render(); });
+
+  // ---------- pop-overs (Help, About): Escape or a click elsewhere closes them ----------
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    for (const d of document.querySelectorAll("details.pop[open]")) {
+      d.open = false;
+      d.querySelector("summary").focus();
+    }
+  });
+  document.addEventListener("click", (e) => {
+    for (const d of document.querySelectorAll("details.pop[open]")) {
+      if (!d.contains(e.target)) d.open = false;
+    }
+  });
+
+  // ---------- measurement ----------
+  $("app").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const checks = [
+      [codeInput, codeMsg, parseLawCode(codeInput.value)],
+      [$("q1-text"), $("q1-msg"), parseNumberText($("q1-text").value)],
+      [$("q2-text"), $("q2-msg"), parseNumberText($("q2-text").value)],
+      [rInput, rMsg, parseDistance(rInput.value)],
+    ];
+    let firstBad = null;
+    for (const [input, msg, p] of checks) {
+      setFieldError(input, msg, p.ok ? "" : p.message);
+      if (!p.ok && !firstBad) firstBad = input;
+    }
+    const measureMsg = $("measure-msg");
+    if (firstBad) {
+      showMsg(measureMsg, "Fix the highlighted field before taking a measurement.");
+      firstBad.focus();
+      return;
+    }
+    const code = checks[0][2].value, q1 = checks[1][2].value, q2 = checks[2][2].value, r = checks[3][2].value;
+    const F = lawForce(q1, q2, r, lawParams(code), drawNoise(Math.random));
+    if (!Number.isFinite(F)) {
+      showMsg(measureMsg, "The force is too large to record. Use smaller values.");
+      return;
+    }
+    showMsg(measureMsg, "");
+    const row = { trial: nextTrial++, code: code, q1: q1, q2: q2, r: r, F: F };
+    rows.push(row);
+    renderTable();
+    const scroller = document.querySelector(".table-scroll");
+    scroller.scrollTop = scroller.scrollHeight;
+    $("result").textContent = "Trial " + row.trial + ": F = " + formatForce(F) + " N";
+  });
+
+  // ---------- table ----------
+  const tbody = $("rows");
+  function renderTable() {
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td class="empty" colspan="7">No measurements yet.</td></tr>';
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    for (const row of rows) {
+      const tr = document.createElement("tr");
+      for (const f of rowFields(row)) {
+        const td = document.createElement("td");
+        td.textContent = f;
+        tr.appendChild(td);
+      }
+      const td = document.createElement("td");
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = "×";
+      b.dataset.trial = String(row.trial);
+      b.setAttribute("aria-label", "Delete trial " + row.trial);
+      td.appendChild(b);
+      tr.appendChild(td);
+      frag.appendChild(tr);
+    }
+    tbody.replaceChildren(frag);
+  }
+
+  tbody.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-trial]");
+    if (!b) return;
+    const trial = Number(b.dataset.trial);
+    const i = rows.findIndex((row) => row.trial === trial);
+    if (i < 0) return;
+    rows.splice(i, 1);
+    renderTable();
+    $("data-status").textContent = "Trial " + trial + " deleted.";
+    const buttons = tbody.querySelectorAll("button[data-trial]");
+    const next = buttons[Math.min(i, buttons.length - 1)];
+    (next || $("measure")).focus();
+  });
+
+  const dataStatus = $("data-status");
+
+  function fallbackCopy(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+
+  $("copy").addEventListener("click", () => {
+    if (rows.length === 0) { dataStatus.textContent = "Nothing to copy yet."; return; }
+    const text = buildDelimited(rows, "\t");
+    const done = () => { dataStatus.textContent = "Copied " + rows.length + " rows. Paste into cell A1 in Excel."; };
+    const fail = () => { dataStatus.textContent = "Copy did not work in this browser. Use Download CSV instead."; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, () => (fallbackCopy(text) ? done() : fail()));
+    } else {
+      if (fallbackCopy(text)) done(); else fail();
+    }
+  });
+
+  $("download").addEventListener("click", () => {
+    if (rows.length === 0) { dataStatus.textContent = "Nothing to download yet."; return; }
+    const blob = new Blob([buildDelimited(rows, ",")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "electric-force-data.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    dataStatus.textContent = "Downloaded electric-force-data.csv with " + rows.length + " rows.";
+  });
+
+  $("clear").addEventListener("click", () => {
+    if (rows.length === 0) { dataStatus.textContent = "The table is already empty."; return; }
+    if (!window.confirm("Delete all " + rows.length + " measurements? This cannot be undone.")) return;
+    rows.length = 0;
+    nextTrial = 1;
+    renderTable();
+    $("result").textContent = "";
+    dataStatus.textContent = "All measurements deleted.";
+  });
+
+  window.addEventListener("beforeunload", (e) => {
+    if (rows.length > 0) { e.preventDefault(); e.returnValue = ""; }
+  });
+
+  // ---------- start ----------
+  layout();
+  setupCharge("q1");
+  setupCharge("q2");
+  rInput.value = formatInput(state.r);
+  applyCode(state.code);
+  renderTable();
+  redraw();
+  if (window.ResizeObserver) new ResizeObserver(redraw).observe($("bench-wrap"));
+  else window.addEventListener("resize", redraw);
+})();
+</script>
+</body>
+</html>

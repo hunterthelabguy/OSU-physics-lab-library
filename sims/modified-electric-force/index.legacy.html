@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Electric Force Generator</title>
+</head>
+<body bgcolor= "#000000" text= "#DC4405">
+    <form name="FORCE">
+        <table border="1" width="600" height="200" cellpadding="10" cellspacing="3">
+            <tr>
+                <th colspan="3">
+                    <h1>ELECTRIC FORCE</h1>
+                </th>
+            </tr>
+            <tr>  
+                <th>
+                    <h3>Charge 1</h3>
+                </th>
+                <th>
+                    <h3>Charge 2</h3>
+                </th>
+		<th>
+                    <h3>Distance</h3>
+                </th>    
+            </tr>
+            <tr> 
+                <td>
+                    <input type="number" name="CHARGE1" id="input" /> C
+                </td>
+		<td>
+                    <input type="number" name="CHARGE2" id="input" /> C
+                </td>
+		<td>
+                    <input type="number" name="DISTANCE1" id="input"/> m
+                </td>
+	</tr>
+	<tr>
+                <td>
+		<button type="button" onclick="calculate();">Calculate force</button>
+		</td>
+		<td>
+                    <input type="number" name="OUTPUT1" id="output"> N 
+                </td>
+            </tr>
+        </table>
+    </form>
+
+<script type="text/javascript">
+    function calculate() {
+	var UNCERT = 1.1-Math.random()*0.2
+        var USERINPUT1 = document.FORCE.CHARGE1.value, 
+		USERINPUT2 = document.FORCE.CHARGE2.value, 
+		USERINPUT3 = document.FORCE.DISTANCE1.value,
+	<!-- the line below does the calculation -->
+            RESULT = UNCERT*((Math.PI*USERINPUT1**3*USERINPUT2)*(USERINPUT3**2)); 
+        document.FORCE.OUTPUT1.value = RESULT.toExponential(3);
+    }
+</script>
+</body>

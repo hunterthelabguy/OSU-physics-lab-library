@@ -29,5 +29,12 @@ jobs:
           done || true)
           if [ -z "$files" ]; then echo "no converted files"; exit 0; fi
           python3 tools/check_unchanged.py $files
+      - name: Sim tests
+        run: |
+          # Each sim ships its own no-dependency node test script.
+          for t in sims/*/test-law.mjs sims/*/test.mjs; do
+            [ -f "$t" ] || continue
+            echo "== $t"; (cd "$(dirname "$t")" && node "$(basename "$t")")
+          done
       - name: Site builds
         run: python3 tools/render.py --site

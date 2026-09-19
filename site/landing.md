@@ -17,6 +17,8 @@ far. Everything else is listed as not yet converted rather than left out.
   against it word for word.
 - [Course index](courses/): PH 211, 212 and 213, every lab its course
   summary lists, and where each one stands.
+- [Sims](sims/): small tools students use during a lab, each one a single
+  page that runs in the browser, keeps nothing, and sends nothing.
 - [How this was made](how-this-was-made/): the method, what is checked, and
   what is not.
 
