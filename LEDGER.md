@@ -196,3 +196,38 @@ are recorded as entries too, so the gap is on the record.
 35. **Front matter gains `title`.** It holds the document's original title
     text and feeds the page title. Metadata is not part of the
     content-unchanged comparison, which reads the body.
+
+## 2026-09-19 (session close: deploy and stack)
+
+36. **Reversal: the commit email stays public.** Amends 26. The owner
+    accepts the address appearing in public history; the risks (scraped
+    address, spam, targeted phishing, correlation with other accounts) are
+    judged acceptable. No history rewrite. PRs may merge on GitHub again,
+    which stamps the account's primary address as merge author. Entries 23
+    to 35 stand as written.
+37. **The site deploys unlisted while the license is open.** Amends 8: an
+    unlisted draft deploy is allowed, and public distribution is still not.
+    Every page carries a visible banner saying draft, license pending, not
+    for distribution, and the site asks search engines not to index it. The
+    purpose is that the owner can open it anywhere, including to show a
+    colleague, without carrying a laptop.
+38. **Stack: Pandoc and a small build script; no framework yet.** The
+    renderer already in the repo grows a script that builds every page and
+    an index. Astro is deferred; the electric force tool does not require
+    it, since a self-contained HTML tool can be its own page on a static
+    site. Revisit when a tool needs shared layout, state, or its own build.
+39. **The build stays host-agnostic.** Output is plain static files that any
+    host serves. No platform-specific features, no platform SDK, no
+    serverless functions, and no config that only one host understands.
+    Moving to another host must be a settings change, not a rewrite.
+40. **Hosting: a new Vercel project on its default URL**, deploying from
+    `main` of this repo. Under 39, Vercel is only where it points today.
+41. **The skills matrix is on hold.** Entry 31 still stands as the ruling;
+    the work is deferred behind the landing page and site scaffolding. The
+    question about the named person in its comments is unanswered and
+    blocks conversion.
+42. **First-pass site scope.** Landing page; Lab 1 in both presentations
+    with a way to switch between them; a course index for PH 211, 212 and
+    213 with Lab 1 filled in and the rest marked not yet converted; and the
+    public "How this was made" page. Per-document downloads are not in this
+    pass (30 still stands).
