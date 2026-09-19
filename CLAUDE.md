@@ -2,11 +2,15 @@
 
 ## Shipping contract (read by /handoff)
 
-- **Verify:** none exists yet. No code, no tests, no CI. Do not claim
-  otherwise. Manual checks before any commit: no em dash bytes in the diff,
-  no student-identifiable data, no instructor-only material.
-- **Landing rule:** docs, spec, and ledger commits land direct on `main`
-  (charter floor 4). Code, when it exists, lands via PR once CI exists.
+- **Verify:** `python tools/check_unchanged.py <converted .md files>` with
+  Pandoc on PATH (locally: `PANDOC=%LOCALAPPDATA%\Pandoc\pandoc.exe`), plus
+  the no-em-dash scan outside `originals/`. CI job `verify` runs both on every
+  push to main and every PR. It checks words only, not structure; review
+  structure by parse-tree block counts. Manual before any commit: no
+  student-identifiable data.
+- **Landing rule:** code and converted content land via PR with green
+  `verify`, merged by squash (charter floor 4). Ledger and spec-only commits
+  may land direct on `main`.
 - **Living plan:** `LEDGER.md`, dated and append-only.
 - **Commit trailer:** none. Identity `hunterthelabguy` with the noreply email.
 - **Remote:** `git@github-hunterthelabguy:hunterthelabguy/OSU-physics-lab-library.git`

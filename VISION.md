@@ -16,7 +16,7 @@ labs, the curriculum, and lab operations.
    are infrastructure for that learning. Effort goes to the decisions that
    shape learning (pedagogy, TA preparation, what changes and why), not to
    retyping.
-2. **One source of truth per document.** Each document is one Markdown file.
+2. **One copy we edit, per document.** Each document is one Markdown file.
    Web pages, Word files, and other versions are built from it and never
    edited directly. Feedback on any form is applied to the Markdown, and the
    other versions are rebuilt.
@@ -32,7 +32,7 @@ labs, the curriculum, and lab operations.
 
 ## How this was made
 
-The owner drafts by voice with Wispr Flow and directs Claude, an AI model
+Hunter Reaves drafts by voice with Wispr Flow and directs Claude, an AI model
 from Anthropic, to convert the original Word documents to Markdown and to
 build the software that converts and checks them. In the current phase:
 
