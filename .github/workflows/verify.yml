@@ -1,0 +1,31 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Pandoc 3.11
+        run: |
+          curl -sSLo pandoc.deb https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-1-amd64.deb
+          sudo dpkg -i pandoc.deb
+          pandoc --version | head -1
+      - name: No em dashes outside originals
+        run: |
+          if grep -rIl $'\xe2\x80\x94' --exclude-dir=.git --exclude-dir=originals .; then
+            echo "em dash found in the files above"; exit 1
+          fi
+      - name: Content unchanged
+        run: |
+          # Converted files open with front matter that names a source_file;
+          # docs that merely show an example of it are skipped.
+          files=$(for f in $(git ls-files '*.md'); do
+            [ "$(head -1 "$f")" = "---" ] && sed -n '2,/^---$/p' "$f" | grep -q '^source_file:' && echo "$f"
+          done || true)
+          if [ -z "$files" ]; then echo "no converted files"; exit 0; fi
+          python3 tools/check_unchanged.py $files

@@ -72,3 +72,51 @@ are recorded as entries too, so the gap is on the record.
     converted versions"; "migration" becomes "conversion" (the spec is now
     `docs/conversion-spec.md`). Name the specific tool (Claude) rather than
     the category (AI) when describing what was done.
+16. **Name on the method page.** The public "How this was made" section names
+    Hunter Reaves rather than "the owner": readers deserve to know whose
+    method it is, and a role there reads as evasive. A deliberate exception
+    to roles-not-names, limited to that section; roles everywhere else.
+17. **Plain terms on public pages.** "The one copy we edit" replaces "source
+    of truth", and "first example" replaces "pilot" or "proof of concept",
+    on pages readers see. Technical terms stay in the spec and this ledger.
+    "Claude may draft text" (entry 11) stays blunt on purpose.
+
+## 2026-09-19 (PH211 Team Building conversion)
+
+18. **Originals are committed.** Each original file lives byte for byte under
+    `originals/` in the repo whose visibility it shares (the handout here;
+    instructor notes and the full rubric workbook in the instructor repo),
+    with its SHA-256 in the converted file's front matter. This makes the
+    check reproducible in CI and makes "the originals remain" true on the
+    record, not only on one machine.
+19. **Handout blocks follow the glyph the reader sees.** Round bullets are
+    actions, arrows are hints, per the handout's own legend. Word style names
+    are not used for this: the original uses `Actionitem`, `ListParagraph`,
+    and `Normal` for the same round bullet. Questions are
+    `::: {.question #id}` blocks; their display number and bold come from
+    document order at display time.
+20. **Verification exists.** `tools/check_unchanged.py` plus a `verify`
+    GitHub Actions workflow (Pandoc 3.11, the content-unchanged check on
+    every converted file, and a no-em-dash scan outside `originals/`). From
+    here, code and converted content land via PR with green `verify` (floor
+    4); ledger and spec-only commits may still land direct. The check
+    compares words only; structure is reviewed by parse-tree block counts.
+    For the Team Building handout: 989 words identical; 5 questions, 7 action
+    blocks, 3 hint blocks, 1 box. A deliberately altered copy (the original's
+    typo "and the describe the goal" corrected) fails, as it should.
+21. **No drift found in Team Building.** The 7 learning objectives match
+    between handout and instructor notes (only "you" versus "students"
+    differs, by audience). The rubric's question text matches the handout
+    word for word.
+22. **Observed, not changed (for the content-change phase).**
+    (a) The handout title "Lab 1 – Team Building" and the instructor notes'
+    "(Question 1)" to "(Question 5)" embed sequence numbers (see 14).
+    (b) Part 3's discussion points use the round action bullet.
+    (c) Handout typo: "and the describe the goal of the challenge".
+    (d) OSU-local passages are not yet split out (see 4): Gradescope
+    (handout Part 5, notes Part 5), and in the notes Wormhole, Canvas, the
+    10-table seating, and the front desk.
+    (e) The notes cite "a few sample contracts" in the lab folder. Three
+    likely candidates are among the originals (`GoodLabPartnert.txt`,
+    `List of terms.docx`, `Descriptive.pdf`); the PDF names a TA and a
+    term, so it needs a ruling before conversion. None is converted yet.

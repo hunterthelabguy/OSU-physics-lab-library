@@ -16,35 +16,59 @@ sequence: 1                       # current position in the term; editable
 audience: student                 # student | instructor | public
 visibility: public                # public | private
 layer: curriculum                 # curriculum | osu-local
-source_file: "PH211/Lab 1 - Team Building - Handout.docx"
+source_file: "originals/PH211/Lab 1 - Team Building - Handout.docx"
 source_sha256: "<hash of the original file>"
 status: converted                 # converted | checked | ruled-change
+ruled_omissions: []               # see Content-unchanged check
+ruled_additions: []
 ```
 
 Retired ids are listed in the ledger so they are never reissued.
 
 ## Handout conventions
 
-Handout conventions become fenced blocks, matching the Word custom styles so
-the Word version keeps its look through a Pandoc reference document:
+The handout legend gives three conventions a reader sees: bold numbered
+questions, round-bullet actions, arrow hints. Blocks are classified by the
+glyph the reader sees, not by the Word style name, because the originals use
+several styles for the same glyph (ledger 19).
 
-- `::: action` for round-bullet action items (Word style `Actionitem`)
-- `::: hint` for arrow items (Word style `Hint`)
-- `::: box` for boxed key concepts and report expectations
+- `::: action` wraps a list of round-bullet items.
+- `::: hint` wraps a list of arrow items.
+- `::: box` wraps boxed content (the legend is a one-cell table in Word).
+- `::: {.question #<id>}` holds one report question. The id is a descriptor
+  scoped to the document, for example `ph211-team-building:build-process`.
+  The question text is stored plain; bold and the number a student sees
+  ("Question 3") are applied at display time from document order.
+- `::: legend-question` is the legend's sample of question styling; it is
+  not a question.
 
-Report questions carry descriptor ids scoped to their document, for example
-`ph211-team-building:build-process`, never a question number. The number a
-student sees (Question 3) is display only and may change. Rubrics in the
-instructor repo reference the descriptor id rather than copying question
-text.
+## Rubrics (instructor repo)
+
+One file per lab, one `::: {.rubric-item question="<question id>"}` per
+scored question: the objective in bold, then an ordered list starting at 0
+giving the description for each score. The question text is not copied; it
+lives in the handout and is found by id. The spreadsheet's header row and
+question-text cells are declared as ruled omissions.
+
+## Originals
+
+Each original file is committed under `originals/`, byte for byte, and its
+SHA-256 is recorded in the converted file's front matter (ledger 18).
 
 ## Content-unchanged check
 
-For each converted document: extract normalized text from the original Word
-file and from the Markdown, compare word by word. The comparison must be empty
-except for differences recorded in the ledger. Equations compare as LaTeX
-after Pandoc conversion. Images compare by count, and alt text is carried
-over.
+`tools/check_unchanged.py FILE.md ...` verifies the original's hash, reads
+the original's words straight from the Office XML (independent of Pandoc),
+reads the Markdown's words from Pandoc's parse tree, and compares the two
+word sequences. It fails on any difference that is not declared in front
+matter as `ruled_omissions` or `ruled_additions`, each with a ledger
+reference; a declared passage that does not occur also fails. CI runs it on
+every file with a `source_file` (ledger 20).
+
+What it does not check: structure (headings, list nesting, which block a
+line sits in), emphasis, and images. Structure is reviewed by counting blocks
+in the parse tree against the original. Equations and image counts are to be
+added when the first document that has them is converted.
 
 ## Known hard cases
 
