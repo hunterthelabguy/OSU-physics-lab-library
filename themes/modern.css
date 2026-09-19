@@ -1,0 +1,144 @@
+/* Modern theme: the meaning rules from the style guide, with the Word page
+   settings dropped and the typography set from docs/presentation-evidence.md
+   and WCAG 2.2 SC 1.4.8. Colors from the OSU palette; body text is black on
+   white, headings are Star Canvas (11.8:1 on white), and Beaver Orange is
+   used only for accents, never for text. */
+
+:root {
+  --ink: #000;
+  --paper: #fff;
+  --heading: #003b5c;        /* Star Canvas */
+  --accent: #d73f09;         /* Beaver Orange: accents only */
+  --rule: #d6dbe0;
+  --quiet: #0d5257;          /* Rogue Wave, 8.9:1 on white */
+  --tint: #f4f7f9;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #f2f4f6;
+    --paper: #14181b;
+    --heading: #b8dde1;      /* Seafoam, 14.5:1 on black */
+    --rule: #33393f;
+    --quiet: #c6dae7;        /* Moondust */
+    --tint: #1c2227;
+  }
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;                    /* at least 1.5 (SC 1.4.8) */
+}
+
+main {
+  max-width: 68ch;                     /* under the 80-character bound */
+  margin: 0 auto;
+  padding: 2.5rem 1rem 1rem;
+  text-align: left;                    /* never justified */
+}
+
+h1, h2, h3 {
+  color: var(--heading);
+  line-height: 1.25;
+  font-weight: 650;
+}
+
+h1 { font-size: 2rem; margin: 0 0 .25rem; }
+
+h1 + h2 {                              /* course line under the title */
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--quiet);
+  margin: 0 0 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+h2 { font-size: 1.35rem; margin: 2.5rem 0 .75rem; }
+h3 { font-size: 1.1rem; margin: 1.75rem 0 .5rem; }
+
+p { margin: 0 0 1rem; }                 /* paragraph gap > 1.5x line spacing */
+
+ul, ol { padding-left: 1.4rem; }
+li { margin: 0 0 .5rem; }
+
+/* One cue, one meaning: graded questions are a labeled block, so bold is
+   free to mean emphasis again (ledger 29). */
+.question {
+  border-left: 4px solid var(--accent);
+  background: var(--tint);
+  padding: .9rem 1.1rem .1rem;
+  margin: 1.5rem 0;
+  border-radius: 0 6px 6px 0;
+}
+
+.question-label p {
+  font-size: .8rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--quiet);
+  margin: 0 0 .35rem;
+}
+
+.question > p { margin-bottom: .9rem; }
+
+/* Actions and hints keep their meanings, marked by a label rather than a
+   bullet glyph the reader has to decode. */
+.action ul, .hint ul { list-style: none; padding-left: 0; }
+
+.action li, .hint li {
+  position: relative;
+  padding-left: 1.75rem;
+}
+
+.action li::before {
+  content: "\25CF";
+  position: absolute;
+  left: .35rem;
+  color: var(--quiet);
+}
+
+.hint {
+  border-left: 2px solid var(--rule);
+  padding-left: 1rem;
+  margin: 1.25rem 0;
+}
+
+.hint li::before {
+  content: "\27A2";
+  position: absolute;
+  left: .25rem;
+  color: var(--quiet);
+}
+
+.box {
+  border: 1px solid var(--rule);
+  background: var(--tint);
+  border-radius: 8px;
+  padding: 1.1rem 1.25rem .35rem;
+  margin: 1.75rem 0;
+}
+
+.box .action, .box .hint, .box .legend-question { margin: .5rem 0; }
+
+.legend-question p { font-weight: 650; }
+
+.doc-footer {
+  max-width: 68ch;
+  margin: 3rem auto 0;
+  padding: 1rem;
+  border-top: 1px solid var(--rule);
+  color: var(--quiet);
+  font-size: .85rem;
+}
+
+@media print {
+  body { font-size: 11pt; }
+  main { max-width: none; padding: 0; }
+  .question { background: none; border-left: 3px solid #000; }
+  .doc-footer { display: none; }
+}

@@ -1,5 +1,6 @@
 ---
 id: ph211-team-building-handout
+title: "Lab 1 – Team Building"   # the original title text; see ledger 22
 course: PH211
 sequence: 1
 audience: student
