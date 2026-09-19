@@ -75,7 +75,7 @@ Your instructor will hand out one notecard to each of you. Title one side “Inc
 :::
 
 ::: {.question #ph211-team-building:good-lab-partner}
-Describe the qualities and actions of a good lab partner in your lab report. Discuss how your group came to a consensus on your final response.
+**Describe the qualities and actions of a good lab partner in your lab report. Discuss how your group came to a consensus on your final response.**
 :::
 
 Your instructor will collect the responses and share them with the class.
@@ -90,7 +90,7 @@ Your instructor will describe a structure that you and your group will attempt t
 :::
 
 ::: {.question #ph211-team-building:sketches}
-Add everyone’s individual sketches (identified by team member) as well as the team’s final plan.
+**Add everyone’s individual sketches (identified by team member) as well as the team’s final plan.**
 :::
 
 ::: action
@@ -104,11 +104,11 @@ Add everyone’s individual sketches (identified by team member) as well as the 
 When you finish your construction (or run out of time) respond to the following questions in your lab report.
 
 ::: {.question #ph211-team-building:build-process}
-Describe the process you used to build your structure. Include the things that you tried that *didn’t* work. Why did you try them? What did you change about your planning after those ideas did not work out?
+**Describe the process you used to build your structure. Include the things that you tried that *didn’t* work. Why did you try them? What did you change about your planning after those ideas did not work out?**
 :::
 
 ::: {.question #ph211-team-building:contributions}
-Identify the members of your group who suggested each of the main features of your structure, and how each member contributed to its construction.
+**Identify the members of your group who suggested each of the main features of your structure, and how each member contributed to its construction.**
 :::
 
 **[Clean up anything you dropped on the floor (e.g., broken spaghetti).]{.underline}**
@@ -130,7 +130,7 @@ Your group will briefly present your structure to the class, focusing on aspects
 *After* having listened to other groups present their structures, reflect on these questions as a group.
 
 ::: {.question #ph211-team-building:rebuild-changes}
-What things might you try if you were to build the structure again. What sort of changes would you make? Why?
+**What things might you try if you were to build the structure again. What sort of changes would you make? Why?**
 :::
 
 ::: hint
