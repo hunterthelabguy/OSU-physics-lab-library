@@ -37,8 +37,9 @@ several styles for the same glyph (ledger 19).
 - `::: box` wraps boxed content (the legend is a one-cell table in Word).
 - `::: {.question #<id>}` holds one report question. The id is a descriptor
   scoped to the document, for example `ph211-team-building:build-process`.
-  The question text is stored plain; bold and the number a student sees
-  ("Question 3") are applied at display time from document order.
+  The question text is stored bold, exactly as in the original; the number
+  a student sees ("Question 3") is applied at display time from document
+  order. Display never adds or removes bold (ledger 23).
 - `::: legend-question` is the legend's sample of question styling; it is
   not a question.
 
@@ -60,13 +61,15 @@ SHA-256 is recorded in the converted file's front matter (ledger 18).
 `tools/check_unchanged.py FILE.md ...` verifies the original's hash, reads
 the original's words straight from the Office XML (independent of Pandoc),
 reads the Markdown's words from Pandoc's parse tree, and compares the two
-word sequences. It fails on any difference that is not declared in front
+word sequences and the bold state of every word outside headings (ledger
+24). Bold in the original is resolved through run, character style, and
+paragraph style. It fails on any difference that is not declared in front
 matter as `ruled_omissions` or `ruled_additions`, each with a ledger
 reference; a declared passage that does not occur also fails. CI runs it on
 every file with a `source_file` (ledger 20).
 
 What it does not check: structure (headings, list nesting, which block a
-line sits in), emphasis, and images. Structure is reviewed by counting blocks
+line sits in), italics, underline, and images. Structure is reviewed by counting blocks
 in the parse tree against the original. Equations and image counts are to be
 added when the first document that has them is converted.
 

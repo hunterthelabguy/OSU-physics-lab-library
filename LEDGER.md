@@ -120,3 +120,26 @@ are recorded as entries too, so the gap is on the record.
     likely candidates are among the originals (`GoodLabPartnert.txt`,
     `List of terms.docx`, `Descriptive.pdf`); the PDF names a TA and a
     term, so it needs a ruling before conversion. None is converted yet.
+
+## 2026-09-19 (bold fidelity)
+
+23. **Bold is preserved exactly (owner ruling).** The current curriculum
+    teaches students that bold marks what they must answer in the graded
+    report; anything not bold carries no such obligation. A faithful
+    conversion therefore keeps every word bold or not bold exactly as in the
+    original. The owner does not endorse the convention and may revisit it
+    in the content-change phase; it stays for now. Question text is stored
+    explicitly bold in the Markdown, and display never adds or removes bold.
+    Amends 19, whose "bold comes from display" clause is withdrawn; question
+    numbers still come from document order.
+24. **The check now compares bold.** Every word's bold state (bold, not
+    bold, partly bold) must match; headings are exempt on both sides. Team
+    Building handout: bold identical on 943 words. Unbolding the single word
+    "Individually" in a test copy fails, as it should.
+25. **Observed, not changed: bold is overloaded in the handout.** Besides
+    the five graded questions, bold also marks an instruction
+    ("Individually"), two clean-up actions ("Clean up anything you dropped on
+    the floor", "Dispose of your structure..."), labels ("Activity goal:",
+    "Learning goal: ..."), and an emphasized "not". Under the stated
+    convention a student could read these as graded. For the content-change
+    phase.
