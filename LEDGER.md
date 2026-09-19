@@ -156,3 +156,43 @@ are recorded as entries too, so the gap is on the record.
     2024), in the original materials; not yet converted or committed.
     Reviewed in `docs/presentation-evidence.md`, which lists six findings
     for owner judgment. Nothing there is ruled.
+
+## 2026-09-19 (presentation rulings)
+
+28. **The pilot ships two presentations of the same document.** One keeps the
+    original page settings faithfully; one drops them and follows the
+    evidence review, keeping only the meaning rules. Purpose: show a
+    colleague the difference side by side and win agreement before any
+    format change. Both come from the one Markdown source; the content is
+    never copied into a second file, so the two can never drift.
+29. **In the modernized presentation, graded questions get their own labeled
+    block** and bold goes back to being emphasis. The faithful presentation
+    keeps the original bold exactly (ledger 23), which still governs the
+    source file and the check.
+30. **Every resource offers downloads:** Markdown, HTML, Word, and PDF, all
+    built from the Markdown, which stays the one copy we edit. Students read
+    on screen today, so the site is the entry point, but print output is
+    first class, not an afterthought: paper may become the graded artifact
+    in the long run.
+31. **The skills matrix becomes a data file** in the instructor repo, with
+    descriptor ids for competencies and columns keyed to lab ids.
+32. **Canonical competency list: deferred.** The owner will read the matrix
+    and the instructor guide before ruling which wording wins (see 5, and
+    the evidence review's finding 6).
+33. **Observed while rendering: the legend contradicts the modern
+    presentation.** The handout's legend box says "Bold, numbered items
+    reference things that need to be included in your lab report", which
+    describes the old cue. In the modern presentation, questions are labeled
+    blocks and that sentence is wrong. Nothing was changed (conversion
+    phase). Fixing it is a content change, and it is the clearest small
+    example of why the two presentations cannot both be right forever.
+34. **Renderer.** `tools/render.py` plus `themes/faithful.css`,
+    `themes/modern.css`, `tools/template.html`, and
+    `tools/filters/questions.lua`. Question numbers are generated at render
+    time from document order, so reordering a lab renumbers safely.
+    `--embed-resources` makes each output file stand alone. Output goes to
+    `build/`, which is not committed. Word and PDF outputs are not wired up
+    yet (30).
+35. **Front matter gains `title`.** It holds the document's original title
+    text and feeds the page title. Metadata is not part of the
+    content-unchanged comparison, which reads the body.
