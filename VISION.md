@@ -63,6 +63,19 @@ Common concerns, answered briefly:
 The standard for the later phase, when wording does change, is still open
 (ledger 11).
 
+## Outputs
+
+Each resource is one Markdown file, and every other form is built from it:
+a web page to read on screen, and downloads (Markdown, HTML, Word, PDF) for
+anyone who wants a copy or a printed page. Students read on screen today, so
+the site is the way in, but print is first class: paper may become the
+graded artifact in the lab.
+
+During the pilot each document also renders two ways from that one source
+(ledger 28): one faithful to the original page settings, one following the
+evidence review. The point is to show the difference and agree on it, not to
+keep both forever.
+
 ## Out of scope for now
 
 Instructor notes and rubrics (instructor repo, pending a faculty meeting);
