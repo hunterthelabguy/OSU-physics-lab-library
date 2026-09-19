@@ -54,3 +54,21 @@ are recorded as entries too, so the gap is on the record.
     recorded in this ledger.
 12. **Deferred:** a how-to guide for faculty who want to work this way. After
     the pilot proves the method.
+13. **Amends 12.** The deferred write-up is for anyone, not only faculty, and
+    is framed as how the owner did this work, for whoever is curious, not
+    as a how-to guide. Still deferred until the pilot proves the method.
+14. **Identifiers never encode sequence.** Lab order changes and labs get
+    replaced. Ids are course code plus a descriptor unique enough never to be
+    reused (for example `ph211-team-building-handout`); question ids are
+    descriptors scoped to their document (for example
+    `ph211-team-building:build-process`). Position is a separate editable
+    `sequence` field; numbers students see are display only. Retired ids are
+    listed here and never reissued. Supersedes the numbered examples in the
+    first draft of the spec.
+15. **Plain, neutral wording about method.** Avoid terms that read as
+    machine authorship or as dismissive of the original work: "generated"
+    becomes "built" or "converted"; "legacy" becomes "original" when
+    describing the source documents; "AI-assisted material" becomes "the
+    converted versions"; "migration" becomes "conversion" (the spec is now
+    `docs/conversion-spec.md`). Name the specific tool (Claude) rather than
+    the category (AI) when describing what was done.

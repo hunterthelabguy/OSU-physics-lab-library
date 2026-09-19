@@ -7,7 +7,7 @@ Private until launch; nothing publishes until the license is settled
 
 - [VISION.md](VISION.md): what this is and how it was made
 - [LEDGER.md](LEDGER.md): dated decisions; wins over every other document
-- [docs/migration-spec.md](docs/migration-spec.md): Word to Markdown format and checks
+- [docs/conversion-spec.md](docs/conversion-spec.md): Word to Markdown format and checks
 
 Instructor-facing material lives in the private companion repo
 `OSU-physics-lab-library-instructor`.

@@ -16,7 +16,7 @@
 - This repo will become public. Anything that may never be public (instructor
   notes, rubrics, make-up data) goes in `OSU-physics-lab-library-instructor`,
   never here, because git history is permanent.
-- Migration phase: no content changes. Format only, proven by the
-  content-unchanged check (docs/migration-spec.md).
+- Conversion phase: no content changes. Format only, proven by the
+  content-unchanged check (docs/conversion-spec.md).
 - Roles, not names. No em dashes. No invented record data.
-- Legacy sources are in `../Unsorted Legacy Resources/` and are unvetted.
+- Original source files are in `../Unsorted Legacy Resources/` and are unvetted.
