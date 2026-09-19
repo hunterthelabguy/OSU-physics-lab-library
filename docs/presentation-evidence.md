@@ -83,9 +83,8 @@ rules as data (ledger 19, 23).
 **Physical rules** are Word settings: Calibri Light 28 pt titles, Times New
 Roman 12 pt body, indents in inches, 6 and 12 pt spacing. They were tuned to
 a printed Word page. On the web, the display decides these, and the evidence
-gives them less weight than the style guide does: among ordinary legible
-fonts, choice has little measurable effect on learning. Deliberately hard
-fonts do not help (9), specialty dyslexia fonts do not help (10), and line
+gives no support for tuning them beyond ordinary legibility: deliberately
+hard fonts do not help (9), specialty dyslexia fonts do not help (10), and line
 length and spacing matter mainly at the extremes, which WCAG 1.4.8 bounds
 (8, 11).
 
@@ -111,7 +110,8 @@ handle natively, so the duplicated alt text goes away.
    not now.
 3. **Screen or paper for the handout in the room?** Source 7 says
    comprehension of expository text is lower on screen. Lab handouts are
-   read before and during lab, often on phones or laptops. Lean: the printed
+   read before and during lab; how students read them now (paper, laptop,
+   phone) is not known and would be worth asking. Lean: the printed
    form (Word or PDF) stays a first-class output, not an afterthought, and
    the web version is for finding, linking, and reference. This affects what
    the site treats as the primary student artifact.
