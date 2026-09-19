@@ -3,16 +3,37 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>$if(title)$$title$$else$$pagetitle$$endif$</title>
 <link rel="stylesheet" href="$css$">
+$if(chromecss)$<link rel="stylesheet" href="$chromecss$">$endif$
 </head>
 <body class="theme-$theme$">
+$if(bannermain)$
+<p class="draft-banner">$bannermain$<span class="draft-detail">$bannerdetail$</span></p>
+$endif$
+$if(homehref)$
+<nav class="site-nav">
+<a href="$homehref$">OSU physics lab library</a>
+$if(uphref)$<a href="$uphref$">$uplabel$</a>$endif$
+<span class="spacer"></span>
+$if(switchhref)$<a class="switch" href="$switchhref$">$switchlabel$</a>$endif$
+</nav>
+$endif$
 <main>
 $body$
 </main>
 <footer class="doc-footer">
-<p>Presentation: $theme$. Both presentations are built from one Markdown
-source. Downloads: Markdown, Word, PDF (not wired up in this draft).</p>
+<p>$presentationnote$</p>
+$if(homehref)$
+<p>Both presentations are built from one Markdown file, so they cannot drift
+apart. Downloads (Markdown, Word, PDF) are not wired up in this draft.</p>
+$endif$
 </footer>
+$if(homehref)$
+<div class="site-foot">
+<p><a href="$homehref$">Library home</a> &middot; <a href="$indexhref$">Course index</a> &middot; <a href="$methodhref$">How this was made</a></p>
+</div>
+$endif$
 </body>
 </html>

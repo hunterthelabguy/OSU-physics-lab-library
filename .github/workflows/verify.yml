@@ -29,3 +29,5 @@ jobs:
           done || true)
           if [ -z "$files" ]; then echo "no converted files"; exit 0; fi
           python3 tools/check_unchanged.py $files
+      - name: Site builds
+        run: python3 tools/render.py --site

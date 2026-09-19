@@ -231,3 +231,40 @@ are recorded as entries too, so the gap is on the record.
     213 with Lab 1 filled in and the rest marked not yet converted; and the
     public "How this was made" page. Per-document downloads are not in this
     pass (30 still stands).
+
+## 2026-09-19 (first site build)
+
+43. **First site build.** `tools/render.py` grew into the build script.
+    `--site` writes `build/site/`: the landing page, a course index, the
+    public "How this was made" page, and every converted document in both
+    presentations with a link that switches between them. Scope is exactly
+    entry 42; per-document downloads are still out (30). Every page carries
+    the draft banner and `noindex`, and `robots.txt` disallows everything
+    (37). Links are relative, so the site opens from disk as well as from a
+    host; output is plain static files and no host-specific config file is
+    in the repo (39). The site build now runs in CI, so a broken build
+    script fails `verify`.
+44. **The method page is lifted from VISION.md at build time**, never
+    retyped, so the public page and the vision cannot disagree (principle
+    2). Landing copy lives in `site/landing.md`; the banner wording lives in
+    `tools/render.py` as `BANNER_MAIN` and `BANNER_DETAIL`. The owner
+    approved both wordings on 2026-09-19 before the first deploy.
+45. **Course index data is quoted, not converted.** PH 211 lab numbers,
+    titles and one-line descriptions come word for word from the Activities
+    table of "PH 211 Curriculum Summary" in the original materials. They
+    live in the front matter of `site/courses.md` and the page says on its
+    face that they are quoted, not converted, because that document has not
+    been converted and the content-unchanged check therefore does not cover
+    them. Nothing is written for a lab that document does not list, the
+    unimplemented Lab Skills practical included. PH 212 and PH 213 have no
+    material in hand, so each is listed with no labs and a line saying so.
+46. **Observed while building the site, not changed.**
+    (a) VISION.md's method section says the original's text is compared with
+    the Markdown's text; since entry 24 the check also compares bold on
+    every word, so the public page understates what runs.
+    (b) The same page says "No student data enters any repo, by rule";
+    "repo" is jargon against entry 17's plain-terms rule.
+    (c) Entry 33's legend contradiction is now visible on the live
+    modernized page, where the legend's claim about bold is false. That is
+    the comparison entry 28 exists to provoke, so it stays until the
+    content-change phase.

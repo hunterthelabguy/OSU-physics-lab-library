@@ -1,0 +1,173 @@
+/* Site chrome: the draft banner, navigation, landing page, and course index.
+   Document pages load this on top of their presentation theme
+   (themes/faithful.css or themes/modern.css), which owns the document body;
+   nothing here restyles document content.
+
+   Colors from the OSU palette (../../OSU-style-guide.md in the sandbox, not
+   in this repo). Star Canvas for headings and links (11.8:1 on white),
+   Beaver Orange for the draft banner and accents only. */
+
+:root {
+  --chrome-ink: #000;
+  --chrome-paper: #fff;
+  --chrome-heading: #003b5c;   /* Star Canvas */
+  --chrome-accent: #d73f09;    /* Beaver Orange */
+  --chrome-rule: #d6dbe0;
+  --chrome-quiet: #0d5257;     /* Rogue Wave, 8.9:1 on white */
+  --chrome-tint: #f4f7f9;
+  --chrome-width: 68ch;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --chrome-ink: #f2f4f6;
+    --chrome-paper: #14181b;
+    --chrome-heading: #b8dde1; /* Seafoam, 14.5:1 on black */
+    --chrome-rule: #33393f;
+    --chrome-quiet: #c6dae7;   /* Moondust */
+    --chrome-tint: #1c2227;
+  }
+}
+
+/* The faithful presentation reproduces a printed page, so it stays on paper
+   in either system setting. */
+body.theme-faithful {
+  --chrome-ink: #000;
+  --chrome-paper: #fff;
+  --chrome-heading: #003b5c;
+  --chrome-rule: #d6dbe0;
+  --chrome-quiet: #0d5257;
+  --chrome-tint: #f4f7f9;
+}
+
+/* Draft banner: every page, top of every page (ledger 37). */
+.draft-banner {
+  background: var(--chrome-accent);
+  color: #fff;
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 600;
+  padding: .6rem 1rem;
+  margin: 0;
+  text-align: center;
+}
+
+.draft-banner .draft-detail {
+  display: block;
+  font-weight: 400;
+  font-size: .9rem;
+  max-width: 70ch;
+  margin: .15rem auto 0;
+}
+
+/* Navigation above and below the document. */
+.site-nav, .site-foot {
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: .9rem;
+  line-height: 1.5;
+  max-width: var(--chrome-width);
+  margin: 0 auto;
+  padding: .9rem 1rem;
+  color: var(--chrome-quiet);
+}
+
+.site-nav { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; align-items: baseline; }
+.site-nav .spacer { flex: 1 1 auto; }
+
+.site-foot {
+  border-top: 1px solid var(--chrome-rule);
+  margin-top: 3rem;
+  padding-bottom: 2.5rem;
+}
+
+.site-nav a, .site-foot a, .site-page a { color: var(--chrome-heading); }
+
+/* The presentation switch: a plain link, so it works without scripting. */
+.switch {
+  display: inline-block;
+  border: 1px solid var(--chrome-heading);
+  border-radius: 999px;
+  padding: .2rem .8rem;
+  text-decoration: none;
+}
+
+.switch:hover, .switch:focus { background: var(--chrome-tint); }
+
+/* Site pages: landing, course index, how this was made. */
+body.site-page {
+  background: var(--chrome-paper);
+  color: var(--chrome-ink);
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+body.site-page main {
+  max-width: var(--chrome-width);
+  margin: 0 auto;
+  padding: 1.5rem 1rem 1rem;
+  text-align: left;
+}
+
+body.site-page h1, body.site-page h2, body.site-page h3 {
+  color: var(--chrome-heading);
+  line-height: 1.25;
+  font-weight: 650;
+}
+
+body.site-page h1 { font-size: 2rem; margin: 0 0 .5rem; }
+body.site-page h2 { font-size: 1.35rem; margin: 2.5rem 0 .75rem; }
+body.site-page h3 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+body.site-page p { margin: 0 0 1rem; }
+body.site-page ul, body.site-page ol { padding-left: 1.4rem; }
+body.site-page li { margin: 0 0 .5rem; }
+
+body.site-page .lead {
+  font-size: 1.15rem;
+  color: var(--chrome-quiet);
+}
+
+body.site-page table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 1.5rem;
+}
+
+body.site-page th, body.site-page td {
+  text-align: left;
+  vertical-align: top;
+  padding: .5rem .6rem;
+  border-bottom: 1px solid var(--chrome-rule);
+}
+
+body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; }
+
+/* Course index: one card per lab. */
+.lab-list { list-style: none; padding: 0; margin: 0; }
+
+.lab-list > li {
+  border: 1px solid var(--chrome-rule);
+  border-radius: 8px;
+  padding: .9rem 1.1rem;
+  margin: 0 0 .75rem;
+}
+
+.lab-list > li.converted { border-left: 4px solid var(--chrome-accent); }
+
+.lab-title { font-weight: 650; margin: 0 0 .25rem; }
+.lab-desc { margin: 0 0 .5rem; }
+
+.lab-state {
+  font-size: .85rem;
+  color: var(--chrome-quiet);
+  margin: 0;
+}
+
+.course-note { color: var(--chrome-quiet); font-size: .95rem; }
+
+@media print {
+  .site-nav, .site-foot .print-hide { display: none; }
+  .draft-banner { background: none; color: #000; border: 2px solid #000; }
+}
