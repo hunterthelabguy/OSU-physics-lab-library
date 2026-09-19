@@ -143,3 +143,16 @@ are recorded as entries too, so the gap is on the record.
     "Learning goal: ..."), and an emphasized "not". Under the stated
     convention a student could read these as graded. For the content-change
     phase.
+
+## 2026-09-19 (landing, style guide, evidence)
+
+26. **Merges are local squashes.** GitHub's web merge wrote the account's
+    primary email as author on e197aa8 (library) and ae70480 (instructor),
+    and rejects the noreply address when asked to use it. Until the account
+    setting changes, PRs are squashed locally as the noreply identity and
+    pushed, and the PR is closed with the landing commit. Whether to rewrite
+    those two commits is open, awaiting the owner.
+27. **Style guide and skills matrix received** (previous coordinator, July
+    2024), in the original materials; not yet converted or committed.
+    Reviewed in `docs/presentation-evidence.md`, which lists six findings
+    for owner judgment. Nothing there is ruled.

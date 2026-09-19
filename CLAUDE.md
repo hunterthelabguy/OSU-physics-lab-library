@@ -9,8 +9,10 @@
   structure by parse-tree block counts. Manual before any commit: no
   student-identifiable data.
 - **Landing rule:** code and converted content land via PR with green
-  `verify`, merged by squash (charter floor 4). Ledger and spec-only commits
-  may land direct on `main`.
+  `verify` (charter floor 4), squashed locally as the noreply identity and
+  pushed to `main`, then the PR is closed with the landing commit. GitHub's
+  web merge rejects the noreply address as author and otherwise stamps the
+  account's primary email. Ledger and spec-only commits may land direct.
 - **Living plan:** `LEDGER.md`, dated and append-only.
 - **Commit trailer:** none. Identity `hunterthelabguy` with the noreply email.
 - **Remote:** `git@github-hunterthelabguy:hunterthelabguy/OSU-physics-lab-library.git`
