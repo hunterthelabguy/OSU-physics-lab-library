@@ -63,3 +63,19 @@
   - Framework: none. Install command: `echo no install step`.
   - Build command: `curl -sSL -o p.tgz https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-linux-amd64.tar.gz && tar xzf p.tgz && PANDOC=$PWD/pandoc-3.11/bin/pandoc python3 tools/render.py --site`
   - Output directory: `build/site`.
+
+## Sims
+
+- A sim is one self-contained HTML page in `sims/<id>/index.html` that must
+  keep working opened from disk, offline: inline CSS and JS, no network, and
+  a `default-src 'none'` Content Security Policy. Ledger 38 is why there is
+  no framework here.
+- The build injects the draft banner and a way back into the published copy
+  only; the source file is never edited for the site. The injected bar costs
+  29 px of height, which the sim's own no-scrolling-at-1280x720 ruling has
+  room for.
+- A sim ships its own no-dependency node test script beside it, and CI runs
+  every one. A check whose file is not in this checkout is reported as
+  skipped, never as a pass.
+- Nothing that carries an answer key belongs here, because this repo will be
+  public. The Electric Force instructor guide and build prompt stay out.

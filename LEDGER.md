@@ -292,3 +292,44 @@ are recorded as entries too, so the gap is on the record.
     which host serves it. The settings are written down in `CLAUDE.md` so
     another host can be set up from the same three lines. Moving hosts stays
     a settings change.
+
+## 2026-09-19 (first sim)
+
+50. **Sims are a first-class kind of page.** `sims/<id>/index.html`, one
+    self-contained page each, published at `/sims/<id>/`, listed on a `/sims`
+    page and from the landing page. The name is the owner's (2026-09-19):
+    sims, not software or tools, and `tools/` stays the build scripts. The
+    first one is `modified-electric-force`, the rebuild of the legacy
+    Electric Force generator.
+51. **The site chrome is injected, never written into the sim.** A sim has to
+    keep working opened from disk and offline, with a `default-src 'none'`
+    Content Security Policy, so the banner and the back links are added to
+    the published copy at build time and the source file is byte for byte the
+    file that ships to a student. Measured at 1280 px wide: the page needs
+    598 px of height on its own and 627 px with the bar, against the 720 px
+    the sim's own layout ruling targets. At 375 px the bar wraps to 49 px and
+    there is still no horizontal scroll. The injected bar carries entry 37's
+    sentence only, not the longer note the other pages show, because every
+    pixel is taken from that budget.
+52. **No claim is made about which lab a sim serves.** Nothing in the
+    original materials records it, so the `/sims` page says so plainly rather
+    than guessing. Owner ruled 2026-09-19 to leave it unstated until he
+    checks.
+53. **The sim's tests gate landing.** CI runs every `sims/*/test-law.mjs`.
+    The script was changed in one way: a file that is not beside it is now
+    reported as `SKIP`, never counted as a pass, so the same script serves
+    both the repo (208 passed, 1 skipped) and the folder that still holds the
+    instructor guide (209 passed). Floor item 2 is why: a repo must not lie
+    about its verification.
+54. **The answer key stays out of this repo.** `INSTRUCTOR-GUIDE.md` and
+    `BUILD-PROMPT.md` are not copied here; the guide is ruled to lab-ops and
+    the owner deferred it on 2026-09-19. The law itself is readable in the
+    sim's source and in the committed legacy original, which the build prompt
+    already accepted. `index.legacy.html` is committed beside the sim, byte
+    for byte, and the sim's own test asserts its SHA-256, which is the same
+    promise `originals/` makes for the documents.
+55. **Open: the sim's displayed title and its id differ.** The page title is
+    "Electric Force" and the id is `modified-electric-force`. The id is the
+    owner's ruling and the title is the tool's own text, so neither was
+    changed. Decide at the content-change phase whether the visible title
+    should say modified.
