@@ -333,3 +333,39 @@ are recorded as entries too, so the gap is on the record.
     owner's ruling and the title is the tool's own text, so neither was
     changed. Decide at the content-change phase whether the visible title
     should say modified.
+
+## 2026-09-19 (screen width)
+
+56. **The site uses the width of the screen; prose does not.** Owner asked
+    for more screen real estate (2026-09-19). There are now two widths: a
+    reading measure of 68 characters, which is the evidence review's number
+    and sits inside WCAG 2.2 SC 1.4.8's bound of 80, and a page shell of
+    72rem. Prose keeps the measure. Card lists, meaning the course index and
+    the sims page, use the shell and lay out in as many columns as fit,
+    because a card holds a title and one short line, so a wide grid never
+    produces a long line of text. Measured at 1600 px: three columns of
+    368 px inside a 1152 px list, with prose still 623 px. At 375 px it is
+    one column and nothing scrolls sideways.
+57. **Document pages get more pixels, not more characters.** The reading
+    column stays 68 characters. Above 1440 px the type grows to 1.1875 rem,
+    so the column goes from 578 px to 728 px at the same line length.
+    Widening the measure itself was not done: that number came from the
+    evidence review, and changing it is an owner decision rather than a
+    styling one. The faithful presentation is untouched, because it
+    reproduces a printed page and widening it would destroy the comparison
+    entry 28 exists for.
+58. **Site chrome frames the shell on every page.** It cannot line up with a
+    document's reading column: that column is 68ch of the document's own
+    type and changes with theme and viewport, while `ch` in the chrome
+    resolves against the chrome's smaller font and comes out narrower. A
+    full width bar above a centered column is the honest version of that.
+59. **Duplicates deleted, on the owner's word (2026-09-19).**
+    `index.html`, `index.legacy.html` and `test-law.mjs` were removed from
+    `../electric-force-tool/` after each was confirmed byte for byte
+    identical to the copy in `sims/modified-electric-force/`. That folder
+    now holds only `BUILD-PROMPT.md` and `INSTRUCTOR-GUIDE.md`, both still
+    untracked and both still needing a home (entry 54). One side effect is
+    on the record: the instructor guide's em-dash check can no longer run
+    anywhere, because the script that ran it now lives apart from the guide.
+    It reports as skipped, which is exactly what entry 53 built, but it is a
+    real gap until the guide lands somewhere that checks it.

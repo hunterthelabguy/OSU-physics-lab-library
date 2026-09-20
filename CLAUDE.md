@@ -79,3 +79,12 @@
   skipped, never as a pass.
 - Nothing that carries an answer key belongs here, because this repo will be
   public. The Electric Force instructor guide and build prompt stay out.
+
+## Widths
+
+Two, on purpose (ledger 56 to 58). `--chrome-measure` is 68 characters, the
+evidence review's reading measure, and governs anything read as prose.
+`--chrome-shell` is 72rem, the page frame, and card lists may use all of it.
+Document reading columns stay at the measure and grow their type above
+1440 px instead. Do not widen a reading column to fill a screen; that number
+is an owner decision, not a styling one.
