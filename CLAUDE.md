@@ -39,8 +39,24 @@
   `tools/render.py` as `BANNER_MAIN` and `BANNER_DETAIL`.
 - Pandoc 3.11 lives at `%LOCALAPPDATA%\Pandoc\pandoc.exe` on this machine
   and is not on PATH in every shell; Python 3.12 is at
-  `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`.
+  `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`. Node 24 is on PATH
+  and the sim tests need it. The GitHub CLI is not on PATH: it is at
+  `C:\Program Files\GitHub CLI\gh.exe`.
 - Output stays host-agnostic static files (ledger 39).
+
+### Checking a built page
+
+- Check built pages over a local HTTP server, not `file://`. The desktop
+  app's preview pane renders a local file as a processed snapshot, which
+  drops injected markup: a sim's banner reads as missing when it is in fact
+  in the file. `python -m http.server 8733 --directory build/site` and load
+  `http://127.0.0.1:8733/`.
+- Start that server from the repo root with `--directory`, never by changing
+  into `build/site`. A process whose working directory is inside `build/site`
+  makes the next `--site` build fail on Windows when it clears the directory.
+- Measure layout with a script in the page rather than by eye: the pane
+  scales a wide emulated viewport down, so a correct layout can look wrong in
+  a screenshot.
 
 ## Conventions that bite
 

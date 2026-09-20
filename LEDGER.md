@@ -369,3 +369,21 @@ are recorded as entries too, so the gap is on the record.
     anywhere, because the script that ran it now lives apart from the guide.
     It reports as skipped, which is exactly what entry 53 built, but it is a
     real gap until the guide lands somewhere that checks it.
+
+## 2026-09-19 (session close)
+
+60. **Human handoffs for this repo go in the lab-ops journal.** This repo's
+    shipping contract has no human handoff field; the private lab-ops repo
+    does, naming `journal/YYYY-MM-DD.md` in plain role language, landing
+    direct on `main`. This session's journal went there, which also keeps a
+    successor-facing narrative out of a repo whose history becomes public.
+    Open: whether that is the permanent arrangement for library work, or
+    whether this repo should carry its own field. Not ruled.
+61. **Re-derived and captured in `CLAUDE.md`, not here.** Check built pages
+    over a local HTTP server rather than `file://`, because the desktop
+    preview pane renders a local file as a processed snapshot and drops
+    injected markup, which made a sim's banner read as missing when it was
+    in the file. Start that server from the repo root with `--directory`, or
+    the next build fails to clear `build/site` on Windows. Measure layout
+    from inside the page rather than by eye. Node 24 is needed for the sim
+    tests and the GitHub CLI is not on PATH.
