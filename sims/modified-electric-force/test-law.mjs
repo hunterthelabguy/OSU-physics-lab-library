@@ -76,7 +76,7 @@ check("10000 draws average near 1", Math.abs(sum / N - 1) < 0.005, sum / N);
 
 // ---------------------------------------------------------------------------
 section("sign behavior");
-for (const code of [0, 5, 15, 25]) {
+for (const code of [0, 1, 5, 10]) {
   const p = core.lawParams(code);
   const cases = [[2, 3, 1], [2, -3, -1], [-2, 3, -1], [-2, -3, 1]];
   for (const [q1, q2, want] of cases) {
@@ -92,8 +92,7 @@ check("r = 0 gives zero force", F(2, 3, 0) === 0);
 
 // ---------------------------------------------------------------------------
 section("law codes");
-const expected = { 1: ["n1", 3.1], 5: ["n1", 3.5], 10: ["n1", 4], 11: ["n2", 1.1], 20: ["n2", 2],
-  21: ["nr", 2.1], 25: ["nr", 2.5], 30: ["nr", 3] };
+const expected = { 1: ["nr", 2.1], 2: ["nr", 2.2], 5: ["nr", 2.5], 9: ["nr", 2.9], 10: ["nr", 3] };
 for (const [code, [param, value]] of Object.entries(expected)) {
   const p = core.lawParams(Number(code));
   check(`code ${code} sets ${param} to ${value}`, p && p[param] === value, p && p[param]);
@@ -102,22 +101,22 @@ for (let code = 1; code <= core.LAW_CODE_MAX; code++) {
   const a = core.lawParams(code), b = core.lawParams(code);
   check(`code ${code} is deterministic`, JSON.stringify(a) === JSON.stringify(b));
   const changed = ["k", "n1", "n2", "nr"].filter((key) => a[key] !== P0[key]);
-  check(`code ${code} changes exactly one parameter`, changed.length === 1 && changed[0] !== "k", changed.join(","));
+  check(`code ${code} changes only the r exponent`, changed.length === 1 && changed[0] === "nr", changed.join(","));
   check(`code ${code} raises it by a whole number of tenths`,
     Number.isInteger(Math.round((a[changed[0]] - P0[changed[0]]) * 10)) && a[changed[0]] > P0[changed[0]]);
 }
 const allParams = new Set();
 for (let code = 0; code <= core.LAW_CODE_MAX; code++) allParams.add(JSON.stringify(core.lawParams(code)));
-check("codes 0 to 30 are 31 distinct laws", allParams.size === 31, allParams.size);
-for (const bad of [-1, 31, 99, 1.5, NaN, "3"]) check(`lawParams(${JSON.stringify(bad)}) is rejected`, core.lawParams(bad) === null);
-check("parseLawCode('31') says not assigned", /not assigned/i.test(core.parseLawCode("31").message || ""));
+check("codes 0 to 10 are 11 distinct laws", allParams.size === 11, allParams.size);
+for (const bad of [-1, 11, 30, 99, 1.5, NaN, "3"]) check(`lawParams(${JSON.stringify(bad)}) is rejected`, core.lawParams(bad) === null);
+check("parseLawCode('11') says not assigned", /not assigned/i.test(core.parseLawCode("11").message || ""));
 check("parseLawCode('7') is 7", core.parseLawCode(" 7 ").ok && core.parseLawCode(" 7 ").value === 7);
 for (const bad of ["", "-1", "2.5", "abc"]) check(`parseLawCode(${JSON.stringify(bad)}) is rejected`, !core.parseLawCode(bad).ok);
 check("random code at rand() = 0 is 1", core.randomLawCode(() => 0) === 1);
-check("random code at largest rand() is 30", core.randomLawCode(() => 1 - 2 ** -53) === 30);
+check("random code at largest rand() is 10", core.randomLawCode(() => 1 - 2 ** -53) === 10);
 const seen = new Set();
 for (let i = 0; i < 10000; i++) seen.add(core.randomLawCode(Math.random));
-check("random codes cover exactly 1 to 30", seen.size === 30 && Math.min(...seen) === 1 && Math.max(...seen) === 30);
+check("random codes cover exactly 1 to 10", seen.size === 10 && Math.min(...seen) === 1 && Math.max(...seen) === 10);
 
 // ---------------------------------------------------------------------------
 section("input parsing");
@@ -136,7 +135,7 @@ check("zero distance is accepted", core.parseDistance("0").ok);
 section("export format");
 const rows = [
   { trial: 1, code: 0, q1: 1, q2: -2.5, r: 0.35, F: F(1, -2.5, 0.35) },
-  { trial: 2, code: 17, q1: 1e-7, q2: 3, r: 12, F: F(1e-7, 3, 12, core.lawParams(17)) },
+  { trial: 2, code: 7, q1: 1e-7, q2: 3, r: 12, F: F(1e-7, 3, 12, core.lawParams(7)) },
   { trial: 3, code: 0, q1: 0, q2: 3, r: 0, F: -0 },
 ];
 const csv = core.buildDelimited(rows, ",");
