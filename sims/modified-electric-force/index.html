@@ -207,7 +207,7 @@
       <div class="pop-body">
         <h3>Taking measurements</h3>
         <ul>
-          <li>Enter the law code your instructor assigns (0 to 30). Every row in the table records it.</li>
+          <li>Enter the law code your instructor assigns (0 to 10). Every row in the table records it.</li>
           <li>Set q1 and q2 in coulombs: type a value (plain or scientific notation, for example 0.25 or 2.5e-1), or use the slider (0.1 C to 10 C) and the sign button.</li>
           <li>Set r in meters: type it, drag charge 2 on the bench, or tap the ruler.</li>
           <li>Press Take measurement (or Enter in any box). Each press adds a row to the table.</li>
@@ -359,13 +359,11 @@
   const NOISE_MIN = 0.9;
   const NOISE_MAX = 1.1;
   const LAW_DEFAULT = Object.freeze({ k: Math.PI, n1: 3, n2: 1, nr: 2 });
-  const LAW_CODE_MAX = 30;
+  const LAW_CODE_MAX = 10;
   // Law code table. A code in a row sets that row's parameter to its default plus
   // 0.1 per step, counted from the row's first code. Extend the scheme here only.
   const LAW_CODE_TABLE = Object.freeze([
-    { first: 1, last: 10, param: "n1" },
-    { first: 11, last: 20, param: "n2" },
-    { first: 21, last: 30, param: "nr" },
+    { first: 1, last: 10, param: "nr" },
   ]);
 
   function lawParams(code) {
@@ -416,10 +414,10 @@
 
   function parseLawCode(text) {
     const t = String(text).trim();
-    if (t === "") return { ok: false, message: "Enter a law code from 0 to 30." };
-    if (!/^\d+$/.test(t)) return { ok: false, message: "The law code is a whole number from 0 to 30." };
+    if (t === "") return { ok: false, message: "Enter a law code from 0 to 10." };
+    if (!/^\d+$/.test(t)) return { ok: false, message: "The law code is a whole number from 0 to 10." };
     const code = Number(t);
-    if (code > LAW_CODE_MAX) return { ok: false, message: "Code not assigned. Use a code from 0 to 30." };
+    if (code > LAW_CODE_MAX) return { ok: false, message: "Code not assigned. Use a code from 0 to 10." };
     return { ok: true, value: code };
   }
 
