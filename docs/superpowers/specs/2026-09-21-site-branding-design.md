@@ -1,7 +1,7 @@
 # Site branding refresh: design
 
 Date: 2026-09-21. Status: written, awaiting owner review.
-Ledger: D-0001 to D-0025 in `DECISIONS.md`. Declined: D-0003, D-0017.
+Ledger: D-0001 to D-0026 in `DECISIONS.md`. Declined: D-0003, D-0017, D-0021.
 
 This spec cites entries by ID and does not restate their rationale. Where it
 depends on a `proposed` entry, it says so, and the work that needs that entry
@@ -27,15 +27,12 @@ themselves are not restyled (D-0010).
 
 Top to bottom:
 
-1. **Draft banner** (LEDGER 37), wording unchanged. Color per D-0022
-   (proposed): Luminance with black text. Until D-0022 is ruled, the
-   banner stays as it is, and the header task stops at this point and
-   raises the stacked-orange problem.
-2. **Top strip**, Paddletail Black (D-0004). Content per D-0024
-   (proposed): one link, "Department of Physics", to
+1. **Draft banner** (LEDGER 37), wording unchanged, Luminance with black
+   text (D-0022).
+2. **Top strip**, Paddletail Black (D-0004). Content per D-0024: one link, "Department of Physics", to
    https://physics.oregonstate.edu, in white.
 3. **Brand banner**, Beaver Orange (D-0004). Left: the logo file
-   `OSU_horizontal_2C_W_over_B.png` (D-0020, proposed), as an `<img>` with
+   `OSU_horizontal_2C_W_over_B.png` (D-0020), as an `<img>` with
    `alt="Oregon State University"` (the typography page requires alt text
    that gives all the text in the image), linked to https://oregonstate.edu
    as the Physics site does. Right of it: the site name "Physics Lab
@@ -54,7 +51,7 @@ Top to bottom:
    - Non-Discrimination Statement: https://eoa.oregonstate.edu/about-us/policies-guidance-and-memos
 
    There is no address, email or phone (D-0009), and no copyright line
-   (D-0023, proposed). The page's existing footnote paragraph stays.
+   until the license settles (D-0023). The page's existing footnote paragraph stays.
 
 The logo's clear space is at least the width of the "O" in "Oregon State"
 (logo guidelines page). It is set as padding around the image, sized
@@ -65,13 +62,15 @@ minimum size for the web; the print minimum (1.375 inches) is not applied.
 
 It replaces today's orange `.lib-bar` in `SIM_CHROME`. It is a single
 Paddletail Black strip (D-0005) holding:
-- the logo `OSU_horizontal_2C_O_over_W.png` (D-0020, proposed) as a
+- the logo `OSU_horizontal_2C_O_over_W.png` (D-0020) as a
   `data:` URI (the sim's policy allows `img-src data:`);
-- the draft sentence (LEDGER 37) in the D-0022 color, if ruled;
+- the draft sentence (LEDGER 37) in the D-0022 colors;
 - the Library home and Sims links.
 
-It uses the system font stack (D-0021, proposed), because the sim's policy
-blocks fonts. Height: the sim plus the bar fits 1280 by 720 with no page
+Font: the owner ruled that sims may change their font (D-0021 declined).
+How is D-0026 (proposed): the sim source itself gains `font-src data:` and
+an embedded Open Sans, so the bar and the sim share it. The sim-font task
+stops on D-0026 and D-0025. Height: the sim plus the bar fits 1280 by 720 with no page
 scroll (LEDGER 51, D-0005). It is measured in the browser pane as LEDGER 51
 was, and the measurement is recorded in `STATE.md`.
 
@@ -125,8 +124,7 @@ skips, when the build is missing (LEDGER 53). It asserts:
 4. **The footer is exactly as ruled** (D-0009): it has the three policy URLs
    and no `mailto:` or `tel:` link.
 5. **Sims are untouched except for the bar** (LEDGER 51): each published sim
-   equals its source with only the bar inserted after `<body>`, and it has
-   no `@font-face` (D-0021).
+   equals its source with only the bar inserted after `<body>`.
 6. **Document bodies are unchanged by branding** (D-0010): the content
    between `<main>` and `</main>` is identical before and after this
    refresh. It is compared against a copy captured from `main` at the start
@@ -147,6 +145,8 @@ automated, since CI has no browser.
 
 ## 9. Before implementation can start
 
-The owner rules D-0020 to D-0025 and approves this spec. D-0013 is
-satisfied in substance by the logo library the owner supplied, but its
-status is for the owner to set.
+Ruled 2026-09-21: D-0020, D-0022, D-0023, D-0024; D-0021 declined. Still
+needed: D-0025 (Open Sans source; the owner asked what is special about
+Open Sans before ruling), D-0026 (how sims take the font), and the owner's
+approval of this spec. D-0013 is satisfied in substance by the logo library;
+its status is the owner's.

@@ -24,3 +24,13 @@ expire; re-proposing one requires stated new evidence.
 - rationale: Declined by the owner in chat 2026-09-21; no reason was stated. As proposed: It is the brand guide's approved "feels like OSU" element. Only the landing page gets it, because sims have no height to spare.
 - alternatives: no pattern.
 - binds: site/landing
+
+### D-0021  Keep the system font inside sims
+- status: declined
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-09-21
+- decision: Pages built by the site use Open Sans (D-0006), but the published sims and their injected bar keep the system font stack.
+- rationale: Declined by the owner in chat 2026-09-21: "Sims can adjust their font." How is open in D-0026. As proposed: A spec gap caught before code. The sim's Content Security Policy is `default-src 'none'` with no `font-src`, which blocks every font, embedded ones included. The policy lives in the sim's source, which LEDGER 51 keeps byte for byte. So D-0006's "keeps sims inside their no-network policy" cannot mean sims get Open Sans.
+- alternatives: add `font-src data:` to the sim's policy (edits the untouchable source); rewrite the policy in the published copy only (the copy would no longer match the file that ships to students).
+- binds: D-0006, tools/render.py (SIM_CHROME)

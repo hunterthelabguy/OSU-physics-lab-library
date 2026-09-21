@@ -23,6 +23,7 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 
 - D-0003 Name the site in text, never the logo (declined: owner ruled logo on) -> DECLINED.md
 - D-0017 Add a light grid pattern to the header area (declined: owner, no reason stated) -> DECLINED.md
+- D-0021 Keep the system font inside sims (declined: sims may change font) -> DECLINED.md
 
 ## Entries
 
@@ -195,35 +196,30 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - binds: tests/, .github/workflows/verify.yml
 
 ### D-0020  Match each logo file to the background it sits on
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-21
 - decision: Use `OSU_horizontal_2C_W_over_B.png` on the Beaver Orange banner (D-0004), `OSU_horizontal_2C_O_over_W.png` on the black sim strip (D-0005), and `OSU_horizontal_2C_O_over_B.png` anywhere on white. Commit those three byte for byte (D-0014), and nothing else from the library until it is needed.
 - rationale: The owner supplied the full library, which covers what D-0013 asked for. It is PNG only, so D-0014 stays in force. Checked by laying every horizontal file over orange, black and white (2026-09-21): these three are the two-color versions that stay fully legible on each background, and the logo page asks for a two-color wordmark when possible. The one-color white file also reads on orange and black and is the fallback.
 - alternatives: one-color white on both dark bars (legible but not the two-color preference); a white field in the banner holding the light-background file (unlike the Physics site, which D-0004 mirrors).
 - binds: D-0004, D-0005, D-0007, D-0014, logo asset path
 
-### D-0021  Keep the system font inside sims
-- status: proposed
-- proposed-by: claude
-- date: 2026-09-21
-- decision: Pages built by the site use Open Sans (D-0006), but the published sims and their injected bar keep the system font stack.
-- rationale: A spec gap caught before code. The sim's Content Security Policy is `default-src 'none'` with no `font-src`, which blocks every font, embedded ones included. The policy lives in the sim's source, which LEDGER 51 keeps byte for byte. So D-0006's "keeps sims inside their no-network policy" cannot mean sims get Open Sans.
-- alternatives: add `font-src data:` to the sim's policy (edits the untouchable source); rewrite the policy in the published copy only (the copy would no longer match the file that ships to students).
-- binds: D-0006, tools/render.py (SIM_CHROME)
-
 ### D-0022  Set the draft banner in Luminance with black text
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-21
 - decision: The draft banner (LEDGER 37) changes from Beaver Orange to Luminance [#FFB500] with Paddletail Black text, on site pages and in the sim bar, and keeps its wording.
 - rationale: A spec gap caught before code. Under D-0004 an orange draft banner would sit directly on the orange brand banner, so the warning would read as part of the brand. Luminance is a palette secondary color used once, for a warning, which the "use sparingly" rule allows. Black on Luminance is 11.86:1 by the style guide's table.
 - alternatives: keep it orange (merges with the brand banner); black (merges with the top strip); a secondary like Stratosphere (fails contrast with white text at small sizes).
 - binds: site/site.css (.draft-banner), tools/render.py (SIM_CHROME)
+- test: tests/test_brand.py::DraftBanner::test_black_on_luminance, tests/test_brand.py::DraftBanner::test_banner_colors (expected failure until built)
 
 ### D-0023  Hold the copyright line until the license settles
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-21
 - supersedes: D-0009 (the copyright line only)
 - decision: The footer carries no copyright line until LEDGER 8 settles who holds what. Until then the footer points to the "How this was made" page.
@@ -232,8 +228,9 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - binds: D-0009, tools/template-site.html, tools/template.html
 
 ### D-0024  Link the top strip to the Department of Physics
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-21
 - decision: The black top strip holds one link, "Department of Physics", to https://physics.oregonstate.edu. On the Physics site the same strip names the parent unit ("College of Science"); for the library the parent is the department.
 - rationale: It completes D-0004's structure without inventing a sitemap or a search, which the library does not have. The claim it makes, that this is the department's lab library, is one the owner can confirm or strike.
@@ -248,3 +245,12 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - rationale: D-0006 rules self-hosting but not a source. That repository is the upstream for the family, and the SIL Open Font License allows redistribution with its license text. Every site page embeds its resources (`--embed-resources`), so each page carries the font. Size is the cost to watch, measured before committing.
 - alternatives: a font-hosting service (network at view time, against D-0006).
 - binds: D-0006, site/fonts/
+
+### D-0026  Give sims the brand font by editing the sim itself
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-21
+- decision: The sim's source file takes the font: its Content Security Policy gains `font-src data:`, and it carries Open Sans embedded as a `data:` URI, so it stays one self-contained, offline page. The published copy still differs from the source only by the injected bar (LEDGER 51). The change lands via PR with the sim's own tests green.
+- rationale: The owner ruled that sims can adjust their font (D-0021 declined). Editing the source keeps the file a student downloads identical to the published one. Rewriting the policy only in the published copy would break that. The legacy original (`index.legacy.html`) is untouched, and its SHA-256 test stands.
+- alternatives: rewrite the policy in the published copy only (published and shipped files diverge); a linked font file (a sim opened from disk would lose it, and `default-src 'none'` blocks it anyway).
+- binds: sims/modified-electric-force/index.html, D-0006, D-0025

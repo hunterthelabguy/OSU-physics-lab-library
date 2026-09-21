@@ -19,6 +19,7 @@ BEAVER_ORANGE = "D73F09"
 PADDLETAIL_BLACK = "000000"
 BUCKTOOTH_WHITE = "FFFFFF"
 STAR_CANVAS = "003B5C"
+LUMINANCE = "FFB500"
 
 AA_NORMAL = 4.5            # WCAG 2.x AA, normal text
 LARGE_BOLD_PX = 18         # style guide: 18 px bold is large text
@@ -132,6 +133,31 @@ class OrangeTextIsLarge(unittest.TestCase):
         .nosize { color: var(--chrome-accent); }
         """
         self.assertEqual(self.small_orange(css), [".small", ".reg18", ".nosize"])
+
+
+class DraftBanner(unittest.TestCase):
+    """D-0022: the draft banner is Luminance with black text."""
+
+    def test_black_on_luminance(self):
+        self.assertEqual(round(contrast(LUMINANCE, PADDLETAIL_BLACK), 2), 11.86)
+
+    # Not built yet. Strict by construction: when the refresh lands this
+    # passes, unittest reports an unexpected success as a failure, and the
+    # decorator has to come off. It is reported as an expected failure, never
+    # counted as a pass.
+    @unittest.expectedFailure
+    def test_banner_colors(self):
+        for selector, body in rules():
+            if selector.strip() == ".draft-banner":
+                decl = dict(re.findall(r"([\w-]+)\s*:\s*([^;]+);?", body))
+                t = light_root_tokens()
+                bg = decl.get("background", "").strip()
+                fg = decl.get("color", "").strip()
+                resolve = lambda v: norm_hex(t[v[4:-1]] if v.startswith("var(") else v)
+                self.assertEqual(resolve(bg), LUMINANCE)
+                self.assertEqual(resolve(fg), PADDLETAIL_BLACK)
+                return
+        self.fail("no .draft-banner rule")
 
 
 if __name__ == "__main__":
