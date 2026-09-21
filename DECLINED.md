@@ -14,3 +14,13 @@ expire; re-proposing one requires stated new evidence.
 - rationale: Declined because the owner answered "yes, we're going to put the official logo on it" when offered text only as one of the options (D-0002). The option came from the first brainstorm round, where text-only naming looked like the safe way to follow the policy against unit logos. It was also meant to keep a draft site from looking university-endorsed.
 - alternatives: logo after the license settles, or logo now; timing is open in D-0011.
 - binds: site/, tools/render.py
+
+### D-0017  Add a light grid pattern to the header area
+- status: declined
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-09-21
+- decision: Use the brand guide's basic grid pattern, at low contrast, in the landing page header area only.
+- rationale: Declined by the owner in chat 2026-09-21; no reason was stated. As proposed: It is the brand guide's approved "feels like OSU" element. Only the landing page gets it, because sims have no height to spare.
+- alternatives: no pattern.
+- binds: site/landing

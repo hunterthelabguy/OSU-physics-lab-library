@@ -15,12 +15,14 @@ except the tests named in `test:` lines.
 Sources for the brand entries: the OSU brand guide pages on logo guidelines,
 graphic elements, typography and cobranding (communications.oregonstate.edu,
 read 2026-09-21); the Physics department site (physics.oregonstate.edu,
-measured 2026-09-21); and `OSU-style-guide.md` in the sandbox for palette
-values and contrast.
+measured 2026-09-21); and `OSU-branding/OSU-style-guide.md` in the sandbox for
+palette values and contrast. Official logo files: `OSU-branding/` in the
+sandbox, supplied by the owner 2026-09-21, PNG only.
 
 ## Declined (index)
 
 - D-0003 Name the site in text, never the logo (declined: owner ruled logo on) -> DECLINED.md
+- D-0017 Add a light grid pattern to the header area (declined: owner, no reason stated) -> DECLINED.md
 
 ## Entries
 
@@ -117,8 +119,9 @@ values and contrast.
 - binds: themes/faithful.css, themes/modern.css (untouched by this refresh)
 
 ### D-0011  Put the logo on the unlisted draft now
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-21
 - decision: The logo goes on the unlisted draft deploy as soon as it is built, without waiting for the license (LEDGER 8). Public listing still waits on the license.
 - rationale: The owner ruled the logo on (D-0002) without saying when. The first brainstorm round leaned toward waiting, because a logo on a "draft, license pending" page makes the draft look endorsed. The owner's plan to build first and show Marketing (D-0012) needs the logo in place.
@@ -126,8 +129,9 @@ values and contrast.
 - binds: deploy timing
 
 ### D-0012  Build first, then show University Marketing before wider sharing
-- status: proposed
+- status: ruled
 - proposed-by: owner
+- ruled-by: owner
 - date: 2026-09-21
 - decision: Build the branded site unlisted, then send University Marketing a short heads-up with a screenshot before showing the branded version to anyone else, and ask for Stratum 2 web access (D-0006) in the same note.
 - rationale: The owner judged building before asking acceptable while the site is unlisted. The added step addresses the real exposure: the official logo on a vercel.app address, which is not an oregonstate.edu address, is the kind of use a trademark office stops. A note sent early turns "we found this" into "they told us".
@@ -144,8 +148,9 @@ values and contrast.
 - binds: D-0004, D-0005
 
 ### D-0014  Use the supplied PNG in place of the SVG
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-21
 - decision: Commit the supplied logo PNG byte for byte and scale it in the browser, until official SVG files are obtained. The ruled wording of D-0007 said SVG.
 - rationale: The PNG is 3651 by 1168 pixels and 180034 bytes, sharp at any header size. Downscaling it at build time would be a derived copy with nothing to compare it against.
@@ -153,8 +158,9 @@ values and contrast.
 - binds: D-0007, logo asset path
 
 ### D-0015  Use Paddletail Black paper in dark mode
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-21
 - decision: In dark mode the chrome's paper is Paddletail Black and its text is Bucktooth White, replacing the four off-palette dark values, with Seafoam and Moondust for headings and quiet text as now.
 - rationale: D-0008 rules the chrome palette-only, and the brand guide says nothing about dark mode. Pure black paper is the only palette-compliant choice.
@@ -169,15 +175,6 @@ values and contrast.
 - rationale: A cheap OSU look. The graphic elements page bars combining icons with unit or program names to make a logo.
 - alternatives: no icons.
 - binds: site/, sims page
-
-### D-0017  Add a light grid pattern to the header area
-- status: proposed
-- proposed-by: claude
-- date: 2026-09-21
-- decision: Use the brand guide's basic grid pattern, at low contrast, in the landing page header area only.
-- rationale: It is the brand guide's approved "feels like OSU" element. Only the landing page gets it, because sims have no height to spare.
-- alternatives: no pattern.
-- binds: site/landing
 
 ### D-0018  Draw modern-presentation figures in the infographic style
 - status: proposed
@@ -196,3 +193,58 @@ values and contrast.
 - rationale: Until it exists, the ledger's rules are enforced only by PR review. This entry records the gap as a proposal and does not claim a check that does not run.
 - alternatives: keep review-only enforcement through the pilot.
 - binds: tests/, .github/workflows/verify.yml
+
+### D-0020  Match each logo file to the background it sits on
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-21
+- decision: Use `OSU_horizontal_2C_W_over_B.png` on the Beaver Orange banner (D-0004), `OSU_horizontal_2C_O_over_W.png` on the black sim strip (D-0005), and `OSU_horizontal_2C_O_over_B.png` anywhere on white. Commit those three byte for byte (D-0014), and nothing else from the library until it is needed.
+- rationale: The owner supplied the full library, which covers what D-0013 asked for. It is PNG only, so D-0014 stays in force. Checked by laying every horizontal file over orange, black and white (2026-09-21): these three are the two-color versions that stay fully legible on each background, and the logo page asks for a two-color wordmark when possible. The one-color white file also reads on orange and black and is the fallback.
+- alternatives: one-color white on both dark bars (legible but not the two-color preference); a white field in the banner holding the light-background file (unlike the Physics site, which D-0004 mirrors).
+- binds: D-0004, D-0005, D-0007, D-0014, logo asset path
+
+### D-0021  Keep the system font inside sims
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-21
+- decision: Pages built by the site use Open Sans (D-0006), but the published sims and their injected bar keep the system font stack.
+- rationale: A spec gap caught before code. The sim's Content Security Policy is `default-src 'none'` with no `font-src`, which blocks every font, embedded ones included. The policy lives in the sim's source, which LEDGER 51 keeps byte for byte. So D-0006's "keeps sims inside their no-network policy" cannot mean sims get Open Sans.
+- alternatives: add `font-src data:` to the sim's policy (edits the untouchable source); rewrite the policy in the published copy only (the copy would no longer match the file that ships to students).
+- binds: D-0006, tools/render.py (SIM_CHROME)
+
+### D-0022  Set the draft banner in Luminance with black text
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-21
+- decision: The draft banner (LEDGER 37) changes from Beaver Orange to Luminance [#FFB500] with Paddletail Black text, on site pages and in the sim bar, and keeps its wording.
+- rationale: A spec gap caught before code. Under D-0004 an orange draft banner would sit directly on the orange brand banner, so the warning would read as part of the brand. Luminance is a palette secondary color used once, for a warning, which the "use sparingly" rule allows. Black on Luminance is 11.86:1 by the style guide's table.
+- alternatives: keep it orange (merges with the brand banner); black (merges with the top strip); a secondary like Stratosphere (fails contrast with white text at small sizes).
+- binds: site/site.css (.draft-banner), tools/render.py (SIM_CHROME)
+
+### D-0023  Hold the copyright line until the license settles
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-21
+- supersedes: D-0009 (the copyright line only)
+- decision: The footer carries no copyright line until LEDGER 8 settles who holds what. Until then the footer points to the "How this was made" page.
+- rationale: Any wording ("Oregon State University", the College of Science as on the Physics footer, or the original authors) asserts an ownership the record does not yet show, which is invented record data. The original authors' credit is also open (VISION principle 4).
+- alternatives: copy the Physics line (claims the College holds copyright in the curriculum); a line saying "copyright pending" (placeholder text on a public page).
+- binds: D-0009, tools/template-site.html, tools/template.html
+
+### D-0024  Link the top strip to the Department of Physics
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-21
+- decision: The black top strip holds one link, "Department of Physics", to https://physics.oregonstate.edu. On the Physics site the same strip names the parent unit ("College of Science"); for the library the parent is the department.
+- rationale: It completes D-0004's structure without inventing a sitemap or a search, which the library does not have. The claim it makes, that this is the department's lab library, is one the owner can confirm or strike.
+- alternatives: an empty strip (the structure without its purpose); link the College of Science (skips a level).
+- binds: D-0004, tools/template-site.html, tools/template.html
+
+### D-0025  Get Open Sans from the Google Fonts repository
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-21
+- decision: Download Open Sans from the googlefonts/opensans repository on GitHub under the SIL Open Font License, and commit it with its license text under `site/fonts/`. The file names and sizes are placeholders until the owner approves the download (a download needs approval of source, file name and size).
+- rationale: D-0006 rules self-hosting but not a source. That repository is the upstream for the family, and the SIL Open Font License allows redistribution with its license text. Every site page embeds its resources (`--embed-resources`), so each page carries the font. Size is the cost to watch, measured before committing.
+- alternatives: a font-hosting service (network at view time, against D-0006).
+- binds: D-0006, site/fonts/

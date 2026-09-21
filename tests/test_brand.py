@@ -3,7 +3,7 @@
 Standard library only, so CI needs no install step. Run from the repo root:
     python -m unittest discover -s tests -v
 
-Palette values and contrast figures come from OSU-style-guide.md in the
+Palette values and contrast figures come from OSU-branding/OSU-style-guide.md in the
 sandbox (supplied by the owner 2026-09-19), which is not in this repo; the
 values are restated here as the ruled quantities.
 """
