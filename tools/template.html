@@ -10,7 +10,7 @@ $if(chromecss)$<link rel="stylesheet" href="$chromecss$">$endif$
 </head>
 <body class="theme-$theme$">
 $if(bannermain)$
-<p class="draft-banner">$bannermain$<span class="draft-detail">$bannerdetail$</span></p>
+<div class="draft-banner"><details><summary><strong>$bannermain$</strong> <span class="draft-more">What this means</span></summary><p class="draft-detail">$bannerdetail$</p></details></div>
 $endif$
 $if(homehref)$
 $brandheader()$
