@@ -85,8 +85,7 @@ body.theme-faithful {
 .site-nav .spacer { flex: 1 1 auto; }
 
 .site-foot {
-  border-top: 1px solid var(--chrome-rule);
-  margin-top: 3rem;
+  margin-top: 2rem;
   padding-bottom: 2.5rem;
 }
 
@@ -204,7 +203,50 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
 
 .course-note { color: var(--chrome-quiet); font-size: .95rem; }
 
+/* OSU header and footer (DECISIONS D-0004, D-0009, D-0024): the structure
+   of the Physics department site. The logo's clear space is at least the
+   width of the "O" in "Oregon State", measured from the file at about a
+   quarter of the logo's height, so the padding scales with --logo-h. */
+:root { --logo-h: 48px; }
+
+.osu-inner { max-width: var(--chrome-shell); margin: 0 auto; padding: 0 1rem; }
+
+.osu-header, .osu-foot {
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.osu-strip { background: #000; font-size: .85rem; line-height: 1.5; padding: .35rem 0; }
+.osu-strip a { color: #fff; }
+
+.osu-banner { background: var(--chrome-accent); }
+.osu-banner .osu-inner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1.25rem;
+}
+.osu-logo { display: block; line-height: 0; padding: calc(var(--logo-h) * .25) calc(var(--logo-h) * .25) calc(var(--logo-h) * .25) 0; }
+.osu-logo img { display: block; height: var(--logo-h); width: auto; }
+.osu-sitename {
+  color: #fff; font-size: 1.75rem; font-weight: 700; line-height: 1.2;
+  text-decoration: none; padding: .25rem 0;
+}
+.osu-sitename:hover, .osu-sitename:focus { text-decoration: underline; }
+
+.osu-nav { background: #fff; border-bottom: 1px solid var(--chrome-rule); }
+.osu-nav .osu-inner { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; padding-top: .6rem; padding-bottom: .6rem; }
+.osu-nav a { color: #000; font-weight: 700; text-decoration: none; font-size: .95rem; }
+.osu-nav a:hover, .osu-nav a:focus { text-decoration: underline; }
+
+.osu-foot { background: #000; color: #fff; margin-top: 3rem; padding: 1.5rem 0 2.5rem; font-size: .9rem; line-height: 1.5; }
+.osu-foot a { color: #fff; }
+.osu-foot p { margin: 0 0 .5rem; }
+.osu-foot-unit { font-weight: 700; font-size: 1.1rem; }
+
+@media (max-width: 40rem) {
+  :root { --logo-h: 36px; }
+  .osu-sitename { font-size: 1.5rem; }
+}
+
 @media print {
   .site-nav, .site-foot .print-hide { display: none; }
   .draft-banner { background: none; color: #000; border: 2px solid #000; }
+  .osu-header, .osu-foot { display: none; }
 }

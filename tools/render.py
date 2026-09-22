@@ -35,6 +35,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PANDOC = os.environ.get("PANDOC", "pandoc")
 THEMES = ("faithful", "modern")
 
+# Official logo files, committed byte for byte (DECISIONS D-0014, D-0020).
+# Absolute, so --embed-resources finds them wherever the output lands.
+BRAND = os.path.join(ROOT, "site", "brand")
+SITE_LOGO = os.path.join(BRAND, "OSU_horizontal_2C_W_over_B.png").replace(os.sep, "/")
+
 # The draft banner, mandatory on every page while the license is open
 # (ledger 37). Owner-reviewed wording; change it here only.
 BANNER_MAIN = "Draft: license pending, not for distribution."
@@ -102,6 +107,7 @@ def site_vars(depth):
         "-M", "indexhref=" + r + "courses/",
         "-M", "methodhref=" + r + "how-this-was-made/",
         "-M", "simshref=" + r + "sims/",
+        "-M", "logo=" + SITE_LOGO,
     ]
 
 
