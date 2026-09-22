@@ -135,27 +135,31 @@ body.site-page {
   line-height: var(--leading-body);
 }
 
-/* The page frame is wide; prose inside it keeps the reading measure and sits
-   left, so a card grid can use the rest of the width without dragging any
-   sentence out to 200 characters. */
+/* The page frame is wide; prose inside it keeps the reading measure and is
+   centered in the frame (D-0029), so a card grid can use the whole width
+   without dragging any sentence out to 200 characters, and the prose does
+   not leave an empty band down the right on a wide screen.
+
+   A grid, not max-width on each child: `ch` resolves against each element's
+   own font, so a 44 px heading capped at 68ch comes out wider than the shell
+   and its text starts at the left edge. Defined on `main`, the column is 68
+   characters of body type for every child. Grid items do not collapse
+   margins, so the vertical spacing below is set as one-sided margins that
+   add up to the scale's steps. */
 body.site-page main {
   max-width: var(--chrome-shell);
   margin: 0 auto;
   padding: var(--space-3) var(--space-2) var(--space-2);
   text-align: left;
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(0, 1fr)
+    [prose-start] minmax(0, var(--chrome-measure))
+    [prose-end] minmax(0, 1fr) [full-end];
 }
 
-body.site-page main > p,
-body.site-page main > ul:not(.lab-list),
-body.site-page main > ol,
-body.site-page main > h1,
-body.site-page main > h2,
-body.site-page main > h3,
-body.site-page main > table,
-body.site-page main > blockquote,
-body.site-page main > .lead {
-  max-width: var(--chrome-measure);
-}
+body.site-page main > * { grid-column: prose; min-width: 0; }
+body.site-page main > .lab-list { grid-column: full; }
 
 body.site-page h1, body.site-page h2, body.site-page h3 {
   color: var(--chrome-heading);
@@ -164,10 +168,10 @@ body.site-page h1, body.site-page h2, body.site-page h3 {
 }
 
 body.site-page h1 { font-size: var(--type-h1); letter-spacing: -.02em; margin: 0 0 var(--space-2); }
-body.site-page h2 { font-size: var(--type-h2); margin: var(--space-4) 0 var(--space-2); }
-body.site-page h3 { font-size: var(--type-h3); margin: var(--space-3) 0 var(--space-1); }
+body.site-page h2 { font-size: var(--type-h2); margin: var(--space-3) 0 var(--space-2); } /* 16 + 24 = 40 after a paragraph */
+body.site-page h3 { font-size: var(--type-h3); margin: var(--space-1) 0 var(--space-1); } /* 16 + 8 = 24 after a paragraph */
 body.site-page p { margin: 0 0 var(--space-2); }
-body.site-page ul, body.site-page ol { padding-left: 1.4rem; }
+body.site-page ul, body.site-page ol { padding-left: 1.4rem; margin: 0 0 var(--space-2); }
 body.site-page li { margin: 0 0 .5rem; }
 
 body.site-page .lead {
