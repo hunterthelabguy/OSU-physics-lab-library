@@ -283,7 +283,7 @@ SIM_CHROME = """<style>
   display: flex; flex-wrap: wrap; gap: .1rem .9rem; align-items: center;
   background: #000; color: #fff;
   padding: 0 .75rem;
-  font: 400 .85rem/1.4 ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  font: 400 .85rem/1.4 "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
 }}
 /* content-box: the sim sets border-box globally, which would shrink the
    22px logo height by the padding instead of adding the padding outside it. */
