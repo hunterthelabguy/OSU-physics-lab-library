@@ -2,6 +2,7 @@
 title: "OSU physics lab library"
 ---
 
+::::: hero
 # OSU physics lab library
 
 ::: lead
@@ -9,21 +10,30 @@ Every lab handout for the intro physics courses, all in one place and easy
 to read on a phone or laptop.
 :::
 
+[Browse courses](courses/){.button .primary}
+[Open Lab 1](labs/ph211-team-building-handout/modern/){.button}
+:::::
+
 Coming later: download any handout for offline use as Markdown, Word, PDF,
 or HTML.
 
 This is the first example, not the finished library. One lab is converted so
 far. Everything else is listed as not yet converted rather than left out.
 
-- [PH 211, Lab 1: Team Building](labs/ph211-team-building-handout/modern/):
-  the student handout, converted from the original Word file and checked
+::: link-cards
+- [PH 211, Lab 1: Team Building](labs/ph211-team-building-handout/modern/)
+  The student handout, converted from the original Word file and checked
   against it word for word.
-- [Course index](courses/): PH 211, 212 and 213, every lab its course
+- [Course index](courses/)
+  PH 211, 212 and 213, every lab its course
   summary lists, and where each one stands.
-- [Sims](sims/): small tools students use during a lab, each one a single
+- [Sims](sims/)
+  Small tools students use during a lab, each one a single
   page that runs in the browser, keeps nothing, and sends nothing.
-- [How this was made](how-this-was-made/): the method, what is checked, and
+- [How this was made](how-this-was-made/)
+  The method, what is checked, and
   what is not.
+:::
 
 ## Why one lab is shown two ways
 

@@ -72,20 +72,25 @@ body.theme-faithful {
   background: var(--chrome-warn);
   color: #000;
   font-family: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 1rem;
+  font-size: .9375rem;
   line-height: 1.5;
-  font-weight: 700;
-  padding: .6rem 1rem;
+  font-weight: 400;
+  padding: .5rem 1rem;
   margin: 0;
   text-align: center;
 }
 
+/* One line by default (D-0030); the detail opens in place, no script. */
+.draft-banner summary { cursor: pointer; list-style: none; }
+.draft-banner summary::-webkit-details-marker { display: none; }
+.draft-banner .draft-more { text-decoration: underline; text-underline-offset: .15em; margin-left: .5rem; }
+.draft-banner details[open] .draft-more { display: none; }
+.draft-banner summary:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+
 .draft-banner .draft-detail {
-  display: block;
-  font-weight: 400;
   font-size: .9rem;
   max-width: 70ch;
-  margin: .15rem auto 0;
+  margin: .25rem auto 0;
 }
 
 /* Navigation above and below the document. */
@@ -160,6 +165,54 @@ body.site-page main {
 
 body.site-page main > * { grid-column: prose; min-width: 0; }
 body.site-page main > .lab-list { grid-column: full; }
+
+/* Landing hero (D-0031): a full-bleed Star Canvas band holding the title,
+   the lead and two actions, on the same centered column as the prose.
+   Colors are fixed, not tokens, so the band reads the same in dark mode.
+   Moondust on Star Canvas is 8.19:1, white 11.8:1; white on Beaver Orange
+   is 4.56:1. */
+body.site-page main > .hero {
+  grid-column: full;
+  margin: calc(-1 * var(--space-3)) 0 var(--space-5);
+  padding: var(--space-6) 0;
+  background: #003b5c;
+  /* Full bleed without 100vw, which counts the scrollbar and scrolls the
+     page sideways: the band stays in the shell and a clipped shadow paints
+     its color out to both edges of the window. */
+  box-shadow: 0 0 0 100vmax #003b5c;
+  clip-path: inset(0 -100vmax);
+  color: #fff;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--chrome-measure)) minmax(0, 1fr);
+}
+body.site-page .hero > * { grid-column: 2; }
+body.site-page .hero h1 { color: #fff; }
+body.site-page .hero .lead { color: #c6dae7; margin: 0 0 var(--space-3); }
+body.site-page .hero .lead p { margin: 0; }
+body.site-page .hero > p { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; }
+
+body.site-page .button {
+  display: inline-flex; align-items: center; min-height: 48px;
+  padding: 0 var(--space-3); border-radius: 6px; border: 2px solid #fff;
+  color: #fff; font-weight: 700; text-decoration: none;
+}
+body.site-page .button.primary { background: var(--chrome-accent); border-color: var(--chrome-accent); }
+body.site-page .button:hover, body.site-page .button:focus-visible { text-decoration: underline; text-underline-offset: .15em; }
+body.site-page .button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+/* Landing links as cards, two across when there is room (D-0031). */
+body.site-page .link-cards ul {
+  list-style: none; padding: 0; margin: 0 0 var(--space-2);
+  display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 40rem) {
+  body.site-page .link-cards ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+body.site-page .link-cards li {
+  margin: 0; padding: var(--space-3);
+  border: 1px solid var(--chrome-rule); border-radius: 8px;
+}
+body.site-page .link-cards li > a:first-child { display: block; font-weight: 700; font-size: var(--type-h3); line-height: var(--leading-tight); margin-bottom: var(--space-1); }
 
 body.site-page h1, body.site-page h2, body.site-page h3 {
   color: var(--chrome-heading);
@@ -255,6 +308,8 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
   color: #fff; font-size: 1.75rem; font-weight: 700; line-height: 1.2;
   text-decoration: none; padding: .25rem 0;
 }
+/* Scoped to the banner so the site pages' link color cannot win over it. */
+.osu-banner .osu-sitename { color: #fff; }
 .osu-sitename:hover, .osu-sitename:focus { text-decoration: underline; }
 
 .osu-nav { background: #fff; border-bottom: 1px solid var(--chrome-rule); }
@@ -269,6 +324,7 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
 
 @media (max-width: 40rem) {
   :root { --logo-h: 36px; }
+  body.site-page main > .hero { padding: var(--space-5) 0; }
   .osu-sitename { font-size: 1.5rem; }
 }
 
@@ -290,7 +346,11 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
     background: none; color: #000; border: 1px solid #000;
     font-size: 9pt; padding: 2pt 6pt; margin: 0 0 12pt;
   }
-  .draft-banner .draft-detail { display: none; }
+  .draft-banner .draft-detail, .draft-banner .draft-more { display: none; }
+  body.site-page main > .hero { background: none; box-shadow: none; clip-path: none; color: #000; margin: 0 0 12pt; padding: 0; display: block; }
+  body.site-page .hero h1, body.site-page .hero .lead { color: #000; }
+  body.site-page .hero > p { display: none; }
+  body.site-page .link-cards li { border: none; padding: 0; }
   body.site-page { font-size: 11pt; }
   body.site-page main { max-width: none; padding: 0; }
   h1, h2, h3 { break-after: avoid; }
