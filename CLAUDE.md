@@ -12,7 +12,13 @@
   `verify` (charter floor 4), squash merge. Ledger and spec-only commits may
   land direct on `main`. Merging on GitHub stamps the account's primary email
   as merge author, which the owner accepts (ledger 36).
-- **Living plan:** `LEDGER.md`, dated and append-only.
+- **Living plan:** `DECISIONS.md` from 2026-09-21, under the decision
+  ledger spec (`../OSU-lab-ops/docs/decision-ledger-spec.md`); this repo is
+  its pilot. Agents append `proposed` entries only; the owner promotes in
+  chat. `DECLINED.md` holds full declines and is not loaded by default.
+  `STATE.md` is the one-screen handoff. `LEDGER.md` is frozen history:
+  never appended to, still binding where not amended. The spec's validator
+  does not exist; `tests/test_brand.py` asserts the ruled quantities.
 - **Commit trailer:** none. Identity `hunterthelabguy` with the noreply email.
 - **Remote:** `git@github-hunterthelabguy:hunterthelabguy/OSU-physics-lab-library.git`
 
