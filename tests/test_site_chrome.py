@@ -131,6 +131,17 @@ class SimBar(unittest.TestCase):
                 self.assertEqual(attrs.get("alt"), "Oregon State University")
                 self.assertEqual(embedded_png_sha(attrs["src"]), LOGOS["OSU_horizontal_2C_O_over_W.png"])
 
+    def test_logo_full_height_under_border_box(self):
+        # The sim's own CSS sets border-box globally, so without an explicit
+        # content-box the 22px height rule eats the padding instead of
+        # sitting outside it, shrinking the visible logo.
+        for src, pub in self.sims():
+            with self.subTest(sim=src.parent.name):
+                bar = self.BAR.search(pub.read_text(encoding="utf-8")).group(1)
+                img_rule = re.search(r"\.lib-bar img \{([^}]*)\}", bar)
+                self.assertIsNotNone(img_rule, "no .lib-bar img rule")
+                self.assertIn("box-sizing: content-box", img_rule.group(1))
+
 
 if __name__ == "__main__":
     unittest.main()

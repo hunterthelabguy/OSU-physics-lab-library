@@ -285,7 +285,9 @@ SIM_CHROME = """<style>
   padding: 0 .75rem;
   font: 400 .85rem/1.4 ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
 }}
-.lib-bar img {{ display: block; height: 22px; width: auto; padding: 6px 6px 6px 0; }}
+/* content-box: the sim sets border-box globally, which would shrink the
+   22px logo height by the padding instead of adding the padding outside it. */
+.lib-bar img {{ display: block; height: 22px; width: auto; padding: 6px 6px 6px 0; box-sizing: content-box; }}
 .lib-bar .lib-draft {{ background: #ffb500; color: #000; font-weight: 700; padding: 0 .4rem; }}
 .lib-bar a {{ color: #fff; }}
 .lib-bar .lib-links {{ display: flex; gap: 1rem; margin-left: auto; }}
