@@ -909,7 +909,7 @@ git commit -m "Embed Open Sans in the Electric Force sim" -m "D-0026, D-0027, D-
 
 - [ ] **Step 3: Screenshots.** Take a 1280-wide screenshot of `/` and of the sim for the D-0012 heads-up the owner sends to University Marketing. The owner sends it; nothing is sent from here.
 
-- [ ] **Step 4: Update `CLAUDE.md`** under "Build": the header and footer are the partials `tools/brandheader.html` and `tools/brandfooter.html`; logo files live in `site/brand/` and must never be edited; fonts live in `site/fonts/` and are rebuilt only with `tools/subset_fonts.py`; the tests run after the site build and need `build/site/`.
+- [ ] **Step 4: Update `CLAUDE.md`** under "Build": the header and footer are the partials `tools/brandheader.html` and `tools/brandfooter.html`; logo files live in `site/brand/` and must never be edited; fonts live in `site/fonts/` and are rebuilt only with `tools/subset_fonts.py`; the tests run after the site build and need `build/site/`. Under "Sims": replace the "29 px" figure with the bar height measured in Task 5 (or Task 7), and add that the sim's own file carries its font (D-0026), which is a change to the sim, not site chrome, so "the source file is never edited for the site" still holds.
 
 - [ ] **Step 5: Update `STATE.md`** (one screen): focus done, the measurements, pilot measures (spec gaps, owner corrections, promotions without edits), and what awaits the owner (Marketing heads-up per D-0012, the pilot comparison feature and verdict date).
 
