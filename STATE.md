@@ -4,16 +4,17 @@ Volatile handoff, capped at one screen. Updated 2026-09-21.
 
 **Focus:** site branding refresh, the pilot for the decision ledger spec.
 Spec approved 2026-09-21. Plan: `docs/superpowers/plans/2026-09-21-site-branding.md`.
-Ledger: 18 ruled, 3 declined, 7 proposed (D-0013, D-0016, D-0018,
-D-0019, D-0027, D-0028, and nothing else). No branding code.
+Ledger: 20 ruled, 3 declined, 4 proposed (D-0013, D-0016, D-0018,
+D-0019). No branding code yet.
 
-**Next step:** owner picks an execution mode and rules D-0027 and D-0028;
-land PR #7, then Tasks 1 to 5 can run. Tasks 6 and 7 stop on D-0027,
-D-0028 and the download approval. Then the plan via
+**Next step:** execute the plan subagent-driven on branch
+`branding-refresh` from main (owner ruling 2026-09-21, Sonnet where
+reasonable). PRs 8 and 9 (sim law codes, vectors off) are on main; Task 7
+edits the same sim file. Then the plan via
 writing-plans, with `Ledger:` and `binds` header lines.
 
 **Blockers (header and sim-bar tasks stop on these):**
-- D-0027 plus download approval (Task 6); D-0027 and D-0028 (Task 7).
+- None. D-0027, D-0028 and the download are approved.
 
 **Open questions:**
 - Pilot comparison feature and verdict date (spec section 8): placeholders,
@@ -36,7 +37,7 @@ writing-plans, with `Ledger:` and `binds` header lines.
   D-0026 ruled; the owner narrowed D-0025 to a Latin and Greek subset.
 - Spec gaps caught before code, continued: 8. Italics and weights 600,
   650 and 500 (D-0027); base64 data can trip the sim's banned-word check
-  (D-0028).
+  (D-0028). Round 4: D-0027 and D-0028 ruled without edits.
 
 **Not built:** the ledger validator (spec section 6, D-0019). Only
 `tests/test_brand.py` runs.

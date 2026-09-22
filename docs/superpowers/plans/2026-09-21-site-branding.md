@@ -29,10 +29,12 @@ binds D-0023
 binds D-0024
 binds D-0025
 binds D-0026
+binds D-0027
+binds D-0028
 
-D-0027 and D-0028 are `proposed`. Tasks 6 and 7 depend on them and STOP
-until the owner rules them; Task 6 also needs the owner's approval of the
-download (files and sizes listed in D-0027).
+D-0027 and D-0028 were ruled 2026-09-21, and the owner approved the Task 6
+download (the four TTFs and `OFL.txt` listed in D-0027, plus fonttools and
+brotli from PyPI). The STOP notes on Tasks 6 and 7 are satisfied.
 
 ## Global Constraints
 
