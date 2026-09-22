@@ -27,6 +27,16 @@ LARGE_REGULAR_PX = 24      # style guide: 24 px regular is large text
 BOLD_WEIGHT = 700
 ROOT_PX = 16               # rem base; the site sets no root font size
 
+# The style guide's primary and secondary colors (Electric Beav has no
+# values and is print only). D-0008: the chrome uses nothing else.
+PALETTE = {
+    "D73F09", "000000", "FFFFFF",                      # primary
+    "4A773C", "00859B", "FFB500", "006A8E", "C4D6A4",  # Pine Stand .. Reindeer Moss
+    "B8DDE1", "FDD26E", "C6DAE7", "AA9D2E", "0D5257",  # Seafoam .. Rogue Wave
+    "D3832B", "003B5C", "B7A99A", "A7ACA2", "7A6855",  # Solar Flare .. High Desert
+    "8E9089",                                          # Crater
+}
+
 
 def norm_hex(value):
     """'#fff' or '#d73f09' to 'FFFFFF' or 'D73F09'."""
@@ -158,6 +168,14 @@ class DraftBanner(unittest.TestCase):
                 self.assertEqual(resolve(fg), PADDLETAIL_BLACK)
                 return
         self.fail("no .draft-banner rule")
+
+
+class PaletteOnly(unittest.TestCase):
+    """D-0008 and D-0015: every color in the chrome is a palette value."""
+
+    def test_site_css_palette_only(self):
+        found = {norm_hex(h) for h in re.findall(r"#[0-9a-fA-F]{3,6}\b", css_text())}
+        self.assertEqual(sorted(found - PALETTE), [])
 
 
 if __name__ == "__main__":

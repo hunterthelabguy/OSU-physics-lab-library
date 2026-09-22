@@ -3,7 +3,7 @@
    (themes/faithful.css or themes/modern.css), which owns the document body;
    nothing here restyles document content.
 
-   Colors from the OSU palette (../../OSU-style-guide.md in the sandbox, not
+   Colors from the OSU palette (OSU-branding/OSU-style-guide.md in the sandbox, not
    in this repo). Star Canvas for headings and links (11.8:1 on white),
    Beaver Orange for the draft banner and accents only. */
 
@@ -12,9 +12,8 @@
   --chrome-paper: #fff;
   --chrome-heading: #003b5c;   /* Star Canvas */
   --chrome-accent: #d73f09;    /* Beaver Orange */
-  --chrome-rule: #d6dbe0;
+  --chrome-rule: #a7aca2;   /* Coastline */
   --chrome-quiet: #0d5257;     /* Rogue Wave, 8.9:1 on white */
-  --chrome-tint: #f4f7f9;
   /* Two widths, deliberately. The reading measure is the evidence review's
      number (WCAG 2.2 SC 1.4.8 bounds a line at 80 characters) and governs
      anything anyone reads as prose. The shell is the page frame, and lists
@@ -26,12 +25,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --chrome-ink: #f2f4f6;
-    --chrome-paper: #14181b;
+    --chrome-ink: #fff;
+    --chrome-paper: #000;
     --chrome-heading: #b8dde1; /* Seafoam, 14.5:1 on black */
-    --chrome-rule: #33393f;
+    --chrome-rule: #8e9089; /* Crater */
     --chrome-quiet: #c6dae7;   /* Moondust */
-    --chrome-tint: #1c2227;
   }
 }
 
@@ -41,9 +39,8 @@ body.theme-faithful {
   --chrome-ink: #000;
   --chrome-paper: #fff;
   --chrome-heading: #003b5c;
-  --chrome-rule: #d6dbe0;
+  --chrome-rule: #a7aca2;
   --chrome-quiet: #0d5257;
-  --chrome-tint: #f4f7f9;
 }
 
 /* Draft banner: every page, top of every page (ledger 37). */
@@ -103,7 +100,7 @@ body.theme-faithful {
   text-decoration: none;
 }
 
-.switch:hover, .switch:focus { background: var(--chrome-tint); }
+.switch:hover, .switch:focus { text-decoration: underline; }
 
 /* Site pages: landing, course index, how this was made. */
 body.site-page {
