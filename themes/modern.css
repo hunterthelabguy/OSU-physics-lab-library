@@ -29,7 +29,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   margin: 0;
-  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1.0625rem;
   line-height: 1.6;                    /* at least 1.5 (SC 1.4.8) */
 }
@@ -44,14 +44,14 @@ main {
 h1, h2, h3 {
   color: var(--heading);
   line-height: 1.25;
-  font-weight: 650;
+  font-weight: 700;
 }
 
 h1 { font-size: 2rem; margin: 0 0 .25rem; }
 
 h1 + h2 {                              /* course line under the title */
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--quiet);
   margin: 0 0 2rem;
   padding-bottom: 1rem;
@@ -125,7 +125,7 @@ li { margin: 0 0 .5rem; }
 
 .box .action, .box .hint, .box .legend-question { margin: .5rem 0; }
 
-.legend-question p { font-weight: 650; }
+.legend-question p { font-weight: 700; }
 
 .doc-footer {
   max-width: 68ch;

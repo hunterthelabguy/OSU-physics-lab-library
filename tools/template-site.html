@@ -9,18 +9,15 @@
 </head>
 <body class="site-page">
 <p class="draft-banner">$bannermain$<span class="draft-detail">$bannerdetail$</span></p>
-$if(uphref)$
-<nav class="site-nav">
-<a href="$homehref$">OSU physics lab library</a>
-<span class="spacer"></span>
-</nav>
-$endif$
+$brandheader()$
 <main>
 $body$
 </main>
+$if(footnote)$
 <div class="site-foot">
-<p><a href="$homehref$">Library home</a> &middot; <a href="$indexhref$">Course index</a> &middot; <a href="$simshref$">Sims</a> &middot; <a href="$methodhref$">How this was made</a></p>
 <p class="print-hide">$footnote$</p>
 </div>
+$endif$
+$brandfooter()$
 </body>
 </html>

@@ -30,6 +30,13 @@
   every converted document in both presentations. Relative links throughout,
   so it serves from any host and opens from disk. CI runs it too, so a broken
   build script fails `verify`.
+- Every site page carries the OSU header and footer via two Pandoc partials,
+  `tools/brandheader.html` and `tools/brandfooter.html`. Logo files live in
+  `site/brand/` and must never be edited; `tests/test_assets.py` pins each
+  file's SHA-256. Open Sans lives in `site/fonts/` and is rebuilt only by
+  `tools/subset_fonts.py` (one-time tool; ordinary deploys use the committed
+  WOFF2 files). The Python test suite (`tests/`) needs `build/site/` to
+  exist and runs after the site build in CI.
 - Render one converted file on its own, no site chrome:
   `PANDOC="$LOCALAPPDATA/Pandoc/pandoc.exe" python tools/render.py <file.md>`
   writes `build/<theme>/<id>.html`, theme embedded, `build/` not committed.
@@ -93,9 +100,11 @@
   a `default-src 'none'` Content Security Policy. Ledger 38 is why there is
   no framework here.
 - The build injects the draft banner and a way back into the published copy
-  only; the source file is never edited for the site. The injected bar costs
-  29 px of height, which the sim's own no-scrolling-at-1280x720 ruling has
-  room for.
+  only; the source file is never edited for the site. The injected bar is
+  34 px tall at 1280x720 (measured 2026-09-21); the sim fits in 720 px with
+  it. The sim's own file carries Open Sans Regular and Bold as data: URIs
+  (D-0026); this is a change to the sim's own source, not injected chrome,
+  so "the source file is never edited for the site" still holds.
 - A sim ships its own no-dependency node test script beside it, and CI runs
   every one. A check whose file is not in this checkout is reported as
   skipped, never as a pass.

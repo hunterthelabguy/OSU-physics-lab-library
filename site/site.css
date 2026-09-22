@@ -1,9 +1,14 @@
+@font-face { font-family: "Open Sans"; font-style: normal; font-weight: 400; src: url("fonts/OpenSans-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Open Sans"; font-style: normal; font-weight: 700; src: url("fonts/OpenSans-Bold.woff2") format("woff2"); }
+@font-face { font-family: "Open Sans"; font-style: italic; font-weight: 400; src: url("fonts/OpenSans-Italic.woff2") format("woff2"); }
+@font-face { font-family: "Open Sans"; font-style: italic; font-weight: 700; src: url("fonts/OpenSans-BoldItalic.woff2") format("woff2"); }
+
 /* Site chrome: the draft banner, navigation, landing page, and course index.
    Document pages load this on top of their presentation theme
    (themes/faithful.css or themes/modern.css), which owns the document body;
    nothing here restyles document content.
 
-   Colors from the OSU palette (../../OSU-style-guide.md in the sandbox, not
+   Colors from the OSU palette (OSU-branding/OSU-style-guide.md in the sandbox, not
    in this repo). Star Canvas for headings and links (11.8:1 on white),
    Beaver Orange for the draft banner and accents only. */
 
@@ -12,9 +17,9 @@
   --chrome-paper: #fff;
   --chrome-heading: #003b5c;   /* Star Canvas */
   --chrome-accent: #d73f09;    /* Beaver Orange */
-  --chrome-rule: #d6dbe0;
+  --chrome-rule: #a7aca2;   /* Coastline */
   --chrome-quiet: #0d5257;     /* Rogue Wave, 8.9:1 on white */
-  --chrome-tint: #f4f7f9;
+  --chrome-warn: #ffb500;     /* Luminance, black text 11.86:1 (D-0022) */
   /* Two widths, deliberately. The reading measure is the evidence review's
      number (WCAG 2.2 SC 1.4.8 bounds a line at 80 characters) and governs
      anything anyone reads as prose. The shell is the page frame, and lists
@@ -26,12 +31,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --chrome-ink: #f2f4f6;
-    --chrome-paper: #14181b;
+    --chrome-ink: #fff;
+    --chrome-paper: #000;
     --chrome-heading: #b8dde1; /* Seafoam, 14.5:1 on black */
-    --chrome-rule: #33393f;
+    --chrome-rule: #8e9089; /* Crater */
     --chrome-quiet: #c6dae7;   /* Moondust */
-    --chrome-tint: #1c2227;
   }
 }
 
@@ -41,19 +45,18 @@ body.theme-faithful {
   --chrome-ink: #000;
   --chrome-paper: #fff;
   --chrome-heading: #003b5c;
-  --chrome-rule: #d6dbe0;
+  --chrome-rule: #a7aca2;
   --chrome-quiet: #0d5257;
-  --chrome-tint: #f4f7f9;
 }
 
 /* Draft banner: every page, top of every page (ledger 37). */
 .draft-banner {
-  background: var(--chrome-accent);
-  color: #fff;
-  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--chrome-warn);
+  color: #000;
+  font-family: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1rem;
   line-height: 1.5;
-  font-weight: 600;
+  font-weight: 700;
   padding: .6rem 1rem;
   margin: 0;
   text-align: center;
@@ -69,7 +72,7 @@ body.theme-faithful {
 
 /* Navigation above and below the document. */
 .site-nav, .site-foot {
-  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: .9rem;
   line-height: 1.5;
   /* The chrome frames the shell on every page. It cannot line up with a
@@ -87,8 +90,7 @@ body.theme-faithful {
 .site-nav .spacer { flex: 1 1 auto; }
 
 .site-foot {
-  border-top: 1px solid var(--chrome-rule);
-  margin-top: 3rem;
+  margin-top: 2rem;
   padding-bottom: 2.5rem;
 }
 
@@ -103,14 +105,14 @@ body.theme-faithful {
   text-decoration: none;
 }
 
-.switch:hover, .switch:focus { background: var(--chrome-tint); }
+.switch:hover, .switch:focus { text-decoration: underline; }
 
 /* Site pages: landing, course index, how this was made. */
 body.site-page {
   background: var(--chrome-paper);
   color: var(--chrome-ink);
   margin: 0;
-  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1.0625rem;
   line-height: 1.6;
 }
@@ -140,7 +142,7 @@ body.site-page main > .lead {
 body.site-page h1, body.site-page h2, body.site-page h3 {
   color: var(--chrome-heading);
   line-height: 1.25;
-  font-weight: 650;
+  font-weight: 700;
 }
 
 body.site-page h1 { font-size: 2rem; margin: 0 0 .5rem; }
@@ -195,7 +197,7 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
 
 .lab-list > li.converted { border-left: 4px solid var(--chrome-accent); }
 
-.lab-title { font-weight: 650; margin: 0 0 .25rem; }
+.lab-title { font-weight: 700; margin: 0 0 .25rem; }
 .lab-desc { margin: 0 0 .5rem; }
 
 .lab-state {
@@ -206,7 +208,50 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
 
 .course-note { color: var(--chrome-quiet); font-size: .95rem; }
 
+/* OSU header and footer (DECISIONS D-0004, D-0009, D-0024): the structure
+   of the Physics department site. The logo's clear space is at least the
+   width of the "O" in "Oregon State", measured from the file at about a
+   quarter of the logo's height, so the padding scales with --logo-h. */
+:root { --logo-h: 48px; }
+
+.osu-inner { max-width: var(--chrome-shell); margin: 0 auto; padding: 0 1rem; }
+
+.osu-header, .osu-foot {
+  font-family: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.osu-strip { background: #000; font-size: .85rem; line-height: 1.5; padding: .35rem 0; }
+.osu-strip a { color: #fff; }
+
+.osu-banner { background: var(--chrome-accent); }
+.osu-banner .osu-inner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1.25rem;
+}
+.osu-logo { display: block; line-height: 0; padding: calc(var(--logo-h) * .25) calc(var(--logo-h) * .25) calc(var(--logo-h) * .25) 0; }
+.osu-logo img { display: block; height: var(--logo-h); width: auto; }
+.osu-sitename {
+  color: #fff; font-size: 1.75rem; font-weight: 700; line-height: 1.2;
+  text-decoration: none; padding: .25rem 0;
+}
+.osu-sitename:hover, .osu-sitename:focus { text-decoration: underline; }
+
+.osu-nav { background: #fff; border-bottom: 1px solid var(--chrome-rule); }
+.osu-nav .osu-inner { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; padding-top: .6rem; padding-bottom: .6rem; }
+.osu-nav a { color: #000; font-weight: 700; text-decoration: none; font-size: .95rem; }
+.osu-nav a:hover, .osu-nav a:focus { text-decoration: underline; }
+
+.osu-foot { background: #000; color: #fff; margin-top: 3rem; padding: 1.5rem 0 2.5rem; font-size: .9rem; line-height: 1.5; }
+.osu-foot a { color: #fff; }
+.osu-foot p { margin: 0 0 .5rem; }
+.osu-foot-unit { font-weight: 700; font-size: 1.1rem; }
+
+@media (max-width: 40rem) {
+  :root { --logo-h: 36px; }
+  .osu-sitename { font-size: 1.5rem; }
+}
+
 @media print {
   .site-nav, .site-foot .print-hide { display: none; }
   .draft-banner { background: none; color: #000; border: 2px solid #000; }
+  .osu-header, .osu-foot { display: none; }
 }

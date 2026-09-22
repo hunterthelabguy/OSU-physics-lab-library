@@ -13,6 +13,9 @@ $if(bannermain)$
 <p class="draft-banner">$bannermain$<span class="draft-detail">$bannerdetail$</span></p>
 $endif$
 $if(homehref)$
+$brandheader()$
+$endif$
+$if(homehref)$
 <nav class="site-nav">
 <a href="$homehref$">OSU physics lab library</a>
 $if(uphref)$<a href="$uphref$">$uplabel$</a>$endif$
@@ -31,9 +34,7 @@ apart. Downloads (Markdown, Word, PDF) are not wired up in this draft.</p>
 $endif$
 </footer>
 $if(homehref)$
-<div class="site-foot">
-<p><a href="$homehref$">Library home</a> &middot; <a href="$indexhref$">Course index</a> &middot; <a href="$simshref$">Sims</a> &middot; <a href="$methodhref$">How this was made</a></p>
-</div>
+$brandfooter()$
 $endif$
 </body>
 </html>

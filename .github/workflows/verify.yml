@@ -36,8 +36,8 @@ jobs:
             [ -f "$t" ] || continue
             echo "== $t"; (cd "$(dirname "$t")" && node "$(basename "$t")")
           done
-      - name: Brand tests
-        # Each asserts a bracketed quantity in a ruled DECISIONS.md entry.
-        run: python3 -m unittest discover -s tests -v
       - name: Site builds
         run: python3 tools/render.py --site
+      - name: Tests
+        # Each asserts a ruled DECISIONS.md quantity or reads build/site.
+        run: python3 -m unittest discover -s tests -v

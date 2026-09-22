@@ -13,6 +13,11 @@ const here = dirname(fileURLToPath(import.meta.url));
 const read = (name) => readFileSync(join(here, name), "utf8");
 const html = read("index.html");
 
+// DECISIONS D-0028: page-text checks skip embedded data (base64 fonts can
+// contain any letters by chance); network, policy and hash checks still
+// read the whole file.
+const pageText = html.replace(/data:[^"')\s]+/g, "data:");
+
 const block = html.match(/\/\/ BEGIN CORE[^\n]*\n([\s\S]*?)\/\/ END CORE/);
 if (!block) {
   console.error("FAIL: no CORE block found in index.html");
@@ -200,10 +205,11 @@ check("index.html persists nothing", !/localStorage|sessionStorage|indexedDB|doc
 check("index.html has a CSP that blocks network access", /Content-Security-Policy" content="default-src 'none'/.test(html));
 check("index.html has noindex", /<meta name="robots" content="noindex">/.test(html));
 check("index.html title is Electric Force", /<title>Electric Force<\/title>/.test(html));
-check("index.html has no identity fields", !/\b(name|email|student|onid|id number)\b\s*<\/label>/i.test(html) && !/type="email"/i.test(html));
-check("index.html does not describe the law's form", !/(?<!to)exponent|power law|cube|cubic|square|inverse/i.test(html));
+check("index.html has no identity fields", !/\b(name|email|student|onid|id number)\b\s*<\/label>/i.test(pageText) && !/type="email"/i.test(pageText));
+check("index.html does not describe the law's form", !/(?<!to)exponent|power law|cube|cubic|square|inverse/i.test(pageText));
 check("footer attribution present", html.includes("Oregon State University, Department of Physics"));
 check("About panel is a native disclosure", /<details class="about[^"]*">\s*<summary>About<\/summary>/.test(html));
+check("index.html embeds Open Sans", /@font-face\s*\{[^}]*font-family:\s*"Open Sans"/.test(html) && /font-src data:/.test(html));
 const legacyHash = createHash("sha256").update(readFileSync(join(here, "index.legacy.html"))).digest("hex");
 check("index.legacy.html is untouched", legacyHash === "e30dfbcfe90aac8b36a156639e7cc4755e616e51f15e57f263e6d9ceda7e8236", legacyHash);
 
