@@ -150,4 +150,6 @@ li { margin: 0 0 .5rem; }
   main { max-width: none; padding: 0; }
   .question { background: none; border-left: 3px solid #000; }
   .doc-footer { display: none; }
+  .question, .box { break-inside: avoid; }
+  h1, h2, h3 { break-after: avoid; }
 }

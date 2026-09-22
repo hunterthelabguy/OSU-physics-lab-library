@@ -81,4 +81,5 @@ li { margin: 0; }
 @media print {
   main { margin: 0 auto; }
   .doc-footer { display: none; }
+  .box, .question { break-inside: avoid; }
 }
