@@ -119,6 +119,7 @@
   .key { display: block; height: 26px; max-width: 100%; }
   .key text { font-family: inherit; font-size: 12px; fill: var(--black); }
   .desc { margin-top: 6px; padding: 4px 10px; min-height: 3.2em; border-left: 4px solid var(--black); background: var(--panel); font-size: 0.875rem; }
+  .desc:empty { display: none; } /* vectors off (ledger 62): only off-ruler notes remain */
 
   /* Controls: one row per quantity */
   .controls { display: grid; gap: 8px; }
@@ -216,9 +217,11 @@
         <ul>
           <li>Keyboard: select charge 2 with Tab, then use the arrow keys. Page Up and Page Down take bigger steps; Home and End go to 0.1 m and 10 m.</li>
           <li>The ruler is logarithmic: 0.1 m to 1 m is as long as 1 m to 10 m. The gap between q1 and 0.1 m is not to scale.</li>
+          <!-- Vector help lines off by ruling (LEDGER.md entry 62).
           <li>Linear scale vector: solid line, filled head. Length is proportional to the force; full length is 100 N. A larger force is drawn at full length with a double head.</li>
           <li>Log scale vector: dashed line, open head. Zero length is 1e-6 N and full length is 1e7 N; each tick is a factor of 10. A smaller force is not drawn; a larger one is drawn at full length with a double head.</li>
           <li>The arrows show the picture. The table is the record.</li>
+          -->
         </ul>
         <h3>The table</h3>
         <ul>
@@ -256,6 +259,7 @@
     </div>
     <p id="bench-keys" class="sr-only">Arrow keys move charge 2. Page Up and Page Down take bigger steps. Home and End go to the ends of the ruler.</p>
     <p class="caption">Log ruler: 0.1 m to 1 m is as long as 1 m to 10 m. The gap before 0.1 m is not to scale.</p>
+    <!-- Force vectors off by ruling (LEDGER.md entry 62); see VECTORS_ENABLED.
     <div class="vectors" role="group" aria-label="Force vectors">
       <div class="vector">
         <label class="choice"><input type="checkbox" id="show-lin" aria-describedby="key-lin-text"> Linear scale vector</label>
@@ -268,6 +272,7 @@
         <span id="key-log-text" class="sr-only">Dashed line, open head, zero length 1e-6 N, full length 1e7 N, one tick per factor of 10.</span>
       </div>
     </div>
+    -->
     <p id="bench-desc" class="desc"></p>
   </section>
 
@@ -478,6 +483,10 @@
   const LIN_FULL_SCALE = 100;   // N
   const LOG_FLOOR_EXP = -6;     // 1e-6 N at zero length
   const LOG_TOP_EXP = 7;        // 1e7 N at full length
+  // Force vectors are off by ruling (LEDGER.md entry 62): students find how the
+  // force depends on r from their own data first. Set true to bring them back,
+  // and uncomment the vector checkboxes and help lines in the markup.
+  const VECTORS_ENABLED = false;
   const RULER_MIN = 0.1, RULER_MAX = 10; // m
   const SLIDER_MIN = 0.1, SLIDER_MAX = 10; // C
 
@@ -662,7 +671,9 @@
     if (offLow) parts.push("r = " + rText + " is below the ruler, so charge 2 is drawn at 0.1 m.");
     if (offHigh) parts.push("r = " + rText + " is beyond the ruler, so charge 2 is drawn at 10 m.");
 
-    if (!anyOn) {
+    if (!VECTORS_ENABLED) {
+      // Vectors off (ledger 62): no arrows, guides, or force description.
+    } else if (!anyOn) {
       parts.push("Turn on a force vector to see the force on each charge.");
     } else if (Number.isNaN(F)) {
       parts.push("The force cannot be drawn at these values.");
@@ -704,7 +715,7 @@
   function redraw() {
     layout();
     buildRuler();
-    buildKeys();
+    if (VECTORS_ENABLED) buildKeys();
     render();
   }
 
@@ -842,8 +853,10 @@
   });
 
   // ---------- vectors ----------
-  $("show-lin").addEventListener("change", (e) => { state.showLin = e.target.checked; render(); });
-  $("show-log").addEventListener("change", (e) => { state.showLog = e.target.checked; render(); });
+  if (VECTORS_ENABLED) {
+    $("show-lin").addEventListener("change", (e) => { state.showLin = e.target.checked; render(); });
+    $("show-log").addEventListener("change", (e) => { state.showLog = e.target.checked; render(); });
+  }
 
   // ---------- pop-overs (Help, About): Escape or a click elsewhere closes them ----------
   document.addEventListener("keydown", (e) => {

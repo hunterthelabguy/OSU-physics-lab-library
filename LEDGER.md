@@ -387,3 +387,20 @@ are recorded as entries too, so the gap is on the record.
     the next build fails to clear `build/site` on Windows. Measure layout
     from inside the page rather than by eye. Node 24 is needed for the sim
     tests and the GitHub CLI is not on PATH.
+
+## 2026-09-21
+
+62. **Electric Force force vectors are off, for pedagogical reasons (owner).**
+    The linear and log scale vector checkboxes, their scale keys, the force
+    arrows, and the arrow sentences in the bench's screen-reader status no
+    longer appear. Reason: students should find how the force depends on r
+    from data they collect and graph themselves, and the arrows showed the
+    trend before any data was taken. Direction-only arrows were considered
+    and declined, so the attract or repel picture and the equal and opposite
+    pair go too. Switched off, not deleted: `VECTORS_ENABLED = false` gates
+    the drawing and listeners, and the markup and help lines are commented
+    out, so the code stays under test. The empty bench status box is hidden
+    while it has nothing to say. The unused arrow rows at the top of the
+    bench were left as they are. This may be reintroduced as it was or in a
+    modified form if the owner raises it again; bringing it back is one
+    constant plus two uncommented blocks.
