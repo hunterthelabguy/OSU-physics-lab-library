@@ -3,18 +3,17 @@
 Volatile handoff, capped at one screen. Updated 2026-09-21.
 
 **Focus:** site branding refresh, the pilot for the decision ledger spec.
-Spec written: `docs/superpowers/specs/2026-09-21-site-branding-design.md`.
-Ledger: 16 ruled, 3 declined (D-0003, D-0017, D-0021), 7 proposed. No
-branding code.
+Spec approved 2026-09-21. Plan: `docs/superpowers/plans/2026-09-21-site-branding.md`.
+Ledger: 18 ruled, 3 declined, 7 proposed (D-0013, D-0016, D-0018,
+D-0019, D-0027, D-0028, and nothing else). No branding code.
 
-**Next step:** owner rules D-0025 (asked what is special about Open Sans
-first) and D-0026, and approves the spec (D-0013 is met in substance; its
-status is the owner's). Then the plan via
+**Next step:** owner picks an execution mode and rules D-0027 and D-0028;
+land PR #7, then Tasks 1 to 5 can run. Tasks 6 and 7 stop on D-0027,
+D-0028 and the download approval. Then the plan via
 writing-plans, with `Ledger:` and `binds` header lines.
 
 **Blockers (header and sim-bar tasks stop on these):**
-- D-0025 plus download approval for the Open Sans files (font tasks).
-- D-0026 (sim font task).
+- D-0027 plus download approval (Task 6); D-0027 and D-0028 (Task 7).
 
 **Open questions:**
 - Pilot comparison feature and verdict date (spec section 8): placeholders,
@@ -33,7 +32,11 @@ writing-plans, with `Ledger:` and `binds` header lines.
   (D-0011, D-0012, D-0014, D-0015); 1 declined without a stated reason
   (D-0017); 4 left proposed (D-0013, D-0016, D-0018, D-0019). Round 2:
   4 of 6 promoted without edits (D-0020, D-0022, D-0023, D-0024); 1
-  reversed (D-0021); 1 held for a question (D-0025).
+  reversed (D-0021); 1 held for a question (D-0025). Round 3: D-0025 and
+  D-0026 ruled; the owner narrowed D-0025 to a Latin and Greek subset.
+- Spec gaps caught before code, continued: 8. Italics and weights 600,
+  650 and 500 (D-0027); base64 data can trip the sim's banned-word check
+  (D-0028).
 
 **Not built:** the ledger validator (spec section 6, D-0019). Only
 `tests/test_brand.py` runs.
