@@ -14,6 +14,7 @@
   --chrome-accent: #d73f09;    /* Beaver Orange */
   --chrome-rule: #a7aca2;   /* Coastline */
   --chrome-quiet: #0d5257;     /* Rogue Wave, 8.9:1 on white */
+  --chrome-warn: #ffb500;     /* Luminance, black text 11.86:1 (D-0022) */
   /* Two widths, deliberately. The reading measure is the evidence review's
      number (WCAG 2.2 SC 1.4.8 bounds a line at 80 characters) and governs
      anything anyone reads as prose. The shell is the page frame, and lists
@@ -45,8 +46,8 @@ body.theme-faithful {
 
 /* Draft banner: every page, top of every page (ledger 37). */
 .draft-banner {
-  background: var(--chrome-accent);
-  color: #fff;
+  background: var(--chrome-warn);
+  color: #000;
   font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1rem;
   line-height: 1.5;

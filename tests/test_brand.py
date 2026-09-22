@@ -151,11 +151,6 @@ class DraftBanner(unittest.TestCase):
     def test_black_on_luminance(self):
         self.assertEqual(round(contrast(LUMINANCE, PADDLETAIL_BLACK), 2), 11.86)
 
-    # Not built yet. Strict by construction: when the refresh lands this
-    # passes, unittest reports an unexpected success as a failure, and the
-    # decorator has to come off. It is reported as an expected failure, never
-    # counted as a pass.
-    @unittest.expectedFailure
     def test_banner_colors(self):
         for selector, body in rules():
             if selector.strip() == ".draft-banner":
