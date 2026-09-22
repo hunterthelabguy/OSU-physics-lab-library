@@ -5,9 +5,12 @@ title: "OSU physics lab library"
 # OSU physics lab library
 
 ::: lead
-The curriculum for the introductory physics labs at Oregon State, in one
-place, readable on any screen, with the software tools built to support it.
+Every lab handout for the intro physics courses, all in one place and easy
+to read on a phone or laptop.
 :::
+
+Coming later: download any handout for offline use as Markdown, Word, PDF,
+or HTML.
 
 This is the first example, not the finished library. One lab is converted so
 far. Everything else is listed as not yet converted rather than left out.
@@ -51,7 +54,7 @@ nothing.
 
 ## What is deliberately missing
 
-- Downloads (Markdown, Word, PDF) are planned and not built yet.
+- Downloads (Markdown, Word, PDF, HTML) are planned and not built yet.
 - Instructor notes and rubrics are kept separately and privately. Whether
   they ever become public is an open question for the department.
 - The license is not settled. Until it is, this site is a draft to look at,

@@ -27,6 +27,24 @@
      a wide grid never makes a long line of text. */
   --chrome-measure: 68ch;
   --chrome-shell: 72rem;
+  /* Spacing scale on an 8 px base. Every margin, padding and gap in the
+     site pages uses one of these six, nothing in between. */
+  --space-1: .5rem;    /*  8 px: icon to label */
+  --space-2: 1rem;     /* 16 px: paragraph gap, gutter */
+  --space-3: 1.5rem;   /* 24 px: card padding, grid gap */
+  --space-4: 2.5rem;   /* 40 px: before an h2 */
+  --space-5: 4rem;     /* 64 px: section to section */
+  --space-6: 6rem;     /* 96 px: hero band padding */
+  /* Type scale at a ratio of about 1.25. Headings tighten; body keeps the
+     reading line height. */
+  --type-h1: 2.75rem;    /* 44 px */
+  --type-h2: 1.75rem;    /* 28 px */
+  --type-h3: 1.375rem;   /* 22 px */
+  --type-lead: 1.3125rem;/* 21 px */
+  --type-body: 1.125rem; /* 18 px */
+  --type-small: .9375rem;/* 15 px */
+  --leading-tight: 1.15;
+  --leading-body: 1.6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -113,8 +131,8 @@ body.site-page {
   color: var(--chrome-ink);
   margin: 0;
   font-family: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 1.0625rem;
-  line-height: 1.6;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
 }
 
 /* The page frame is wide; prose inside it keeps the reading measure and sits
@@ -123,7 +141,7 @@ body.site-page {
 body.site-page main {
   max-width: var(--chrome-shell);
   margin: 0 auto;
-  padding: 1.5rem 1rem 1rem;
+  padding: var(--space-3) var(--space-2) var(--space-2);
   text-align: left;
 }
 
@@ -141,19 +159,19 @@ body.site-page main > .lead {
 
 body.site-page h1, body.site-page h2, body.site-page h3 {
   color: var(--chrome-heading);
-  line-height: 1.25;
+  line-height: var(--leading-tight);
   font-weight: 700;
 }
 
-body.site-page h1 { font-size: 2rem; margin: 0 0 .5rem; }
-body.site-page h2 { font-size: 1.35rem; margin: 2.5rem 0 .75rem; }
-body.site-page h3 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
-body.site-page p { margin: 0 0 1rem; }
+body.site-page h1 { font-size: var(--type-h1); letter-spacing: -.02em; margin: 0 0 var(--space-2); }
+body.site-page h2 { font-size: var(--type-h2); margin: var(--space-4) 0 var(--space-2); }
+body.site-page h3 { font-size: var(--type-h3); margin: var(--space-3) 0 var(--space-1); }
+body.site-page p { margin: 0 0 var(--space-2); }
 body.site-page ul, body.site-page ol { padding-left: 1.4rem; }
 body.site-page li { margin: 0 0 .5rem; }
 
 body.site-page .lead {
-  font-size: 1.15rem;
+  font-size: var(--type-lead);
   color: var(--chrome-quiet);
 }
 
@@ -250,8 +268,29 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
   .osu-sitename { font-size: 1.5rem; }
 }
 
+/* Print: TAs and students print handouts. Paper gets the words, a running
+   header with the draft status, and page numbers; none of the screen chrome.
+   Graded blocks are kept whole by each theme's own print rules, since this
+   file does not restyle document content. */
+@page {
+  size: letter;
+  margin: .75in;
+  @top-right { content: "DRAFT: license pending"; font: 8pt ui-sans-serif, system-ui, sans-serif; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 8pt ui-sans-serif, system-ui, sans-serif; }
+}
+
 @media print {
   .site-nav, .site-foot .print-hide { display: none; }
-  .draft-banner { background: none; color: #000; border: 2px solid #000; }
   .osu-header, .osu-foot { display: none; }
+  .draft-banner {
+    background: none; color: #000; border: 1px solid #000;
+    font-size: 9pt; padding: 2pt 6pt; margin: 0 0 12pt;
+  }
+  .draft-banner .draft-detail { display: none; }
+  body.site-page { font-size: 11pt; }
+  body.site-page main { max-width: none; padding: 0; }
+  h1, h2, h3 { break-after: avoid; }
+  p, li { orphans: 3; widows: 3; }
+  .lab-list > li, table, figure, img { break-inside: avoid; }
+  a { color: #000; }
 }
