@@ -70,6 +70,16 @@
 - Measure layout with a script in the page rather than by eye: the pane
   scales a wide emulated viewport down, so a correct layout can look wrong in
   a screenshot.
+- The pane caches a page per origin, and a reload can still serve the old
+  copy after a rebuild. Serve each round on a new port, and confirm the CSS
+  you just wrote is in the page (look for a declaration only the new version
+  has) before trusting a measurement. One round of this session's centering
+  work was measured against a stale page.
+- Give `--directory` an absolute path. A background shell does not always
+  start in the repo root, and a relative path there silently serves the
+  wrong folder.
+- A viewport size set on one tab does not apply to a tab opened after it;
+  set the size on the tab you are about to measure.
 
 ## Conventions that bite
 
@@ -80,6 +90,16 @@
   content-unchanged check (docs/conversion-spec.md).
 - Roles, not names. No em dashes. No invented record data.
 - Original source files are in `../Unsorted Legacy Resources/` and are unvetted.
+- In `site/site.css`, `body.site-page a` sets the link color and outranks the
+  single-class chrome rules, so a chrome color must be scoped to its parent
+  (`.osu-banner .osu-sitename`). D-0032 is one bug this caused in production.
+- `ch` resolves against each element's own font, so a heading capped at
+  `--chrome-measure` is wider than the shell. The prose column is a grid on
+  `main` for that reason (D-0029), and grid items do not collapse margins:
+  vertical spacing there is one-sided and adds up to the scale's steps.
+- Design mockups from a review are kept as files under `docs/design/`, with a
+  README saying which decisions each board became. They are mockups, never
+  the source of truth for what the site does.
 
 ## Deploy
 

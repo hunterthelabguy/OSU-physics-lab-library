@@ -1,19 +1,34 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-09-21.
+Volatile handoff, capped at one screen. Updated 2026-09-22.
 
-**Focus:** site branding refresh complete. Branch `branding-refresh` ready
-for PR review. Plan: `docs/superpowers/plans/2026-09-21-site-branding.md`.
+**Focus:** site design review of 2026-09-22 (owner-led, from the live site).
+PR #11 merged: spacing and type tokens, a print stylesheet, the new landing
+lead, and the centered reading column. PR #12 open: landing hero band, link
+cards, one-line draft banner, and the site-name color fix. Mockup boards from
+the review are in `docs/design/2026-09-22-review/`.
 
 **Awaiting owner:**
-- Open the PR (Step 6 of Task 8, or proceed directly below).
-- Verify CI is green on the PR before merging.
-- D-0012 heads-up to University Marketing: screenshots of the landing page
-  and the sim are taken (2026-09-21 session); send them yourself.
-- Pilot comparison feature and verdict date (spec section 8): placeholders
-  still await your ruling.
+- Review and merge PR #12; the Vercel preview is the place to check the hero
+  and to open the banner's "What this means" on a lab page.
+- Print preview Lab 1 on paper. The print rules shipped in PR #11 and have
+  never been checked in a real print dialog.
+- Rule on D-0029 to D-0032, all proposed.
+- Two design items are built but not ruled, and were deliberately not done:
+  moving the nav into the orange bar (D-0004 mirrors the Physics site), and a
+  new hero headline (the mockup's wording was never approved).
+- Carried from 2026-09-21: the D-0012 heads-up to University Marketing, and
+  the pilot comparison feature and verdict date (spec section 8).
 
-**Measurements (2026-09-21):**
+**Measurements (2026-09-22):**
+- Landing prose column at 1440 px: left 362 px, right 378 px (the 16 px
+  difference is the scrollbar). Before centering: 136 px and 643 px.
+- Draft banner at 1440 px: 39 px closed, 107 px open. Was 110 px.
+- Phone width 375 px: scrollWidth 375 on the landing page with the hero.
+- Contrast, computed with the WCAG formula: white on Star Canvas 11.8:1,
+  Moondust on Star Canvas 8.19:1, white on Beaver Orange 4.56:1.
+
+**Measurements (2026-09-21, branding refresh):**
 - Sim bar at 1280x720: bar 34 px, page 720 px, fits: true.
 - Phone width (375 px, scrollWidth <= 375): true on /, /courses/,
   /how-this-was-made/, /sims/, /labs/ph211-team-building-handout/modern/.

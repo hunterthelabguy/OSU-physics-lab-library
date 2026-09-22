@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home page with hero</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:#ffffff;color:#000000}
+a{color:#003b5c}a:hover{color:#d73f09}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; background: #ffffff; overflow: hidden; display: flex; flex-direction: column;">
+<div style="height: 40px; background: #f2c14e; display: flex; align-items: center; justify-content: center; gap: 16px; font-size: 14px;">
+<strong>Draft: license pending, not for distribution.</strong>
+<a href="#" style="color: #000000;">What this means</a>
+</div>
+<div style="height: 64px; background: #d73f09; color: #ffffff; display: flex; justify-content: center;">
+<div style="width: 1000px; display: flex; align-items: center; justify-content: space-between;">
+<div style="display: flex; align-items: center; gap: 16px;"><span style="font-size: 14px;">[OSU LOGO]</span><span style="font-size: 22px; font-weight: 600;">Physics Lab Library</span></div>
+<div style="display: flex; gap: 24px; font-size: 15px; font-weight: 600;"><span>Courses</span><span>Sims</span><span>How it was made</span></div>
+</div>
+</div>
+<div style="background: #003b5c; color: #ffffff; display: flex; justify-content: center; padding: 96px 0;">
+<div style="width: 1000px; display: flex; flex-direction: column; gap: 24px;">
+<h1 style="margin: 0; font-size: 56px; line-height: 1.05; letter-spacing: -0.02em; max-width: 760px;">The intro physics labs, in one place.</h1>
+<p style="margin: 0; font-size: 21px; line-height: 1.5; color: #c6dae7; max-width: 680px;">The curriculum for the introductory physics labs at Oregon State, readable on any screen, with the software tools built to support it.</p>
+<div style="display: flex; gap: 16px; margin-top: 16px;">
+<a href="#" style="display: flex; align-items: center; height: 48px; padding: 0 24px; background: #d73f09; color: #ffffff; border-radius: 6px; font-weight: 700; font-size: 17px; text-decoration: none;">Browse courses</a>
+<a href="#" style="display: flex; align-items: center; height: 48px; padding: 0 24px; border: 2px solid #ffffff; color: #ffffff; border-radius: 6px; font-weight: 700; font-size: 17px; text-decoration: none;">Open Lab 1</a>
+</div>
+</div>
+</div>
+<div style="display: flex; justify-content: center; padding-top: 64px;">
+<div style="width: 1000px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px;">
+<a href="#" style="display: block; padding: 24px; border: 1px solid #d6dbe0; border-radius: 8px; text-decoration: none;"><div style="font-weight: 700; font-size: 20px;">Course index</div><div style="color: #333333; font-size: 16px; line-height: 1.5; margin-top: 8px;">PH 211, 212 and 213, every lab and where each one stands.</div></a>
+<a href="#" style="display: block; padding: 24px; border: 1px solid #d6dbe0; border-radius: 8px; text-decoration: none;"><div style="font-weight: 700; font-size: 20px;">Sims</div><div style="color: #333333; font-size: 16px; line-height: 1.5; margin-top: 8px;">Single-page tools that keep nothing and send nothing.</div></a>
+<a href="#" style="display: block; padding: 24px; border: 1px solid #d6dbe0; border-radius: 8px; text-decoration: none;"><div style="font-weight: 700; font-size: 20px;">How this was made</div><div style="color: #333333; font-size: 16px; line-height: 1.5; margin-top: 8px;">The method, what is checked, and what is not.</div></a>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

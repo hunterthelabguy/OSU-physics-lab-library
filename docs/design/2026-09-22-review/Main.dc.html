@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home page as live</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:#ffffff;color:#000000}
+a{color:#003b5c}a:hover{color:#d73f09}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; background: #ffffff; overflow: hidden;">
+<div style="height: 110px; background: #f2c14e; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 15px;">
+<strong>Draft: license pending, not for distribution.</strong>
+<span style="max-width: 620px; text-align: center;">An unlisted working draft of the OSU introductory physics lab curriculum, shared for comment.</span>
+</div>
+<div style="height: 28px; background: #000000; color: #ffffff; font-size: 13px; display: flex; align-items: center; padding-left: 136px;">Department of Physics</div>
+<div style="height: 72px; background: #d73f09; color: #ffffff; display: flex; align-items: center; gap: 40px; padding-left: 136px; font-size: 26px; font-weight: 600;">
+<span style="font-size: 16px;">[OSU LOGO]</span><span>Physics Lab Library</span>
+</div>
+<div style="height: 48px; border-bottom: 1px solid #d6dbe0; display: flex; align-items: center; gap: 28px; padding-left: 136px; font-size: 15px; font-weight: 600;">
+<span>Library home</span><span>Course index</span><span>Sims</span><span>How this was made</span>
+</div>
+<div style="padding: 32px 0 0 136px; width: 716px; display: flex; flex-direction: column; gap: 16px;">
+<h1 style="margin: 0; font-size: 36px; color: #003b5c;">OSU physics lab library</h1>
+<p style="margin: 0; font-size: 20px; line-height: 1.5; color: #0d5257;">The curriculum for the introductory physics labs at Oregon State, in one place, readable on any screen, with the software tools built to support it.</p>
+<p style="margin: 0; font-size: 18px; line-height: 1.6;">This is the first example, not the finished library. One lab is converted so far. Everything else is listed as not yet converted rather than left out.</p>
+<p style="margin: 0; font-size: 18px; line-height: 1.6;"><a href="#">PH 211, Lab 1: Team Building</a>: the student handout, converted from the original Word file and checked against it word for word.</p>
+</div>
+<div style="position: absolute; left: 136px; top: 258px; width: 716px; height: 642px; border: 2px dashed #1a73e8; box-sizing: border-box;"></div>
+<div style="position: absolute; left: 852px; top: 258px; width: 452px; height: 642px; background: rgba(215,63,9,0.10); border: 2px dashed #d73f09; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 24px;">
+<p style="margin: 0; font-size: 20px; line-height: 1.4; color: #8a2a05; font-weight: 600; text-align: center;">452 px of empty shell. Prose is capped at 68ch and left-aligned inside a 1152 px centered shell, so the column sits 316 px off center.</p>
+</div>
+<div style="position: absolute; left: 1320px; top: 0; width: 110px; height: 258px; border-left: 3px solid #d73f09; display: flex; align-items: center; padding-left: 8px; box-sizing: border-box;">
+<span style="font-size: 16px; font-weight: 700; color: #8a2a05;">258 px of chrome before the h1</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
