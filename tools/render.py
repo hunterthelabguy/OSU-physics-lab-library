@@ -22,6 +22,7 @@ build/ is not committed. Requires Pandoc on PATH or in PANDOC.
 """
 
 import argparse
+import base64
 import glob
 import html
 import json
@@ -39,6 +40,13 @@ THEMES = ("faithful", "modern")
 # Absolute, so --embed-resources finds them wherever the output lands.
 BRAND = os.path.join(ROOT, "site", "brand")
 SITE_LOGO = os.path.join(BRAND, "OSU_horizontal_2C_W_over_B.png").replace(os.sep, "/")
+SIM_LOGO = os.path.join(BRAND, "OSU_horizontal_2C_O_over_W.png")
+
+
+def png_data_uri(path):
+    """The sim's policy allows images only as data: URIs (img-src data:)."""
+    with open(path, "rb") as fh:
+        return "data:image/png;base64," + base64.b64encode(fh.read()).decode("ascii")
 
 # The draft banner, mandatory on every page while the license is open
 # (ledger 37). Owner-reviewed wording; change it here only.
@@ -264,24 +272,28 @@ def redirect_page(out, target):
 # source file is never touched. It has to be small: the sim's layout is ruled
 # to fit a 1280x720 laptop without page scrolling, and every pixel here is
 # taken from that budget. So it carries ledger 37's sentence and nothing more,
-# not the longer note the other pages show. The sim's own Content Security
-# Policy is `default-src 'none'` with inline styles allowed, so an inline
-# <style> works and anything fetched would not.
+# not the longer note the other pages show. The bar is Paddletail Black with
+# the O over W logo (D-0005, D-0020) and the draft sentence in Luminance
+# (D-0022). The sim's own Content Security Policy is `default-src 'none'`
+# with inline styles allowed, so an inline <style> works and anything fetched
+# would not; the logo travels as a data: URI for the same reason.
 SIM_CHROME = """<style>
 .lib-bar {{
   flex: 0 0 auto;
-  display: flex; flex-wrap: wrap; gap: .1rem 1rem;
-  align-items: baseline; justify-content: space-between;
-  background: #d73f09; color: #fff;
-  padding: .3rem .75rem;
-  font: 600 .85rem/1.4 ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  display: flex; flex-wrap: wrap; gap: .1rem .9rem; align-items: center;
+  background: #000; color: #fff;
+  padding: 0 .75rem;
+  font: 400 .85rem/1.4 ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
 }}
-.lib-bar a {{ color: #fff; font-weight: 400; }}
-.lib-bar .lib-links {{ display: flex; gap: 1rem; }}
+.lib-bar img {{ display: block; height: 22px; width: auto; padding: 6px 6px 6px 0; }}
+.lib-bar .lib-draft {{ background: #ffb500; color: #000; font-weight: 700; padding: 0 .4rem; }}
+.lib-bar a {{ color: #fff; }}
+.lib-bar .lib-links {{ display: flex; gap: 1rem; margin-left: auto; }}
 @media print {{ .lib-bar {{ display: none; }} }}
 </style>
 <div class="lib-bar">
-<span>{banner}</span>
+<a href="https://oregonstate.edu"><img src="{logo}" alt="Oregon State University"></a>
+<span class="lib-draft">{banner}</span>
 <span class="lib-links"><a href="{home}">Library home</a><a href="{sims}">Sims</a></span>
 </div>
 """
@@ -311,6 +323,7 @@ def render_sim(sim_id, sim, site):
     out = os.path.join(site, "sims", sim_id, "index.html")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     chrome = SIM_CHROME.format(banner=html.escape(BANNER_MAIN),
+                               logo=png_data_uri(SIM_LOGO),
                                home=up(2), sims=up(1))
     text, count = BODY_TAG.subn(lambda m: m.group(1) + "\n" + chrome,
                                 sim["text"], count=1)
