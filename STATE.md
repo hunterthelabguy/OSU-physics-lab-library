@@ -3,18 +3,20 @@
 Volatile handoff, capped at one screen. Updated 2026-09-22.
 
 **Focus:** site design review of 2026-09-22 (owner-led, from the live site).
-PR #11 merged: spacing and type tokens, a print stylesheet, the new landing
-lead, and the centered reading column. PR #12 open: landing hero band, link
-cards, one-line draft banner, and the site-name color fix. Mockup boards from
-the review are in `docs/design/2026-09-22-review/`.
+PR #11 and PR #12 are merged and live: spacing and type tokens, a print
+stylesheet, the new landing lead, the centered reading column, the landing
+hero band, link cards, the one-line draft banner, and the site-name color
+fix. Mockup boards from the review are in `docs/design/2026-09-22-review/`.
+The design review is done; nothing from it is left unbuilt except the two
+items below that need a ruling first.
 
 **Awaiting owner:**
-- Review and merge PR #12; the Vercel preview is the place to check the hero
-  and to open the banner's "What this means" on a lab page.
+- Look at the live landing page and open the banner's "What this means" on a
+  lab page. Both shipped without an owner ever seeing them.
 - Print preview Lab 1 on paper. The print rules shipped in PR #11 and have
   never been checked in a real print dialog.
 - Rule on D-0029 to D-0032, all proposed.
-- Two design items are built but not ruled, and were deliberately not done:
+- Two design items were deliberately not built, pending a ruling:
   moving the nav into the orange bar (D-0004 mirrors the Physics site), and a
   new hero headline (the mockup's wording was never approved).
 - Carried from 2026-09-21: the D-0012 heads-up to University Marketing, and
