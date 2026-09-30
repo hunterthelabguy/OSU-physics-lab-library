@@ -6,13 +6,16 @@ A missing build is an error, never a skip (LEDGER 53).
 import base64
 import hashlib
 import json
+import os
 import re
 import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SITE = ROOT / "build" / "site"
+# SITE_DIR lets CI run this contract against the Quarto build (D-0033,
+# migration phase 1, non-blocking). Unset, it reads the old build as always.
+SITE = Path(os.environ["SITE_DIR"]) if os.environ.get("SITE_DIR") else ROOT / "build" / "site"
 sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "tests"))
 from render import BANNER_MAIN            # noqa: E402

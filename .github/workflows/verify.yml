@@ -15,6 +15,11 @@ jobs:
           curl -sSLo pandoc.deb https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-1-amd64.deb
           sudo dpkg -i pandoc.deb
           pandoc --version | head -1
+      - name: Install Quarto 1.10.18
+        run: |
+          curl -sSLo quarto.deb https://github.com/quarto-dev/quarto-cli/releases/download/v1.10.18/quarto-1.10.18-linux-amd64.deb
+          sudo dpkg -i quarto.deb
+          quarto --version
       - name: No em dashes outside originals
         run: |
           if grep -rIl $'\xe2\x80\x94' --exclude-dir=.git --exclude-dir=originals .; then
@@ -38,6 +43,30 @@ jobs:
           done
       - name: Site builds
         run: python3 tools/render.py --site
+      - name: Quarto site builds
+        # Fails on any Quarto warning line (docs/quarto-migration-plan.md).
+        run: python3 tools/quarto_build.py
       - name: Tests
         # Each asserts a ruled DECISIONS.md quantity or reads build/site.
         run: python3 -m unittest discover -s tests -v
+  chrome-on-quarto:
+    # Phase 2's to-do list: the brand contract run against the Quarto build.
+    # Expected to fail until phase 2; never gates a merge.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Pandoc 3.11
+        run: |
+          curl -sSLo pandoc.deb https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-1-amd64.deb
+          sudo dpkg -i pandoc.deb
+      - name: Install Quarto 1.10.18
+        run: |
+          curl -sSLo quarto.deb https://github.com/quarto-dev/quarto-cli/releases/download/v1.10.18/quarto-1.10.18-linux-amd64.deb
+          sudo dpkg -i quarto.deb
+      - name: Quarto site builds
+        run: python3 tools/quarto_build.py
+      - name: Chrome contract against the Quarto build
+        env:
+          SITE_DIR: build/quarto-site
+        run: python3 -m unittest discover -s tests -p test_site_chrome.py -v
