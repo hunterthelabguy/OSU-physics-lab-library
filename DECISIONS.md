@@ -279,30 +279,33 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 
 ### D-0029  Center the site pages' reading column in the shell
 - status: proposed
-- proposed-by: claude
+- proposed-by: owner
 - date: 2026-09-22
 - decision: On site pages (landing, course index, how this was made), `main` becomes a three-track grid inside the 72rem shell: the middle track is the 68ch reading measure, centered, and every child sits in it; `.lab-list` spans all three tracks. The measure itself is unchanged (LEDGER 56, 57). Document pages and the site chrome are unchanged: the header and nav still frame the shell (LEDGER 58), so on a wide screen they start left of the prose column.
 - rationale: The owner asked for it in chat (2026-09-22) after a design review. Measured at 1440 px before the change, the prose column started 136 px from the left and ended 643 px from the right. After, it is 362 px and 378 px (the difference is the scrollbar). A grid is used instead of auto margins on each child because `ch` resolves in each element's own font: a 44 px h1 capped at 68ch is wider than the shell, so its text stayed at the left edge. Grid items do not collapse margins, so heading and list margins became one-sided and sum to the old gaps (h2 after a paragraph 40 px, h3 24 px).
 - alternatives: auto margins on each child (headings stay left, measured); a fixed rem width for headings (a second copy of the measure that drifts when body type changes); align the chrome to the prose column too (LEDGER 58's reason still holds for document pages; open question for site pages).
 - binds: site/site.css, LEDGER 56, LEDGER 58
+- corrected: 2026-09-30, proposed-by from claude to owner, the rationale records the owner asked for it (spec section 3, lab-ops ledger 25)
 
 ### D-0030  Draft banner: one line, detail on request
 - status: proposed
-- proposed-by: claude
+- proposed-by: owner
 - date: 2026-09-22
 - decision: The draft banner on site and document pages becomes one line: `BANNER_MAIN` in bold and a "What this means" control that opens `BANNER_DETAIL` in place, using `<details>` with no script. The wording (in `tools/render.py`) and the D-0022 colors are unchanged. The banner stays on every page (LEDGER 37). In print the detail and the control are hidden. The sim bar (LEDGER 51, D-0005) is not changed.
 - rationale: Owner asked for less chrome above the content (2026-09-22 design review). Measured at 1440 px, the banner goes from 110 px to 39 px closed; open, it is 107 px. The warning sentence itself is still on screen at all times.
 - alternatives: shorten the detail text (a wording change, owner-reviewed text); drop the detail (loses the "please do not pass these pages on" request); a script toggle (unneeded, and breaks with scripting off).
 - binds: tools/template-site.html, tools/template.html, site/site.css, D-0022, LEDGER 37
+- corrected: 2026-09-30, proposed-by from claude to owner, the rationale records the owner asked for it (spec section 3, lab-ops ledger 25)
 
 ### D-0031  Landing hero band and link cards
 - status: proposed
-- proposed-by: claude
+- proposed-by: owner
 - date: 2026-09-22
 - decision: On the landing page only, the title, the lead and two actions ("Browse courses" to the course index, "Open Lab 1" to the modern handout) sit in a full-width Star Canvas band on the centered prose column (D-0029). The four links below become cards, two across from 40rem up. Colors are fixed hexes, not tokens, so the band is the same in dark mode: white on Star Canvas 11.8:1, Moondust lead 8.19:1, white on the Beaver Orange button 4.56:1 (computed 2026-09-22 with the WCAG formula). Card descriptions lose their leading colon and start with a capital; no other wording changes.
 - rationale: Owner asked for the canvas hero and cards to be built (2026-09-22). The band uses a clipped box-shadow for full bleed, because `100vw` includes the scrollbar and scrolled the page 8 px sideways (measured). Band padding is 96 px, 64 px below 40rem.
 - alternatives: a new headline in the hero (the canvas mockup had one; not ruled, so the title stays); a band inside the shell only (not full bleed); cards across the full shell (four cards of one short line each look sparse at 1152 px).
 - binds: site/landing.md, site/site.css, D-0029
+- corrected: 2026-09-30, proposed-by from claude to owner, the rationale records the owner asked for it (spec section 3, lab-ops ledger 25)
 
 ### D-0032  Keep the site name white on the orange banner
 - status: proposed
@@ -315,18 +318,22 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 
 ### D-0033  Migrate the site build to Quarto
 - status: ruled
-- proposed-by: claude
+- proposed-by: owner
+- ruled-by: owner
 - date: 2026-09-30
 - decision: The site build moves from Pandoc plus `tools/render.py` to Quarto, a Pandoc-based site generator (MIT license). Kept: the Markdown sources, `tools/filters/questions.lua`, `tools/check_unchanged.py`, the sim chrome injection (LEDGER 51, as a post-render step), fonts and logo files. Rebuilt: page assembly (`_quarto.yml` plus a pre-render step for the course index and the page lifted from VISION.md), templates, and `site/site.css` against Quarto's markup. Conditions the migration must meet: one Markdown file per document still feeds both presentations (LEDGER 28); every page stays unlisted (LEDGER 37), with our own `robots.txt` and a test that asserts it; output stays plain static files that any host serves (LEDGER 39); no theme or setting that loads a third-party resource; the Quarto version is pinned, and `check_unchanged.py` uses the same Pandoc that renders. A second spike on LEDGER 28 and self-contained downloads gates the migration plan, not this decision. Amends LEDGER 38.
 - rationale: Owner ruled in chat 2026-09-30: the site will grow to many pages quickly, so search, navigation and listing pages are needed soon, and the branding is not load-bearing enough to justify a custom build. The first spike (`docs/quarto-spike-2026-09-30.md`) passed sim byte identity, the question filter and static output unchanged; the brand chrome needs a rewrite, which the owner accepts.
 - alternatives: keep the custom build until the site is large (Claude's recommendation after the first spike, on the grounds that the brand chrome does not port; overruled by the owner); Astro (deferred in LEDGER 38, needs a JavaScript toolchain, shares no code with the current build).
 - binds: LEDGER 28, LEDGER 37, LEDGER 38, LEDGER 39, LEDGER 51, tools/render.py, tools/check_unchanged.py, site/site.css
+- corrected: 2026-09-30, proposed-by from claude to owner, the owner raised Quarto in chat (spec section 3, lab-ops ledger 25)
+- corrected: 2026-09-30, ruled-by added, required for ruled entries and omitted when written
 
 ### D-0034  Build in GitHub Actions and host on Cloudflare
 - status: proposed
-- proposed-by: claude
+- proposed-by: owner
 - date: 2026-09-30
 - decision: The site is built by a GitHub Actions workflow running the pinned Quarto version (D-0033), and the finished `build/site/` folder is uploaded to Cloudflare as a direct upload, so Cloudflare never runs the build. The deploy needs a Cloudflare API token scoped to deploy only, created by the owner and stored as a repository secret; no agent creates, reads or enters it. Which Cloudflare product (Pages or Workers static assets) is settled when the workflow is written. The Vercel project (LEDGER 40, 47) stays live until the Cloudflare site passes the test suite, then gets a redirect or a notice before it is switched off. Amends LEDGER 40.
 - rationale: Owner direction in chat 2026-09-30: Vercel's hobby tier is not viable long term. Vercel's Hobby plan is for personal, non-commercial use (from memory, to be checked against Vercel's current terms before the cutover), and an OSU teaching site is arguably outside that. Building in Actions keeps the build visible and rerunnable by a successor and keeps LEDGER 39's "moving hosts is a settings change": the same folder can go to any static host.
 - alternatives: stay on Vercel (plan terms); let Cloudflare run the build (ties the build to one host's environment and limits); GitHub Pages (not raised by the owner; also host-agnostic, and would avoid a second account).
 - binds: LEDGER 39, LEDGER 40, LEDGER 47, .github/workflows/, CLAUDE.md Deploy section
+- corrected: 2026-09-30, proposed-by from claude to owner, the owner raised GitHub Actions and Cloudflare in chat (spec section 3, lab-ops ledger 25)
