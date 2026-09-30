@@ -46,7 +46,7 @@
 - Question numbers are generated at render time from document order by
   `tools/filters/questions.lua`. No number is stored in the source.
 - Quarto (D-0033, migration in progress): 1.10.18 at
-  `C:\Program Files\Quartoin\quarto.exe`, not on PATH. Quarto reserves the
+  `C:\Program Files\Quarto\bin\quarto.exe`, not on PATH. Quarto reserves the
   `theme` metadata key for its page theme, so the presentation name travels
   as `theme-name` under Quarto. Never use the Cosmo theme: it imports Google
   Fonts. Quarto writes its own `robots.txt` that allows indexing; override it
