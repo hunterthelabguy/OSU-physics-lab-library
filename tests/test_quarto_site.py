@@ -87,7 +87,13 @@ class Pages(unittest.TestCase):
 
     def test_stylesheets_resolve(self):
         for rel, path, text in html_pages():
-            for href in re.findall(r'<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"', text):
+            # Every <link> tag, whatever order its attributes come in: Quarto
+            # writes its own as href-then-rel and ours as rel-then-href.
+            for tag in re.findall(r"<link\b[^>]*>", text):
+                found = re.search(r'href="([^"]+)"', tag)
+                if 'rel="stylesheet"' not in tag or not found:
+                    continue
+                href = found.group(1)
                 if href.startswith("data:"):
                     continue
                 with self.subTest(page=rel, href=href):

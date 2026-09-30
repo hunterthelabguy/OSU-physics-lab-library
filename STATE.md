@@ -5,9 +5,12 @@ Volatile handoff, capped at one screen. Updated 2026-09-30.
 **Focus (2026-09-30):** Phase 1 complete: PR #13, green `verify` with 45 tests
 (24 existing, 4 in questions_filter, 12 in quarto_site, 5 in quarto_build);
 Quarto build runs with no warning line. `chrome-on-quarto` is red as expected:
-9 tests, 4 pass, 5 fail on all six pages (draft banner, noindex, footer,
-logo, top strip links) and one errors on lab pages. Next is phase 2
-(chrome rewrite).
+of its 9 tests, 4 pass (enough pages, three sim-bar) and 5 do not. Four fail
+on all six pages (draft banner, footer, logo, top strip) and one errors on
+both lab pages, looking for a bare `<main>` where Quarto writes
+`<main class="content" ...>`. Next is phase 2 (chrome, draft banner, fonts and
+landing hero), defined in `docs/quarto-migration-plan.md`; spike findings in
+`docs/quarto-spike-2026-09-30.md`.
 
 **Previous focus:** site design review of 2026-09-22 (owner-led, from the live site).
 PR #11 and PR #12 are merged and live: spacing and type tokens, a print
