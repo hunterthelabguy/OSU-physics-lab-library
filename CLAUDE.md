@@ -50,7 +50,11 @@
   `theme` metadata key for its page theme, so the presentation name travels
   as `theme-name` under Quarto. Never use the Cosmo theme: it imports Google
   Fonts. Quarto writes its own `robots.txt` that allows indexing; override it
-  (ledger 37).
+  (ledger 37). Build it with `python tools/quarto_build.py` (set `QUARTO`
+  locally); output `build/quarto-site/`, checked by `tests/test_quarto_site.py`.
+  Generated pages (`/index.qmd`, `/courses/`, `/how-this-was-made/`, `/labs/`,
+  `/sims/index.qmd`) are gitignored and rebuilt every run; never edit them.
+  Production still serves the old build.
 - Site content: `site/landing.md` is the landing copy, `site/courses.md`
   holds the course index data in front matter, `site/site.css` is the shared
   chrome. The "How this was made" page is lifted from `VISION.md` at build

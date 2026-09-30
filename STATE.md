@@ -2,11 +2,12 @@
 
 Volatile handoff, capped at one screen. Updated 2026-09-30.
 
-**Focus (2026-09-30):** Quarto migration, D-0033 ruled, D-0034 ruled.
-Next is phase 1 of `docs/quarto-migration-plan.md`; spike findings in
-`docs/quarto-spike-2026-09-30.md`. Quarto 1.10.18 is installed on this
-machine. Existing tests are the migration contract; the owner drops a
-failing brand test one at a time, each by its own ruling.
+**Focus (2026-09-30):** Phase 1 complete: PR #13, green `verify` with 45 tests
+(24 existing, 4 in questions_filter, 12 in quarto_site, 5 in quarto_build);
+Quarto build runs with no warning line. `chrome-on-quarto` is red as expected:
+9 tests, 4 pass, 5 fail on all six pages (draft banner, noindex, footer,
+logo, top strip links) and one errors on lab pages. Next is phase 2
+(chrome rewrite).
 
 **Previous focus:** site design review of 2026-09-22 (owner-led, from the live site).
 PR #11 and PR #12 are merged and live: spacing and type tokens, a print
@@ -27,6 +28,7 @@ items below that need a ruling first.
   new hero headline (the mockup's wording was never approved).
 - Carried from 2026-09-21: the D-0012 heads-up to University Marketing, and
   the pilot comparison feature and verdict date (spec section 8).
+- Rule, one at a time, on each brand test that phase 2 proposes to drop.
 
 **Measurements (2026-09-22):**
 - Landing prose column at 1440 px: left 362 px, right 378 px (the 16 px
