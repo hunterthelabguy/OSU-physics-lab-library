@@ -45,6 +45,12 @@
   feeds both (ledger 28); never copy content into a second file.
 - Question numbers are generated at render time from document order by
   `tools/filters/questions.lua`. No number is stored in the source.
+- Quarto (D-0033, migration in progress): 1.10.18 at
+  `C:\Program Files\Quartoin\quarto.exe`, not on PATH. Quarto reserves the
+  `theme` metadata key for its page theme, so the presentation name travels
+  as `theme-name` under Quarto. Never use the Cosmo theme: it imports Google
+  Fonts. Quarto writes its own `robots.txt` that allows indexing; override it
+  (ledger 37).
 - Site content: `site/landing.md` is the landing copy, `site/courses.md`
   holds the course index data in front matter, `site/site.css` is the shared
   chrome. The "How this was made" page is lifted from `VISION.md` at build

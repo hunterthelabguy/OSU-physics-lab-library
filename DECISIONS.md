@@ -29,27 +29,29 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 
 ### D-0001  Aim for brand compliance now, a department home later
 - status: ruled
-- proposed-by: claude
+- proposed-by: owner
 - ruled-by: owner
 - date: 2026-09-21
 - decision: The site's branding aims to be compliant enough that University Marketing could sign off on it, and eventually to fit under physics.oregonstate.edu.
 - rationale: The owner chose compliance first and a department home later. The target is higher than merely looking recognizably OSU, and it sets how strictly the brand guide is read.
 - alternatives: recognizably OSU to a student only; that stops short of what the owner wants.
 - binds: site/, tools/render.py, tools/template-site.html
+- corrected: 2026-09-30, proposed-by from claude to owner, owner stated in chat that the idea was the owner's (spec section 3, lab-ops ledger 25)
 
 ### D-0002  Put the official OSU logo on the site
 - status: ruled
-- proposed-by: claude
+- proposed-by: owner
 - ruled-by: owner
 - date: 2026-09-21
 - decision: The site carries the official Oregon State University logo, used unaltered from official files and never retyped or redrawn.
 - rationale: The brand guide says the logo is to appear whenever the university is represented. It also bars unit logos without exception, so the library gets no mark of its own. The wordmark is custom lettering and cannot be typed.
 - alternatives: text-only naming, see D-0003 (declined).
 - binds: site/, tools/render.py
+- corrected: 2026-09-30, proposed-by from claude to owner, owner stated in chat that the idea was the owner's (spec section 3, lab-ops ledger 25)
 
 ### D-0004  Mirror the Physics department's header and footer
 - status: ruled
-- proposed-by: claude
+- proposed-by: owner
 - ruled-by: owner
 - date: 2026-09-21
 - decision: Landing, course and method pages take the Physics site's structure: a Paddletail Black [#000000] top strip, a Beaver Orange [#D73F09] banner holding the logo and the site name as live text, a Bucktooth White [#FFFFFF] navigation bar, and a dark footer. The draft banner (LEDGER 37) stays above all of it.
@@ -57,16 +59,18 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: a bespoke header in palette colors; compliant, but it does not look like the department and makes the eventual move harder.
 - binds: tools/template-site.html, tools/render.py, site/site.css
 - test: tests/test_brand.py::BrandPalette::test_palette_tokens
+- corrected: 2026-09-30, proposed-by from claude to owner, owner stated in chat that the idea was the owner's (spec section 3, lab-ops ledger 25)
 
 ### D-0005  Give sims a slim bar, not the full header
 - status: ruled
-- proposed-by: claude
+- proposed-by: owner
 - ruled-by: owner
 - date: 2026-09-21
 - decision: Sim pages get a slim black strip with a small logo in place of the full header, and the sim plus its bar keeps within the no-scroll budget of LEDGER 51.
 - rationale: The Physics header measured about 148 px tall. LEDGER 51 left a sim roughly 90 px of spare height, so the full header would make the sims scroll.
 - alternatives: the full header on sims; breaks the budget.
 - binds: tools/render.py (sim chrome injection)
+- corrected: 2026-09-30, proposed-by from claude to owner, owner stated in chat that the idea was the owner's (spec section 3, lab-ops ledger 25)
 
 ### D-0006  Self-host Open Sans; no Stratum 2 for now
 - status: ruled
@@ -121,13 +125,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 
 ### D-0011  Put the logo on the unlisted draft now
 - status: ruled
-- proposed-by: claude
+- proposed-by: owner
 - ruled-by: owner
 - date: 2026-09-21
 - decision: The logo goes on the unlisted draft deploy as soon as it is built, without waiting for the license (LEDGER 8). Public listing still waits on the license.
 - rationale: The owner ruled the logo on (D-0002) without saying when. The first brainstorm round leaned toward waiting, because a logo on a "draft, license pending" page makes the draft look endorsed. The owner's plan to build first and show Marketing (D-0012) needs the logo in place.
 - alternatives: wait for the license; nothing to show Marketing until then.
 - binds: deploy timing
+- corrected: 2026-09-30, proposed-by from claude to owner, owner stated in chat that the idea was the owner's (spec section 3, lab-ops ledger 25)
 
 ### D-0012  Build first, then show University Marketing before wider sharing
 - status: ruled
@@ -249,13 +254,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 
 ### D-0026  Give sims the brand font by editing the sim itself
 - status: ruled
-- proposed-by: claude
+- proposed-by: owner
 - ruled-by: owner
 - date: 2026-09-21
 - decision: The sim's source file takes the font: its Content Security Policy gains `font-src data:`, and it carries Open Sans embedded as a `data:` URI, so it stays one self-contained, offline page. The published copy still differs from the source only by the injected bar (LEDGER 51). The change lands via PR with the sim's own tests green.
 - rationale: The owner ruled that sims can adjust their font (D-0021 declined). Editing the source keeps the file a student downloads identical to the published one. Rewriting the policy only in the published copy would break that. The legacy original (`index.legacy.html`) is untouched, and its SHA-256 test stands.
 - alternatives: rewrite the policy in the published copy only (published and shipped files diverge); a linked font file (a sim opened from disk would lose it, and `default-src 'none'` blocks it anyway).
 - binds: sims/modified-electric-force/index.html, D-0006, D-0025
+- corrected: 2026-09-30, proposed-by from claude to owner, owner stated in chat that the idea was the owner's (spec section 3, lab-ops ledger 25)
 
 ### D-0027  Subset four static styles and use two weights
 - status: ruled
@@ -329,8 +335,9 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - corrected: 2026-09-30, ruled-by added, required for ruled entries and omitted when written
 
 ### D-0034  Build in GitHub Actions and host on Cloudflare
-- status: proposed
+- status: ruled
 - proposed-by: owner
+- ruled-by: owner
 - date: 2026-09-30
 - decision: The site is built by a GitHub Actions workflow running the pinned Quarto version (D-0033), and the finished `build/site/` folder is uploaded to Cloudflare as a direct upload, so Cloudflare never runs the build. The deploy needs a Cloudflare API token scoped to deploy only, created by the owner and stored as a repository secret; no agent creates, reads or enters it. Which Cloudflare product (Pages or Workers static assets) is settled when the workflow is written. The Vercel project (LEDGER 40, 47) stays live until the Cloudflare site passes the test suite, then gets a redirect or a notice before it is switched off. Amends LEDGER 40.
 - rationale: Owner direction in chat 2026-09-30: Vercel's hobby tier is not viable long term. Vercel's Hobby plan is for personal, non-commercial use (from memory, to be checked against Vercel's current terms before the cutover), and an OSU teaching site is arguably outside that. Building in Actions keeps the build visible and rerunnable by a successor and keeps LEDGER 39's "moving hosts is a settings change": the same folder can go to any static host.

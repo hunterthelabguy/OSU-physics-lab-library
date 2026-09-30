@@ -1,8 +1,14 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-09-22.
+Volatile handoff, capped at one screen. Updated 2026-09-30.
 
-**Focus:** site design review of 2026-09-22 (owner-led, from the live site).
+**Focus (2026-09-30):** Quarto migration, D-0033 ruled, D-0034 ruled.
+Next is phase 1 of `docs/quarto-migration-plan.md`; spike findings in
+`docs/quarto-spike-2026-09-30.md`. Quarto 1.10.18 is installed on this
+machine. Existing tests are the migration contract; the owner drops a
+failing brand test one at a time, each by its own ruling.
+
+**Previous focus:** site design review of 2026-09-22 (owner-led, from the live site).
 PR #11 and PR #12 are merged and live: spacing and type tokens, a print
 stylesheet, the new landing lead, the centered reading column, the landing
 hero band, link cards, the one-line draft banner, and the site-name color
