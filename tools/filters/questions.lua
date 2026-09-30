@@ -20,7 +20,10 @@ end
 return {
   {
     Meta = function(meta)
-      if meta.theme then theme = pandoc.utils.stringify(meta.theme) end
+      -- Quarto reserves `theme` for its page theme, so the presentation
+      -- travels as `theme-name` there; the Pandoc build still sends `theme`.
+      local v = meta["theme-name"] or meta.theme
+      if v then theme = pandoc.utils.stringify(v) end
     end,
   },
   {
