@@ -1,0 +1,48 @@
+# Quarto build (D-0033, migration phase 1). Run it only through
+# tools/quarto_build.py, which generates the pages listed under render.
+# The render list is explicit: without it Quarto would render every
+# Markdown file in the repo, including the ledgers and the curriculum
+# sources themselves.
+project:
+  type: website
+  output-dir: build/quarto-site
+  render:
+    - index.qmd
+    - courses/index.qmd
+    - how-this-was-made/index.qmd
+    - sims/index.qmd
+    - labs/**/*.qmd
+  resources:
+    - site/fonts/
+    - site/brand/
+
+website:
+  title: "Physics Lab Library"
+  search: true
+  navbar:
+    left:
+      - href: index.qmd
+        text: Library home
+      - href: courses/index.qmd
+        text: Course index
+      - href: sims/index.qmd
+        text: Sims
+      - href: how-this-was-made/index.qmd
+        text: How this was made
+
+format:
+  html:
+    # Never Cosmo or another theme that imports a remote font (D-0033).
+    theme: default
+    css: site/site.css
+    lang: en
+    # As the Pandoc build: no smart quotes, so words match the originals.
+    from: markdown-smart
+    # Every page carries its own <h1>. Quarto draws a second one from any
+    # title metadata, and this style only strips the block's styling. So
+    # tools/quarto_build.py sets pagetitle (the <title> text) and never title,
+    # and writes each source's body inline, because an include would merge
+    # the source's own front matter title back in.
+    title-block-style: none
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
