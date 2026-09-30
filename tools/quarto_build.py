@@ -87,11 +87,25 @@ def run_quarto():
         raise SystemExit("quarto printed a warning; the build fails on any warning")
 
 
+def post():
+    """What Quarto does not make, written with render.py's own functions."""
+    for sim_id, sim in render.sims().items():
+        render.render_sim(sim_id, sim, OUT)
+    for doc_id in render.converted_documents():
+        render.redirect_page(os.path.join(OUT, "labs", doc_id, "index.html"),
+                             "modern/")
+    with open(os.path.join(OUT, "robots.txt"), "w", encoding="utf-8",
+              newline="\n") as fh:
+        fh.write("# Unlisted draft while the license is open (ledger 37).\n"
+                 "User-agent: *\nDisallow: /\n")
+
+
 def build():
     if os.path.isdir(OUT):
         shutil.rmtree(OUT)
     generate()
     run_quarto()
+    post()
 
 
 if __name__ == "__main__":

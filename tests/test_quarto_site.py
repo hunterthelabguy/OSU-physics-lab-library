@@ -145,5 +145,29 @@ class Documents(unittest.TestCase):
                 self.assertNotIn(f"Question {n + 1}<", modern)
 
 
+class SimsAndStubs(unittest.TestCase):
+    """LEDGER 51 (sims), LEDGER 37 (robots), and the trimmed-URL stubs."""
+
+    def test_sim_is_source_plus_bar_only(self):
+        for src in sorted((ROOT / "sims").glob("*/index.html")):
+            with self.subTest(sim=src.parent.name):
+                pub = (QSITE / "sims" / src.parent.name / "index.html").read_text(encoding="utf-8")
+                m = chrome.SimBar.BAR.search(pub)
+                self.assertIsNotNone(m, "no bar after <body>")
+                self.assertEqual(pub.replace(m.group(1), "", 1), src.read_text(encoding="utf-8"))
+
+    def test_robots_disallows_everything(self):
+        text = (QSITE / "robots.txt").read_text(encoding="utf-8")
+        self.assertIn("User-agent: *\nDisallow: /\n", text)
+        self.assertNotIn("Sitemap", text)
+
+    def test_trimmed_lab_url_redirects_to_modern(self):
+        for doc_id, _ in converted():
+            with self.subTest(doc=doc_id):
+                text = (QSITE / "labs" / doc_id / "index.html").read_text(encoding="utf-8")
+                self.assertTrue(is_redirect(text))
+                self.assertIn('url=modern/', text)
+
+
 if __name__ == "__main__":
     unittest.main()
