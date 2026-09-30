@@ -346,10 +346,12 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - corrected: 2026-09-30, proposed-by from claude to owner, the owner raised GitHub Actions and Cloudflare in chat (spec section 3, lab-ops ledger 25)
 
 ### D-0035  Widen the stylesheet check in the Quarto suite
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-30
 - decision: `test_stylesheets_resolve` in `tests/test_quarto_site.py` reads every `<link>` tag and checks each one with `rel="stylesheet"`, whatever order its attributes come in. The plan's verbatim regex required `rel` before `href`, so it checked 2 of the 6 stylesheet links on a lab page (8 site-wide) and skipped Quarto's own, which write `href` first. The widened check covers 6 and 32, and all resolve. The test's name, its subTest keys and its `data:` skip are unchanged. This edits a test written in the same PR (phase 1, PR 13) and widens what it checks; it loosens nothing and was not made to turn a failure green.
 - rationale: A test named "stylesheets resolve" that ignores four of six links is vacuous, which the owner's "a repo must not lie about its verification" rule forbids. The final whole-branch review of PR 13 found it. The owner's rule is to fix the build and never a test; this was applied as a disclosed exception, and the owner confirmed it in chat on 2026-09-30 ("Keep the stylesheet test change").
 - alternatives: keep the plan's verbatim regex (leaves four links per page unchecked); add a second test beside it (leaves a half-vacuous test in place); leave it to phase 2 (the gap would outlast the merge).
 - binds: tests/test_quarto_site.py, D-0033
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0035 to ruled")
