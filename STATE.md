@@ -2,7 +2,7 @@
 
 Volatile handoff, capped at one screen. Updated 2026-09-30.
 
-**Focus (2026-09-30):** Phase 1 complete: PR #13, green `verify` with 45 tests
+**Focus (2026-09-30):** Phase 1 merged (PR #13, `06d5dfd`), D-0035 ruled. Green `verify` with 45 tests
 (24 existing, 4 in questions_filter, 12 in quarto_site, 5 in quarto_build);
 Quarto build runs with no warning line. `chrome-on-quarto` is red as expected:
 of its 9 tests, 4 pass (enough pages, three sim-bar) and 5 do not. Four fail
