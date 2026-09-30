@@ -38,11 +38,12 @@ format:
     lang: en
     # As the Pandoc build: no smart quotes, so words match the originals.
     from: markdown-smart
-    # Every page carries its own <h1>. Quarto draws a second one from any
-    # title metadata, and this style only strips the block's styling. So
-    # tools/quarto_build.py sets pagetitle (the <title> text) and never title,
-    # and writes each source's body inline, because an include would merge
-    # the source's own front matter title back in.
+    # Every page carries its own <h1>, the "#" heading of its Markdown.
+    # Quarto would draw a second one from the title metadata: this style only
+    # strips the block's styling, so the empty partial below is what removes
+    # the drawn title. The title still sets the <title> element.
     title-block-style: none
+    template-partials:
+      - title-block.html
     include-in-header:
       text: '<meta name="robots" content="noindex, nofollow">'

@@ -23,7 +23,7 @@ QUARTO = os.environ.get("QUARTO", "quarto")
 OUT = os.path.join(ROOT, "build", "quarto-site")
 GENERATED = ["index.qmd", "courses", "how-this-was-made", "labs",
              os.path.join("sims", "index.qmd")]
-WARNING = re.compile(r"^\s*(WARN|WARNING)\b", re.I | re.M)
+WARNING = re.compile(r"^\s*\[?(WARN|WARNING)\b", re.I | re.M)
 
 
 def rel_to_root(page):
@@ -40,6 +40,10 @@ def write(page, front, body):
         fh.write("\n".join(lines) + "\n---\n\n" + body.rstrip("\n") + "\n")
 
 
+def include(page, target):
+    return "{{< include " + rel_to_root(page) + "/" + target + " >}}"
+
+
 def generate():
     for rel in GENERATED:
         path = os.path.join(ROOT, rel)
@@ -48,28 +52,28 @@ def generate():
         elif os.path.isfile(path):
             os.remove(path)
 
-    write("index.qmd", {"pagetitle": "OSU physics lab library"},
-          render.body_after_front_matter(os.path.join(ROOT, "site", "landing.md")))
+    write("index.qmd", {"title": "OSU physics lab library"},
+          include("index.qmd", "site/landing.md"))
 
     docs = render.converted_documents()
-    write("courses/index.qmd", {"pagetitle": "Course index"},
+    write("courses/index.qmd", {"title": "Course index"},
           render.course_index_markdown(docs, 1))
-    write("how-this-was-made/index.qmd", {"pagetitle": "How this was made"},
+    write("how-this-was-made/index.qmd", {"title": "How this was made"},
           render.how_this_was_made())
-    write("sims/index.qmd", {"pagetitle": "Sims"},
+    write("sims/index.qmd", {"title": "Sims"},
           render.sims_index_markdown(render.sims()))
 
     for doc_id, doc in docs.items():
-        body = render.body_after_front_matter(doc["path"])
+        source = os.path.relpath(doc["path"], ROOT).replace(os.sep, "/")
         for theme in render.THEMES:
             page = "labs/{}/{}/index.qmd".format(doc_id, theme)
             up = rel_to_root(page)
             write(page, {
-                "pagetitle": doc["meta"]["title"],
+                "title": doc["meta"]["title"],
                 "theme-name": theme,
                 "filters": [up + "/tools/filters/questions.lua"],
                 "css": [up + "/themes/" + theme + ".css"],
-            }, body)
+            }, include(page, source))
 
 
 def run_quarto():
