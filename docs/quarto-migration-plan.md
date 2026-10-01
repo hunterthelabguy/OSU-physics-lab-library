@@ -58,7 +58,7 @@ Status: done 2026-09-30 (PR #14). Implementation plan:
 `docs/superpowers/plans/2026-09-30-quarto-phase-2.md`.
 Rulings: D-0036 to D-0042 (ruled 2026-09-30 on the owner's chat ruling),
 building on D-0029 to D-0032. D-0043 (the driver strips Quarto's search
-leftovers after render) is proposed, awaiting promotion.
+leftovers after render) was ruled 2026-10-01.
 
 - Fix the doubled page title (one `#` heading per page). Done in phase 1.
 - Rebuild the draft banner, top strip, footer and landing hero against

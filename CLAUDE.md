@@ -114,7 +114,7 @@
     which the HTML and CSS scans cannot see). `website.search` defaults on
     even with no navbar, and `search: false` does not remove the markup or
     `search.json` in 1.10.18, so `strip_search()` in `tools/quarto_build.py`
-    does (D-0043, proposed). Quarto copies the sim's raw source page into the
+    does (D-0043). Quarto copies the sim's raw source page into the
     output before `post()` overwrites it, so `strip_search` skips pages
     without Quarto's generator meta tag.
   - Learned in phase 1: `title-block-style: none` only strips styling; the

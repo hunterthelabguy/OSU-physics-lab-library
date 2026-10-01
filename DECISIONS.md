@@ -467,8 +467,9 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - rationale: Phase 3 of `docs/quarto-migration-plan.md`. Probes on 2026-09-30: Quarto 1.10.18 bundles Pandoc 3.10, not 3.11, so the Quarto pages' bodies already render with 3.10 while the word check reads with 3.11. Under 3.10 the Team Building handout's syntax tree equals 3.11's (blocks and meta), the word check prints the same result (989 words identical, bold identical on 943), and both builds are byte-identical when the bundled binary writes to files.
 - alternatives: keep the standalone 3.11 for everything (the word check reads with a different Pandoc than the Quarto pages render with); install a standalone 3.10 to match (a second copy that drifts at each Quarto upgrade); compare against a literal "3.10" (a second pin to move in lockstep).
 - binds: LEDGER 20, D-0033, .github/workflows/verify.yml, CLAUDE.md
-- test: tests/test_one_pandoc.py::test_pandoc_is_quartos, tests/test_quarto_config.py::Version::test_ci_uses_quartos_pandoc (both to be written in phase 3)
+- test: tests/test_one_pandoc.py::test_pandoc_is_quartos, tests/test_quarto_config.py::Version::test_ci_uses_quartos_pandoc
 - corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0044 to D-0046"); the plan's seven calls were ruled the same day as leaned
+- corrected: 2026-10-01, test line updated: both tests were written and merged in phase 3 (PR #15); they replace "to be written in phase 3"
 
 
 ### D-0045  The tools call Pandoc as one binary, never through `quarto pandoc`
@@ -493,5 +494,6 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - rationale: Production is built by the Vercel project setting with Pandoc 3.11 (CLAUDE.md, Deploy). Removing 3.11 from CI would leave "Site builds" verifying production's pages with a Pandoc production does not use. Probe on 2026-09-30: the old build is byte-identical under 3.10 and 3.11 (9 files), but nothing would keep it so; the tree test does, for the word check's half.
 - alternatives: remove 3.11 now as the plan says (CI and production toolchains split, unguarded); change the Vercel build command to Pandoc 3.10 (a production setting change on a host being retired; the 3.10 download URL not verified); defer all of phase 3 into phase 4 (the word check keeps reading with a different Pandoc than the Quarto pages for two more phases).
 - binds: D-0044, LEDGER 20, LEDGER 49, .github/workflows/verify.yml, docs/quarto-migration-plan.md
-- test: tests/test_one_pandoc.py::test_old_build_pandoc_reads_the_same_tree (to be written in phase 3)
+- test: tests/test_one_pandoc.py::test_old_build_pandoc_reads_the_same_tree
 - corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0044 to D-0046"); the plan's seven calls were ruled the same day as leaned
+- corrected: 2026-10-01, test line updated: the tree test was written and merged in phase 3 (PR #15); it replaces "to be written in phase 3". Phase 3 as built sets PANDOC to the standalone Pandoc in "Site builds" and PANDOC_OLD_BUILD in "Tests" only (the decision's "scoped to that step and to the tree test" holds)
