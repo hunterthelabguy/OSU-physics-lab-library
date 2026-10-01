@@ -30,6 +30,11 @@ The design review is done; nothing from it is left unbuilt except the two
 items below that need a ruling first.
 
 **Awaiting owner:**
+- Phase 5 (new host): rule the eight calls in
+  `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`, then do the checklist
+  in `docs/quarto-phase-5-owner-checklist.md` (Cloudflare project, deploy-only
+  token, two repo secrets; Claude never handles them). D-0047 to D-0049
+  proposed. Nothing built.
 - Print preview Lab 1 on paper. The print rules shipped in PR #11 and have
   never been checked in a real print dialog.
 - Two design items were deliberately not built, pending a ruling:

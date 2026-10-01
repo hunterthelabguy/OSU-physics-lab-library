@@ -114,12 +114,20 @@ Switch the chrome suite to `build/quarto-site/`, make the old build's
 job go away, and update CLAUDE.md's Build section and the "How this was made" text, which
 says the site is built "with Pandoc and one build script".
 
-## Phase 5: new host (D-0034, proposed)
+## Phase 5: new host (D-0034)
 
 GitHub Actions builds, then uploads `build/site/` to Cloudflare. Needs a
 deploy-scoped Cloudflare API token, which the owner creates and stores as a
 repo secret; Claude never handles it. Old Vercel URL gets a redirect or a
 notice before it is switched off.
+
+Planned 2026-10-01 (draft, calls open):
+`docs/superpowers/plans/2026-10-01-quarto-phase-5.md`, with D-0047 to D-0049
+proposed and the owner's side in `docs/quarto-phase-5-owner-checklist.md`.
+Corrections to the text above: the folder is `build/quarto-site/`, not
+`build/site/` (the old build, until phase 4); Cloudflare Pages needs a
+`404.html` or answers unknown paths with the landing page; and the Vercel
+redirect must be in place before phase 4 merges.
 
 ## Later, enabled by the move
 

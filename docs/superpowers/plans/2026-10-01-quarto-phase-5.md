@@ -1,0 +1,196 @@
+# Quarto Migration Phase 5 Plan: new host
+
+Status: draft, calls open. Nothing built. Owner's side is in
+`docs/quarto-phase-5-owner-checklist.md`. Ledger entries D-0047 to D-0049 are
+appended to `DECISIONS.md` as proposed.
+
+**Spec:** `docs/quarto-migration-plan.md`, phase 5: "GitHub Actions builds,
+then uploads `build/site/` to Cloudflare. Needs a deploy-scoped Cloudflare API
+token, which the owner creates and stores as a repo secret; Claude never
+handles it. Old Vercel URL gets a redirect or a notice before it is switched
+off."
+
+Ledger: D-0034 (ruled), D-0047 to D-0049 (proposed); binds LEDGER 37, 39, 40,
+47, 48, 49, 53
+
+## The premise, checked against the record
+
+Four things in the phase 5 text or in D-0034 do not hold as written. Sources:
+the repo, and Cloudflare's and Vercel's documentation as fetched 2026-10-01
+(pages cited; a fetch tool summarized them, so verify against the page before
+anything load-bearing).
+
+1. **The folder is `build/quarto-site/`, not `build/site/`.** `_quarto.yml`
+   writes there (`output-dir`), and `build/site/` is the old build, which
+   phase 4 deletes after this phase. The plan text and D-0034 both say
+   `build/site/`. Uploading that would deploy the old build to the new host.
+2. **Cloudflare Pages treats a site with no top-level `404.html` as a
+   single-page app and answers every unknown path with the landing page**
+   (Cloudflare, "Serving Pages": "Pages assumes that you are deploying a
+   single-page application", and matches all incoming paths to `/`). Neither
+   build has a `404.html`. On Vercel an unknown URL is a 404; on Pages it
+   would be a 200 showing the landing page, and no test in the repo would
+   notice.
+3. **Pages redirects `/x/index.html` to `/x/`** (same page). Any check that
+   fetches files by their path in the folder must ask for the directory URL
+   for each `index.html`.
+4. **D-0034's Vercel premise holds, now with the source.** Vercel's
+   Fair Use Guidelines, page dated 2026-09-14: Hobby is "non-commercial
+   personal use only", and commercial use includes "a paid employee or
+   consultant writing the code". The rationale in D-0034 said "from memory,
+   to be checked"; it is now checked. Whether this site counts is Vercel's
+   call, not mine, but the owner's concern has a basis in the text.
+
+Also relevant, and not a premise error: Vercel builds production from
+`main` with the old build's command (CLAUDE.md, Deploy), which runs
+`tools/render.py --site`. Phase 4 deletes that. So **the Vercel redirect or
+notice must be in place before phase 4 merges**, or Vercel's next production
+build fails.
+
+Not verified, and treated as probes in the plan below: whether Cloudflare
+rewrites HTML on `*.pages.dev` (its Email Address Obfuscation feature
+rewrites email addresses and injects a decode script on regular zones; I did
+not find whether it applies to `pages.dev`, and the footer carries contact
+links); whether Vercel projects take a redirect as a setting with no file in
+the repo; whether the name `osu-physics-lab-library` is free on `pages.dev`.
+
+## Plan, assuming the leans below are ruled
+
+Failing tests first. One PR for the code (Tasks 1 and 2), then the cutover
+(Task 3) and docs (Task 4). The first real deploy needs the owner's secrets,
+so Tasks 1 and 2 can be built and unit-tested without them, and Task 3 cannot
+start until the checklist's items A to E are done.
+
+**Task 1: red.**
+- `tests/test_deploy_workflow.py`, reading the workflow files:
+  - a `deploy` job exists with `needs: verify`, so nothing deploys from a red
+    commit;
+  - the Cloudflare secrets are named only in the `deploy` job, and only
+    `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`;
+  - the upload directory equals `_quarto.yml`'s `output-dir` (read, never a
+    literal, so the premise error above cannot recur);
+  - the wrangler version is an exact version, never `latest`; no third-party
+    action (only `actions/*`);
+  - production only for a push to `main`; a pull request deploys only when
+    its head repository is this one (call 3);
+  - no host config committed: no `wrangler.*`, `_redirects`, `_headers` or
+    `vercel.json` (LEDGER 39, 49).
+- `tests/test_check_deployed.py`, unit tests for a new `tools/check_deployed.py`
+  against a local `http.server` serving a temp folder: a byte-identical
+  copy passes; one changed byte fails; an injected script tag fails; an
+  unknown path that answers 200 fails; a missing `404.html` fails.
+- 404 page (call 6): `tests/test_quarto_site.py::test_expected_pages` gains
+  `404.html`, and the chrome contract covers it (banner, noindex, one `<h1>`).
+- Each fails today. Written to fail for the named reason, with a missing
+  tool failing, never skipping (LEDGER 53).
+
+**Task 2: green.**
+- `tools/check_deployed.py <folder> <base url>`: for every file in the folder
+  fetch its public URL (the directory URL for an `index.html`) and require
+  identical bytes; require 404 and the 404 page for a path that is not in the
+  folder; require `robots.txt` and the `noindex` meta on every page. One
+  executable, standard library only.
+- The 404 page (call 6), built by the driver through the same chrome; wording
+  is the owner's (call 6).
+- `.github/workflows/verify.yml`: a `deploy` job after `verify`. `verify`
+  uploads the folder it tested as an artifact; `deploy` downloads exactly that
+  folder, runs the pinned `wrangler pages deploy` against the project, then
+  runs `tools/check_deployed.py` against the deployment URL it printed. The
+  deployed bytes are the tested bytes.
+- No tool's page-making code changes.
+
+**Task 3: cutover** (needs the checklist). First production deploy from
+`main`; `check_deployed.py` green against the production URL; the owner opens
+it on a phone (and does the Lab 1 print preview that has never been done);
+then the Vercel notice or redirect (call 8), then phase 4 may merge.
+
+**Task 4: docs.** CLAUDE.md, Deploy: the Cloudflare project, the two secret
+names, the deploy command and the three-line recipe to set the same thing up
+on another host (LEDGER 49's rule); the Vercel text marked retired. Migration
+plan: phase 5 done. STATE.md. A successor page in the lab handbook
+(`OSU-lab-ops`, by role): where the site is hosted, how the token is renewed,
+how to stand the same site up in your own Cloudflare account (copy the repo;
+never hand over the account).
+
+## Numbered calls for the owner
+
+1. **Which Cloudflare product, and the project name.** Lean: Pages, as a
+   Direct Upload project (not connected to Git), named
+   `osu-physics-lab-library` if free. Reason: it is the documented path for
+   uploading a prebuilt folder from CI with one command and one token
+   permission (Account, Cloudflare Pages, Edit), needs no committed config,
+   and gives every non-production deployment a `noindex` header and its own
+   URL. Cost of the alternative, Workers static assets: Cloudflare now
+   positions it as the successor for new projects and Pages stays supported
+   (third-party summaries and Cloudflare's own comparison page; I did not find
+   a Pages end date), but Workers wants a config file or more flags, and a
+   different token permission I have not verified. Moving later changes
+   settings, not the folder (LEDGER 39).
+2. **Whose Cloudflare account hosts it.** Lean: your own account, as the
+   GitHub and Vercel setups are (LEDGER 47, and "org ownership deferred until
+   it matters"), with the successor note in Task 4: copy the repo and make
+   your own project, never hand over the account. Cost of the alternative, a
+   department or institutional account: it is the durable answer, and I do
+   not know whether one exists or what OSU requires. I did not check
+   Cloudflare's own terms for this use or any OSU hosting policy; that is
+   yours to read before the account holds the site (checklist B).
+3. **What deploys and when.** Lean: a push to `main` is production; a pull
+   request from this repository is a preview (its own URL, `noindex` by
+   default); a fork's pull request deploys nothing, since it gets no
+   secrets. Reason: it keeps the review-on-your-phone habit that Vercel's
+   preview gives you today. Cost of the alternative, `main` only: no preview
+   to open before merging, so a layout problem is found on production.
+4. **How the deploy job is built.** Lean: a separate `deploy` job after
+   `verify`, handed the tested folder as an artifact, secrets visible to that
+   job only. Reason: the deployed bytes are the tested bytes, and a step that
+   runs the test suite never sees a token. Cost of the alternative, deploy
+   steps at the end of `verify`: shorter file, secrets in the same job as all
+   the test code, and the deploy folder rebuilt rather than carried.
+5. **How wrangler is invoked.** Lean: `npx wrangler@<exact version> pages
+   deploy` directly, the version chosen at build time from the registry, never
+   from memory, and pinned by a test the way Quarto is. Reason: no third-party
+   action holds the token, and a Wrangler upgrade is its own PR. Cost of the
+   alternative, Cloudflare's GitHub Action: one fewer line, a third-party
+   action in the path of the token (whether Cloudflare still maintains it I
+   did not check), and an unpinned moving part.
+6. **The 404 page.** Lean: add `404.html`, built through the same chrome, so
+   unknown URLs return 404 as they do today, with wording you approve; I will
+   propose wording in the PR, ship nothing you have not approved, and mark it a
+   placeholder until then. Cost of the alternative, no 404 page: every typo
+   and every dead link returns the landing page with a 200, and no check can
+   tell a broken link from a working one. Cost of the page: one new page of
+   copy in a site where "no page copy invented" is a rule, hence your approval.
+7. **What "the Cloudflare site passes" means (D-0034).** Lean: the folder that
+   passed `verify` is the folder deployed, and `tools/check_deployed.py` then
+   proves every file is served byte for byte, unknown paths 404, `robots.txt`
+   and `noindex` are present, all against the live URL; plus your phone check
+   and the Lab 1 print preview. Reason: the suite reads folders, not URLs, so
+   "passes the suite" alone would not see a host that rewrites HTML (the
+   obfuscation question above). Cost of the alternative, the suite only:
+   a rewrite by the host is invisible until a reader finds it.
+8. **Retiring Vercel.** Lean: after the cutover check, a redirect from the
+   old URL to the new one, set as a Vercel project setting so no file in the
+   repo names Vercel (LEDGER 49), kept until you say it can go; Vercel itself
+   is paused or deleted only on your word. It must be in place before phase 4
+   merges. Reason: the old URL is the one you have shown colleagues. Cost of
+   the alternative, a notice page: it needs code in the old build that phase
+   4 deletes, and it makes every visitor click. Not verified: that a Vercel
+   project takes a redirect as a setting; the first step is a read-only look
+   at the project, and every change to Vercel needs your word first.
+
+## Declined
+
+- Cloudflare building the site (D-0034 already rules it out).
+- A custom domain now: the default `pages.dev` URL is the same posture as
+  LEDGER 48 (unlisted means `noindex`, `robots.txt` and the banner, not access
+  control); a domain is its own decision.
+- Cloudflare Access on previews: optional, adds a login to the review path;
+  the checklist lists it as yours to turn on.
+- Committing `wrangler.toml`, `_redirects`, `_headers` or `vercel.json`:
+  LEDGER 39 and 49, and a test.
+- `X-Robots-Tag` through a `_headers` file: the meta tag and `robots.txt`
+  already carry the ruling, and a headers file only one host understands is
+  what LEDGER 39 forbids.
+- Re-measuring chrome, print or weights: no page changes except the new 404.
+- Tracing whether Pages rewrites HTML from its documentation: the byte check
+  against the live URL answers it directly.
