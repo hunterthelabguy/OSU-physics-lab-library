@@ -284,43 +284,51 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - binds: sims/modified-electric-force/test-law.mjs, D-0026
 
 ### D-0029  Center the site pages' reading column in the shell
-- status: proposed
+- status: ruled
 - proposed-by: owner
+- ruled-by: owner
 - date: 2026-09-22
 - decision: On site pages (landing, course index, how this was made), `main` becomes a three-track grid inside the 72rem shell: the middle track is the 68ch reading measure, centered, and every child sits in it; `.lab-list` spans all three tracks. The measure itself is unchanged (LEDGER 56, 57). Document pages and the site chrome are unchanged: the header and nav still frame the shell (LEDGER 58), so on a wide screen they start left of the prose column.
 - rationale: The owner asked for it in chat (2026-09-22) after a design review. Measured at 1440 px before the change, the prose column started 136 px from the left and ended 643 px from the right. After, it is 362 px and 378 px (the difference is the scrollbar). A grid is used instead of auto margins on each child because `ch` resolves in each element's own font: a 44 px h1 capped at 68ch is wider than the shell, so its text stayed at the left edge. Grid items do not collapse margins, so heading and list margins became one-sided and sum to the old gaps (h2 after a paragraph 40 px, h3 24 px).
 - alternatives: auto margins on each child (headings stay left, measured); a fixed rem width for headings (a second copy of the measure that drifts when body type changes); align the chrome to the prose column too (LEDGER 58's reason still holds for document pages; open question for site pages).
 - binds: site/site.css, LEDGER 56, LEDGER 58
 - corrected: 2026-09-30, proposed-by from claude to owner, the rationale records the owner asked for it (spec section 3, lab-ops ledger 25)
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)
 
 ### D-0030  Draft banner: one line, detail on request
-- status: proposed
+- status: ruled
 - proposed-by: owner
+- ruled-by: owner
 - date: 2026-09-22
 - decision: The draft banner on site and document pages becomes one line: `BANNER_MAIN` in bold and a "What this means" control that opens `BANNER_DETAIL` in place, using `<details>` with no script. The wording (in `tools/render.py`) and the D-0022 colors are unchanged. The banner stays on every page (LEDGER 37). In print the detail and the control are hidden. The sim bar (LEDGER 51, D-0005) is not changed.
 - rationale: Owner asked for less chrome above the content (2026-09-22 design review). Measured at 1440 px, the banner goes from 110 px to 39 px closed; open, it is 107 px. The warning sentence itself is still on screen at all times.
 - alternatives: shorten the detail text (a wording change, owner-reviewed text); drop the detail (loses the "please do not pass these pages on" request); a script toggle (unneeded, and breaks with scripting off).
 - binds: tools/template-site.html, tools/template.html, site/site.css, D-0022, LEDGER 37
 - corrected: 2026-09-30, proposed-by from claude to owner, the rationale records the owner asked for it (spec section 3, lab-ops ledger 25)
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)
 
 ### D-0031  Landing hero band and link cards
-- status: proposed
+- status: ruled
 - proposed-by: owner
+- ruled-by: owner
 - date: 2026-09-22
 - decision: On the landing page only, the title, the lead and two actions ("Browse courses" to the course index, "Open Lab 1" to the modern handout) sit in a full-width Star Canvas band on the centered prose column (D-0029). The four links below become cards, two across from 40rem up. Colors are fixed hexes, not tokens, so the band is the same in dark mode: white on Star Canvas 11.8:1, Moondust lead 8.19:1, white on the Beaver Orange button 4.56:1 (computed 2026-09-22 with the WCAG formula). Card descriptions lose their leading colon and start with a capital; no other wording changes.
 - rationale: Owner asked for the canvas hero and cards to be built (2026-09-22). The band uses a clipped box-shadow for full bleed, because `100vw` includes the scrollbar and scrolled the page 8 px sideways (measured). Band padding is 96 px, 64 px below 40rem.
 - alternatives: a new headline in the hero (the canvas mockup had one; not ruled, so the title stays); a band inside the shell only (not full bleed); cards across the full shell (four cards of one short line each look sparse at 1152 px).
 - binds: site/landing.md, site/site.css, D-0029
 - corrected: 2026-09-30, proposed-by from claude to owner, the rationale records the owner asked for it (spec section 3, lab-ops ledger 25)
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)
 
 ### D-0032  Keep the site name white on the orange banner
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-22
 - decision: `.osu-banner .osu-sitename { color: #fff; }`. On site pages the rule `.site-page a` (Star Canvas) was more specific than `.osu-sitename` and turned the site name dark blue on Beaver Orange in production since PR #10.
 - rationale: A bug found while building D-0031, measured live 2026-09-22 (computed color rgb(0, 59, 92)). D-0004 mirrors the Physics site, whose site name is white.
 - alternatives: none worth keeping.
 - binds: site/site.css, D-0004
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)
 
 ### D-0033  Migrate the site build to Quarto
 - status: ruled
@@ -357,54 +365,64 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0035 to ruled")
 
 ### D-0036  Phase 2 page assembly: flat body, bare main, chrome lifted from the old templates
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-30
 - decision: The Quarto build sets `section-divs: false`, `anchor-sections: false` and `wrap: auto`. After `quarto render`, `tools/quarto_build.py` dresses each page. Quarto's `<main class="content" id="quarto-document-content">` and the empty title-block header become a bare `<main>`. The chrome above `<main>` (draft banner, OSU header, the document nav) goes in right after `<body ...>`. The chrome below it (document footer or site footnote, OSU footer) goes in right after Quarto's `</div> <!-- /content -->`. The old page's body class is added to Quarto's. The chrome is not copied: it is lifted from `tools/template.html` and `tools/template-site.html`, rendered by Pandoc with an empty body and the same metadata the old build passes, so the old templates stay the one source of the chrome until phase 4. Each anchor must occur exactly once or the build fails.
 - rationale: Owner ruled in chat 2026-09-30 ("Rule your way on all eleven and write the plan", covering critique questions 2 and 9). Probes on 2026-09-30 with Quarto 1.10.18: with the three settings, the content of `<main>` is byte-identical to the old build on both lab pages, and the SHA-256 values in `tests/fixtures/main-bodies.json` match once the tag is bare, so `test_bodies_unchanged` passes with no edit to the test or its fixture. The 12 phase 1 tests stay green under the settings. `include-before-body` lands inside `<main>` (probe), which would put the header inside the document body (D-0010) and in the wrong landmark. Without section wrappers, `main > *` is again the paragraphs and headings that D-0029's grid expects.
 - alternatives: rule an edit to `test_bodies_unchanged` and a new fixture (weaker: it pins Quarto's output, not the old build's); `include-before-body` (inside `<main>`); copy the chrome markup into a new file (two copies that can drift until phase 4).
 - binds: D-0010, D-0029, D-0033, _quarto.yml, tools/quarto_build.py, tools/template.html, tools/template-site.html
 - test: tests/test_site_chrome.py::DocumentBodies::test_bodies_unchanged with SITE_DIR=build/quarto-site, tests/test_quarto_chrome.py::ChromeParity (written in phase 2)
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)
 
 ### D-0037  One nav under Quarto; search off until ruled
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-30
 - decision: `_quarto.yml` drops `website.navbar` and sets `search: false`. The OSU header's nav (D-0004) is the only navigation. Search comes back only by its own ruling, placed so it does not add a second nav.
 - rationale: Owner ruled in chat 2026-09-30 (critique question 4). With both, every page would carry two navigation bars whose four labels are the same words kept in two files. Quarto's search needs a navbar or a sidebar to live in. Nothing uses `search.json` today.
 - alternatives: keep Quarto's navbar and drop the OSU nav (its collapse needs script, and it leaves D-0004); keep both (two navs).
 - binds: D-0004, D-0033, _quarto.yml
 - test: tests/test_quarto_config.py, tests/test_quarto_chrome.py::Navigation (written in phase 2)
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)
 
 ### D-0038  Carry the untested chrome word for word; drop the landing footnote under Quarto
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-30
 - decision: The Quarto pages carry every piece of chrome the old build writes, including the pieces no test covered: the document nav (library home, "Course index", the "Read it ..." switch), the presentation note, the "Both presentations" paragraph, and the "How this was made" footnote. New tests pin them against the old build. The landing footnote, which says the site is built "with Pandoc and one build script", is not carried, because it is false under Quarto; phase 4 rewrites the method text.
 - rationale: Owner ruled in chat 2026-09-30 (critique question 5). The phase 1 exit criterion treated the chrome suite as the whole contract, and it never covered these, so a build driven only by the failing tests would have dropped them, and `site/landing.md` ("Either page switches to the other at the top") would then be false. The wording comes from `tools/render.py` and the templates unchanged; no new copy.
 - alternatives: supply new wording for the landing footnote now (owner copy, not needed to migrate); carry the false footnote (a page that misstates how it was built).
 - binds: D-0033, tools/render.py, tools/template.html, tools/template-site.html, site/landing.md
 - test: tests/test_quarto_chrome.py::ChromeParity (written in phase 2)
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)
 
 ### D-0039  Logo stays embedded; Quarto publishes only the fonts and their license
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-30
 - decision: The header logo stays a `data:` URI in every page, so `test_logo_unaltered_and_linked` passes unedited. `resources:` in `_quarto.yml` lists exactly the four Open Sans WOFF2 files and `site/fonts/OFL.txt`. The two README files and the logo PNGs are not published.
 - rationale: Owner ruled in chat 2026-09-30 (critique questions 6 and 7). The embedded logo costs about 234 KB of base64 per page (175634 bytes times 4/3), so the migration plan's "page weight falls" does not hold for the logo. Once it is embedded, nothing references the PNG files, which were about 532 KB of the output. The OFL requires the license to travel with the fonts.
 - alternatives: rule the logo test to accept a file reference (lighter pages, a test edit); publish the READMEs (maintainer notes on a public site).
 - binds: D-0014, D-0020, D-0025, _quarto.yml
 - test: tests/test_site_chrome.py::FullChrome::test_logo_unaltered_and_linked with SITE_DIR=build/quarto-site, tests/test_quarto_chrome.py::Published (written in phase 2)
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)
 
 ### D-0040  Math renders as MathML
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-30
 - decision: `_quarto.yml` sets `html-math-method: mathml`, pinned by a config test.
 - rationale: Owner ruled in chat 2026-09-30 (critique question 8). Quarto's default loads MathJax from a CDN, which breaks D-0033's no-third-party condition. No page has math today, so the output scans cannot catch it; the pinned setting is the guard. A probe on 2026-09-30 rendered `$x^2$` as a `<math>` element with no script.
 - alternatives: host a copy of MathJax in the repo (size and upkeep); `plain` (math unreadable).
 - binds: D-0033, _quarto.yml
 - test: tests/test_quarto_config.py (written in phase 2)
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)
 
 ### D-0041  The footer test ignores script blocks when it looks for contact links
 - status: proposed
@@ -416,10 +434,12 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - binds: D-0023, D-0033, tests/test_site_chrome.py
 
 ### D-0042  Phase 2 exit: the chrome suite gates the Quarto build; no brand test dropped
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-09-30
 - decision: Phase 2 merges when every test in `tests/test_site_chrome.py` passes against `build/quarto-site/`, and the same PR moves that run into the blocking `verify` job and deletes the non-blocking `chrome-on-quarto` job. No brand test is dropped. The only test edit in phase 2 is D-0041, and only if it is ruled.
 - rationale: Owner ruled in chat 2026-09-30 (critique questions 10 and 11). Four of the five failing chrome tests pass with no edit under D-0036, D-0038 and D-0039; the fifth depends on D-0041.
 - alternatives: keep the job non-blocking until phase 4 (the contract would not gate the build that becomes production).
 - binds: D-0033, .github/workflows/verify.yml, tests/test_site_chrome.py
+- corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)

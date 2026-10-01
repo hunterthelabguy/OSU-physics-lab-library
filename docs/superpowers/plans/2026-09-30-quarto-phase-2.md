@@ -17,10 +17,12 @@ binds LEDGER 28, 37, 39, 51, 53
 
 The owner ruled the eleven critique questions in chat on 2026-09-30 ("Rule your way on all eleven and write the plan"). The ledger entries recording them were appended as `proposed`, because an agent never changes a status. Before Task 1:
 
-- D-0029, D-0030, D-0031 and D-0032 promoted. Task 4's parity target is the old build's look, which is those four entries.
-- D-0036, D-0037, D-0038, D-0039, D-0040 and D-0042 promoted.
+- D-0029, D-0030, D-0031 and D-0032 promoted. Task 4's parity target is the old build's look, which is those four entries. Done 2026-09-30.
+- D-0036, D-0037, D-0038, D-0039, D-0040 and D-0042 promoted. Done 2026-09-30.
 
-Before Task 6, Step 1: D-0041 ruled. If it is declined, stop after Task 5 and bring the owner the alternatives listed in D-0041. The PR does not merge with the chrome suite outside `verify`.
+Execution mode, owner's choice (2026-09-30): subagent-driven, one fresh subagent per task with review between tasks.
+
+Before Task 6, Step 1: D-0041 ruled. The owner leans toward it but has not ruled. Evidence for the ruling (2026-09-30): Quarto's source at tag v1.10.18 (`src/resources/formats/html/templates/quarto-html-after-body.ejs`, read through a fetch tool's summary) emits the `mailtoRegex` block with no condition around it, so no option turns it off. If it is declined, stop after Task 5 and bring the owner the alternatives listed in D-0041. The PR does not merge with the chrome suite outside `verify`.
 
 ## Global Constraints
 
@@ -1143,5 +1145,5 @@ Open the PR with the test counts, the Task 5 numbers and any differences from th
 - The owner's print check of Lab 1 and the first look at the live banner and landing (STATE.md, awaiting owner).
 - The two unruled design items: nav into the orange bar, and a new hero headline.
 - Sims stay without a noindex meta (source plus bar only, LEDGER 51); `robots.txt` covers them.
-- Quarto's `<title>` gains the site title as a suffix ("Course index", followed by a separator and "Physics Lab Library"). It is untested and was not raised; a question for the owner, not a fix here.
+- Quarto's `<title>` gains the site title as a suffix ("Course index", followed by a separator and "Physics Lab Library"). Accepted by the owner in chat on 2026-09-30; no change.
 - One Pandoc (phase 3), retiring the old build and moving the templates (phase 4), and the Cloudflare deploy and its owner-created token (phase 5, D-0034). Search, listings and downloads come later.
