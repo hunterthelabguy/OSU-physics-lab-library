@@ -127,6 +127,18 @@ class DeployJob(unittest.TestCase):
         self.assertIn("tools/check_deployed.py " + output_dir() + ' "$URL"', later, names)
         self.assertIn("WRANGLER_OUTPUT_FILE_PATH", texts[i])
 
+    def test_production_alias_checked_on_main(self):
+        # D-0050: a project whose production branch is not main would take a
+        # merge as a preview while the alias kept serving older bytes, and the
+        # check against the deployment's own URL would still pass.
+        s = steps(deploy())
+        name, text = s[-1]
+        self.assertRegex(text, r"(?m)^        if: github.event_name == 'push' && "
+                               r"github.ref == 'refs/heads/main'$", name)
+        self.assertIn("PROJECT: ${{ vars." + PROJECT_VARIABLE + " }}", text)
+        self.assertIn('tools/check_deployed.py ' + output_dir()
+                      + ' "https://$PROJECT.pages.dev/"', text)
+
 
 class TestedFolderIsDeployedFolder(unittest.TestCase):
     """call 4: verify hands deploy the folder it tested, as an artifact."""

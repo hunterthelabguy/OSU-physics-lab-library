@@ -132,3 +132,11 @@ jobs:
         # D-0049: every file byte for byte, unknown paths 404 with the 404
         # page, robots.txt and noindex present, against the live URL.
         run: python3 tools/check_deployed.py build/quarto-site "$URL"
+      - name: Production serves the tested bytes at its alias
+        # D-0050: a push to main must change what the project's own address
+        # serves, not only the deployment's URL. A production branch other
+        # than main would leave the alias on older bytes and fail here.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+        run: python3 tools/check_deployed.py build/quarto-site "https://$PROJECT.pages.dev/"
