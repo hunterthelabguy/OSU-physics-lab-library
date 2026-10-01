@@ -57,7 +57,7 @@ def words(fragment):
 class Pages(unittest.TestCase):
 
     def test_expected_pages(self):
-        want = ["index.html", "courses/index.html",
+        want = ["index.html", "404.html", "courses/index.html",
                 "how-this-was-made/index.html", "sims/index.html"]
         for doc_id, _ in converted():
             want += [f"labs/{doc_id}/modern/index.html",
@@ -65,6 +65,15 @@ class Pages(unittest.TestCase):
         for rel in want:
             with self.subTest(page=rel):
                 self.assertTrue((QSITE / rel).is_file())
+
+    def test_404_page_resolves_links_from_the_root(self):
+        # Pages serves 404.html at whatever path was asked for, so the
+        # chrome's relative nav links need a base (D-0049).
+        text = (QSITE / "404.html").read_text(encoding="utf-8")
+        self.assertEqual(text.count("<base "), 1)
+        head = text.split("</head>", 1)[0]
+        self.assertIn('<base href="/">', head)
+        self.assertLess(head.index("<base "), head.index("<link "))
 
     def test_noindex_on_every_page(self):
         for rel, _, text in html_pages():
@@ -96,8 +105,10 @@ class Pages(unittest.TestCase):
                 href = found.group(1)
                 if href.startswith("data:"):
                     continue
+                # Quarto writes a 404 page's links from the site root.
+                base = QSITE if href.startswith("/") else path.parent
                 with self.subTest(page=rel, href=href):
-                    self.assertTrue((path.parent / href.split("?")[0]).resolve().is_file())
+                    self.assertTrue((base / href.split("?")[0].lstrip("/")).resolve().is_file())
 
 
 class NoThirdParty(unittest.TestCase):

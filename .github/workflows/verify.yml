@@ -77,3 +77,66 @@ jobs:
         env:
           SITE_DIR: build/quarto-site
         run: python3 -m unittest discover -s tests -p test_site_chrome.py -v
+      - name: Hand the tested folder to deploy
+        # D-0048: deploy ships exactly these bytes, never a rebuild. The path
+        # is _quarto.yml's output-dir (tests/test_deploy_workflow.py).
+        uses: actions/upload-artifact@v4
+        with:
+          name: quarto-site
+          path: build/quarto-site
+          if-no-files-found: error
+
+  deploy:
+    # D-0047, D-0048: Cloudflare Pages, Direct Upload. A push to main is
+    # production; a pull request from this repository is a preview; a fork's
+    # pull request deploys nothing. The only job that names the secrets.
+    needs: verify
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the deploy check only
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/check_deployed.py
+          sparse-checkout-cone-mode: false
+      - name: The tested folder
+        uses: actions/download-artifact@v4
+        with:
+          name: quarto-site
+          path: build/quarto-site
+      - name: Deploy to Cloudflare Pages
+        # Wrangler pinned exactly and run directly, no third-party action on
+        # the token's path (call 5). The project name is a repository
+        # variable, so the interim name changes without a code change. The
+        # branch name is attacker-chosen text: it reaches the shell only
+        # through env, never pasted into the script.
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.json
+        run: |
+          test -n "$PROJECT" || { echo "repository variable CLOUDFLARE_PAGES_PROJECT is not set"; exit 1; }
+          npx --yes wrangler@4.146.0 pages deploy build/quarto-site --project-name="$PROJECT" --branch="$BRANCH" --commit-hash="$COMMIT" --commit-dirty=true
+          url=$(python3 -c 'import json, os, sys
+          rows = [json.loads(l) for l in open(os.environ["WRANGLER_OUTPUT_FILE_PATH"]) if l.strip()]
+          urls = [r["url"] for r in rows if r.get("type") == "pages-deploy-detailed" and r.get("url")]
+          sys.exit("wrangler reported no deployment URL") if not urls else print(urls[-1])')
+          echo "Deployed to $url"
+          echo "URL=$url" >> "$GITHUB_ENV"
+      - name: The deployment serves the tested bytes
+        # D-0049: every file byte for byte, unknown paths 404 with the 404
+        # page, robots.txt and noindex present, against the live URL.
+        run: python3 tools/check_deployed.py build/quarto-site "$URL"
+      - name: Production serves the tested bytes at its alias
+        # D-0050: a push to main must change what the project's own address
+        # serves, not only the deployment's URL. A production branch other
+        # than main would leave the alias on older bytes and fail here.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+        run: python3 tools/check_deployed.py build/quarto-site "https://$PROJECT.pages.dev/"

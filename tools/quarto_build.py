@@ -25,7 +25,7 @@ import quarto_chrome
 ROOT = render.ROOT
 QUARTO = os.environ.get("QUARTO", "quarto")
 OUT = os.path.join(ROOT, "build", "quarto-site")
-GENERATED = ["index.qmd", "courses", "how-this-was-made", "labs",
+GENERATED = ["index.qmd", "404.qmd", "courses", "how-this-was-made", "labs",
              os.path.join("sims", "index.qmd")]
 WARNING = re.compile(r"^\s*\[?(WARN|WARNING)\b", re.I | re.M)
 QUARTO_VERSION = "1.10.18"
@@ -72,6 +72,9 @@ def generate():
 
     write("index.qmd", {"title": "OSU physics lab library"},
           include("index.qmd", "site/landing.md"))
+    # Pages serves this at any unknown path (D-0049); post() gives it a base.
+    write("404.qmd", {"title": "Page not found"},
+          include("404.qmd", "site/404.md"))
 
     docs = render.converted_documents()
     write("courses/index.qmd", {"title": "Course index"},
@@ -83,6 +86,7 @@ def generate():
 
     pages = [
         {"html": "index.html", "kind": "site", "depth": 0, "theme": None, "footnote": ""},
+        {"html": "404.html", "kind": "site", "depth": 0, "theme": None, "footnote": ""},
         {"html": "courses/index.html", "kind": "site", "depth": 1, "theme": None, "footnote": ""},
         {"html": "how-this-was-made/index.html", "kind": "site", "depth": 1, "theme": None,
          "footnote": render.METHOD_FOOTNOTE},
@@ -178,6 +182,24 @@ def dress_pages(pages):
             fh.write(quarto_chrome.dress(text, body_class, top, bottom))
 
 
+def base_404(path):
+    """Resolve the 404 page's relative links from the site root.
+
+    Pages serves 404.html at whatever path was asked for. Quarto already
+    writes its own links in a 404 page from the root, but the chrome that
+    dress_pages() adds afterwards (the nav: courses/, sims/) is relative and
+    would miss from /labs/x/. The base goes first in <head>, before any link
+    it governs. Assumes the site is served from the root of its host, as it
+    is on pages.dev and on a subdomain; Quarto's own rewrite assumes the same.
+    """
+    with open(path, encoding="utf-8", newline="") as fh:
+        text = fh.read()
+    if text.count("<head>\n") != 1:
+        raise ValueError("404.html: expected exactly one <head>")
+    with open(path, "w", encoding="utf-8", newline="") as fh:
+        fh.write(text.replace("<head>\n", '<head>\n<base href="/">\n', 1))
+
+
 def post():
     """What Quarto does not make, written with render.py's own functions."""
     for sim_id, sim in render.sims().items():
@@ -185,6 +207,7 @@ def post():
     for doc_id in render.converted_documents():
         render.redirect_page(os.path.join(OUT, "labs", doc_id, "index.html"),
                              "modern/")
+    base_404(os.path.join(OUT, "404.html"))
     with open(os.path.join(OUT, "robots.txt"), "w", encoding="utf-8",
               newline="\n") as fh:
         fh.write("# Unlisted draft while the license is open (ledger 37).\n"
