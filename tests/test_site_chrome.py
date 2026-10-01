@@ -90,7 +90,7 @@ class FullChrome(unittest.TestCase):
                 for url in POLICY_LINKS:
                     self.assertIn(url, foot.group(0))
                 for banned in ("mailto:", "tel:", "&copy;", "©", "Copyright"):
-                    self.assertNotIn(banned, text)
+                    self.assertNotIn(banned, re.sub(r"<script\b.*?</script>", "", text, flags=re.S))
 
 
 class DocumentBodies(unittest.TestCase):

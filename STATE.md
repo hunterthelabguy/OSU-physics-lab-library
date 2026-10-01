@@ -2,20 +2,19 @@
 
 Volatile handoff, capped at one screen. Updated 2026-09-30.
 
-**Focus (2026-09-30):** Phase 1 merged (PR #13, `06d5dfd`), D-0035 ruled. Green `verify` with 45 tests
-(24 existing, 4 in questions_filter, 12 in quarto_site, 5 in quarto_build);
-Quarto build runs with no warning line. `chrome-on-quarto` is red as expected:
-of its 9 tests, 4 pass (enough pages, three sim-bar) and 5 do not. Four fail
-on all six pages (draft banner, footer, logo, top strip) and one errors on
-both lab pages, looking for a bare `<main>` where Quarto writes
-`<main class="content" ...>`. Phase 2 is planned, not started:
-`docs/superpowers/plans/2026-09-30-quarto-phase-2.md`, six tasks, run
-subagent-driven. D-0029 to D-0032 and D-0036 to D-0042 ruled
-2026-09-30; every gate is clear. Probes behind it: with three body
-settings Quarto's `<main>` content is byte-identical to the old build (the
-original fixture passes), and the old chrome lifted from its templates is
-byte-identical too, so four of the five failing tests pass with no edit.
-The fifth trips on Quarto's own inline `mailto:` regex (D-0041).
+**Focus (2026-09-30):** Phase 2 (chrome rewrite) done, PR #14. D-0036 to D-0042 are
+ruled; D-0043 (the search strip) is proposed. Green `verify` with 89 tests (45
+before phase 2). The chrome contract, `tests/test_site_chrome.py` (9 tests),
+passes against both builds and is a step of `verify` (D-0042); the
+non-blocking `chrome-on-quarto` job is gone and no brand test was dropped. The
+Quarto pages carry the old build's chrome, lifted from its templates
+(D-0036), with no navbar and no search markup (D-0037; the strip is D-0043,
+proposed). The only test edit is D-0041: the footer test ignores script
+blocks. The Quarto build still runs with no warning line, and the Quarto
+measurements below match the old build except the two landing footnote rows
+(D-0038). Next is phase 3, one Pandoc, per `docs/quarto-migration-plan.md`;
+production still serves the old build. Phase 2 plan:
+`docs/superpowers/plans/2026-09-30-quarto-phase-2.md`.
 
 **Previous focus:** site design review of 2026-09-22 (owner-led, from the live site).
 PR #11 and PR #12 are merged and live: spacing and type tokens, a print
@@ -35,7 +34,8 @@ items below that need a ruling first.
   new hero headline (the mockup's wording was never approved).
 - Carried from 2026-09-21: the D-0012 heads-up to University Marketing, and
   the pilot comparison feature and verdict date (spec section 8).
-- Phase 2 proposes dropping no brand test (D-0042).
+- Promote D-0043 (the driver strips Quarto's search leftovers after render;
+  proposed 2026-09-30, route chosen by the owner in chat).
 
 **Measurements (Quarto build, 2026-09-30):** `build/quarto-site/`, built fresh,
 served from `build/` over HTTP and measured in the browser pane by
@@ -58,7 +58,7 @@ that exists in the build, and the four WOFF2 fonts, in bytes.
 - Contrast, computed from the rendered page with the WCAG formula, the same on
   all six pages: draft banner 11.86:1, site name 4.56:1. Landing hero only:
   title 11.8:1, lead 8.19:1, button 4.56:1.
-- Page weights in bytes: old build page; Quarto page; Quarto first visit (the
+- Page weights in bytes: `build/site/` page; Quarto page; Quarto first visit (the
   page, every linked file and all four fonts; an upper bound, since a browser
   fetches only the font faces a page uses):
   - landing: 388501; 256206; 1159320

@@ -54,9 +54,11 @@ edited to pass.
 
 ## Phase 2: chrome rewrite
 
-Implementation plan: `docs/superpowers/plans/2026-09-30-quarto-phase-2.md`.
-Rulings: D-0036 to D-0042 (proposed 2026-09-30 on the owner's chat ruling,
-awaiting promotion), building on D-0029 to D-0032.
+Status: done 2026-09-30 (PR #14). Implementation plan:
+`docs/superpowers/plans/2026-09-30-quarto-phase-2.md`.
+Rulings: D-0036 to D-0042 (ruled 2026-09-30 on the owner's chat ruling),
+building on D-0029 to D-0032. D-0043 (the driver strips Quarto's search
+leftovers after render) is proposed, awaiting promotion.
 
 - Fix the doubled page title (one `#` heading per page). Done in phase 1.
 - Rebuild the draft banner, top strip, footer and landing hero against
@@ -66,7 +68,9 @@ awaiting promotion), building on D-0029 to D-0032.
 - Re-measure what STATE.md records (sim bar fits 1280x720, 375 px phone width
   without sideways scroll, contrast ratios) and write new numbers there.
 - Exit (D-0042): the chrome suite passes against the Quarto build and runs
-  in `verify`; no brand test dropped.
+  in `verify`; no brand test dropped. Done: the suite passes 9 of 9 against
+  both builds and is the last step of the `verify` job, and the
+  non-blocking `chrome-on-quarto` job is gone.
 
 ## Phase 3: one Pandoc
 

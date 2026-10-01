@@ -45,33 +45,86 @@
   feeds both (ledger 28); never copy content into a second file.
 - Question numbers are generated at render time from document order by
   `tools/filters/questions.lua`. No number is stored in the source.
-- Quarto (D-0033, migration in progress): 1.10.18 at
-  `C:\Program Files\Quarto\bin\quarto.exe`, not on PATH. Quarto reserves the
-  `theme` metadata key for its page theme, so the presentation name travels
-  as `theme-name` under Quarto. Never use the Cosmo theme: it imports Google
-  Fonts. Quarto writes its own `robots.txt` that allows indexing; override it
-  (ledger 37). Build it with `python tools/quarto_build.py` (set `QUARTO` and
-  `PANDOC` locally; every front matter read shells out to Pandoc); output `build/quarto-site/`, checked by `tests/test_quarto_site.py`.
-  Generated pages (`/index.qmd`, `/courses/`, `/how-this-was-made/`, `/labs/`,
-  `/sims/index.qmd`) are gitignored and rebuilt every run; never edit them.
-  Production still serves the old build. Learned in phase 1: `title-block-style:
-  none` only strips styling; the empty `title-block.html` partial (wired under
-  `template-partials:`) is what leaves one `<h1>` per page, so never delete it.
-  `{{< include >}}` merges the included file's front matter into page
-  metadata, so a curriculum key that collides with a Quarto option (`lang`,
-  `toc`, `css`, `date`, `author`) would change a page. The warning gate in
-  `tools/quarto_build.py` also catches Pandoc `[WARNING]` lines. Never enable
-  `algolia:` search (its loader reaches a third-party CDN, which the HTML and
-  CSS scans cannot see), and a page with math loads MathJax from a CDN, which
-  fails `NoThirdParty`: a phase 2 item. Probed 2026-09-30 for phase 2 (plan in
-  `docs/superpowers/plans/2026-09-30-quarto-phase-2.md`): `include-before-body`
-  lands inside `<main>`; `website.search` defaults on even with no navbar;
-  `minimal: true` drops Bootstrap and `<main>` too; the inline `mailto:` regex
-  is unconditional in Quarto's after-body script (D-0041); never pass a
-  data: URI as a Pandoc `-M` value (the logo is about 234 KB, past the
-  Windows command-line limit), use the path plus `--embed-resources` as
-  render.py does. After a squash merge `git branch -d`
-  refuses; the PR's commits stay at `refs/pull/<n>/head`, so `-D` is safe.
+- Quarto (D-0033, migration in progress; phase 2 is done, phase 3 is next in
+  `docs/quarto-migration-plan.md`). Production still serves the old build.
+  - Setup: 1.10.18 at `C:\Program Files\Quarto\bin\quarto.exe`, not on PATH.
+    Quarto reserves the `theme` metadata key for its page theme, so the
+    presentation name travels as `theme-name` under Quarto. Never use the
+    Cosmo theme: it imports Google Fonts. Quarto writes its own `robots.txt`
+    that allows indexing; override it (ledger 37). Never pass a data: URI as a
+    Pandoc `-M` value (the logo is about 234 KB, past the Windows
+    command-line limit), use the path plus `--embed-resources` as render.py
+    does.
+  - Build with `python tools/quarto_build.py` (set `QUARTO` and `PANDOC`
+    locally; every front matter read shells out to Pandoc); output
+    `build/quarto-site/`, checked by `tests/test_quarto_site.py`. Generated
+    pages (`/index.qmd`, `/courses/`, `/how-this-was-made/`, `/labs/`,
+    `/sims/index.qmd`) are gitignored and rebuilt every run; never edit them.
+    The warning gate in `tools/quarto_build.py` also catches Pandoc
+    `[WARNING]` lines. After a squash merge `git branch -d` refuses; the PR's
+    commits stay at `refs/pull/<n>/head`, so `-D` is safe.
+  - Chrome (D-0036): the driver checks the Quarto version, then dresses every
+    page with the old build's chrome, lifted from the old templates by Pandoc
+    (`tools/quarto_chrome.py`). Never hand-edit the chrome in a Quarto page,
+    and never copy the templates into a second file. Three body settings in
+    `_quarto.yml` (`section-divs: false`, `anchor-sections: false`,
+    `wrap: auto`) make Quarto's `<main>` content byte-identical to the old
+    build's, and the driver swaps Quarto's `<main class="content" ...>` for
+    the bare `<main>` the old templates write. Every Quarto-specific rule in
+    `site/site.css` sits between its `quarto-only: start` and
+    `quarto-only: end` comments, because that file is shared with the old
+    build; `tests/test_quarto_chrome.py::QuartoOnlyCss` requires each
+    selector there to name `#quarto-content` or `.quarto-light`.
+    `tests/test_site_chrome.py` runs against both builds and gates `verify`
+    (D-0042); `test_footer_as_ruled` ignores script blocks because Quarto's
+    inline link handler contains a `mailto:` regex that no setting removes
+    (D-0041).
+  - No navbar and no search (D-0037); math is MathML (D-0040:
+    `html-math-method: mathml`, pinned by `tests/test_quarto_config.py`;
+    Quarto's default loads MathJax from a CDN, which fails `NoThirdParty`).
+    Never enable `algolia:` search (its loader reaches a third-party CDN,
+    which the HTML and CSS scans cannot see). `website.search` defaults on
+    even with no navbar, and `search: false` does not remove the markup or
+    `search.json` in 1.10.18, so `strip_search()` in `tools/quarto_build.py`
+    does (D-0043, proposed). Quarto copies the sim's raw source page into the
+    output before `post()` overwrites it, so `strip_search` skips pages
+    without Quarto's generator meta tag.
+  - Learned in phase 1: `title-block-style: none` only strips styling; the
+    empty `title-block.html` partial (wired under `template-partials:`) is
+    what leaves one `<h1>` per page, so never delete it. `{{< include >}}`
+    merges the included file's front matter into page metadata, so a
+    curriculum key that collides with a Quarto option (`lang`, `toc`, `css`,
+    `date`, `author`) would change a page.
+  - Probed 2026-09-30 for phase 2 (plan in
+    `docs/superpowers/plans/2026-09-30-quarto-phase-2.md`):
+    `include-before-body` lands inside `<main>`; `minimal: true` drops
+    Bootstrap and `<main>` too; the inline `mailto:` regex is unconditional
+    in Quarto's after-body script.
+  - Measuring: `tools/measure_chrome.js` loads every page of both builds in
+    same-origin iframes and returns the computed-style differences, 375 px
+    scroll widths, banner heights, contrast ratios and the sim bar fit. CI
+    does not run it. Serve the `build/` folder from the repo root with an
+    absolute path on a port not used before in the session
+    (`python -m http.server <port> --directory <absolute path to build>`),
+    open `http://127.0.0.1:<port>/quarto-site/` in the browser pane, run the
+    file's text in the pane's JavaScript tool, and stop the server after. It
+    samples the first match of each of its 25 selectors only. On index.html
+    at 1440 and 375 px it reports two `.site-foot` "missing in quarto" rows;
+    that is expected (the landing footnote is not carried, D-0038).
+  - Keeping the measured match: the quarto-only block is mostly `revert`
+    rules at Bootstrap's own specificity (Bootstrap's reboot, undone). It
+    depends on the document theme CSS (`themes/*.css`) loading after
+    `site/site.css` on Quarto pages, the order of the page's css list;
+    `site.css`'s header comment describes the old build's order, theme first.
+    A bare-element rule placed above the block in `site.css` would be
+    cancelled on Quarto pages only. The reverts cover only the element types
+    on the six measured pages, so when a page brings a new element type
+    (nested lists, sub and sup, code, blockquote, hr, caption, table
+    borders), measure it and add a revert. Quarto's hover-preview script
+    queries `main.content`, which is null on the bare `<main>` (null-guarded,
+    silent). Quarto adds table classes inside `<main>` on how-this-was-made:
+    the styles match, the markup is not byte-identical, and
+    `test_bodies_unchanged` covers lab pages only.
 - Site content: `site/landing.md` is the landing copy, `site/courses.md`
   holds the course index data in front matter, `site/site.css` is the shared
   chrome. The "How this was made" page is lifted from `VISION.md` at build

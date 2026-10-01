@@ -445,3 +445,13 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: keep the job non-blocking until phase 4 (the contract would not gate the build that becomes production).
 - binds: D-0033, .github/workflows/verify.yml, tests/test_site_chrome.py
 - corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0029 to D-0032, D-0036 to D-0042"; D-0041 excluded, which the owner said in the same message is not yet ruled)
+
+### D-0043  The driver strips Quarto's search leftovers after render
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: After `quarto render`, `tools/quarto_build.py` removes the `quarto-search-options` script and the `quarto-search-results` div from every page Quarto wrote, and deletes `search.json`. The strip is strict: a page that lacks either fragment, or has two of either, fails the build. D-0037's config stays (`search: false`, no navbar).
+- rationale: Quarto 1.10.18 ignores `website.search: false`: the search markup is on every page, `search.json` is written, and no search library lands in `site_libs`. Found in phase 2 Task 1. The owner chose this route in chat on 2026-09-30 when given three options (strip after render; find another Quarto switch; re-rule D-0037). D-0037 and its tests forbid the leftovers.
+- alternatives: a template-partial override or another config key (not probed: it needs Quarto's install folder, outside the repo); re-rule D-0037 to accept inert markup (needs an owner amendment of the tests).
+- binds: D-0037, D-0033, tools/quarto_build.py
+- test: tests/test_quarto_strip.py, tests/test_quarto_chrome.py::Navigation
