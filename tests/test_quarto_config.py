@@ -40,6 +40,16 @@ def items(key):
     return [] if m is None else [l.strip()[2:].strip() for l in m.group(2).splitlines()]
 
 
+def ci_steps():
+    """(name, text) of each step of verify.yml, in order."""
+    ci = (ROOT / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
+    steps = []
+    for text in re.split(r"^      - (?=name:|uses:)", ci, flags=re.M)[1:]:
+        m = re.match(r"name:[ ]*(.*)", text)
+        steps.append((m.group(1).strip() if m else text.splitlines()[0], text))
+    return steps
+
+
 class Pins(unittest.TestCase):
 
     def test_theme_default_never_cosmo(self):
@@ -103,6 +113,30 @@ class Version(unittest.TestCase):
         v = quarto_build.QUARTO_VERSION
         for tag, name in installs:
             self.assertEqual((tag, name), (v, v))
+
+    def test_ci_uses_quartos_pandoc(self):
+        # D-0044, D-0046. CI's PANDOC is Quarto's bundled binary; the
+        # standalone Pandoc is named only by the old build's step and by the
+        # step that runs the tree test. No version literal: the version test
+        # in test_one_pandoc.py compares the two Pandocs themselves.
+        steps = ci_steps()
+        names = [name for name, _ in steps]
+        quarto = [i for i, (_, body) in enumerate(steps) if "quarto-cli/releases" in body]
+        export = [i for i, (_, body) in enumerate(steps)
+                  if "GITHUB_ENV" in body and re.search(r"\bPANDOC=", body)]
+        self.assertEqual(len(quarto), 1)
+        self.assertEqual(len(export), 1, "exactly one step exports PANDOC")
+        self.assertIn("Content unchanged", names)
+        self.assertLess(quarto[0], export[0])
+        self.assertLess(export[0], names.index("Content unchanged"))
+        body = steps[export[0]][1]
+        self.assertIn("--version", body, "the step prints the version it found")
+        self.assertIn("exit 1", body, "the step fails when the binary is missing")
+
+        setting = [name for name, body in steps if re.search(r"^\s+PANDOC:", body, re.M)]
+        self.assertEqual(setting, ["Site builds"])
+        old = [name for name, body in steps if "PANDOC_OLD_BUILD" in body]
+        self.assertEqual(sorted(old), ["Site builds", "Tests"])
 
 
 if __name__ == "__main__":
