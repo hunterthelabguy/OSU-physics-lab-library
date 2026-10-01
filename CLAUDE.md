@@ -120,11 +120,11 @@
     cancelled on Quarto pages only. The reverts cover only the element types
     on the six measured pages, so when a page brings a new element type
     (nested lists, sub and sup, code, blockquote, hr, caption, table
-    borders, `strong` and `b`, `dd`), measure it and add a revert. Two are
-    known and unmeasured: Bootstrap sets `font-weight: bolder` on `strong`
-    and `b` (a strong inside a bold heading is 900 on a Quarto page, 700 by
-    browser default) and `margin-left: 0` on `dd` (the browser default is
-    40px); neither occurs on the six measured pages. Quarto's hover-preview
+    borders, `strong` and `b`, `dd`), measure it and add a revert. Bootstrap
+    sets `font-weight: bolder` on `b` and `strong` (it compounds inside a
+    bold heading) and `margin-left: 0` on `dd` (the browser default is
+    40px); neither element occurs on the six measured pages, so measure the
+    first page that uses them against the old build. Quarto's hover-preview
     script queries `main.content`, which is null on the bare `<main>`
     (null-guarded, silent). Quarto adds table classes inside `<main>` on
     how-this-was-made: the styles match, the markup is not byte-identical,

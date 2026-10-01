@@ -47,8 +47,7 @@ jobs:
         # Fails on any Quarto warning line (docs/quarto-migration-plan.md).
         run: python3 tools/quarto_build.py
       - name: Tests
-        # Each asserts a ruled DECISIONS.md quantity, or reads build/site or
-        # build/quarto-site; the Quarto driver and chrome tests shell out to Pandoc.
+        # Each asserts a ruled DECISIONS.md quantity, or reads build/site or build/quarto-site.
         run: python3 -m unittest discover -s tests -v
       - name: Chrome contract against the Quarto build
         # Phase 2 exit (D-0042): the brand contract gates the Quarto build.
