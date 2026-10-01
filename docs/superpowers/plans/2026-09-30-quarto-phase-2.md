@@ -22,7 +22,7 @@ The owner ruled the eleven critique questions in chat on 2026-09-30 ("Rule your 
 
 Execution mode, owner's choice (2026-09-30): subagent-driven, one fresh subagent per task with review between tasks.
 
-Before Task 6, Step 1: D-0041 ruled. The owner leans toward it but has not ruled. Evidence for the ruling (2026-09-30): Quarto's source at tag v1.10.18 (`src/resources/formats/html/templates/quarto-html-after-body.ejs`, read through a fetch tool's summary) emits the `mailtoRegex` block with no condition around it, so no option turns it off. If it is declined, stop after Task 5 and bring the owner the alternatives listed in D-0041. The PR does not merge with the chrome suite outside `verify`.
+Before Task 6, Step 1: D-0041 ruled. Done 2026-09-30, as written. Evidence for the ruling (2026-09-30): Quarto's source at tag v1.10.18 (`src/resources/formats/html/templates/quarto-html-after-body.ejs`, read through a fetch tool's summary) emits the `mailtoRegex` block with no condition around it, so no option turns it off. If it is declined, stop after Task 5 and bring the owner the alternatives listed in D-0041. The PR does not merge with the chrome suite outside `verify`.
 
 ## Global Constraints
 

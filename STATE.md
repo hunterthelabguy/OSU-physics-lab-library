@@ -10,8 +10,8 @@ on all six pages (draft banner, footer, logo, top strip) and one errors on
 both lab pages, looking for a bare `<main>` where Quarto writes
 `<main class="content" ...>`. Phase 2 is planned, not started:
 `docs/superpowers/plans/2026-09-30-quarto-phase-2.md`, six tasks, run
-subagent-driven. D-0029 to D-0032, D-0036 to D-0040 and D-0042 ruled
-2026-09-30; D-0041 proposed. Probes behind it: with three body
+subagent-driven. D-0029 to D-0032 and D-0036 to D-0042 ruled
+2026-09-30; every gate is clear. Probes behind it: with three body
 settings Quarto's `<main>` content is byte-identical to the old build (the
 original fixture passes), and the old chrome lifted from its templates is
 byte-identical too, so four of the five failing tests pass with no edit.
@@ -30,9 +30,6 @@ items below that need a ruling first.
   lab page. Both shipped without an owner ever seeing them.
 - Print preview Lab 1 on paper. The print rules shipped in PR #11 and have
   never been checked in a real print dialog.
-- Rule on D-0041 (owner leans yes, not ruled; no Quarto option removes
-  the script, per Quarto's v1.10.18 source), the one proposed test edit (the footer test reads the page
-  without its script blocks). Phase 2's Task 6 waits on it.
 - Two design items were deliberately not built, pending a ruling:
   moving the nav into the orange bar (D-0004 mirrors the Physics site), and a
   new hero headline (the mockup's wording was never approved).
