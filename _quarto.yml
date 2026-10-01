@@ -9,6 +9,7 @@ project:
   output-dir: build/quarto-site
   render:
     - index.qmd
+    - 404.qmd
     - courses/index.qmd
     - how-this-was-made/index.qmd
     - sims/index.qmd

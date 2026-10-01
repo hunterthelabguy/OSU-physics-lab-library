@@ -34,8 +34,15 @@ def setUpModule():
 
 
 def pages():
-    """Built pages that carry the full chrome: not redirect stubs, not sims."""
-    for p in sorted(SITE.rglob("index.html")):
+    """Built pages that carry the full chrome: not redirect stubs, not sims.
+
+    The Quarto build's 404.html is one (D-0049); the old build has none, and
+    test_quarto_site.py requires it in the Quarto build.
+    """
+    found = sorted(SITE.rglob("index.html"))
+    if (SITE / "404.html").is_file():
+        found.insert(0, SITE / "404.html")
+    for p in found:
         rel = p.relative_to(SITE).as_posix()
         text = p.read_text(encoding="utf-8")
         if 'http-equiv="refresh"' in text:
