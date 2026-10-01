@@ -8,9 +8,13 @@ Quarto build runs with no warning line. `chrome-on-quarto` is red as expected:
 of its 9 tests, 4 pass (enough pages, three sim-bar) and 5 do not. Four fail
 on all six pages (draft banner, footer, logo, top strip) and one errors on
 both lab pages, looking for a bare `<main>` where Quarto writes
-`<main class="content" ...>`. Next is phase 2 (chrome, draft banner, fonts and
-landing hero), defined in `docs/quarto-migration-plan.md`; spike findings in
-`docs/quarto-spike-2026-09-30.md`.
+`<main class="content" ...>`. Phase 2 is planned, not started:
+`docs/superpowers/plans/2026-09-30-quarto-phase-2.md`, six tasks, with the
+rulings proposed as D-0036 to D-0042. Probes behind it: with three body
+settings Quarto's `<main>` content is byte-identical to the old build (the
+original fixture passes), and the old chrome lifted from its templates is
+byte-identical too, so four of the five failing tests pass with no edit.
+The fifth trips on Quarto's own inline `mailto:` regex (D-0041).
 
 **Previous focus:** site design review of 2026-09-22 (owner-led, from the live site).
 PR #11 and PR #12 are merged and live: spacing and type tokens, a print
@@ -25,13 +29,18 @@ items below that need a ruling first.
   lab page. Both shipped without an owner ever seeing them.
 - Print preview Lab 1 on paper. The print rules shipped in PR #11 and have
   never been checked in a real print dialog.
-- Rule on D-0029 to D-0032, all proposed.
+- Promote D-0029 to D-0032 and D-0036 to D-0040 and D-0042. All were
+  ruled in chat on 2026-09-30 ("Rule your way on all eleven"); an agent
+  never changes a status, so they wait on an explicit promotion. Phase 2's
+  Task 1 waits on it.
+- Rule on D-0041, the one proposed test edit (the footer test reads the page
+  without its script blocks). Phase 2's Task 6 waits on it.
 - Two design items were deliberately not built, pending a ruling:
   moving the nav into the orange bar (D-0004 mirrors the Physics site), and a
   new hero headline (the mockup's wording was never approved).
 - Carried from 2026-09-21: the D-0012 heads-up to University Marketing, and
   the pilot comparison feature and verdict date (spec section 8).
-- Rule, one at a time, on each brand test that phase 2 proposes to drop.
+- Phase 2 proposes dropping no brand test (D-0042).
 
 **Measurements (2026-09-22):**
 - Landing prose column at 1440 px: left 362 px, right 378 px (the 16 px

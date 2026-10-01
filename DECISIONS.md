@@ -355,3 +355,71 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: keep the plan's verbatim regex (leaves four links per page unchecked); add a second test beside it (leaves a half-vacuous test in place); leave it to phase 2 (the gap would outlast the merge).
 - binds: tests/test_quarto_site.py, D-0033
 - corrected: 2026-09-30, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0035 to ruled")
+
+### D-0036  Phase 2 page assembly: flat body, bare main, chrome lifted from the old templates
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: The Quarto build sets `section-divs: false`, `anchor-sections: false` and `wrap: auto`. After `quarto render`, `tools/quarto_build.py` dresses each page. Quarto's `<main class="content" id="quarto-document-content">` and the empty title-block header become a bare `<main>`. The chrome above `<main>` (draft banner, OSU header, the document nav) goes in right after `<body ...>`. The chrome below it (document footer or site footnote, OSU footer) goes in right after Quarto's `</div> <!-- /content -->`. The old page's body class is added to Quarto's. The chrome is not copied: it is lifted from `tools/template.html` and `tools/template-site.html`, rendered by Pandoc with an empty body and the same metadata the old build passes, so the old templates stay the one source of the chrome until phase 4. Each anchor must occur exactly once or the build fails.
+- rationale: Owner ruled in chat 2026-09-30 ("Rule your way on all eleven and write the plan", covering critique questions 2 and 9). Probes on 2026-09-30 with Quarto 1.10.18: with the three settings, the content of `<main>` is byte-identical to the old build on both lab pages, and the SHA-256 values in `tests/fixtures/main-bodies.json` match once the tag is bare, so `test_bodies_unchanged` passes with no edit to the test or its fixture. The 12 phase 1 tests stay green under the settings. `include-before-body` lands inside `<main>` (probe), which would put the header inside the document body (D-0010) and in the wrong landmark. Without section wrappers, `main > *` is again the paragraphs and headings that D-0029's grid expects.
+- alternatives: rule an edit to `test_bodies_unchanged` and a new fixture (weaker: it pins Quarto's output, not the old build's); `include-before-body` (inside `<main>`); copy the chrome markup into a new file (two copies that can drift until phase 4).
+- binds: D-0010, D-0029, D-0033, _quarto.yml, tools/quarto_build.py, tools/template.html, tools/template-site.html
+- test: tests/test_site_chrome.py::DocumentBodies::test_bodies_unchanged with SITE_DIR=build/quarto-site, tests/test_quarto_chrome.py::ChromeParity (written in phase 2)
+
+### D-0037  One nav under Quarto; search off until ruled
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: `_quarto.yml` drops `website.navbar` and sets `search: false`. The OSU header's nav (D-0004) is the only navigation. Search comes back only by its own ruling, placed so it does not add a second nav.
+- rationale: Owner ruled in chat 2026-09-30 (critique question 4). With both, every page would carry two navigation bars whose four labels are the same words kept in two files. Quarto's search needs a navbar or a sidebar to live in. Nothing uses `search.json` today.
+- alternatives: keep Quarto's navbar and drop the OSU nav (its collapse needs script, and it leaves D-0004); keep both (two navs).
+- binds: D-0004, D-0033, _quarto.yml
+- test: tests/test_quarto_config.py, tests/test_quarto_chrome.py::Navigation (written in phase 2)
+
+### D-0038  Carry the untested chrome word for word; drop the landing footnote under Quarto
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: The Quarto pages carry every piece of chrome the old build writes, including the pieces no test covered: the document nav (library home, "Course index", the "Read it ..." switch), the presentation note, the "Both presentations" paragraph, and the "How this was made" footnote. New tests pin them against the old build. The landing footnote, which says the site is built "with Pandoc and one build script", is not carried, because it is false under Quarto; phase 4 rewrites the method text.
+- rationale: Owner ruled in chat 2026-09-30 (critique question 5). The phase 1 exit criterion treated the chrome suite as the whole contract, and it never covered these, so a build driven only by the failing tests would have dropped them, and `site/landing.md` ("Either page switches to the other at the top") would then be false. The wording comes from `tools/render.py` and the templates unchanged; no new copy.
+- alternatives: supply new wording for the landing footnote now (owner copy, not needed to migrate); carry the false footnote (a page that misstates how it was built).
+- binds: D-0033, tools/render.py, tools/template.html, tools/template-site.html, site/landing.md
+- test: tests/test_quarto_chrome.py::ChromeParity (written in phase 2)
+
+### D-0039  Logo stays embedded; Quarto publishes only the fonts and their license
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: The header logo stays a `data:` URI in every page, so `test_logo_unaltered_and_linked` passes unedited. `resources:` in `_quarto.yml` lists exactly the four Open Sans WOFF2 files and `site/fonts/OFL.txt`. The two README files and the logo PNGs are not published.
+- rationale: Owner ruled in chat 2026-09-30 (critique questions 6 and 7). The embedded logo costs about 234 KB of base64 per page (175634 bytes times 4/3), so the migration plan's "page weight falls" does not hold for the logo. Once it is embedded, nothing references the PNG files, which were about 532 KB of the output. The OFL requires the license to travel with the fonts.
+- alternatives: rule the logo test to accept a file reference (lighter pages, a test edit); publish the READMEs (maintainer notes on a public site).
+- binds: D-0014, D-0020, D-0025, _quarto.yml
+- test: tests/test_site_chrome.py::FullChrome::test_logo_unaltered_and_linked with SITE_DIR=build/quarto-site, tests/test_quarto_chrome.py::Published (written in phase 2)
+
+### D-0040  Math renders as MathML
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: `_quarto.yml` sets `html-math-method: mathml`, pinned by a config test.
+- rationale: Owner ruled in chat 2026-09-30 (critique question 8). Quarto's default loads MathJax from a CDN, which breaks D-0033's no-third-party condition. No page has math today, so the output scans cannot catch it; the pinned setting is the guard. A probe on 2026-09-30 rendered `$x^2$` as a `<math>` element with no script.
+- alternatives: host a copy of MathJax in the repo (size and upkeep); `plain` (math unreadable).
+- binds: D-0033, _quarto.yml
+- test: tests/test_quarto_config.py (written in phase 2)
+
+### D-0041  The footer test ignores script blocks when it looks for contact links
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: In `tests/test_site_chrome.py::FullChrome::test_footer_as_ruled`, the banned-string loop checks the page with every `<script ...>...</script>` block removed: `self.assertNotIn(banned, re.sub(r"<script\b.*?</script>", "", text, flags=re.S))`. Nothing else in the test changes. The old build has no script blocks, so the edit changes nothing there.
+- rationale: Quarto 1.10.18 writes an inline script on every page containing `new RegExp(/^mailto:/)` (its external-link handler). Probes on 2026-09-30 with no options, with `link-external-filter`, and with `code-copy` and `code-link` off all still emitted it. A correct footer therefore fails the test on a string no reader sees. The test exists to keep contact links and a copyright line off the page (D-0023), and script text is neither. This narrows what the test reads; it is a disclosed test edit and needs its own ruling (owner ruling on critique question 3).
+- alternatives: strip that script from every page in the post step (breaks Quarto's link handling); keep the chrome job non-blocking (the contract never gates).
+- binds: D-0023, D-0033, tests/test_site_chrome.py
+
+### D-0042  Phase 2 exit: the chrome suite gates the Quarto build; no brand test dropped
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: Phase 2 merges when every test in `tests/test_site_chrome.py` passes against `build/quarto-site/`, and the same PR moves that run into the blocking `verify` job and deletes the non-blocking `chrome-on-quarto` job. No brand test is dropped. The only test edit in phase 2 is D-0041, and only if it is ruled.
+- rationale: Owner ruled in chat 2026-09-30 (critique questions 10 and 11). Four of the five failing chrome tests pass with no edit under D-0036, D-0038 and D-0039; the fifth depends on D-0041.
+- alternatives: keep the job non-blocking until phase 4 (the contract would not gate the build that becomes production).
+- binds: D-0033, .github/workflows/verify.yml, tests/test_site_chrome.py

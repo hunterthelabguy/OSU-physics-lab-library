@@ -14,8 +14,11 @@ the ruled footer, sim bodies unchanged, the sim bar, embedded fonts. The
 migration keeps every one of those tests passing against the Quarto output,
 or drops a test only by a ruling recorded in DECISIONS.md. "Branding is not
 load-bearing" (owner, 2026-09-30) licenses simplifying the chrome; it does not
-license a test silently going red. The tests read `build/site/`, so Quarto
-writes there too, and they need no path changes.
+license a test silently going red. Quarto writes `build/quarto-site/`,
+beside the old `build/site/`, and the chrome suite reads it through
+`SITE_DIR` (corrected 2026-09-30: an earlier draft said Quarto would write
+`build/site/` with no path changes; phase 1 built it beside the old build
+instead).
 
 ## Phase 1: Quarto builds beside the old build
 
@@ -51,11 +54,19 @@ edited to pass.
 
 ## Phase 2: chrome rewrite
 
-- Fix the doubled page title (one `#` heading per page).
+Implementation plan: `docs/superpowers/plans/2026-09-30-quarto-phase-2.md`.
+Rulings: D-0036 to D-0042 (proposed 2026-09-30 on the owner's chat ruling,
+awaiting promotion), building on D-0029 to D-0032.
+
+- Fix the doubled page title (one `#` heading per page). Done in phase 1.
 - Rebuild the draft banner, top strip, footer and landing hero against
-  Quarto's markup, driven by the failing tests from phase 1.
+  Quarto's markup, driven by the failing tests from phase 1 and by new
+  parity tests for the chrome no test covered (D-0038). The chrome is lifted
+  from the old templates, not rewritten (D-0036).
 - Re-measure what STATE.md records (sim bar fits 1280x720, 375 px phone width
   without sideways scroll, contrast ratios) and write new numbers there.
+- Exit (D-0042): the chrome suite passes against the Quarto build and runs
+  in `verify`; no brand test dropped.
 
 ## Phase 3: one Pandoc
 
