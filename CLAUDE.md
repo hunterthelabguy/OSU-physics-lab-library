@@ -48,6 +48,11 @@
 - Quarto (D-0033, migration in progress; phase 2 is done, phase 3 is next in
   `docs/quarto-migration-plan.md`). Production still serves the old build.
   - Setup: 1.10.18 at `C:\Program Files\Quarto\bin\quarto.exe`, not on PATH.
+    It bundles Pandoc 3.10 (not 3.11) at `C:\Program Files\Quarto\bin\tools\pandoc.exe`
+    (owner-supplied 2026-10-01). Never set `PANDOC` to the `quarto pandoc`
+    command: its stdout truncates large output on Windows (D-0045). Phase 3
+    (D-0044, D-0046) moves `PANDOC` to the bundled binary, except the old
+    build, which keeps 3.11 until phase 4.
     Quarto reserves the `theme` metadata key for its page theme, so the
     presentation name travels as `theme-name` under Quarto. Never use the
     Cosmo theme: it imports Google Fonts. Quarto writes its own `robots.txt`

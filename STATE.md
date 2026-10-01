@@ -1,6 +1,6 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-09-30.
+Volatile handoff, capped at one screen. Updated 2026-10-01.
 
 **Focus (2026-09-30):** Phase 2 (chrome rewrite) done, PR #14. D-0036 to D-0042 are
 ruled, D-0043 (the search strip) too. Green `verify` with 89 tests (45
@@ -12,9 +12,10 @@ Quarto pages carry the old build's chrome, lifted from its templates
 proposed). The only test edit is D-0041: the footer test ignores script
 blocks. The Quarto build still runs with no warning line, and the Quarto
 measurements below match the old build except the two landing footnote rows
-(D-0038). Next is phase 3, one Pandoc, planned as a draft in
-`docs/superpowers/plans/2026-09-30-quarto-phase-3.md` with D-0044 to D-0046
-proposed; nothing built. Its premise was wrong: Quarto 1.10.18 bundles
+(D-0038). Next is phase 3, one Pandoc, planned in
+`docs/superpowers/plans/2026-09-30-quarto-phase-3.md`, calls and D-0044 to
+D-0046 ruled 2026-10-01; nothing built. The owner looked at the live landing
+page and banner on 2026-10-01: unchanged from before. Its premise was wrong: Quarto 1.10.18 bundles
 Pandoc 3.10, not 3.11. Production still serves the old build. Phase 2 plan:
 `docs/superpowers/plans/2026-09-30-quarto-phase-2.md`.
 
@@ -27,8 +28,6 @@ The design review is done; nothing from it is left unbuilt except the two
 items below that need a ruling first.
 
 **Awaiting owner:**
-- Look at the live landing page and open the banner's "What this means" on a
-  lab page. Both shipped without an owner ever seeing them.
 - Print preview Lab 1 on paper. The print rules shipped in PR #11 and have
   never been checked in a real print dialog.
 - Two design items were deliberately not built, pending a ruling:
@@ -36,8 +35,6 @@ items below that need a ruling first.
   new hero headline (the mockup's wording was never approved).
 - Carried from 2026-09-21: the D-0012 heads-up to University Marketing, and
   the pilot comparison feature and verdict date (spec section 8).
-- The phase 3 calls are ruled (2026-10-01); promote or decline D-0044
-  to D-0046 before the build starts.
 
 **Measurements (Quarto build, 2026-09-30):** `build/quarto-site/`, built fresh,
 served from `build/` over HTTP and measured in the browser pane by
