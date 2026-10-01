@@ -15,13 +15,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tests"))
 from test_quarto_config import values     # noqa: E402
+# One pin for wrangler, one list of secret names, one variable name (D-0050).
+from test_create_project_workflow import (  # noqa: E402
+    PROJECT_VARIABLE, SECRETS, WRANGLER_VERSION)
 
 WORKFLOW = ROOT / ".github" / "workflows" / "verify.yml"
-# Chosen from the npm registry at build time (2026-10-01, `latest`), never
-# from memory. An upgrade is its own PR that changes this line.
-WRANGLER_VERSION = "4.146.0"
-SECRETS = {"CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID"}
-PROJECT_VARIABLE = "CLOUDFLARE_PAGES_PROJECT"
+WORKFLOWS = ROOT / ".github" / "workflows"
 # Production for a push to main; a preview for a pull request from this
 # repository; nothing for a fork's pull request (call 3).
 DEPLOY_IF = ("(github.event_name == 'push' && github.ref == 'refs/heads/main') || "
@@ -167,6 +166,14 @@ class TestedFolderIsDeployedFolder(unittest.TestCase):
 
 
 class NoThirdPartyOrHostConfig(unittest.TestCase):
+
+    def test_secrets_only_in_the_two_cloudflare_workflows(self):
+        # D-0050: verify.yml's deploy job and the hand-run creation workflow.
+        allowed = {"verify.yml", "create-pages-project.yml"}
+        for path in sorted(WORKFLOWS.glob("*.y*ml")):
+            if re.search(r"secrets\.", path.read_text(encoding="utf-8")):
+                with self.subTest(workflow=path.name):
+                    self.assertIn(path.name, allowed)
 
     def test_only_actions_org(self):
         for use in re.findall(r"uses:[ ]*(\S+)", workflow()):
