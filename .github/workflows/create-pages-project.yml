@@ -1,0 +1,27 @@
+name: create Pages project
+
+# Run once, by hand, from the Actions tab (D-0050, proposed). The Cloudflare
+# dashboard creates a Direct Upload project only with a first upload; this
+# makes an empty one with its production branch named main, which is the
+# branch the deploy job sends as production. It reads the project name from
+# the repository variable CLOUDFLARE_PAGES_PROJECT and uses the two secrets
+# already in GitHub, so the token never reaches a machine. A successor
+# standing the site up in their own account sets the secrets and the
+# variable, then runs this once (tests/test_create_project_workflow.py).
+on:
+  workflow_dispatch:
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Create the Pages project
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+        run: |
+          test -n "$PROJECT" || { echo "repository variable CLOUDFLARE_PAGES_PROJECT is not set"; exit 1; }
+          npx --yes wrangler@4.146.0 pages project create "$PROJECT" --production-branch=main
