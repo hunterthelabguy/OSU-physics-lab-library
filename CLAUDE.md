@@ -154,19 +154,18 @@
     at 1440 and 375 px it reports two `.site-foot` "missing in quarto" rows;
     that is expected (the landing footnote is not carried, D-0038).
   - Keeping the measured match: the quarto-only block is mostly `revert`
-    rules at Bootstrap's own specificity (Bootstrap's reboot, undone). It
-    depends on the document theme CSS (`themes/*.css`) loading after
-    `site/site.css` on Quarto pages, the order of the page's css list;
-    `site.css`'s header comment describes the old build's order, theme first.
-    A bare-element rule placed above the block in `site.css` would be
-    cancelled on Quarto pages only. The reverts cover only the element types
-    on the six measured pages, so when a page brings a new element type
-    (nested lists, sub and sup, code, blockquote, hr, caption, table
-    borders, `strong` and `b`, `dd`), measure it and add a revert. Bootstrap
-    sets `font-weight: bolder` on `b` and `strong` (it compounds inside a
-    bold heading) and `margin-left: 0` on `dd` (the browser default is
-    40px); neither element occurs on the six measured pages, so measure the
-    first page that uses them against the old build. Quarto's hover-preview
+    rules at Bootstrap's own specificity (Bootstrap's reboot, undone). Its
+    load-order dependency (Bootstrap, then `site.css`, then `themes/*.css`)
+    is written in the block's own comment and guarded by
+    `tests/test_quarto_chrome.py::PageShell`, which also guards the single
+    `#quarto-content` opener. The reverts cover only the element types
+    measured against the old build, so when a page brings a new one (nested
+    lists, sub and sup, code, blockquote, hr, caption, table borders), measure
+    it first with `tools/measure_chrome.js` plus an injected element and add a
+    revert. Measured 2026-10-01: `strong` (on all six pages) and an injected
+    `b`, in a paragraph and in an h2, already match; `dd` did not (Bootstrap's
+    `margin-left: 0` and `margin-bottom: .5rem`) and now has a revert, pinned
+    by `QuartoOnlyCss::test_dd_margins_reverted`. Quarto's hover-preview
     script queries `main.content`, which is null on the bare `<main>`
     (null-guarded, silent). Quarto adds table classes inside `<main>` on
     how-this-was-made: the styles match, the markup is not byte-identical,
