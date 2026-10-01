@@ -3,11 +3,14 @@
 ## Shipping contract (read by /handoff)
 
 - **Verify:** `python tools/check_unchanged.py <converted .md files>` with
-  Pandoc on PATH (locally: `PANDOC=%LOCALAPPDATA%\Pandoc\pandoc.exe`), plus
-  the no-em-dash scan outside `originals/`. CI job `verify` runs both on every
-  push to main and every PR. It checks words only, not structure; review
-  structure by parse-tree block counts. Manual before any commit: no
-  student-identifiable data.
+  `PANDOC` set to the Pandoc bundled with Quarto (locally
+  `C:\Program Files\Quarto\bin\tools\pandoc.exe`; D-0044), plus the
+  no-em-dash scan outside `originals/`. CI job `verify` runs both on every
+  push to main and every PR, then the builds and the tests. It checks words
+  only, not structure; review structure by parse-tree block counts. Manual
+  before any commit: no student-identifiable data. Which Pandoc each step
+  uses, and the three variables to export locally, are under Build, Quarto,
+  "Which Pandoc".
 - **Landing rule:** code and converted content land via PR with green
   `verify` (charter floor 4), squash merge. Ledger and spec-only commits may
   land direct on `main`. Merging on GitHub stamps the account's primary email
@@ -29,7 +32,9 @@
   writes `build/site/`: landing page, course index, "How this was made", and
   every converted document in both presentations. Relative links throughout,
   so it serves from any host and opens from disk. CI runs it too, so a broken
-  build script fails `verify`.
+  build script fails `verify`. This is the old build, which keeps the
+  standalone Pandoc 3.11 (set inline on this command only) because production
+  is built with it (D-0046); the rest of the repo reads with Quarto's.
 - Every site page carries the OSU header and footer via two Pandoc partials,
   `tools/brandheader.html` and `tools/brandfooter.html`. Logo files live in
   `site/brand/` and must never be edited; `tests/test_assets.py` pins each
@@ -45,14 +50,13 @@
   feeds both (ledger 28); never copy content into a second file.
 - Question numbers are generated at render time from document order by
   `tools/filters/questions.lua`. No number is stored in the source.
-- Quarto (D-0033, migration in progress; phase 2 is done, phase 3 is next in
-  `docs/quarto-migration-plan.md`). Production still serves the old build.
+- Quarto (D-0033, migration in progress; phases 2 and 3 are done, phase 5 is
+  next, then phase 4, in `docs/quarto-migration-plan.md`). Production still
+  serves the old build.
   - Setup: 1.10.18 at `C:\Program Files\Quarto\bin\quarto.exe`, not on PATH.
     It bundles Pandoc 3.10 (not 3.11) at `C:\Program Files\Quarto\bin\tools\pandoc.exe`
     (owner-supplied 2026-10-01). Never set `PANDOC` to the `quarto pandoc`
-    command: its stdout truncates large output on Windows (D-0045). Phase 3
-    (D-0044, D-0046) moves `PANDOC` to the bundled binary, except the old
-    build, which keeps 3.11 until phase 4.
+    command: its stdout truncates large output on Windows (D-0045).
     Quarto reserves the `theme` metadata key for its page theme, so the
     presentation name travels as `theme-name` under Quarto. Never use the
     Cosmo theme: it imports Google Fonts. Quarto writes its own `robots.txt`
@@ -60,6 +64,25 @@
     Pandoc `-M` value (the logo is about 234 KB, past the Windows
     command-line limit), use the path plus `--embed-resources` as render.py
     does.
+  - Which Pandoc (phase 3; D-0044 to D-0046). Export three variables before
+    the verify sequence: `QUARTO="/c/Program Files/Quarto/bin/quarto.exe"`,
+    `PANDOC="/c/Program Files/Quarto/bin/tools/pandoc.exe"` and
+    `PANDOC_OLD_BUILD="$LOCALAPPDATA/Pandoc/pandoc.exe"`. `PANDOC`, Quarto's
+    bundled binary, is what the word check, `tools/quarto_build.py`, the
+    chrome lift and the tests read with, so the check reads with the Pandoc
+    the Quarto pages render with; `tests/test_one_pandoc.py` fails when it is
+    not Quarto's, comparing `--version` against `quarto pandoc --version`,
+    never a literal. `render.py --site` is the one exception: run it with
+    `PANDOC="$PANDOC_OLD_BUILD"` on that command, as CI's "Site builds" does,
+    because production builds with 3.11. `PANDOC_OLD_BUILD` is read only by
+    `test_old_build_pandoc_reads_the_same_tree`, which asserts both Pandocs
+    read every converted file to the same syntax tree. A missing tool fails
+    these tests, never skips. CI's step "Use the Pandoc bundled with Quarto"
+    finds the binary next to the resolved `quarto` executable and exports it
+    as `PANDOC`; it fails unless exactly one `pandoc` is under that folder's
+    `tools`, which held on the Linux runner at the first run of PR #15
+    (reported 3.10). Phase 4 deletes the 3.11 install, `PANDOC_OLD_BUILD` and that
+    test with the old build.
   - Build with `python tools/quarto_build.py` (set `QUARTO` and `PANDOC`
     locally; every front matter read shells out to Pandoc); output
     `build/quarto-site/`, checked by `tests/test_quarto_site.py`. Generated
@@ -100,6 +123,20 @@
     merges the included file's front matter into page metadata, so a
     curriculum key that collides with a Quarto option (`lang`, `toc`, `css`,
     `date`, `author`) would change a page.
+  - Learned in phase 3 (probed 2026-09-30, Windows; plan in
+    `docs/superpowers/plans/2026-09-30-quarto-phase-3.md`): the phase 3 text
+    assumed Quarto's Pandoc was 3.11 and it is 3.10, so check what a tool
+    bundles before writing it into a plan. Routed through `quarto pandoc`, a
+    standalone `--embed-resources` render of the logo came back as 178,569 of
+    243,174 bytes on stdout (the same with `-o`: all 243,174), which cut the
+    logo from five dressed pages and failed
+    `test_quarto_dress.py::OldChrome::test_document_page`. So never route
+    `PANDOC` through `quarto pandoc` (D-0045); the command appears only in
+    the version test, for one line of output. Each call also costs about half
+    a second more. Not probed on Linux, and not traced into Quarto or Deno.
+    The old build and the word check come out the same under 3.10 and 3.11
+    today (9 files byte-identical; 989 words, bold on 943); the tree test is
+    what keeps that true until phase 4.
   - Probed 2026-09-30 for phase 2 (plan in
     `docs/superpowers/plans/2026-09-30-quarto-phase-2.md`):
     `include-before-body` lands inside `<main>`; `minimal: true` drops
@@ -139,8 +176,9 @@
   chrome. The "How this was made" page is lifted from `VISION.md` at build
   time and is never retyped. The draft banner wording lives in
   `tools/render.py` as `BANNER_MAIN` and `BANNER_DETAIL`.
-- Pandoc 3.11 lives at `%LOCALAPPDATA%\Pandoc\pandoc.exe` on this machine
-  and is not on PATH in every shell; Python 3.12 is at
+- The standalone Pandoc 3.11, the old build's (`PANDOC_OLD_BUILD`), lives at
+  `%LOCALAPPDATA%\Pandoc\pandoc.exe` on this machine and is not on PATH in
+  every shell; Python 3.12 is at
   `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`. Node 24 is on PATH
   and the sim tests need it. The GitHub CLI is not on PATH: it is at
   `C:\Program Files\GitHub CLI\gh.exe`.

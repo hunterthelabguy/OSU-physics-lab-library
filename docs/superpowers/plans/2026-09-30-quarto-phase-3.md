@@ -1,6 +1,6 @@
 # Quarto Migration Phase 3 Plan: one Pandoc
 
-Status: calls ruled 2026-10-01 (owner in chat: "Okay with your leans on all seven"). Nothing built. Local path for call 5, owner-supplied 2026-10-01: `C:\Program Files\Quarto\bin\tools\pandoc.exe` (reports pandoc 3.10). The ledger entries
+Status: calls ruled 2026-10-01 (owner in chat: "Okay with your leans on all seven"). Built 2026-10-01 in PR #15 (see "Built" at the end). Local path for call 5, owner-supplied 2026-10-01: `C:\Program Files\Quarto\bin\tools\pandoc.exe` (reports pandoc 3.10). The ledger entries
 are appended to `DECISIONS.md` as proposed (D-0044 to D-0046).
 
 **Spec:** `docs/quarto-migration-plan.md`, phase 3: "`check_unchanged.py`
@@ -162,3 +162,25 @@ measurements stand.
   check: the test already gates CI; a second guard adds code for no new case.
 - Re-measuring chrome, print or weights: no page changes (probes 2 and 4).
 - Any change to the Vercel project, unless call 1 rules (b).
+
+## Built
+
+2026-10-01, PR #15, two commits before the docs: the tests (red by design),
+then `verify.yml`, with no tool code changed. Two refinements to the plan's
+wording, both small:
+
+- "Site builds" sets only `PANDOC` (to the standalone install), and "Tests"
+  sets only `PANDOC_OLD_BUILD`. `render.py` never reads `PANDOC_OLD_BUILD`, so
+  setting it on "Site builds" too would have claimed a guard that runs in
+  "Tests". `test_ci_uses_quartos_pandoc` requires the two to be the same path.
+- The export step fails unless exactly one `pandoc` is found under the
+  resolved `quarto` executable's `tools` folder, and prints the candidates
+  otherwise. Its shell logic was dry-run against stub layouts (one binary, none,
+  two) before the push.
+
+The Linux layout held at the first CI run: one bundled `pandoc`, reporting 3.10.
+The word check printed the same line as before (989 words, bold on 943). The
+suite ran 92 tests and the chrome contract 9 of 9, locally and in CI. No page
+changed, so nothing was re-measured. D-0044 and D-0046 still say their tests
+are "to be written in phase 3"; they are written now, and the ledger entries
+are the owner's to correct.

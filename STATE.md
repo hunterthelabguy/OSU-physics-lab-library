@@ -2,22 +2,22 @@
 
 Volatile handoff, capped at one screen. Updated 2026-10-01.
 
-**Focus (2026-09-30):** Phase 2 (chrome rewrite) done, PR #14. D-0036 to D-0042 are
-ruled, D-0043 (the search strip) too. Green `verify` with 89 tests (45
-before phase 2). The chrome contract, `tests/test_site_chrome.py` (9 tests),
-passes against both builds and is a step of `verify` (D-0042); the
-non-blocking `chrome-on-quarto` job is gone and no brand test was dropped. The
-Quarto pages carry the old build's chrome, lifted from its templates
-(D-0036), with no navbar and no search markup (D-0037; the strip is D-0043,
-proposed). The only test edit is D-0041: the footer test ignores script
-blocks. The Quarto build still runs with no warning line, and the Quarto
-measurements below match the old build except the two landing footnote rows
-(D-0038). Next is phase 3, one Pandoc, planned in
-`docs/superpowers/plans/2026-09-30-quarto-phase-3.md`, calls and D-0044 to
-D-0046 ruled 2026-10-01; nothing built. The owner looked at the live landing
-page and banner on 2026-10-01: unchanged from before. Its premise was wrong: Quarto 1.10.18 bundles
-Pandoc 3.10, not 3.11. Production still serves the old build. Phase 2 plan:
-`docs/superpowers/plans/2026-09-30-quarto-phase-2.md`.
+**Focus (2026-10-01):** Phase 3 (one Pandoc) done, PR #15; phase 2 (chrome
+rewrite) before it, PR #14. D-0036 to D-0046 are all ruled. `PANDOC` is the
+Pandoc bundled with Quarto (3.10 under Quarto 1.10.18, not 3.11) for the word
+check, the Quarto build, the chrome lift and the tests; the old build and its
+tree test keep the standalone 3.11 until phase 4, because production builds
+with it (D-0046). Green `verify` with 92 tests (89 before phase 3). The chrome
+contract, `tests/test_site_chrome.py` (9 tests), passes against both builds
+and is a step of `verify` (D-0042). No tool or page changed in phase 3, so the
+Quarto measurements below stand: they match the old build except the two
+landing footnote rows (D-0038). Locally, export `QUARTO`, `PANDOC` and
+`PANDOC_OLD_BUILD` (CLAUDE.md, Build, Quarto, "Which Pandoc"). Next is phase
+5, the new host, which needs the Cloudflare deploy token the owner creates;
+phase 4 follows the cutover. Production still serves the old build; the owner
+looked at the live landing page and banner on 2026-10-01: unchanged from
+before. Plans: `docs/superpowers/plans/2026-09-30-quarto-phase-3.md` and
+`-phase-2.md`.
 
 **Previous focus:** site design review of 2026-09-22 (owner-led, from the live site).
 PR #11 and PR #12 are merged and live: spacing and type tokens, a print
