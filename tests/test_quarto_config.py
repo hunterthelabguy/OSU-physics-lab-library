@@ -133,10 +133,15 @@ class Version(unittest.TestCase):
         self.assertIn("--version", body, "the step prints the version it found")
         self.assertIn("exit 1", body, "the step fails when the binary is missing")
 
-        setting = [name for name, body in steps if re.search(r"^\s+PANDOC:", body, re.M)]
-        self.assertEqual(setting, ["Site builds"])
-        old = [name for name, body in steps if "PANDOC_OLD_BUILD" in body]
-        self.assertEqual(sorted(old), ["Site builds", "Tests"])
+        by_name = dict(steps)
+        pandoc = {n: re.findall(r"^\s+PANDOC:[ ]*(\S+)", b, re.M) for n, b in steps}
+        old = {n: re.findall(r"^\s+PANDOC_OLD_BUILD:[ ]*(\S+)", b, re.M) for n, b in steps}
+        self.assertEqual([n for n, v in pandoc.items() if v], ["Site builds"])
+        self.assertEqual([n for n, v in old.items() if v], ["Tests"])
+        self.assertEqual(pandoc["Site builds"], old["Tests"],
+                         "the old build and the tree test use the same standalone Pandoc")
+        self.assertEqual(len(old["Tests"]), 1)
+        self.assertIn("test_old_build_pandoc_reads_the_same_tree", by_name["Tests"])
 
 
 if __name__ == "__main__":

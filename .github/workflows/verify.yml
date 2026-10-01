@@ -10,16 +10,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Pandoc 3.11
+      - name: Install Pandoc 3.11 (old build only, until phase 4)
+        # D-0046: production is built with this Pandoc. Only "Site builds" and
+        # the tree test in "Tests" use it; the deb installs /usr/bin/pandoc.
         run: |
           curl -sSLo pandoc.deb https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-1-amd64.deb
           sudo dpkg -i pandoc.deb
-          pandoc --version | head -1
+          /usr/bin/pandoc --version | head -1
       - name: Install Quarto 1.10.18
         run: |
           curl -sSLo quarto.deb https://github.com/quarto-dev/quarto-cli/releases/download/v1.10.18/quarto-1.10.18-linux-amd64.deb
           sudo dpkg -i quarto.deb
           quarto --version
+      - name: Use the Pandoc bundled with Quarto
+        # D-0044, D-0045: every other step reads with the Pandoc the Quarto
+        # pages render with, named as one binary path and never as the
+        # `quarto pandoc` command (its stdout truncates). The binary is found
+        # next to the resolved quarto executable, so it follows the Quarto pin.
+        run: |
+          bin=$(dirname "$(readlink -f "$(command -v quarto)")")
+          found=$(find "$bin/tools" -type f -name pandoc -perm -100 2>/dev/null || true)
+          if [ "$(printf '%s\n' "$found" | grep -c .)" -ne 1 ]; then
+            echo "expected exactly one bundled pandoc under $bin/tools, found:"
+            echo "$found"
+            exit 1
+          fi
+          "$found" --version | head -1
+          echo "PANDOC=$found" >> "$GITHUB_ENV"
       - name: No em dashes outside originals
         run: |
           if grep -rIl $'\xe2\x80\x94' --exclude-dir=.git --exclude-dir=originals .; then
@@ -42,12 +59,18 @@ jobs:
             echo "== $t"; (cd "$(dirname "$t")" && node "$(basename "$t")")
           done
       - name: Site builds
+        # The old build, with production's Pandoc (D-0046).
+        env:
+          PANDOC: /usr/bin/pandoc
         run: python3 tools/render.py --site
       - name: Quarto site builds
         # Fails on any Quarto warning line (docs/quarto-migration-plan.md).
         run: python3 tools/quarto_build.py
       - name: Tests
         # Each asserts a ruled DECISIONS.md quantity, or reads build/site or build/quarto-site.
+        # PANDOC_OLD_BUILD is for test_old_build_pandoc_reads_the_same_tree (D-0046).
+        env:
+          PANDOC_OLD_BUILD: /usr/bin/pandoc
         run: python3 -m unittest discover -s tests -v
       - name: Chrome contract against the Quarto build
         # Phase 2 exit (D-0042): the brand contract gates the Quarto build.
