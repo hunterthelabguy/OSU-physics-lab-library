@@ -328,6 +328,73 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
   .osu-sitename { font-size: 1.5rem; }
 }
 
+/* quarto-only: start (D-0036) */
+/* Quarto pages put the old chrome and a bare <main> inside Quarto's page
+   grid, which the old layout never had. Selectors here name markup only
+   Quarto writes, so the old build is not affected. */
+#quarto-content { display: block; }
+/* `.quarto-container` holds the grid open to the window's height less a
+   navbar these pages do not have, which pushed a short page's footer down
+   and gave it a scrollbar the old page never had. */
+#quarto-content { min-height: revert; }
+
+/* Bootstrap's reboot, undone. Each rule below has the specificity of the
+   Bootstrap rule it answers and comes after it in the cascade, so `revert`
+   hands the property back to the browser default, which is what the old
+   build had; a rule of site.css or a theme that sets the property still
+   wins, as it did there. The root rule is the exception: it needs :has()
+   to name a Quarto page and so outranks Bootstrap's, which is harmless
+   because nothing in the old build styles the root. No commas inside
+   :where(): the scope test splits selectors on every comma. */
+:root:has(> body.quarto-light) { font-size: revert; height: revert; box-sizing: revert; }
+:where(.quarto-light) *, :where(.quarto-light) *::before, :where(.quarto-light) *::after { box-sizing: revert; }
+body:where(.quarto-light) {
+  box-sizing: revert; font-family: revert; font-size: revert; font-weight: revert;
+  line-height: revert; color: revert; background-color: revert;
+}
+:where(.quarto-light) h1, :where(.quarto-light) h2, :where(.quarto-light) h3,
+:where(.quarto-light) h4, :where(.quarto-light) h5, :where(.quarto-light) h6 {
+  margin-top: revert; margin-bottom: revert; font-size: revert;
+  font-weight: revert; line-height: revert; color: revert; opacity: revert;
+}
+:where(.quarto-light) h2 { border-bottom: revert; padding-bottom: revert; }
+:where(.quarto-light) p { margin-top: revert; margin-bottom: revert; }
+:where(.quarto-light) ol, :where(.quarto-light) ul, :where(.quarto-light) dl { margin-top: revert; margin-bottom: revert; }
+:where(.quarto-light) ol, :where(.quarto-light) ul { padding-left: revert; }
+:where(.quarto-light) a { color: revert; font-weight: revert; text-underline-offset: revert; }
+:where(.quarto-light) details { margin-bottom: revert; }
+:where(.quarto-light) details > summary { color: revert; }
+:where(.quarto-light) .lead { font-weight: revert; }
+:where(.quarto-light) img, :where(.quarto-light) svg { vertical-align: revert; }
+:where(.quarto-light) thead, :where(.quarto-light) tbody, :where(.quarto-light) tfoot,
+:where(.quarto-light) tr, :where(.quarto-light) td, :where(.quarto-light) th {
+  border-color: revert; border-style: revert; border-width: revert;
+}
+/* Quarto writes class="table" on every Markdown table, and Bootstrap's
+   table rules follow the class. */
+:where(.quarto-light) .table {
+  width: revert; margin-bottom: revert; vertical-align: revert;
+  border-color: revert; border-top: revert; border-bottom: revert;
+}
+:where(.quarto-light) table.table { margin-top: revert; margin-bottom: revert; }
+:where(.quarto-light) .table > thead { vertical-align: revert; border-top-width: revert; border-bottom: revert; }
+:where(.quarto-light) .table > tbody { vertical-align: revert; }
+:where(.quarto-light) .table > :not(caption) > * > * {
+  padding: revert; color: revert; background-color: revert;
+  border-bottom-width: revert; box-shadow: revert;
+}
+
+/* Quarto's `#quarto-content > *` sets padding-top (14px, 0 below 992px)
+   and outranks every `main` rule in site.css and the themes, so the old
+   values are restated: 0 for the faithful theme and for every page in
+   print, the site pages' `main` rule and themes/modern.css's on screen. */
+#quarto-content > main { padding-top: 0; }
+@media screen {
+  body.site-page #quarto-content > main { padding-top: var(--space-3); }
+  body.theme-modern #quarto-content > main { padding-top: var(--space-4); }
+}
+/* quarto-only: end */
+
 /* Print: TAs and students print handouts. Paper gets the words, a running
    header with the draft status, and page numbers; none of the screen chrome.
    Graded blocks are kept whole by each theme's own print rules, since this

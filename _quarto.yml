@@ -1,5 +1,6 @@
-# Quarto build (D-0033, migration phase 1). Run it only through
-# tools/quarto_build.py, which generates the pages listed under render.
+# Quarto build (D-0033). Run it only through tools/quarto_build.py, which
+# checks the Quarto version, generates the pages listed under render, and
+# dresses them with the old build's chrome (D-0036).
 # The render list is explicit: without it Quarto would render every
 # Markdown file in the repo, including the ledgers and the curriculum
 # sources themselves.
@@ -12,23 +13,19 @@ project:
     - how-this-was-made/index.qmd
     - sims/index.qmd
     - labs/**/*.qmd
+  # Fonts and their license only (D-0039). The logo travels embedded in
+  # each page, so no logo file is published; READMEs stay in the repo.
   resources:
-    - site/fonts/
-    - site/brand/
+    - site/fonts/OpenSans-Regular.woff2
+    - site/fonts/OpenSans-Bold.woff2
+    - site/fonts/OpenSans-Italic.woff2
+    - site/fonts/OpenSans-BoldItalic.woff2
+    - site/fonts/OFL.txt
 
 website:
   title: "Physics Lab Library"
-  search: true
-  navbar:
-    left:
-      - href: index.qmd
-        text: Library home
-      - href: courses/index.qmd
-        text: Course index
-      - href: sims/index.qmd
-        text: Sims
-      - href: how-this-was-made/index.qmd
-        text: How this was made
+  # One nav, the OSU header's (D-0037). Search stays off until ruled.
+  search: false
 
 format:
   html:
@@ -38,6 +35,15 @@ format:
     lang: en
     # As the Pandoc build: no smart quotes, so words match the originals.
     from: markdown-smart
+    # Flat body (D-0036): no section wrappers, no anchor markup, lines
+    # wrapped as Pandoc wraps them. With these, <main> holds the old
+    # build's bytes.
+    section-divs: false
+    anchor-sections: false
+    wrap: auto
+    # MathML needs no script; Quarto's default fetches MathJax from a CDN
+    # (D-0040).
+    html-math-method: mathml
     # Every page carries its own <h1>, the "#" heading of its Markdown.
     # Quarto would draw a second one from the title metadata: this style only
     # strips the block's styling, so the empty partial below is what removes

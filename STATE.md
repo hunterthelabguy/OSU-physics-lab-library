@@ -2,20 +2,19 @@
 
 Volatile handoff, capped at one screen. Updated 2026-09-30.
 
-**Focus (2026-09-30):** Phase 1 merged (PR #13, `06d5dfd`), D-0035 ruled. Green `verify` with 45 tests
-(24 existing, 4 in questions_filter, 12 in quarto_site, 5 in quarto_build);
-Quarto build runs with no warning line. `chrome-on-quarto` is red as expected:
-of its 9 tests, 4 pass (enough pages, three sim-bar) and 5 do not. Four fail
-on all six pages (draft banner, footer, logo, top strip) and one errors on
-both lab pages, looking for a bare `<main>` where Quarto writes
-`<main class="content" ...>`. Phase 2 is planned, not started:
-`docs/superpowers/plans/2026-09-30-quarto-phase-2.md`, six tasks, run
-subagent-driven. D-0029 to D-0032 and D-0036 to D-0042 ruled
-2026-09-30; every gate is clear. Probes behind it: with three body
-settings Quarto's `<main>` content is byte-identical to the old build (the
-original fixture passes), and the old chrome lifted from its templates is
-byte-identical too, so four of the five failing tests pass with no edit.
-The fifth trips on Quarto's own inline `mailto:` regex (D-0041).
+**Focus (2026-09-30):** Phase 2 (chrome rewrite) done, PR #14. D-0036 to D-0042 are
+ruled; D-0043 (the search strip) is proposed. Green `verify` with 89 tests (45
+before phase 2). The chrome contract, `tests/test_site_chrome.py` (9 tests),
+passes against both builds and is a step of `verify` (D-0042); the
+non-blocking `chrome-on-quarto` job is gone and no brand test was dropped. The
+Quarto pages carry the old build's chrome, lifted from its templates
+(D-0036), with no navbar and no search markup (D-0037; the strip is D-0043,
+proposed). The only test edit is D-0041: the footer test ignores script
+blocks. The Quarto build still runs with no warning line, and the Quarto
+measurements below match the old build except the two landing footnote rows
+(D-0038). Next is phase 3, one Pandoc, per `docs/quarto-migration-plan.md`;
+production still serves the old build. Phase 2 plan:
+`docs/superpowers/plans/2026-09-30-quarto-phase-2.md`.
 
 **Previous focus:** site design review of 2026-09-22 (owner-led, from the live site).
 PR #11 and PR #12 are merged and live: spacing and type tokens, a print
@@ -35,7 +34,39 @@ items below that need a ruling first.
   new hero headline (the mockup's wording was never approved).
 - Carried from 2026-09-21: the D-0012 heads-up to University Marketing, and
   the pilot comparison feature and verdict date (spec section 8).
-- Phase 2 proposes dropping no brand test (D-0042).
+- Promote D-0043 (the driver strips Quarto's search leftovers after render;
+  proposed 2026-09-30, route chosen by the owner in chat).
+
+**Measurements (Quarto build, 2026-09-30):** `build/quarto-site/`, built fresh,
+served from `build/` over HTTP and measured in the browser pane by
+`tools/measure_chrome.js`, which loads each page of both builds in same-origin
+iframes at fixed sizes. Page weights come from a script kept in the session
+scratchpad, not committed: the page file, every linked stylesheet and script
+that exists in the build, and the four WOFF2 fonts, in bytes.
+- Old build versus Quarto, computed style and box of 25 chrome and content
+  selectors on the six pages at 1440 and 375 px: two rows differ. `.site-foot`
+  is missing in Quarto on index.html at 1440 px and at 375 px; that is D-0038
+  (the landing footnote is not carried). Nothing else differs.
+- Sim bar at 1280x720: bar 34 px, page 720 px, fits: true.
+- Phone width 375 px, scrollWidth: 360 on /, /courses/, /how-this-was-made/,
+  /sims/, and both ph211 team-building handout pages (modern and faithful).
+  The measurement runs in a 375 px iframe whose own vertical scrollbar takes
+  15 px (clientWidth 360, innerWidth 375, checked on the landing and faithful
+  pages of both builds), so 360 means nothing scrolls sideways.
+- Draft banner at 1440 px: 39 px closed, 107 px open, the same on all six pages.
+- Landing prose column at 1440 px (`main > p`): left 363 px, right 378 px.
+- Contrast, computed from the rendered page with the WCAG formula, the same on
+  all six pages: draft banner 11.86:1, site name 4.56:1. Landing hero only:
+  title 11.8:1, lead 8.19:1, button 4.56:1.
+- Page weights in bytes: `build/site/` page; Quarto page; Quarto first visit (the
+  page, every linked file and all four fonts; an upper bound, since a browser
+  fetches only the font faces a page uses):
+  - landing: 388501; 256206; 1159320
+  - course index: 388518; 256359; 1159473
+  - how-this-was-made: 387355; 255356; 1158470
+  - sims index: 385619; 253568; 1156682
+  - modern handout: 396679; 261916; 1169060
+  - faithful handout: 395419; 261790; 1167066
 
 **Measurements (2026-09-22):**
 - Landing prose column at 1440 px: left 362 px, right 378 px (the 16 px
