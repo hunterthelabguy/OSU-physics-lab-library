@@ -537,3 +537,13 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: dashboard drag and drop of a local build (live before the gate, production branch unstated); `wrangler pages project create` on the owner's machine (needs `wrangler login`, an OAuth sign-in not ruled, or the token on disk; and inside an agent session wrangler 4.146.0 delegates a create to Workers); creating the project from the deploy job when it is missing (any pull request could create a stray project).
 - binds: D-0047, D-0048, D-0049, LEDGER 39, LEDGER 49, LEDGER 53, .github/workflows/create-pages-project.yml, .github/workflows/verify.yml
 - test: tests/test_create_project_workflow.py; tests/test_deploy_workflow.py (PR #17)
+
+### D-0051  The three GitHub actions move to their current majors after the cutover, pinned by major tag and by test
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-01
+- decision: After PR #17 merges and the cutover is checked (Task 3), one PR moves `actions/checkout` from v4 to v7, `actions/upload-artifact` from v4 to v7 and `actions/download-artifact` from v4 to v8, in every workflow. They stay pinned by major tag, and a test asserts each action's major so an accidental change fails. `download-artifact` v8's default of failing on a hash mismatch is kept.
+- rationale: The owner approved all three leans in chat on 2026-10-01. GitHub annotates every run that the v4 actions target the deprecated Node.js 20 and are forced onto Node.js 24; each current major declares `runs.using: node24` (each action's `action.yml` at v7.0.1, v7.0.1 and v8.0.1, read 2026-10-01). Doing it after the cutover keeps the first production deploy on the toolchain already tested, and keeps two open PRs from editing `verify.yml` at once. Release notes read 2026-10-01: `download-artifact` v5 changes paths only for downloads by ID (this repo downloads by name); v8 errors on a hash mismatch by default, which strengthens D-0048's "the deployed bytes are the tested bytes"; `upload-artifact` v7 adds unzipped single-file uploads (unused here). `checkout` v6 and v7 notes were not read in full and are to be read before building.
+- alternatives: now, inside or beside PR #17 (two changes in one cutover); full commit SHA pins (stronger on the token's path; unreadable lines and a manual bump per patch, while `test_only_actions_org` already restricts the workflows to `actions/*`); turning the v8 hash check off (weakens D-0048).
+- binds: D-0048, D-0050, .github/workflows/verify.yml, .github/workflows/create-pages-project.yml
+- test: tests/test_deploy_workflow.py (to be extended in that PR)
