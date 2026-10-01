@@ -37,6 +37,37 @@ items below that need a ruling first.
   the pilot comparison feature and verdict date (spec section 8).
 - Phase 2 proposes dropping no brand test (D-0042).
 
+**Measurements (Quarto build, 2026-09-30):** `build/quarto-site/`, built fresh,
+served from `build/` over HTTP and measured in the browser pane by
+`tools/measure_chrome.js`, which loads each page of both builds in same-origin
+iframes at fixed sizes. Page weights come from a script kept in the session
+scratchpad, not committed: the page file, every linked stylesheet and script
+that exists in the build, and the four WOFF2 fonts, in bytes.
+- Old build versus Quarto, computed style and box of 25 chrome and content
+  selectors on the six pages at 1440 and 375 px: two rows differ. `.site-foot`
+  is missing in Quarto on index.html at 1440 px and at 375 px; that is D-0038
+  (the landing footnote is not carried). Nothing else differs.
+- Sim bar at 1280x720: bar 34 px, page 720 px, fits: true.
+- Phone width 375 px, scrollWidth: 360 on /, /courses/, /how-this-was-made/,
+  /sims/, and both ph211 team-building handout pages (modern and faithful).
+  The measurement runs in a 375 px iframe whose own vertical scrollbar takes
+  15 px (clientWidth 360, innerWidth 375, checked on the landing and faithful
+  pages of both builds), so 360 means nothing scrolls sideways.
+- Draft banner at 1440 px: 39 px closed, 107 px open, the same on all six pages.
+- Landing prose column at 1440 px (`main > p`): left 363 px, right 378 px.
+- Contrast, computed from the rendered page with the WCAG formula, the same on
+  all six pages: draft banner 11.86:1, site name 4.56:1. Landing hero only:
+  title 11.8:1, lead 8.19:1, button 4.56:1.
+- Page weights in bytes: old build page; Quarto page; Quarto first visit (the
+  page, every linked file and all four fonts; an upper bound, since a browser
+  fetches only the font faces a page uses):
+  - landing: 388501; 256206; 1159320
+  - course index: 388518; 256359; 1159473
+  - how-this-was-made: 387355; 255356; 1158470
+  - sims index: 385619; 253568; 1156682
+  - modern handout: 396679; 261916; 1169060
+  - faithful handout: 395419; 261790; 1167066
+
 **Measurements (2026-09-22):**
 - Landing prose column at 1440 px: left 362 px, right 378 px (the 16 px
   difference is the scrollbar). Before centering: 136 px and 643 px.
