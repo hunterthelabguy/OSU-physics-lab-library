@@ -76,6 +76,14 @@ THEME_NOTE = {
     ),
 }
 
+# Footnotes on two site pages. The landing one names the old build, so the
+# Quarto build does not carry it (D-0038).
+LANDING_FOOTNOTE = ("This site is built from the repository "
+                    "OSU-physics-lab-library with Pandoc and one build script.")
+METHOD_FOOTNOTE = ("This page is built from VISION.md in the project's "
+                   "repository; ledger numbers refer to the dated decision "
+                   "ledger kept there.")
+
 
 def run(cmd, **kw):
     return subprocess.run(cmd, check=True, **kw)
@@ -104,6 +112,17 @@ def body_after_front_matter(md_path):
 def up(depth):
     """Relative prefix from a page `depth` directories below the site root."""
     return "../" * depth if depth else ""
+
+
+def document_extras(theme, depth=3):
+    """The document nav's metadata: the course index link and the switch."""
+    other = THEMES[0] if theme == THEMES[1] else THEMES[1]
+    return [
+        "-M", "uphref=" + up(depth) + "courses/",
+        "-M", "uplabel=Course index",
+        "-M", "switchhref=" + up(1) + other + "/",
+        "-M", "switchlabel=Read it " + THEME_LABEL[other].lower(),
+    ]
 
 
 def site_vars(depth):
@@ -369,16 +388,10 @@ def build_site(out_dir):
     docs = converted_documents()
     for doc_id, doc in docs.items():
         for theme in THEMES:
-            other = THEMES[0] if theme == THEMES[1] else THEMES[1]
             out = os.path.join(site, "labs", doc_id, theme, "index.html")
             written.append(render(
                 doc["path"], theme, out_dir, out_path=out, depth=3,
-                extra=[
-                    "-M", "uphref=" + up(3) + "courses/",
-                    "-M", "uplabel=Course index",
-                    "-M", "switchhref=" + up(1) + other + "/",
-                    "-M", "switchlabel=Read it " + THEME_LABEL[other].lower(),
-                ]))
+                extra=document_extras(theme)))
         written.append(redirect_page(
             os.path.join(site, "labs", doc_id, "index.html"), "modern/"))
 
@@ -386,8 +399,7 @@ def build_site(out_dir):
         body_after_front_matter(os.path.join(ROOT, "site", "landing.md")),
         "OSU physics lab library",
         os.path.join(site, "index.html"), 0, nav=False,
-        footnote="This site is built from the repository "
-                 "OSU-physics-lab-library with Pandoc and one build script."))
+        footnote=LANDING_FOOTNOTE))
 
     written.append(render_page(
         course_index_markdown(docs, 1), "Course index",
@@ -396,9 +408,7 @@ def build_site(out_dir):
     written.append(render_page(
         how_this_was_made(), "How this was made",
         os.path.join(site, "how-this-was-made", "index.html"), 1,
-        footnote="This page is built from VISION.md in the project's "
-                 "repository; ledger numbers refer to the dated decision "
-                 "ledger kept there."))
+        footnote=METHOD_FOOTNOTE))
 
     found = sims()
     for sim_id, sim in found.items():
