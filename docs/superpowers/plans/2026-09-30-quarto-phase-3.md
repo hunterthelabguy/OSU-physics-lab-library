@@ -1,8 +1,7 @@
 # Quarto Migration Phase 3 Plan: one Pandoc
 
-Status: calls ruled 2026-10-01 (owner in chat: "Okay with your leans on all seven"). Nothing built. Local path for call 5, owner-supplied 2026-10-01: `C:Program FilesQuartobin	oolspandoc.exe` (reports pandoc 3.10). The calls at the end
-need a ruling before Task 1; the ledger entries they produce are appended to
-`DECISIONS.md` as proposed (D-0044 to D-0046).
+Status: calls ruled 2026-10-01 (owner in chat: "Okay with your leans on all seven"). Nothing built. Local path for call 5, owner-supplied 2026-10-01: `C:\Program Files\Quarto\bin\tools\pandoc.exe` (reports pandoc 3.10). The ledger entries
+are appended to `DECISIONS.md` as proposed (D-0044 to D-0046).
 
 **Spec:** `docs/quarto-migration-plan.md`, phase 3: "`check_unchanged.py`
 reads Pandoc from `PANDOC`. CI sets it to Quarto's bundled binary (`quarto
