@@ -63,7 +63,14 @@
   `tools/quarto_build.py` also catches Pandoc `[WARNING]` lines. Never enable
   `algolia:` search (its loader reaches a third-party CDN, which the HTML and
   CSS scans cannot see), and a page with math loads MathJax from a CDN, which
-  fails `NoThirdParty`: a phase 2 item. After a squash merge `git branch -d`
+  fails `NoThirdParty`: a phase 2 item. Probed 2026-09-30 for phase 2 (plan in
+  `docs/superpowers/plans/2026-09-30-quarto-phase-2.md`): `include-before-body`
+  lands inside `<main>`; `website.search` defaults on even with no navbar;
+  `minimal: true` drops Bootstrap and `<main>` too; the inline `mailto:` regex
+  is unconditional in Quarto's after-body script (D-0041); never pass a
+  data: URI as a Pandoc `-M` value (the logo is about 234 KB, past the
+  Windows command-line limit), use the path plus `--embed-resources` as
+  render.py does. After a squash merge `git branch -d`
   refuses; the PR's commits stay at `refs/pull/<n>/head`, so `-D` is safe.
 - Site content: `site/landing.md` is the landing copy, `site/courses.md`
   holds the course index data in front matter, `site/site.css` is the shared
