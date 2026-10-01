@@ -120,11 +120,15 @@
     cancelled on Quarto pages only. The reverts cover only the element types
     on the six measured pages, so when a page brings a new element type
     (nested lists, sub and sup, code, blockquote, hr, caption, table
-    borders), measure it and add a revert. Quarto's hover-preview script
-    queries `main.content`, which is null on the bare `<main>` (null-guarded,
-    silent). Quarto adds table classes inside `<main>` on how-this-was-made:
-    the styles match, the markup is not byte-identical, and
-    `test_bodies_unchanged` covers lab pages only.
+    borders, `strong` and `b`, `dd`), measure it and add a revert. Two are
+    known and unmeasured: Bootstrap sets `font-weight: bolder` on `strong`
+    and `b` (a strong inside a bold heading is 900 on a Quarto page, 700 by
+    browser default) and `margin-left: 0` on `dd` (the browser default is
+    40px); neither occurs on the six measured pages. Quarto's hover-preview
+    script queries `main.content`, which is null on the bare `<main>`
+    (null-guarded, silent). Quarto adds table classes inside `<main>` on
+    how-this-was-made: the styles match, the markup is not byte-identical,
+    and `test_bodies_unchanged` covers lab pages only.
 - Site content: `site/landing.md` is the landing copy, `site/courses.md`
   holds the course index data in front matter, `site/site.css` is the shared
   chrome. The "How this was made" page is lifted from `VISION.md` at build
