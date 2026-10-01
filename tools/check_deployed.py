@@ -22,6 +22,9 @@ import urllib.request
 
 NOINDEX = b'<meta name="robots" content="noindex'
 TIMEOUT = 30
+# Cloudflare refuses Python's default user agent with a 403 (error 1010,
+# first seen on the first preview, 2026-10-01), so the check names itself.
+USER_AGENT = "osu-physics-lab-library check_deployed"
 
 
 def files(folder):
@@ -43,7 +46,8 @@ def public_path(rel):
 def fetch(url):
     """(status, body). Redirects are followed; an HTTP error is a status."""
     try:
-        with urllib.request.urlopen(url, timeout=TIMEOUT) as resp:
+        request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(request, timeout=TIMEOUT) as resp:
             return resp.status, resp.read()
     except urllib.error.HTTPError as err:
         return err.code, err.read()

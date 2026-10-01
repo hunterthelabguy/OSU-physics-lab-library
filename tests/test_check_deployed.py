@@ -41,16 +41,27 @@ class PagesLike(http.server.SimpleHTTPRequestHandler):
     """Serves `directory`; unknown paths answer 404 with its 404.html.
 
     spa=True answers unknown paths with the landing page and 200, which is
-    what Pages does when a site has no 404.html.
+    what Pages does when a site has no 404.html. Like Cloudflare (error
+    1010, seen on the first preview, 2026-10-01), it refuses Python's
+    default user agent with 403.
     """
     spa = False
     requested = None
+    agents = None
 
     def log_message(self, *args):
         pass
 
     def do_GET(self):
         self.requested.append(self.path)
+        self.agents.append(self.headers.get("User-Agent", ""))
+        if self.headers.get("User-Agent", "").startswith("Python-urllib"):
+            body = b"error code: 1010\n"
+            self.send_response(403)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         path = Path(self.translate_path(self.path))
         if path.is_dir():
             path = path / "index.html"
@@ -76,6 +87,7 @@ class Served(unittest.TestCase):
         write_site(self.served, SITE)
         self.server = None
         self.requested = []
+        self.agents = []
 
     def tearDown(self):
         if self.server:
@@ -84,13 +96,14 @@ class Served(unittest.TestCase):
         self.tmp.cleanup()
 
     def serve(self, spa=False):
-        served, requested = str(self.served), self.requested
+        served, requested, agents = str(self.served), self.requested, self.agents
 
         class Handler(PagesLike):
             def __init__(self, *a, **k):
                 super().__init__(*a, directory=served, **k)
         Handler.spa = spa
         Handler.requested = requested
+        Handler.agents = agents
         self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
         return "http://127.0.0.1:{}/".format(self.server.server_address[1])
@@ -104,6 +117,12 @@ class Served(unittest.TestCase):
 
     def test_identical_copy_passes(self):
         self.assertEqual(self.failures(), [])
+
+    def test_names_itself_in_the_user_agent(self):
+        self.assertEqual(self.failures(), [])
+        self.assertTrue(self.agents)
+        for agent in set(self.agents):
+            self.assertIn("check_deployed", agent)
 
     def test_index_fetched_at_directory_url(self):
         # Pages redirects /x/index.html to /x/ (plan, premise correction 3).
