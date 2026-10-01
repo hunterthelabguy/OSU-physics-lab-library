@@ -1,5 +1,0 @@
----
-title: "Page not found"
----
-
-{{< include ./site/404.md >}}
