@@ -4,6 +4,8 @@ Needs both builds: build/site/ (the old build, the chrome's source) and
 build/quarto-site/. A missing build is an error, never a skip (LEDGER 53).
 """
 
+import base64
+import hashlib
 import re
 import unittest
 from pathlib import Path
@@ -29,6 +31,27 @@ def chrome_pages():
         yield rel, text
 
 
+LOGO = re.compile(r'src="data:image/png;base64,([^"]+)"')
+
+
+def logo_by_digest(fragment):
+    """Compare embedded images by their decoded bytes, not their encoding."""
+    return LOGO.sub(lambda m: 'src="sha256:{}"'.format(
+        hashlib.sha256(base64.b64decode(m.group(1))).hexdigest()), fragment)
+
+
+def old_parts(text):
+    m = re.search(r'<body class="([^"]*)">\n(.*?)<main>.*?</main>\n(.*?)</body>', text, re.S)
+    return m.group(1), m.group(2), m.group(3)
+
+
+def new_parts(text):
+    body = re.search(r'<body class="([^"]*)">\n', text)
+    end = "</div> <!-- /content -->\n"
+    after = text.index(end) + len(end)
+    return body.group(1), text[body.end():text.index("<main>")], text[after:text.index("</body>")]
+
+
 class Navigation(unittest.TestCase):
     """D-0037: one nav, no search."""
 
@@ -40,6 +63,58 @@ class Navigation(unittest.TestCase):
 
     def test_no_search_index(self):
         self.assertFalse((QSITE / "search.json").exists())
+
+    def test_one_osu_nav(self):
+        for rel, text in chrome_pages():
+            with self.subTest(page=rel):
+                self.assertEqual(text.count('<nav class="osu-nav"'), 1)
+
+
+class ChromeParity(unittest.TestCase):
+    """D-0036, D-0038: every Quarto page carries the old page's chrome."""
+
+    def test_every_page_has_an_old_twin(self):
+        rels = [rel for rel, _ in chrome_pages()]
+        self.assertGreaterEqual(len(rels), 6)
+        for rel in rels:
+            with self.subTest(page=rel):
+                self.assertTrue((OLD / rel).is_file())
+
+    def test_body_class_carried(self):
+        for rel, text in chrome_pages():
+            with self.subTest(page=rel):
+                want = old_parts((OLD / rel).read_text(encoding="utf-8"))[0]
+                self.assertTrue(new_parts(text)[0].startswith(want + " "))
+
+    def test_top_chrome_matches_old_build(self):
+        for rel, text in chrome_pages():
+            with self.subTest(page=rel):
+                want = old_parts((OLD / rel).read_text(encoding="utf-8"))[1].rstrip("\n")
+                got = new_parts(text)[1]
+                self.assertTrue(logo_by_digest(got).startswith(logo_by_digest(want)))
+
+    def test_bottom_chrome_matches_old_build(self):
+        for rel, text in chrome_pages():
+            with self.subTest(page=rel):
+                want = old_parts((OLD / rel).read_text(encoding="utf-8"))[2]
+                if rel == "index.html":
+                    # D-0038: the landing footnote names the old build.
+                    want = re.sub(r'<div class="site-foot">.*?</div>\n', "", want, flags=re.S)
+                self.assertEqual(new_parts(text)[2].strip(), want.strip())
+
+    def test_landing_footnote_not_carried(self):
+        self.assertNotIn("one build script", (QSITE / "index.html").read_text(encoding="utf-8"))
+
+
+class MainBare(unittest.TestCase):
+    """D-0036: one bare <main>, no empty title block."""
+
+    def test_main_is_bare(self):
+        for rel, text in chrome_pages():
+            with self.subTest(page=rel):
+                self.assertEqual(text.count("<main>"), 1)
+                self.assertNotIn("<main ", text)
+                self.assertNotIn("title-block-header", text)
 
 
 class Published(unittest.TestCase):

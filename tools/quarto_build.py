@@ -5,7 +5,8 @@ Usage: python tools/quarto_build.py
 Generates the pages Quarto renders (gitignored, never hand-edited) from the
 same sources and functions tools/render.py uses, runs Quarto, strips the
 search markup and search.json Quarto writes even with search off (D-0037),
-then adds what Quarto does not make. Any Quarto warning line fails the
+puts the old build's chrome on every page it rendered (D-0036), then adds
+what Quarto does not make. Any Quarto warning line fails the
 build. Requires Quarto (QUARTO, or quarto on PATH), and the driver checks that
 it is exactly QUARTO_VERSION before doing anything; it also needs Pandoc for
 front matter (PANDOC, as render.py).
@@ -19,6 +20,7 @@ import subprocess
 import sys
 
 import render
+import quarto_chrome
 
 ROOT = render.ROOT
 QUARTO = os.environ.get("QUARTO", "quarto")
@@ -79,6 +81,14 @@ def generate():
     write("sims/index.qmd", {"title": "Sims"},
           render.sims_index_markdown(render.sims()))
 
+    pages = [
+        {"html": "index.html", "kind": "site", "depth": 0, "theme": None, "footnote": ""},
+        {"html": "courses/index.html", "kind": "site", "depth": 1, "theme": None, "footnote": ""},
+        {"html": "how-this-was-made/index.html", "kind": "site", "depth": 1, "theme": None,
+         "footnote": render.METHOD_FOOTNOTE},
+        {"html": "sims/index.html", "kind": "site", "depth": 1, "theme": None, "footnote": ""},
+    ]
+
     for doc_id, doc in docs.items():
         source = os.path.relpath(doc["path"], ROOT).replace(os.sep, "/")
         for theme in render.THEMES:
@@ -90,6 +100,9 @@ def generate():
                 "filters": [up + "/tools/filters/questions.lua"],
                 "css": [up + "/themes/" + theme + ".css"],
             }, include(page, source))
+            pages.append({"html": "labs/{}/{}/index.html".format(doc_id, theme),
+                          "kind": "doc", "depth": 3, "theme": theme, "footnote": ""})
+    return pages
 
 
 def run_quarto():
@@ -154,6 +167,17 @@ def strip_search(out=OUT):
         os.remove(index)
 
 
+def dress_pages(pages):
+    """Put the old build's chrome on every rendered page (D-0036)."""
+    for page in pages:
+        path = os.path.join(OUT, *page["html"].split("/"))
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+        body_class, top, bottom = quarto_chrome.old_chrome(page)
+        with open(path, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(quarto_chrome.dress(text, body_class, top, bottom))
+
+
 def post():
     """What Quarto does not make, written with render.py's own functions."""
     for sim_id, sim in render.sims().items():
@@ -171,9 +195,10 @@ def build():
     check_version(quarto_version())
     if os.path.isdir(OUT):
         shutil.rmtree(OUT)
-    generate()
+    pages = generate()
     run_quarto()
     strip_search()
+    dress_pages(pages)
     post()
 
 
