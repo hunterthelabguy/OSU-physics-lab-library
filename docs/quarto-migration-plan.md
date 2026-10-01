@@ -78,6 +78,12 @@ leftovers after render) is proposed, awaiting promotion.
 bundled binary (`quarto pandoc`), so the word check and the site render use
 the same Pandoc. The separate Pandoc 3.11 install step goes.
 
+Premise corrected 2026-09-30 while planning: Quarto 1.10.18 bundles Pandoc
+3.10, not 3.11, and `quarto pandoc` truncates large stdout on Windows. Plan
+(draft, calls open): `docs/superpowers/plans/2026-09-30-quarto-phase-3.md`,
+with D-0044 to D-0046 proposed. Under D-0046 the 3.11 install stays for the
+old build until phase 4.
+
 ## Phase 4: retire the old build
 
 Runs after phase 5's cutover, not before: until then the old build is what

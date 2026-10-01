@@ -12,8 +12,10 @@ Quarto pages carry the old build's chrome, lifted from its templates
 proposed). The only test edit is D-0041: the footer test ignores script
 blocks. The Quarto build still runs with no warning line, and the Quarto
 measurements below match the old build except the two landing footnote rows
-(D-0038). Next is phase 3, one Pandoc, per `docs/quarto-migration-plan.md`;
-production still serves the old build. Phase 2 plan:
+(D-0038). Next is phase 3, one Pandoc, planned as a draft in
+`docs/superpowers/plans/2026-09-30-quarto-phase-3.md` with D-0044 to D-0046
+proposed; nothing built. Its premise was wrong: Quarto 1.10.18 bundles
+Pandoc 3.10, not 3.11. Production still serves the old build. Phase 2 plan:
 `docs/superpowers/plans/2026-09-30-quarto-phase-2.md`.
 
 **Previous focus:** site design review of 2026-09-22 (owner-led, from the live site).
@@ -36,6 +38,8 @@ items below that need a ruling first.
   the pilot comparison feature and verdict date (spec section 8).
 - Promote D-0043 (the driver strips Quarto's search leftovers after render;
   proposed 2026-09-30, route chosen by the owner in chat).
+- Rule the seven calls in the phase 3 plan, then promote or decline D-0044
+  to D-0046. Call 5 needs the path of Quarto's bundled `pandoc.exe` from the owner.
 
 **Measurements (Quarto build, 2026-09-30):** `build/quarto-site/`, built fresh,
 served from `build/` over HTTP and measured in the browser pane by

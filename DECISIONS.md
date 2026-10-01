@@ -455,3 +455,33 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: a template-partial override or another config key (not probed: it needs Quarto's install folder, outside the repo); re-rule D-0037 to accept inert markup (needs an owner amendment of the tests).
 - binds: D-0037, D-0033, tools/quarto_build.py
 - test: tests/test_quarto_strip.py, tests/test_quarto_chrome.py::Navigation
+
+### D-0044  One Pandoc: the word check, the chrome lift and the tests use Quarto's bundled Pandoc
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: In CI and locally, `PANDOC` is the Pandoc binary bundled with the pinned Quarto (Pandoc 3.10 under Quarto 1.10.18). `tests/test_one_pandoc.py` asserts that the first line of `"$PANDOC" --version` equals that of `"$QUARTO" pandoc --version`; a missing `PANDOC` or `QUARTO` fails the test. Pandoc changes version only with a Quarto upgrade, in that upgrade's own PR. Amends LEDGER 20 ("Pandoc 3.11") for every use except the old build (D-0046).
+- rationale: Phase 3 of `docs/quarto-migration-plan.md`. Probes on 2026-09-30: Quarto 1.10.18 bundles Pandoc 3.10, not 3.11, so the Quarto pages' bodies already render with 3.10 while the word check reads with 3.11. Under 3.10 the Team Building handout's syntax tree equals 3.11's (blocks and meta), the word check prints the same result (989 words identical, bold identical on 943), and both builds are byte-identical when the bundled binary writes to files.
+- alternatives: keep the standalone 3.11 for everything (the word check reads with a different Pandoc than the Quarto pages render with); install a standalone 3.10 to match (a second copy that drifts at each Quarto upgrade); compare against a literal "3.10" (a second pin to move in lockstep).
+- binds: LEDGER 20, D-0033, .github/workflows/verify.yml, CLAUDE.md
+- test: tests/test_one_pandoc.py::test_pandoc_is_quartos, tests/test_quarto_config.py::Version::test_ci_uses_quartos_pandoc (both to be written in phase 3)
+
+### D-0045  The tools call Pandoc as one binary, never through `quarto pandoc`
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: `PANDOC` names an executable, and the tools keep calling `[PANDOC, ...]` unchanged. `quarto pandoc` appears only in the version test, for its one-line `--version` output.
+- rationale: Probe on 2026-09-30, Windows: a standalone `--embed-resources` render of the logo through `quarto pandoc` returned 178,569 bytes on stdout in each of three runs, where the same command with `-o` wrote 243,174. Through that route the chrome lift cut the logo's data URI out of five Quarto pages and `tests/test_quarto_dress.py::OldChrome::test_document_page` failed. Each call also costs about half a second more (one word check 1.0 s against 1.5 s; the old site build 6.4 s against 10.4 s). The Linux behavior of the stdout route was not probed, and the cause was not traced (Quarto's install folder is outside the boundary).
+- alternatives: accept a command in `PANDOC` and route every captured call through a temp file (seven call sites, slower, and one missed `-o` silently cuts output).
+- binds: D-0044, tools/check_unchanged.py, tools/render.py, tools/quarto_chrome.py
+- test: tests/test_quarto_dress.py::OldChrome::test_document_page (existing; it failed under the stdout route in the probe)
+
+### D-0046  The old build keeps its production Pandoc until phase 4
+- status: proposed
+- proposed-by: claude
+- date: 2026-09-30
+- decision: Until phase 4 retires the old build, the CI step "Site builds" runs `tools/render.py --site` with the standalone Pandoc 3.11, the version the Vercel build command downloads for production. The 3.11 install step stays, scoped to that step and to `test_old_build_pandoc_reads_the_same_tree`, which asserts that `PANDOC` and `PANDOC_OLD_BUILD` read every converted file to the same syntax tree. Phase 4 deletes the install, the variable and the test with the old build. Amends phase 3's "The separate Pandoc 3.11 install step goes" in `docs/quarto-migration-plan.md`.
+- rationale: Production is built by the Vercel project setting with Pandoc 3.11 (CLAUDE.md, Deploy). Removing 3.11 from CI would leave "Site builds" verifying production's pages with a Pandoc production does not use. Probe on 2026-09-30: the old build is byte-identical under 3.10 and 3.11 (9 files), but nothing would keep it so; the tree test does, for the word check's half.
+- alternatives: remove 3.11 now as the plan says (CI and production toolchains split, unguarded); change the Vercel build command to Pandoc 3.10 (a production setting change on a host being retired; the 3.10 download URL not verified); defer all of phase 3 into phase 4 (the word check keeps reading with a different Pandoc than the Quarto pages for two more phases).
+- binds: D-0044, LEDGER 20, LEDGER 49, .github/workflows/verify.yml, docs/quarto-migration-plan.md
+- test: tests/test_one_pandoc.py::test_old_build_pandoc_reads_the_same_tree (to be written in phase 3)
