@@ -74,6 +74,10 @@ leftovers after render) is proposed, awaiting promotion.
 
 ## Phase 3: one Pandoc
 
+Status: done 2026-10-01 (PR #15). Rulings: D-0044 to D-0046 (ruled
+2026-10-01). Implementation plan:
+`docs/superpowers/plans/2026-09-30-quarto-phase-3.md`.
+
 `check_unchanged.py` reads Pandoc from `PANDOC`. CI sets it to Quarto's
 bundled binary (`quarto pandoc`), so the word check and the site render use
 the same Pandoc. The separate Pandoc 3.11 install step goes.
@@ -84,13 +88,28 @@ Premise corrected 2026-09-30 while planning: Quarto 1.10.18 bundles Pandoc
 with D-0044 to D-0046 proposed. Under D-0046 the 3.11 install stays for the
 old build until phase 4.
 
+Amended 2026-10-01 (ruled): `PANDOC` is the bundled binary's path, found in CI
+next to the resolved `quarto` executable, never the `quarto pandoc` command
+(D-0045). The sentence "The separate Pandoc 3.11 install step goes" does not
+hold until phase 4 (D-0046): the install stays, for the old build's "Site
+builds" step and `test_old_build_pandoc_reads_the_same_tree` only, because
+production is built with 3.11. Tests: `tests/test_one_pandoc.py` and
+`tests/test_quarto_config.py::Version::test_ci_uses_quartos_pandoc`. The Linux
+layout of Quarto's bundle, unverified when this was planned, held at the PR's
+first CI run: exactly one `pandoc` under the resolved `quarto` executable's
+`tools` folder, reporting 3.10. No tool's code changed, and no page changed: the old build is byte-identical under both
+Pandocs and the word check reads 989 words identical (bold on 943) under both,
+so nothing was re-measured.
+
 ## Phase 4: retire the old build
 
 Runs after phase 5's cutover, not before: until then the old build is what
 production serves.
 
 Delete the page-assembly half of `tools/render.py`, `template.html`,
-`template-site.html` and the brand partials once nothing imports them.
+`template-site.html` and the brand partials once nothing imports them. Also
+delete the standalone Pandoc 3.11 install in `verify.yml`, `PANDOC_OLD_BUILD`,
+and `test_old_build_pandoc_reads_the_same_tree` (D-0046).
 Switch the chrome suite to `build/quarto-site/`, make the old build's
 job go away, and update CLAUDE.md's Build section and the "How this was made" text, which
 says the site is built "with Pandoc and one build script".

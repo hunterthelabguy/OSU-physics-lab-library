@@ -88,6 +88,11 @@ added when the first document that has them is converted.
 Pandoc 3.11 (installed 2026-09-19). Website builder not yet chosen; the site
 is static and deploys on Vercel (ledger 3: no server needed now).
 
+2026-10-01: the word check now reads with the Pandoc bundled with the pinned
+Quarto (3.10 under Quarto 1.10.18; D-0044). The standalone 3.11 stays only for
+the old build until phase 4 (D-0046). The 2026-09-19 line above records what
+the first conversion was checked with.
+
 ## Flow
 
 Word (once) -> Markdown (source of truth) -> web and Word. Feedback on any
