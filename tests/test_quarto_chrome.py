@@ -130,6 +130,38 @@ class Published(unittest.TestCase):
         self.assertEqual([p.relative_to(QSITE).as_posix() for p in QSITE.rglob("*.md")], [])
 
 
+class PageShell(unittest.TestCase):
+    """What the quarto-only CSS in site/site.css depends on in the markup."""
+
+    def test_one_content_opener_around_main(self):
+        # Every selector in the block names #quarto-content; D-0036's dressing
+        # anchors on the closing comment only, so the opener is guarded here.
+        for rel, text in chrome_pages():
+            with self.subTest(page=rel):
+                self.assertEqual(text.count('<div id="quarto-content"'), 1)
+                opener = text.index('<div id="quarto-content"')
+                self.assertLess(opener, text.index("<main>"))
+                self.assertLess(text.index("</main>"), text.index("</div> <!-- /content -->"))
+
+    def test_load_order_bootstrap_site_theme(self):
+        # The reverts in the block sit at Bootstrap's specificity and work by
+        # coming after it; a bare-element rule above the block in site.css is
+        # cancelled the same way. So site.css must load after Bootstrap and
+        # before the document theme (CLAUDE.md, Keeping the measured match).
+        for rel, text in chrome_pages():
+            hrefs = re.findall(r'<link [^>]*href="([^"]+)"[^>]*rel="stylesheet"|'
+                               r'<link [^>]*rel="stylesheet"[^>]*href="([^"]+)"', text)
+            hrefs = [a or b for a, b in hrefs]
+            idx = lambda pat: [i for i, h in enumerate(hrefs) if re.search(pat, h)]
+            with self.subTest(page=rel):
+                boot, site = idx(r"bootstrap/bootstrap-[0-9a-f]+\.min\.css"), idx(r"site/site\.css")
+                self.assertEqual(len(boot), 1)
+                self.assertEqual(len(site), 1)
+                self.assertLess(boot[0], site[0])
+                for theme in idx(r"themes/"):
+                    self.assertLess(site[0], theme)
+
+
 class QuartoOnlyCss(unittest.TestCase):
     """Rules added for Quarto must not reach the old build, which shares
     site/site.css and is still production."""
@@ -146,6 +178,23 @@ class QuartoOnlyCss(unittest.TestCase):
                 continue
             with self.subTest(selector=s):
                 self.assertTrue("#quarto-content" in s or ".quarto-light" in s)
+
+    def block(self):
+        css = (ROOT / "site" / "site.css").read_text(encoding="utf-8")
+        return re.search(r"/\* quarto-only: start \(D-0036\) \*/(.*?)/\* quarto-only: end \*/", css, re.S).group(1)
+
+    def test_load_order_is_noted_where_the_rules_live(self):
+        self.assertIn("themes/*.css", self.block())
+        self.assertIn("after", self.block())
+
+    def test_dd_margins_reverted(self):
+        # Measured 2026-10-01 against the old build: Bootstrap gives dd
+        # margin-left 0 (browser default 40px) and margin-bottom .5rem.
+        body = re.sub(r"/\*.*?\*/", "", self.block(), flags=re.S)
+        m = re.search(r"dd\s*\{([^}]*)\}", body)
+        self.assertIsNotNone(m, "no dd revert")
+        self.assertIn("margin-left: revert", m.group(1))
+        self.assertIn("margin-bottom: revert", m.group(1))
 
 
 if __name__ == "__main__":

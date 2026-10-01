@@ -17,7 +17,9 @@ landing footnote rows (D-0038). Locally, export `QUARTO`, `PANDOC` and
 phase 4 follows the cutover. Production still serves the old build; the owner
 looked at the live landing page and banner on 2026-10-01: unchanged from
 before. Plans: `docs/superpowers/plans/2026-09-30-quarto-phase-3.md` and
-`-phase-2.md`.
+`-phase-2.md`. Phase 2 review follow-ups are done
+(2026-10-01): page-shell and load-order tests, and a `dd` revert; `strong` and
+`b` already matched.
 
 **Previous focus:** site design review of 2026-09-22 (owner-led, from the live site).
 PR #11 and PR #12 are merged and live: spacing and type tokens, a print

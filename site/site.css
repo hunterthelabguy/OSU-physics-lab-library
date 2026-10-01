@@ -342,7 +342,12 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
    Bootstrap rule it answers and comes after it in the cascade, so `revert`
    hands the property back to the browser default, which is what the old
    build had; a rule of site.css or a theme that sets the property still
-   wins, as it did there. The root rule is the exception: it needs :has()
+   wins, as it did there. The reverts work by coming after Bootstrap, and
+   the block relies on the order of the page's stylesheets: Bootstrap, then
+   this file, then themes/*.css (tests/test_quarto_chrome.py, PageShell). A
+   bare-element rule placed above this block is cancelled on Quarto pages
+   only, and the reverts cover only the element types measured against the
+   old build (strong, b and a dd have been; add one here for any new type). The root rule is the exception: it needs :has()
    to name a Quarto page and so outranks Bootstrap's, which is harmless
    because nothing in the old build styles the root. No commas inside
    :where(): the scope test splits selectors on every comma. */
@@ -362,6 +367,7 @@ body:where(.quarto-light) {
 :where(.quarto-light) ol, :where(.quarto-light) ul, :where(.quarto-light) dl { margin-top: revert; margin-bottom: revert; }
 :where(.quarto-light) ol, :where(.quarto-light) ul { padding-left: revert; }
 :where(.quarto-light) a { color: revert; font-weight: revert; text-underline-offset: revert; }
+:where(.quarto-light) dd { margin-left: revert; margin-bottom: revert; }
 :where(.quarto-light) details { margin-bottom: revert; }
 :where(.quarto-light) details > summary { color: revert; }
 :where(.quarto-light) .lead { font-weight: revert; }
