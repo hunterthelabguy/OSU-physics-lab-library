@@ -1,6 +1,7 @@
 # Quarto Migration Phase 5 Plan: new host
 
-Status: draft, calls open. Nothing built. Owner's side is in
+Status: calls ruled 2026-10-01 (owner in chat: "I approve your leans on all
+eight"); D-0047 to D-0049 not yet promoted. Nothing built. Owner's side is in
 `docs/quarto-phase-5-owner-checklist.md`. Ledger entries D-0047 to D-0049 are
 appended to `DECISIONS.md` as proposed.
 
@@ -120,12 +121,13 @@ never hand over the account).
    uploading a prebuilt folder from CI with one command and one token
    permission (Account, Cloudflare Pages, Edit), needs no committed config,
    and gives every non-production deployment a `noindex` header and its own
-   URL. Cost of the alternative, Workers static assets: Cloudflare now
-   positions it as the successor for new projects and Pages stays supported
-   (third-party summaries and Cloudflare's own comparison page; I did not find
-   a Pages end date), but Workers wants a config file or more flags, and a
-   different token permission I have not verified. Moving later changes
-   settings, not the folder (LEDGER 39).
+   URL. Cost of the alternative, Workers static assets: Cloudflare's own
+   migration page calls moving optional and states no Pages end date (the
+   wording "successor for new projects" came from third-party posts, and an
+   earlier draft of this call overstated it; corrected 2026-10-01). Workers
+   wants a config file (Cloudflare calls it mandatory) and a different token
+   permission (Account, Workers Scripts, Edit). Moving later changes settings,
+   not the folder (LEDGER 39).
 2. **Whose Cloudflare account hosts it.** Lean: your own account, as the
    GitHub and Vercel setups are (LEDGER 47, and "org ownership deferred until
    it matters"), with the successor note in Task 4: copy the repo and make
@@ -194,3 +196,46 @@ never hand over the account).
 - Re-measuring chrome, print or weights: no page changes except the new 404.
 - Tracing whether Pages rewrites HTML from its documentation: the byte check
   against the live URL answers it directly.
+
+## After the rulings (2026-10-01)
+
+Recorded from the chat that followed the owner's approval; none of it is built.
+
+- **Workers evaluated against Pages, and Pages stands.** Sources are
+  Cloudflare's documentation as fetched 2026-10-01 (a fetch tool summarized
+  the pages; verify before relying). For a static library Workers wins on no
+  axis: it needs a mandatory `wrangler.jsonc` (to be generated on the runner,
+  never committed, if ever used), a token with Workers Scripts Edit, an
+  explicit `not_found_handling`, version URLs for previews with no documented
+  `noindex` and branch aliases listed as "coming soon", and a longer default
+  URL (`<name>.<account>.workers.dev` against `<project>.pages.dev`).
+  Limits are equal on the free plan (20,000 files, 25 MiB per file), and the
+  site is 29 files and 3 MB. The owner confirmed the dashboard offers a Pages
+  Direct Upload project. Premise correction 2 (unknown paths return the
+  landing page) is Pages-only; on Workers the 404 would be explicit config.
+  What would make Workers clearly better: a ruling that relaxes LEDGER 39 for
+  server-side code; Cloudflare giving Pages an end date; the domain living on
+  Cloudflare DNS anyway; a CI dry run proving a flags-only deploy plus a
+  documented `noindex` on versions.
+- **Terms.** Cloudflare's Self-Serve agreement, as fetched, has no
+  Vercel-style commercial-use clause for the free plan; section 2.1 says
+  agreeing on behalf of an entity represents authority to bind it, so sign up
+  as an individual unless OSU has agreed to host the site. OSU's own hosting
+  policy was not checked.
+- **The name is open.** Cloudflare offers only the `pages.dev` default;
+  anything better is a custom domain. Lean: a subdomain of the department's
+  OSU domain, which the department already uses for another service, pointed
+  by CNAME (Pages accepts a CNAME for a subdomain once the domain is added in
+  the dashboard first; Workers custom domains need a zone on Cloudflare). It
+  needs OSU IT, by role, and also answers D-0012's concern about the logo on a
+  non-OSU address. Interim: a short `pages.dev` name. A project name probably
+  cannot be renamed (unverified), and an old project can stay as a redirect.
+- **Proposed amendment to D-0048, not yet approved:** read the Cloudflare
+  project name from a GitHub repository variable, not a literal in the
+  workflow, so the interim name can change without touching code.
+- **Draft on request:** one note by role to OSU IT covering the library's
+  address and the D-0012 heads-up. The owner will ask once the site is live.
+- **Separate thread, not this plan.** Moving the owner's other production
+  service to Cloudflare is its own spec with its own ledger (plan before
+  patch). It does not change this phase: the library is static and stays on
+  Pages. Keep that thread's details out of this repo.

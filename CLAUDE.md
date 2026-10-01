@@ -90,7 +90,8 @@
     `/sims/index.qmd`) are gitignored and rebuilt every run; never edit them.
     The warning gate in `tools/quarto_build.py` also catches Pandoc
     `[WARNING]` lines. After a squash merge `git branch -d` refuses; the PR's
-    commits stay at `refs/pull/<n>/head`, so `-D` is safe.
+    commits stay at `refs/pull/<n>/head`, so `-D` is safe. `gh pr merge --squash
+    --delete-branch` removes the local branch too, so `-D` then reports it not found.
   - Chrome (D-0036): the driver checks the Quarto version, then dresses every
     page with the old build's chrome, lifted from the old templates by Pandoc
     (`tools/quarto_chrome.py`). Never hand-edit the chrome in a Quarto page,
@@ -204,6 +205,12 @@
 - Give `--directory` an absolute path. A background shell does not always
   start in the repo root, and a relative path there silently serves the
   wrong folder.
+- A server started in the background with `&` outlives the shell. Stop it
+  by its command line (`Get-CimInstance Win32_Process`, match `http.server
+  <port>`) and confirm the port no longer answers. To run
+  `tools/measure_chrome.js` without pasting it, copy it to `build/` (ignored),
+  fetch it in the page, strip its leading `await` and `eval` the rest; delete
+  the copy after.
 - A viewport size set on one tab does not apply to a tab opened after it;
   set the size on the tab you are about to measure.
 
