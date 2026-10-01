@@ -130,5 +130,23 @@ class Published(unittest.TestCase):
         self.assertEqual([p.relative_to(QSITE).as_posix() for p in QSITE.rglob("*.md")], [])
 
 
+class QuartoOnlyCss(unittest.TestCase):
+    """Rules added for Quarto must not reach the old build, which shares
+    site/site.css and is still production."""
+
+    def test_block_present_and_scoped(self):
+        css = (ROOT / "site" / "site.css").read_text(encoding="utf-8")
+        m = re.search(r"/\* quarto-only: start \(D-0036\) \*/(.*?)/\* quarto-only: end \*/", css, re.S)
+        self.assertIsNotNone(m, "no quarto-only block")
+        body = re.sub(r"/\*.*?\*/", "", m.group(1), flags=re.S)
+        selectors = [s.strip() for sel in re.findall(r"([^{}]+)\{", body) for s in sel.split(",")]
+        self.assertTrue(selectors)
+        for s in selectors:
+            if s.startswith("@media"):
+                continue
+            with self.subTest(selector=s):
+                self.assertTrue("#quarto-content" in s or ".quarto-light" in s)
+
+
 if __name__ == "__main__":
     unittest.main()
