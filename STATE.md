@@ -3,7 +3,7 @@
 Volatile handoff, capped at one screen. Updated 2026-09-30.
 
 **Focus (2026-09-30):** Phase 2 (chrome rewrite) done, PR #14. D-0036 to D-0042 are
-ruled; D-0043 (the search strip) is proposed. Green `verify` with 89 tests (45
+ruled, D-0043 (the search strip) too. Green `verify` with 89 tests (45
 before phase 2). The chrome contract, `tests/test_site_chrome.py` (9 tests),
 passes against both builds and is a step of `verify` (D-0042); the
 non-blocking `chrome-on-quarto` job is gone and no brand test was dropped. The
@@ -36,10 +36,8 @@ items below that need a ruling first.
   new hero headline (the mockup's wording was never approved).
 - Carried from 2026-09-21: the D-0012 heads-up to University Marketing, and
   the pilot comparison feature and verdict date (spec section 8).
-- Promote D-0043 (the driver strips Quarto's search leftovers after render;
-  proposed 2026-09-30, route chosen by the owner in chat).
-- Rule the seven calls in the phase 3 plan, then promote or decline D-0044
-  to D-0046. Call 5 needs the path of Quarto's bundled `pandoc.exe` from the owner.
+- The phase 3 calls are ruled (2026-10-01); promote or decline D-0044
+  to D-0046 before the build starts.
 
 **Measurements (Quarto build, 2026-09-30):** `build/quarto-site/`, built fresh,
 served from `build/` over HTTP and measured in the browser pane by

@@ -1,6 +1,6 @@
 # Quarto Migration Phase 3 Plan: one Pandoc
 
-Status: draft for the owner, 2026-09-30. Nothing built. The calls at the end
+Status: calls ruled 2026-10-01 (owner in chat: "Okay with your leans on all seven"). Nothing built. Local path for call 5, owner-supplied 2026-10-01: `C:Program FilesQuartobin	oolspandoc.exe` (reports pandoc 3.10). The calls at the end
 need a ruling before Task 1; the ledger entries they produce are appended to
 `DECISIONS.md` as proposed (D-0044 to D-0046).
 
