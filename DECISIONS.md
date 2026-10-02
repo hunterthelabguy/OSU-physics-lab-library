@@ -499,71 +499,85 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - corrected: 2026-10-01, test line updated: the tree test was written and merged in phase 3 (PR #15); it replaces "to be written in phase 3". Phase 3 as built sets PANDOC to the standalone Pandoc in "Site builds" and PANDOC_OLD_BUILD in "Tests" only (the decision's "scoped to that step and to the tree test" holds)
 
 ### D-0047  Host on Cloudflare Pages as a Direct Upload project, from the Quarto build's folder
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-01
 - decision: The site is hosted as a Cloudflare Pages project of the Direct Upload type, named `osu-physics-lab-library` if the name is free. What is uploaded is the folder `_quarto.yml` names as `output-dir` (`build/quarto-site/` today), never `build/site/`, which is the old build until phase 4 deletes it. Resolves D-0034's open choice between Pages and Workers static assets in favor of Pages. The account that holds the project is the owner's, until ruled otherwise; the successor path is to copy the repo and make their own project, never to hand over the account. Corrects phase 5's and D-0034's `build/site/` to the Quarto build's folder.
 - rationale: Pages is the documented path for uploading a prebuilt folder from CI (Cloudflare, "Use Direct Upload with continuous integration": token permission Account, Cloudflare Pages, Edit; `pages deploy <directory> --project-name`). It needs no committed config, so LEDGER 39 and 49 hold. Cloudflare's own migration page calls moving to Workers optional and states no Pages end date (checked 2026-10-01); the wording "successor for new projects" in an earlier draft of this entry came from third-party posts and is withdrawn. The owner confirmed on 2026-10-01 that the dashboard offers a Pages Direct Upload project.
 - alternatives: Workers static assets (a config file or extra flags, a token permission not verified here); GitHub Pages (D-0034's alternative, no second account); staying on Vercel (its Hobby terms count "a paid employee or consultant writing the code" as commercial use, Vercel Fair Use Guidelines dated 2026-09-14).
 - binds: D-0034, LEDGER 39, LEDGER 40, LEDGER 49, _quarto.yml, CLAUDE.md Deploy section
 - test: tests/test_deploy_workflow.py (to be written in phase 5)
+- corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0047 to D-0053")
 
 ### D-0048  A separate deploy job ships the tested folder; secrets live in that job only
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-01
 - decision: `.github/workflows/verify.yml` gains a `deploy` job with `needs: verify`. `verify` uploads the folder it tested as an artifact; `deploy` downloads that folder and runs `npx wrangler@<exact version> pages deploy` directly, with no third-party action. Only `deploy` names `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. A push to `main` deploys production; a pull request from this repository deploys a preview; a fork's pull request deploys nothing. The wrangler version is exact and pinned by a test, chosen at build time from the registry. No `wrangler.*`, `_redirects`, `_headers` or `vercel.json` is committed.
 - rationale: The deployed bytes are the tested bytes, and the job that runs the test code never sees the token. Previews keep the habit of reviewing on a phone before merging, which Vercel's previews give today. A fork's pull request gets no secrets in GitHub Actions.
 - alternatives: deploy steps at the end of `verify` (secrets beside all the test code, folder rebuilt); Cloudflare's GitHub Action (a third-party action on the token's path, maintenance status not checked); `main` only (no preview before merge).
 - binds: D-0047, D-0044, LEDGER 39, LEDGER 49, .github/workflows/verify.yml
 - test: tests/test_deploy_workflow.py (to be written in phase 5)
+- corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0047 to D-0053")
 
 ### D-0049  The cutover gate is the live URL served byte for byte; Vercel gets a redirect before phase 4
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-01
 - decision: D-0034's "until the Cloudflare site passes the test suite" means: the folder that passed `verify` is the folder deployed, and `tools/check_deployed.py` then finds against the live URL that every file is served with identical bytes (the directory URL for an `index.html`), that a path not in the folder returns 404, and that `robots.txt` and the `noindex` meta are present; then the owner's phone check and the Lab 1 print preview, which has never been done. The site gains a `404.html` through the same chrome, because Pages answers unknown paths with the landing page when it is absent (Cloudflare, "Serving Pages"); its wording is the owner's and is a placeholder until approved. After the check, the old Vercel URL gets a redirect set as a project setting, not a file in the repo, before phase 4 merges, because Vercel's production build runs the old build's page assembly that phase 4 deletes. Pausing or deleting the Vercel project is the owner's word alone.
 - rationale: The suite reads folders, not URLs, so it cannot see a host that rewrites HTML; Cloudflare's Email Address Obfuscation injects a script on regular zones and whether it applies on `pages.dev` was not found, and the footer carries contact links. The byte check answers it directly.
 - alternatives: the suite alone (a rewrite by the host is invisible); a notice page on the old build (code that phase 4 deletes, and a click for every visitor); no 404 page (every dead link returns the landing page with a 200).
 - binds: D-0034, D-0047, D-0048, LEDGER 37, LEDGER 49, LEDGER 53, docs/quarto-migration-plan.md
 - test: tests/test_check_deployed.py (to be written in phase 5)
+- corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0047 to D-0053")
 
 ### D-0050  The project name is a repository variable; a hand-run workflow creates the project; production is checked at its alias
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-01
 - decision: Amends D-0048. The Cloudflare Pages project name is read from the repository variable `CLOUDFLARE_PAGES_PROJECT`, never a literal in a workflow; it is `osu-physics-labs` (interim `osu-physics-labs.pages.dev`), set on the owner's word, and a job with the variable unset fails. The project lives in the owner's own Cloudflare account (owner's fact, 2026-10-01; call 2). The project is created once by `.github/workflows/create-pages-project.yml`, started by hand only, which runs the pinned `wrangler pages project create` with `--production-branch=main`; it is the second and last place that names `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. On a push to `main`, the deploy job runs `tools/check_deployed.py` against the deployment's own URL and against the production alias `https://<project>.pages.dev/`.
 - rationale: The owner ruled the variable and the name in chat on 2026-10-01, and chose this creation route over a dashboard upload and a local wrangler run. Cloudflare's dashboard creates a Direct Upload project only with a first upload (Cloudflare, "Direct Upload", fetched 2026-10-01 through a summarizing tool), whose production branch the page does not state; a project whose production branch is not `main` would take every merge as a preview while the alias kept serving the first upload, and a check against the deployment URL alone would pass. The workflow sets the branch explicitly, keeps the token in GitHub, and is the successor's first step in their own account.
 - alternatives: dashboard drag and drop of a local build (live before the gate, production branch unstated); `wrangler pages project create` on the owner's machine (needs `wrangler login`, an OAuth sign-in not ruled, or the token on disk; and inside an agent session wrangler 4.146.0 delegates a create to Workers); creating the project from the deploy job when it is missing (any pull request could create a stray project).
 - binds: D-0047, D-0048, D-0049, LEDGER 39, LEDGER 49, LEDGER 53, .github/workflows/create-pages-project.yml, .github/workflows/verify.yml
 - test: tests/test_create_project_workflow.py; tests/test_deploy_workflow.py (PR #17)
+- corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0047 to D-0053")
 
 ### D-0051  The three GitHub actions move to their current majors after the cutover, pinned by major tag and by test
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-01
 - decision: After PR #17 merges and the cutover is checked (Task 3), one PR moves `actions/checkout` from v4 to v7, `actions/upload-artifact` from v4 to v7 and `actions/download-artifact` from v4 to v8, in every workflow. They stay pinned by major tag, and a test asserts each action's major so an accidental change fails. `download-artifact` v8's default of failing on a hash mismatch is kept.
 - rationale: The owner approved all three leans in chat on 2026-10-01. GitHub annotates every run that the v4 actions target the deprecated Node.js 20 and are forced onto Node.js 24; each current major declares `runs.using: node24` (each action's `action.yml` at v7.0.1, v7.0.1 and v8.0.1, read 2026-10-01). Doing it after the cutover keeps the first production deploy on the toolchain already tested, and keeps two open PRs from editing `verify.yml` at once. Release notes read 2026-10-01: `download-artifact` v5 changes paths only for downloads by ID (this repo downloads by name); v8 errors on a hash mismatch by default, which strengthens D-0048's "the deployed bytes are the tested bytes"; `upload-artifact` v7 adds unzipped single-file uploads (unused here). `checkout` v6 and v7 notes were not read in full and are to be read before building.
 - alternatives: now, inside or beside PR #17 (two changes in one cutover); full commit SHA pins (stronger on the token's path; unreadable lines and a manual bump per patch, while `test_only_actions_org` already restricts the workflows to `actions/*`); turning the v8 hash check off (weakens D-0048).
 - binds: D-0048, D-0050, .github/workflows/verify.yml, .github/workflows/create-pages-project.yml
 - test: tests/test_deploy_workflow.py (to be extended in that PR)
+- corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0047 to D-0053")
 
 ### D-0052  Lab downloads in Word, HTML and PDF, one set per lab, each carrying the draft banner, before the license question
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-01
 - decision: Each converted lab page gets downloads in three formats, one set per document (not per presentation), generated from the one Markdown source (LEDGER 28): Word by Pandoc through Quarto's `format-links`, never the original `.docx`; HTML as a fully self-contained page (fonts and logo embedded, opens offline); PDF as the lab page printed by headless Chrome with the site's print rules, run directly with no third-party action. Every file carries the draft banner text. Tests require all three files per lab, non-empty, with the banner text, and links that resolve; `check_deployed.py` covers them on deploy as it covers every file. Built in the Quarto build only (production since the phase 5 cutover), so it does not wait on phase 4; D-0016 already rules OSU icons on download cards.
 - rationale: The owner needs downloads for a demo and ruled that they come before the license question, in Word, HTML and PDF (chat, 2026-10-01), then approved all six leans. The PDF matches the print previews the owner approved the same day (Lab 1, both presentations). The original `.docx` may carry comments, tracked changes or authors' names in its metadata and would need vetting. A downloaded file leaves the unlisted site, where `noindex` and `robots.txt` do not follow it; only text inside the file does, so the banner is what keeps "not for distribution" true for a file handed out at a demo.
 - alternatives: a set per presentation (six files a lab; Word cannot carry the CSS presentations); Typst, bundled with Quarto, for the PDF (a third look needing its own styling); the original `.docx` (unvetted metadata); downloads after the license question (misses the demo). Not verified: that GitHub's Ubuntu runner has Chrome preinstalled; to be checked before the plan relies on it.
 - binds: D-0016, D-0033, D-0047, LEDGER 28, LEDGER 37, LEDGER 51, _quarto.yml, tools/quarto_build.py
 - test: to be written with the downloads plan
+- corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0047 to D-0053")
 
 ### D-0053  Every download comes from the modern presentation, and Markdown is a fourth format
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-01
 - decision: Amends D-0052. All downloads come from the modern presentation: the HTML, the PDF (headless Chrome printing the modern page with the print rules) and the Word file (modern question labels, Pandoc's default Word styles). No download is offered for the faithful presentation. The source Markdown is a fourth download, byte for byte. The approved wording is "Download: Word · HTML · PDF · Markdown" in the lab page's `site-nav` bar, and the lab footer's "Downloads (Markdown, Word, PDF) are not wired up in this draft." becomes "Downloads carry the same draft notice as these pages." The other calls of `docs/superpowers/plans/2026-10-01-downloads.md` are ruled as leaned.
 - rationale: The owner ruled this in chat on 2026-10-01: the faithful styling is expected to be retired, so a download for it is not worth offering now; Markdown costs nothing, since the file exists, and the footer already promised it. The retirement of faithful is the owner's stated expectation, not a ruling, and this entry does not change the faithful pages.
 - alternatives: PDF from faithful (the lean; a look slated for retirement); downloads for both presentations (eight files a lab); no Markdown (the footer's promise dropped).
 - binds: D-0052, LEDGER 28, tools/template.html, docs/superpowers/plans/2026-10-01-downloads.md
 - test: to be written with the downloads plan (tests/test_downloads.py)
+- corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0047 to D-0053")
