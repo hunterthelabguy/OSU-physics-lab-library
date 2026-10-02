@@ -205,14 +205,18 @@ class Pdf(unittest.TestCase):
     def test_banner_running_header_title_and_footer(self):
         for doc_id, source in converted():
             title = re.search(r"^# (.+)$", source.read_text(encoding="utf-8"), re.M).group(1)
-            text = flat(self.text(doc_id))
-            pages = int(re.search(r"Page 1 of (\d+)", text).group(1)) if "Page 1 of" in text else 0
+            raw = self.text(doc_id)
+            text = flat(raw)
+            # The footer's own line, so the phrase in a lab's text cannot count.
+            footers = re.findall(re.escape(PHYSICS) + r"[ \t]+Page (\d+) of (\d+)", raw)
             with self.subTest(doc=doc_id):
                 self.assertIn(BANNER_MAIN, text)
                 self.assertIn("DRAFT: license pending", text)
                 self.assertIn(flat(title), text)
-                self.assertGreater(pages, 0, "no 'Page 1 of N'")
-                self.assertEqual(text.count(PHYSICS), pages, "the department on every page")
+                self.assertTrue(footers, "no department footer beside 'Page N of M'")
+                total = int(footers[0][1])
+                self.assertEqual(footers, [(str(k), str(total)) for k in range(1, total + 1)],
+                                 "the department beside the page count on every page")
 
 
 if __name__ == "__main__":
