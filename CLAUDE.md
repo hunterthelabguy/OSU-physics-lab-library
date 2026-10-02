@@ -114,7 +114,9 @@ Cloudflare and Vercel projects, sims, and Quarto internals. Lines tagged
   prompt stay out.
 - Conversion phase: no content changes. Format only, proven by the
   content-unchanged check (docs/conversion-spec.md).
-- Roles, not names. No em dashes. No invented record data.
+- Roles, not names. No em dashes. No invented record data. `grep -c` exits 1
+  when it counts zero, so never chain a commit after the em-dash grep with
+  `&&`; it silently skips the commit (bit twice, 2026-10-01).
 - Original source files are in `../Unsorted Legacy Resources/` and are unvetted.
 - In `site/site.css`, `body.site-page a` sets the link color and outranks the
   single-class chrome rules, so a chrome color must be scoped to its parent

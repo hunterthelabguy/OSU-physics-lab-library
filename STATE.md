@@ -16,8 +16,14 @@ checked production on a phone and printed Lab 1 in both presentations
 Downloads merged 2026-10-01, PR #19 squashed as `bbfa9b6` (D-0052 to
 D-0056): four files per lab from modern, the department line in each, the
 header logo published once; 148 tests; `verify` and the preview `deploy`
-green on the PR's head. Demo 2026-10-06. Next: phase 4, which needs a
-spec first (its plan text predates D-0036's reuse of the templates).
+green on the PR's head. Demo 2026-10-06. Next, by the owner's order
+(2026-10-01), before phase 4: (1) the download control is too small to
+find (small text in the nav bar, no visual cue) and the library exists to
+be downloaded from, so make it prominent, perhaps a popover or dropdown;
+(2) printed Word and PDF files must not split related content across a
+page break. Both are a design pass for the owner's ruling first. Then
+phase 4, which needs a spec first (its plan text deletes the templates
+that D-0036 and D-0054 now depend on).
 Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 
 **Previous focus:** phases 2 and 3 of the Quarto migration (PR #14, #15,
