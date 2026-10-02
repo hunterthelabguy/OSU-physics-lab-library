@@ -226,6 +226,7 @@ def build():
     strip_search()
     dress_pages(pages)
     post()
+    downloads.build(OUT, render.converted_documents())
 
 
 if __name__ == "__main__":

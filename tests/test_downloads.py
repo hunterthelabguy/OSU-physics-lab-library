@@ -9,6 +9,7 @@ import re
 import subprocess
 import sys
 import unittest
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -25,6 +26,8 @@ from test_quarto_site import converted    # noqa: E402
 LABELS = {"docx": "Word", "html": "HTML", "pdf": "PDF", "md": "Markdown"}
 FOOTER_NEW = "Downloads carry the same draft notice as these pages."
 FOOTER_OLD = "are not wired up in this draft"
+# The owner's words for every download, in place of the logo (chat, 2026-10-01).
+PHYSICS = "Department of Physics, Oregon State University"
 
 
 def setUpModule():
@@ -80,6 +83,52 @@ class Links(unittest.TestCase):
                 with self.subTest(doc=doc_id, theme=theme):
                     self.assertIn(FOOTER_NEW, text)
                     self.assertNotIn(FOOTER_OLD, text)
+
+
+def words(text):
+    """Letters and digits only, so bullets and list marks cannot differ."""
+    return re.findall(r"[\w’']+", text)
+
+
+def plain(*args, input=None):
+    return subprocess.run([PANDOC, *args, "-t", "plain"], input=input, check=True,
+                          capture_output=True, text=True, encoding="utf-8").stdout
+
+
+class MarkdownAndWord(unittest.TestCase):
+
+    def docx(self, doc_id):
+        return QSITE / "labs" / doc_id / (doc_id + ".docx")
+
+    def test_markdown_is_the_source_byte_for_byte(self):
+        for doc_id, source in converted():
+            with self.subTest(doc=doc_id):
+                got = (QSITE / "labs" / doc_id / (doc_id + ".md")).read_bytes()
+                self.assertEqual(got, source.read_bytes())
+
+    def test_word_is_banner_then_the_modern_words(self):
+        banner = words(BANNER_MAIN + " " + BANNER_DETAIL)
+        for doc_id, source in converted():
+            with self.subTest(doc=doc_id):
+                got = words(plain(str(self.docx(doc_id))))
+                want = words(plain(str(source), "-f", "markdown-smart",
+                                   "--lua-filter", str(FILTER), "-M", "theme=modern"))
+                self.assertEqual(got[:len(banner)], banner)
+                self.assertEqual(got[len(banner):], want)
+                self.assertIn("Question", got)
+
+    def test_word_footer_names_the_department_and_counts_pages(self):
+        for doc_id, _ in converted():
+            with self.subTest(doc=doc_id), zipfile.ZipFile(self.docx(doc_id)) as z:
+                body = z.read("word/document.xml").decode("utf-8")
+                self.assertRegex(body, r'<w:footerReference\b[^>]*\bw:type="default"')
+                footers = [z.read(n).decode("utf-8") for n in z.namelist()
+                           if re.fullmatch(r"word/footer\d*\.xml", n)]
+                self.assertEqual(len(footers), 1)
+                text = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", footers[0]))
+                self.assertIn(PHYSICS, text)
+                self.assertRegex(footers[0], r'w:instr=" PAGE "')
+                self.assertRegex(footers[0], r'w:instr=" NUMPAGES "')
 
 
 if __name__ == "__main__":

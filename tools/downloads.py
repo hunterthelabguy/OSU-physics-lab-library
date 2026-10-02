@@ -15,9 +15,17 @@ rules. A missing tool is an error, never a skip (LEDGER 53).
 import base64
 import os
 import re
+import shutil
+import subprocess
+
+import render
 
 THEME = "modern"
 EXTENSIONS = ("md", "docx", "html", "pdf")
+# The owner's words in every download, in place of the logo (chat, 2026-10-01).
+PHYSICS = "Department of Physics, Oregon State University"
+REFERENCE_DOCX = os.path.join(render.ROOT, "tools", "reference.docx")
+FILTER = os.path.join(render.ROOT, "tools", "filters", "questions.lua")
 FONT_TYPES = {".woff2": "font/woff2", ".woff": "font/woff"}
 # Lab pages use no Bootstrap icon; standalone() refuses a page that does.
 UNUSED_STYLESHEETS = ("bootstrap-icons.css",)
@@ -83,3 +91,33 @@ def standalone(page_html, page_dir):
     if left:
         raise ValueError("relative references left: {}".format(left[:5]))
     return text
+
+
+def pandoc(doc, text, args):
+    """Pandoc on the source text, modern question labels; a warning fails."""
+    proc = subprocess.run(
+        [render.PANDOC, "-f", "markdown-smart", "--lua-filter", FILTER,
+         "-M", "theme=" + THEME] + args,
+        input=text, capture_output=True, text=True, encoding="utf-8")
+    if proc.returncode != 0 or "[WARNING]" in proc.stderr:
+        raise SystemExit("Pandoc failed on {}:\n{}".format(doc["path"], proc.stderr))
+
+
+def markdown(doc, dest):
+    shutil.copyfile(doc["path"], dest)
+
+
+def word(doc, dest):
+    """The banner as the first two paragraphs; the department line and page
+    count in the page footer, from tools/reference.docx."""
+    text = "**{}**\n\n{}\n\n".format(render.BANNER_MAIN, render.BANNER_DETAIL)
+    pandoc(doc, text + render.body_after_front_matter(doc["path"]),
+           ["-t", "docx", "--reference-doc", REFERENCE_DOCX, "-M", "lang=en", "-o", dest])
+
+
+def build(out, docs):
+    """Write every lab's downloads into out/labs/<id>/."""
+    for doc_id, doc in docs.items():
+        folder = os.path.join(out, "labs", doc_id)
+        markdown(doc, os.path.join(folder, doc_id + ".md"))
+        word(doc, os.path.join(folder, doc_id + ".docx"))

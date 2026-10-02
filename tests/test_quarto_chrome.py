@@ -5,10 +5,13 @@ build/quarto-site/. A missing build is an error, never a skip (LEDGER 53).
 """
 
 import re
+import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tests"))
+from test_quarto_site import converted    # noqa: E402
 QSITE = ROOT / "build" / "quarto-site"
 OLD = ROOT / "build" / "site"
 
@@ -108,8 +111,10 @@ class Published(unittest.TestCase):
                                  "OpenSans-Italic.woff2", "OpenSans-Regular.woff2"])
         self.assertFalse((QSITE / "site" / "brand").exists())
 
-    def test_no_markdown_published(self):
-        self.assertEqual([p.relative_to(QSITE).as_posix() for p in QSITE.rglob("*.md")], [])
+    def test_only_markdown_downloads_published(self):
+        # D-0053: each lab's source is a download; no other Markdown goes out.
+        want = sorted("labs/{0}/{0}.md".format(doc_id) for doc_id, _ in converted())
+        self.assertEqual(sorted(p.relative_to(QSITE).as_posix() for p in QSITE.rglob("*.md")), want)
 
 
 class PageShell(unittest.TestCase):
