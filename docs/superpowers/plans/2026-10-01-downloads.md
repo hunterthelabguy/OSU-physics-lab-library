@@ -1,7 +1,7 @@
 # Downloads Plan: Word, HTML and PDF per lab
 
-Status: drafted 2026-10-01, calls 1 to 7 below await the owner. Nothing
-built. Ruled already: D-0052 (proposed; the owner approved all six leans):
+Status: calls 1 to 7 ruled 2026-10-01 (see "Rulings" below; D-0053
+proposed records them). Nothing built. Ruled already: D-0052 (proposed; the owner approved all six leans):
 one set per lab, Word by Pandoc through Quarto, a self-contained HTML, a PDF
 printed by headless Chrome with the approved print rules, the draft banner
 in every file, tests for each. Demo on 2026-10-06; built properly, not
@@ -40,7 +40,25 @@ LEDGER 28, 37, 51, 53
    up in this draft." It has to change in the same PR, and it names
    Markdown, which D-0052 does not.
 
-## Numbered calls for the owner
+## Rulings (owner in chat, 2026-10-01)
+
+These win over the leans recorded under the calls below.
+
+1. **Every file comes from modern:** HTML, PDF and Word. Not as leaned (PDF
+   from faithful). The owner expects the faithful presentation to be
+   retired, so no download is offered for it now. That retirement is an
+   intent, not yet a ruling; nothing here changes the faithful pages. Word
+   "from modern" means the modern question labels ("Question 1" blocks, as
+   `questions.lua` writes them under `theme-name: modern`) with Pandoc's
+   default Word styles; styling the Word file to look like modern (a
+   reference document) was not asked for and is not built.
+2. **Markdown too, as leaned:** the source file, byte for byte.
+3. to 7. **As leaned.** The wording of call 3 is approved: "Download: Word ·
+   HTML · PDF · Markdown" in the `site-nav` bar, and the footer sentence
+   "Downloads carry the same draft notice as these pages." Ship them as
+   approved copy, not placeholders.
+
+## Numbered calls for the owner (as drafted; ruled above)
 
 1. **Which presentation each file carries.** Lean: HTML from modern (it
    follows the reader's light or dark setting and the reading research,
@@ -98,7 +116,7 @@ chrome contract gains nothing new to check.
 `post()`: Word by `quarto render --to docx` per lab with the banner
 paragraphs prepended to the generated page; HTML by a second small project
 generated under `build/` (never committed) with `embed-resources`; PDF by
-headless Chrome printing the built faithful page from a local server, with
+headless Chrome printing the built modern page from a local server, with
 `CHROME` set like `QUARTO` (located, never guessed, and a missing browser
 an error); Markdown copied. `tools/template.html` gains the links and the
 new footer sentence. CI: install `poppler-utils`; Chrome is already there.

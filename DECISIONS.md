@@ -557,3 +557,13 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: a set per presentation (six files a lab; Word cannot carry the CSS presentations); Typst, bundled with Quarto, for the PDF (a third look needing its own styling); the original `.docx` (unvetted metadata); downloads after the license question (misses the demo). Not verified: that GitHub's Ubuntu runner has Chrome preinstalled; to be checked before the plan relies on it.
 - binds: D-0016, D-0033, D-0047, LEDGER 28, LEDGER 37, LEDGER 51, _quarto.yml, tools/quarto_build.py
 - test: to be written with the downloads plan
+
+### D-0053  Every download comes from the modern presentation, and Markdown is a fourth format
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-01
+- decision: Amends D-0052. All downloads come from the modern presentation: the HTML, the PDF (headless Chrome printing the modern page with the print rules) and the Word file (modern question labels, Pandoc's default Word styles). No download is offered for the faithful presentation. The source Markdown is a fourth download, byte for byte. The approved wording is "Download: Word · HTML · PDF · Markdown" in the lab page's `site-nav` bar, and the lab footer's "Downloads (Markdown, Word, PDF) are not wired up in this draft." becomes "Downloads carry the same draft notice as these pages." The other calls of `docs/superpowers/plans/2026-10-01-downloads.md` are ruled as leaned.
+- rationale: The owner ruled this in chat on 2026-10-01: the faithful styling is expected to be retired, so a download for it is not worth offering now; Markdown costs nothing, since the file exists, and the footer already promised it. The retirement of faithful is the owner's stated expectation, not a ruling, and this entry does not change the faithful pages.
+- alternatives: PDF from faithful (the lean; a look slated for retirement); downloads for both presentations (eight files a lab); no Markdown (the footer's promise dropped).
+- binds: D-0052, LEDGER 28, tools/template.html, docs/superpowers/plans/2026-10-01-downloads.md
+- test: to be written with the downloads plan (tests/test_downloads.py)
