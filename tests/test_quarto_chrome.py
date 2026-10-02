@@ -103,13 +103,14 @@ class MainBare(unittest.TestCase):
 
 
 class Published(unittest.TestCase):
-    """D-0039: only the fonts and their license go out."""
+    """D-0039 amended: the fonts, their license and the header logo go out."""
 
-    def test_fonts_and_license_only(self):
+    def test_fonts_license_and_header_logo_only(self):
         names = sorted(p.name for p in (QSITE / "site" / "fonts").iterdir())
         self.assertEqual(names, ["OFL.txt", "OpenSans-Bold.woff2", "OpenSans-BoldItalic.woff2",
                                  "OpenSans-Italic.woff2", "OpenSans-Regular.woff2"])
-        self.assertFalse((QSITE / "site" / "brand").exists())
+        brand = sorted(p.name for p in (QSITE / "site" / "brand").iterdir())
+        self.assertEqual(brand, ["OSU_horizontal_2C_W_over_B.png"])
 
     def test_only_markdown_downloads_published(self):
         # D-0053: each lab's source is a download; no other Markdown goes out.

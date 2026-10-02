@@ -21,6 +21,8 @@ RESOURCES = [
     "site/fonts/OpenSans-Italic.woff2",
     "site/fonts/OpenSans-BoldItalic.woff2",
     "site/fonts/OFL.txt",
+    # The header logo, one cached file for every page (D-0039 amended).
+    "site/brand/OSU_horizontal_2C_W_over_B.png",
 ]
 
 
@@ -84,7 +86,7 @@ class Pins(unittest.TestCase):
         self.assertEqual(values("output-dir"), ["build/quarto-site"])
 
     def test_resources_exact(self):
-        # D-0039: fonts and their license only; no READMEs, no logo files.
+        # D-0039 amended: fonts, their license and the one header logo.
         self.assertEqual(sorted(items("resources")), sorted(RESOURCES))
 
     def test_noindex_in_head(self):

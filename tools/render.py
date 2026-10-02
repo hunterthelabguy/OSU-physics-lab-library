@@ -37,9 +37,12 @@ PANDOC = os.environ.get("PANDOC", "pandoc")
 THEMES = ("faithful", "modern")
 
 # Official logo files, committed byte for byte (DECISIONS D-0014, D-0020).
-# Absolute, so --embed-resources finds them wherever the output lands.
 BRAND = os.path.join(ROOT, "site", "brand")
 SITE_LOGO = os.path.join(BRAND, "OSU_horizontal_2C_W_over_B.png").replace(os.sep, "/")
+# The header logo is published once and referenced from every page, so the
+# browser caches it (D-0039 amended); data-external in brandheader.html keeps
+# --embed-resources from inlining it. Sims keep theirs embedded (D-0026).
+SITE_LOGO_URL = "site/brand/" + os.path.basename(SITE_LOGO)
 SIM_LOGO = os.path.join(BRAND, "OSU_horizontal_2C_O_over_W.png")
 
 
@@ -134,7 +137,7 @@ def site_vars(depth):
         "-M", "indexhref=" + r + "courses/",
         "-M", "methodhref=" + r + "how-this-was-made/",
         "-M", "simshref=" + r + "sims/",
-        "-M", "logo=" + SITE_LOGO,
+        "-M", "logo=" + r + SITE_LOGO_URL,
     ]
 
 
@@ -384,6 +387,11 @@ def build_site(out_dir):
         shutil.rmtree(site)
     os.makedirs(site)
     written = []
+
+    logo = os.path.join(site, *SITE_LOGO_URL.split("/"))
+    os.makedirs(os.path.dirname(logo))
+    shutil.copyfile(SITE_LOGO, logo)
+    written.append(logo)
 
     docs = converted_documents()
     for doc_id, doc in docs.items():
