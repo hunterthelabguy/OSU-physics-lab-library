@@ -19,7 +19,9 @@ Cloudflare and Vercel projects, sims, and Quarto internals. Lines tagged
   Pandoc".
 - **Landing rule:** code and converted content land via PR with green
   `verify` (charter floor 4), squash merge. Ledger and spec-only commits may
-  land direct on `main`. Merging on GitHub stamps the account's primary email
+  land direct on `main`, and every push to `main` deploys production: read
+  that run once it reports (`gh run list --branch main`), since no PR tool
+  watches it (a failed alias check went unread for a session, 2026-10-01). Merging on GitHub stamps the account's primary email
   as merge author, which the owner accepts (ledger 36).
 - **Living plan:** `DECISIONS.md` from 2026-09-21, under the decision
   ledger spec (`../OSU-lab-ops/docs/decision-ledger-spec.md`); this repo is

@@ -16,15 +16,16 @@ checked production on a phone and printed Lab 1 in both presentations
 Downloads merged 2026-10-01, PR #19 squashed as `bbfa9b6` (D-0052 to
 D-0056): four files per lab from modern, the department line in each, the
 header logo published once; 148 tests; `verify` and the preview `deploy`
-green on the PR's head. Demo 2026-10-06. Then, by the owner's order, two
-design passes, both ruled as leaned 2026-10-01 ("Rule your way on all of
-them and build it") and built on branch
-`print-structure-and-download-buttons` (D-0057 to D-0059, proposed; 157
-tests): the Word file's draft notice is a page header, its footer size is
-on a Footer style, its page is Letter at 0.75 in, and questions have their
-own styles; the PDF's keep rules already worked (probe: 0 splits in 40
-offsets, 50 with the rules off), so no CSS was added and a print test pins
-them; the download links are four buttons (mockups and measurements in
+green on the PR's head. Demo 2026-10-06. Then two design passes, ruled as
+leaned 2026-10-01 ("Rule your way on all of them and build it"), merged as
+PR #20, squashed `6ee86ee` (D-0057 to D-0059, proposed; 158 tests): the
+Word file's draft notice is a page header, its footer size is on a Footer
+style, its page is Letter at 0.75 in, its body takes the modern page's
+spacing, and questions are the page's tinted, orange-ruled box; the owner
+checked both builds in Word ("Looks right in Word, merge it"). The PDF's
+keep rules already worked (probe: no split in 40 offsets, 50 with the
+rules off), so no CSS was added and a print test pins them. The download
+links are four buttons (mockups and measurements in
 `docs/design/2026-10-01-download-control/`). Next: phase 4, which needs a
 spec first (its plan text deletes the templates that D-0036 and D-0054 now
 depend on; it retires `build/site`, Pandoc 3.11, the tree test and the
@@ -35,13 +36,21 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 #16); site design review of 2026-09-22 (PR #11, #12, boards in
 `docs/design/2026-09-22-review/`).
 
+**Red on main, first task (found 2026-10-01 at handoff):** the `main` run
+for `aab70bd` (a docs commit) failed at "Production serves the tested bytes
+at its alias"; `verify`, the deploy and the deployment-URL check passed.
+The `.docx` and `.pdf` carry their build time (`dcterms:created`;
+`/CreationDate`), so each build's bytes differ at the same size ("served
+14742 bytes, not the tested 14742"), and the alias still served the
+previous deployment's copies when checked. Before the downloads every file
+rebuilt byte-identical, which hid any alias lag. Production's content is
+unaffected. A fix (timestamps fixed per build, the alias check waiting for
+the switch, or both) is a design pass for the owner's ruling.
+
 **Awaiting owner:**
-- Promote D-0057 to D-0059 or not (proposed 2026-10-01, built as leaned).
-- Word check, first build (owner, 2026-10-01): header, footer size, rule
-  and label, headings, Enter all as intended; spacing tighter than the
-  page and questions not prominent enough. Second build gives the page's
-  spacing and the page's tinted, orange-ruled question box: open it in
-  Word again before merge (the tests read only XML).
+- Promote D-0057 to D-0059 or not (proposed 2026-10-01, built as leaned
+  and merged; D-0057 revised once on the branch after the owner's first
+  Word check).
 - Not built, for a later ruling: a Word box for the legend and the hint
   arrow (D-0057: `custom-style` misses list items; the arrow would be a
   character in the text). The legend's "arrow" and "Boxed" stay unmet in
@@ -49,8 +58,9 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 - Vercel: the redirect is live (308, path kept; phase 5 plan, "Cutover and
   Vercel"). Before phase 4: turn off the project's Git builds or not. Every
   change to Vercel needs the owner's word.
-- Downloads: check production on a phone before the demo (the Download
-  row, each file, the PDF footer); merged without the preview check.
+- Downloads: check production on a phone before the demo (the four
+  download buttons, each file, the PDF footer); PR #19 and PR #20 merged
+  without a phone check of the preview.
 - Open, the owner's, not to be designed until he raises it: how students
   complete handouts. Either a browser-only fillable worksheet with an
   export (nothing leaves the browser, so no student data is stored; the
