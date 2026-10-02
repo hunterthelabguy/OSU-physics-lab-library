@@ -62,13 +62,15 @@
     presentation name travels as `theme-name` under Quarto. Never use the
     Cosmo theme: it imports Google Fonts. Quarto writes its own `robots.txt`
     that allows indexing; override it (ledger 37). Never pass a data: URI as a
-    Pandoc `-M` value (the logo is about 234 KB, past the Windows
-    command-line limit), use the path plus `--embed-resources` as render.py
-    does.
+    Pandoc `-M` value (a logo is about 234 KB, past the Windows command-line
+    limit). The header logo is a relative reference to one published PNG,
+    kept out of `--embed-resources` by `data-external="1"` in
+    `tools/brandheader.html` (D-0056); only the sim bar embeds its logo.
   - Which Pandoc (phase 3; D-0044 to D-0046). Export three variables before
     the verify sequence: `QUARTO="/c/Program Files/Quarto/bin/quarto.exe"`,
     `PANDOC="/c/Program Files/Quarto/bin/tools/pandoc.exe"` and
-    `PANDOC_OLD_BUILD="$LOCALAPPDATA/Pandoc/pandoc.exe"`. `PANDOC`, Quarto's
+    `PANDOC_OLD_BUILD="$LOCALAPPDATA/Pandoc/pandoc.exe"`; for the downloads
+    also `CHROME` and `PDFTOTEXT` (next bullet but one). `PANDOC`, Quarto's
     bundled binary, is what the word check, `tools/quarto_build.py`, the
     chrome lift and the tests read with, so the check reads with the Pandoc
     the Quarto pages render with; `tests/test_one_pandoc.py` fails when it is
@@ -94,6 +96,21 @@
     `[WARNING]` lines. After a squash merge `git branch -d` refuses; the PR's
     commits stay at `refs/pull/<n>/head`, so `-D` is safe. `gh pr merge --squash
     --delete-branch` removes the local branch too, so `-D` then reports it not found.
+  - Downloads (D-0052 to D-0054): `tools/downloads.py`, run at the end of
+    `tools/quarto_build.py`, writes `labs/<id>/<id>.md` (the source, byte for
+    byte), `.docx`, `.html` and `.pdf`, all from modern, each with the draft
+    banner and "Department of Physics, Oregon State University" in place of
+    the logo. The HTML is a plain Pandoc render with no site chrome; the PDF
+    is the built modern page printed by Chrome with the `@page` rules. Word's
+    page footer comes from the committed `tools/reference.docx`; rerun
+    `tools/make_reference_docx.py` only when that footer or the Pandoc
+    version changes. The PDF needs `CHROME` (locally
+    `/c/Program Files/Google/Chrome/Application/chrome.exe`; in CI the
+    runner's `google-chrome`, the default); the tests need `PDFTOTEXT`
+    (locally poppler's from winget, the path in
+    `docs/superpowers/plans/2026-10-01-downloads-tasks.md`; in CI
+    `poppler-utils`). Missing either is an error. When a lab is added,
+    remeasure the HTML cap in `tests/test_downloads.py`.
   - Chrome (D-0036): the driver checks the Quarto version, then dresses every
     page with the old build's chrome, lifted from the old templates by Pandoc
     (`tools/quarto_chrome.py`). Never hand-edit the chrome in a Quarto page,

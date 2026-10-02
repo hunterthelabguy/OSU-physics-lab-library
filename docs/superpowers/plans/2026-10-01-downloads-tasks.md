@@ -1,5 +1,13 @@
 # Lab Downloads Implementation Plan
 
+> **Executed 2026-10-01, attended, with amendments; do not rerun.** The
+> unattended run stopped at Task 2 (stop rule 2). The owner then ruled
+> D-0054 to D-0056 in chat: the HTML download is a plain render with no
+> chrome (`standalone()` deleted), the department line in every download,
+> the top parity test retired, the Markdown guard narrowed, and the header
+> logo published once. Task 2 Step 6 also lacked `render.py --site`. The
+> record is PR #19 and those entries; where this plan differs, they win.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans
 > to implement this plan task-by-task, in order. Steps use checkbox (`- [ ]`)
 > syntax for tracking. You run unattended: the stop rules below override
