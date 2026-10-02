@@ -135,7 +135,7 @@ class PageShell(unittest.TestCase):
         # The reverts in the block sit at Bootstrap's specificity and work by
         # coming after it; a bare-element rule above the block in site.css is
         # cancelled the same way. So site.css must load after Bootstrap and
-        # before the document theme (CLAUDE.md, Keeping the measured match).
+        # before the document theme (docs/agent-reference.md, Measuring and keeping the measured match).
         for rel, text in chrome_pages():
             hrefs = re.findall(r'<link [^>]*href="([^"]+)"[^>]*rel="stylesheet"|'
                                r'<link [^>]*rel="stylesheet"[^>]*href="([^"]+)"', text)
