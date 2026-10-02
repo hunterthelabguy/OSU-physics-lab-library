@@ -239,3 +239,32 @@ Recorded from the chat that followed the owner's approval; none of it is built.
   service to Cloudflare is its own spec with its own ledger (plan before
   patch). It does not change this phase: the library is static and stays on
   Pages. Keep that thread's details out of this repo.
+
+## Cutover and Vercel (2026-10-01)
+
+- **Cutover checked.** PR #17 merged; the production run deployed
+  `https://27d18c33.osu-physics-labs.pages.dev` and `check_deployed.py`
+  passed against it and against `https://osu-physics-labs.pages.dev/`: 30
+  files byte for byte, unknown paths 404 with `404.html`. The owner checked
+  production on a phone and printed Lab 1 in both presentations; both fine.
+  The project was created by `create-pages-project.yml` (PR #18), because
+  the dashboard creates a Direct Upload project only with a first upload.
+- **Vercel, read-only look** (Vercel API through the connector, 2026-10-01).
+  Hobby, personal account, no team. Project `osu-physics-lab-library` has one
+  domain, `osu-physics-lab-library.vercel.app`, with no redirect. Bulk
+  redirects answer "not available ... on the Hobby or Pro Trial plan".
+  Project routing rules are available: 0 of 100 used. Per Vercel's docs, a
+  rule is staged (with a staging alias to preview it), then promoted, and a
+  promoted version can be restored or discarded; a rule may answer 308 with
+  a `Location` header to an external URL. No file in the repo is involved
+  (LEDGER 49). Every page path of the old build exists in the Quarto build
+  (only `404.html` is new), so the path can be kept.
+- **Proposed change, awaiting the owner's word:** one routing rule, source
+  `/(.*)`, status 308, `Location: https://osu-physics-labs.pages.dev/$1`;
+  stage it, open the staging alias to confirm, then promote. Not verified:
+  the exact capture syntax the rules accept, and whether a rule applies to
+  the `vercel.app` domain without a redeploy; staging answers both before
+  anything goes live. Then, before phase 4 merges, production builds from
+  `main` must stop failing silently: either Vercel's Git builds are turned
+  off for the project or the redirect holds whatever the build does; to be
+  checked once the rule is live.

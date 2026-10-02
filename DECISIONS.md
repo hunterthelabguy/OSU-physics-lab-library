@@ -547,3 +547,13 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: now, inside or beside PR #17 (two changes in one cutover); full commit SHA pins (stronger on the token's path; unreadable lines and a manual bump per patch, while `test_only_actions_org` already restricts the workflows to `actions/*`); turning the v8 hash check off (weakens D-0048).
 - binds: D-0048, D-0050, .github/workflows/verify.yml, .github/workflows/create-pages-project.yml
 - test: tests/test_deploy_workflow.py (to be extended in that PR)
+
+### D-0052  Lab downloads in Word, HTML and PDF, one set per lab, each carrying the draft banner, before the license question
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-01
+- decision: Each converted lab page gets downloads in three formats, one set per document (not per presentation), generated from the one Markdown source (LEDGER 28): Word by Pandoc through Quarto's `format-links`, never the original `.docx`; HTML as a fully self-contained page (fonts and logo embedded, opens offline); PDF as the lab page printed by headless Chrome with the site's print rules, run directly with no third-party action. Every file carries the draft banner text. Tests require all three files per lab, non-empty, with the banner text, and links that resolve; `check_deployed.py` covers them on deploy as it covers every file. Built in the Quarto build only (production since the phase 5 cutover), so it does not wait on phase 4; D-0016 already rules OSU icons on download cards.
+- rationale: The owner needs downloads for a demo and ruled that they come before the license question, in Word, HTML and PDF (chat, 2026-10-01), then approved all six leans. The PDF matches the print previews the owner approved the same day (Lab 1, both presentations). The original `.docx` may carry comments, tracked changes or authors' names in its metadata and would need vetting. A downloaded file leaves the unlisted site, where `noindex` and `robots.txt` do not follow it; only text inside the file does, so the banner is what keeps "not for distribution" true for a file handed out at a demo.
+- alternatives: a set per presentation (six files a lab; Word cannot carry the CSS presentations); Typst, bundled with Quarto, for the PDF (a third look needing its own styling); the original `.docx` (unvetted metadata); downloads after the license question (misses the demo). Not verified: that GitHub's Ubuntu runner has Chrome preinstalled; to be checked before the plan relies on it.
+- binds: D-0016, D-0033, D-0047, LEDGER 28, LEDGER 37, LEDGER 51, _quarto.yml, tools/quarto_build.py
+- test: to be written with the downloads plan

@@ -2,49 +2,38 @@
 
 Volatile handoff, capped at one screen. Updated 2026-10-01.
 
-**Focus (2026-10-01):** Phase 3 (one Pandoc) done, PR #15; phase 2 (chrome
-rewrite) before it, PR #14. D-0036 to D-0046 are all ruled. `PANDOC` is the
-Pandoc bundled with Quarto (3.10 under Quarto 1.10.18, not 3.11) for the word
-check, the Quarto build, the chrome lift and the tests; the old build and its
-tree test keep the standalone 3.11 until phase 4, because production builds
-with it (D-0046). Green `verify` with 92 tests (89 before phase 3). The chrome
-contract, `tests/test_site_chrome.py` (9 tests), passes against both builds
-and is a step of `verify` (D-0042). No tool or page changed in phase 3, so the
-Quarto measurements below stand: they match the old build except the two
-landing footnote rows (D-0038). Locally, export `QUARTO`, `PANDOC` and
-`PANDOC_OLD_BUILD` (CLAUDE.md, Build, Quarto, "Which Pandoc"). Next is phase
-5, the new host, which needs the Cloudflare deploy token the owner creates;
-phase 4 follows the cutover. Production still serves the old build; the owner
-looked at the live landing page and banner on 2026-10-01: unchanged from
-before. Plans: `docs/superpowers/plans/2026-09-30-quarto-phase-3.md` and
-`-phase-2.md`. Phase 2 review follow-ups are done
-(2026-10-01): page-shell and load-order tests, and a `dd` revert; `strong` and
-`b` already matched.
+**Focus (2026-10-01):** Phase 5 cutover done. Production is the Quarto build
+on Cloudflare Pages, `https://osu-physics-labs.pages.dev/` (project
+`osu-physics-labs` in the owner's own account; name from the repository
+variable `CLOUDFLARE_PAGES_PROJECT`). PR #17 (deploy job, `tools/check_deployed.py`,
+404 page) and PR #18 (hand-run `create-pages-project.yml`) merged; 134 tests.
+The first production run passed `check_deployed.py` against the deployment
+URL and the `pages.dev` alias: every file byte for byte, unknown paths 404
+with `404.html`, so Pages does not rewrite the HTML. Cloudflare refuses
+Python's default user agent (error 1010); the check names itself. The owner
+checked production on a phone and printed Lab 1 in both presentations
+(2026-10-01): fine. Next: the Vercel redirect (read-only look done, change
+awaits the owner), then phase 4, plus downloads (D-0052) for a demo.
+Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 
-**Previous focus:** site design review of 2026-09-22 (owner-led, from the live site).
-PR #11 and PR #12 are merged and live: spacing and type tokens, a print
-stylesheet, the new landing lead, the centered reading column, the landing
-hero band, link cards, the one-line draft banner, and the site-name color
-fix. Mockup boards from the review are in `docs/design/2026-09-22-review/`.
-The design review is done; nothing from it is left unbuilt except the two
-items below that need a ruling first.
+**Previous focus:** phases 2 and 3 of the Quarto migration (PR #14, #15,
+#16); site design review of 2026-09-22 (PR #11, #12, boards in
+`docs/design/2026-09-22-review/`).
 
 **Awaiting owner:**
-- Phase 5 (new host): the eight calls were approved as leaned on 2026-10-01;
-  D-0047 to D-0049 are still proposed (promote?). The owner is partway through
-  `docs/quarto-phase-5-owner-checklist.md` (at Step E, the two repo secrets;
-  Claude never handles them). Open: the interim project name and a custom
-  domain via OSU IT (the owner will ask for the IT note once the site is
-  live); whether the project name comes from a repository variable (a D-0048
-  amendment); account ownership (call 2) is the owner's fact. Nothing built:
-  Tasks 1 and 2 (tests, then the deploy job) wait on the owner's word.
-- Print preview Lab 1 on paper. The print rules shipped in PR #11 and have
-  never been checked in a real print dialog.
+- Promote D-0047 to D-0052, or edit them first?
+- Vercel redirect (D-0049, call 8): findings and the proposed change are in
+  the phase 5 plan, "Cutover and Vercel". Every change to Vercel needs the
+  owner's word.
+- Downloads (D-0052): the demo date, which decides one PR or two.
+- D-0051 (actions to current majors) is built after downloads or before, as
+  the owner says; it waits on nothing.
 - Two design items were deliberately not built, pending a ruling:
   moving the nav into the orange bar (D-0004 mirrors the Physics site), and a
   new hero headline (the mockup's wording was never approved).
-- Carried from 2026-09-21: the D-0012 heads-up to University Marketing, and
-  the pilot comparison feature and verdict date (spec section 8).
+- Carried: the D-0012 heads-up to University Marketing; the draft note to
+  OSU IT by role (library address, custom domain), offered, never sent; the
+  pilot comparison feature and verdict date (spec section 8).
 
 **Measurements (Quarto build, 2026-09-30):** `build/quarto-site/`, built fresh,
 served from `build/` over HTTP and measured in the browser pane by
