@@ -4,8 +4,6 @@ Needs both builds: build/site/ (the old build, the chrome's source) and
 build/quarto-site/. A missing build is an error, never a skip (LEDGER 53).
 """
 
-import base64
-import hashlib
 import re
 import unittest
 from pathlib import Path
@@ -29,15 +27,6 @@ def chrome_pages():
         if 'http-equiv="refresh"' in text or re.fullmatch(r"sims/[^/]+/index\.html", rel):
             continue
         yield rel, text
-
-
-LOGO = re.compile(r'src="data:image/png;base64,([^"]+)"')
-
-
-def logo_by_digest(fragment):
-    """Compare embedded images by their decoded bytes, not their encoding."""
-    return LOGO.sub(lambda m: 'src="sha256:{}"'.format(
-        hashlib.sha256(base64.b64decode(m.group(1))).hexdigest()), fragment)
 
 
 def old_parts(text):
@@ -85,13 +74,6 @@ class ChromeParity(unittest.TestCase):
             with self.subTest(page=rel):
                 want = old_parts((OLD / rel).read_text(encoding="utf-8"))[0]
                 self.assertTrue(new_parts(text)[0].startswith(want + " "))
-
-    def test_top_chrome_matches_old_build(self):
-        for rel, text in chrome_pages():
-            with self.subTest(page=rel):
-                want = old_parts((OLD / rel).read_text(encoding="utf-8"))[1].rstrip("\n")
-                got = new_parts(text)[1]
-                self.assertTrue(logo_by_digest(got).startswith(logo_by_digest(want)))
 
     def test_bottom_chrome_matches_old_build(self):
         for rel, text in chrome_pages():

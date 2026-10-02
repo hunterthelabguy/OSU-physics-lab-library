@@ -21,6 +21,7 @@ import sys
 
 import render
 import quarto_chrome
+import downloads
 
 ROOT = render.ROOT
 QUARTO = os.environ.get("QUARTO", "quarto")
@@ -105,7 +106,9 @@ def generate():
                 "css": [up + "/themes/" + theme + ".css"],
             }, include(page, source))
             pages.append({"html": "labs/{}/{}/index.html".format(doc_id, theme),
-                          "kind": "doc", "depth": 3, "theme": theme, "footnote": ""})
+                          "kind": "doc", "depth": 3, "theme": theme, "footnote": "",
+                          # D-0053: downloads come from modern only.
+                          "download_id": doc_id if theme == downloads.THEME else ""})
     return pages
 
 
