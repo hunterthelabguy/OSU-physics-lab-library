@@ -22,6 +22,7 @@ project:
     - site/fonts/OpenSans-Italic.woff2
     - site/fonts/OpenSans-BoldItalic.woff2
     - site/fonts/OFL.txt
+    - site/brand/OSU_horizontal_2C_W_over_B.png
 
 website:
   title: "Physics Lab Library"

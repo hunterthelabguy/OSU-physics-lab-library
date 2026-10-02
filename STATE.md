@@ -12,8 +12,11 @@ URL and the `pages.dev` alias: every file byte for byte, unknown paths 404
 with `404.html`, so Pages does not rewrite the HTML. Cloudflare refuses
 Python's default user agent (error 1010); the check names itself. The owner
 checked production on a phone and printed Lab 1 in both presentations
-(2026-10-01): fine. The old Vercel URL redirects there (308, path kept). Next: downloads
-(D-0052) for the demo on 2026-10-06, then phase 4.
+(2026-10-01): fine. The old Vercel URL redirects there (308, path kept).
+Downloads built on branch `lab-downloads`, PR #19 (D-0052 to D-0056): four
+files per lab from modern, the department line in each, the header logo
+published once; 148 tests. Awaiting the owner's review of the preview,
+for the demo on 2026-10-06; then phase 4.
 Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 
 **Previous focus:** phases 2 and 3 of the Quarto migration (PR #14, #15,
@@ -21,15 +24,13 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 `docs/design/2026-09-22-review/`).
 
 **Awaiting owner:**
-- D-0047 to D-0053 were promoted to ruled on 2026-10-01 ("Promote D-0047 to
-  D-0053"); no proposed entries are open.
+- D-0054 to D-0056 were promoted to ruled on 2026-10-01 ("Promote D-0054 to
+  D-0056"); no proposed entries are open.
 - Vercel: the redirect is live (308, path kept; phase 5 plan, "Cutover and
   Vercel"). Before phase 4: turn off the project's Git builds or not. Every
   change to Vercel needs the owner's word.
-- Downloads (D-0052, D-0053): demo on 2026-10-06. Calls ruled; executable
-  plan `docs/superpowers/plans/2026-10-01-downloads-tasks.md`, handed to an
-  unattended Sonnet 5.5 run that opens a PR and never merges. Review the PR
-  and its preview on a phone; merging is the owner's.
+- Downloads: review PR #19 and its preview on a phone (the Download row,
+  each file, the PDF footer); merging is the owner's. Demo 2026-10-06.
 - Phase 5 is done, Task 4 included (2026-10-01): migration plan marked,
   CLAUDE.md Deploy rewritten, successor page
   `OSU-lab-ops/lab-handbook/lab-library-site.md` (lab-ops ledger 29).

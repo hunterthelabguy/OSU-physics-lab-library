@@ -74,7 +74,14 @@ class FullChrome(unittest.TestCase):
                 self.assertIsNotNone(m, "no linked logo")
                 attrs = img_attrs(m.group(1))
                 self.assertEqual(attrs.get("alt"), "Oregon State University")
-                self.assertEqual(embedded_png_sha(attrs["src"]), LOGOS["OSU_horizontal_2C_W_over_B.png"])
+                # D-0039 amended: one published file every page shares and the
+                # browser caches, never a copy embedded in each page.
+                src = attrs["src"]
+                self.assertFalse(src.startswith("data:"), "logo embedded in the page")
+                base = SITE if '<base href="/">' in text else (SITE / rel).parent
+                logo = (base / src).resolve()
+                self.assertTrue(logo.is_file(), src)
+                self.assertEqual(sha256(logo.read_bytes()), LOGOS["OSU_horizontal_2C_W_over_B.png"])
 
     def test_top_strip_links_department(self):
         for rel, text in pages():

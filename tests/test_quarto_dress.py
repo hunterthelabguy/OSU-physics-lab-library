@@ -69,7 +69,7 @@ class OldChrome(unittest.TestCase):
         self.assertEqual(body_class, "theme-modern")
         for piece in ('<div class="draft-banner">', '<header class="osu-header">',
                       '<nav class="site-nav">', '<a class="switch" href="../faithful/">',
-                      'src="data:image/png;base64,'):
+                      'src="../../../site/brand/OSU_horizontal_2C_W_over_B.png"'):
             self.assertIn(piece, top)
         self.assertIn(render.BANNER_MAIN, " ".join(top.split()))
         self.assertIn('<footer class="doc-footer">', bottom)

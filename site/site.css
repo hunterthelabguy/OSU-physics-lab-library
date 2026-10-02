@@ -409,6 +409,7 @@ body:where(.quarto-light) {
   size: letter;
   margin: .75in;
   @top-right { content: "DRAFT: license pending"; font: 8pt ui-sans-serif, system-ui, sans-serif; }
+  @bottom-left { content: "Department of Physics, Oregon State University"; font: 8pt ui-sans-serif, system-ui, sans-serif; }
   @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 8pt ui-sans-serif, system-ui, sans-serif; }
 }
 

@@ -31,10 +31,8 @@ def old_chrome(page):
     """(body_class, top, bottom) for one page, from the old template.
 
     The arguments mirror render.render() and render.render_page(), including
-    --embed-resources: that is what turns the logo path in render.site_vars
-    into the data: URI the logo test checks. Passing the data URI itself
-    would not work: at about 234 KB it exceeds the Windows command-line
-    limit of 32767 characters.
+    --embed-resources; the header logo stays a file reference because
+    brandheader.html marks it data-external (D-0039 amended).
     """
     cmd = [render.PANDOC, "-f", "markdown-smart", "-t", "html5", "--standalone",
            "--embed-resources", "-M", "pagetitle=chrome",
@@ -46,6 +44,8 @@ def old_chrome(page):
                 "-M", "css=" + css_path("themes", theme + ".css"),
                 "-M", "presentationnote=" + render.THEME_NOTE[theme]]
         cmd += render.site_vars(page["depth"]) + render.document_extras(theme, page["depth"])
+        if page.get("download_id"):
+            cmd += ["-M", "downloadid=" + page["download_id"]]
     else:
         cmd += ["--template", os.path.join(render.ROOT, "tools", "template-site.html"),
                 "-M", "footnote=" + page["footnote"]]

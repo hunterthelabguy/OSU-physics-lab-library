@@ -20,6 +20,7 @@ $if(homehref)$
 <a href="$homehref$">OSU physics lab library</a>
 $if(uphref)$<a href="$uphref$">$uplabel$</a>$endif$
 <span class="spacer"></span>
+$if(downloadid)$<span>Download: <a href="../$downloadid$.docx" download="$downloadid$.docx">Word</a> &middot; <a href="../$downloadid$.html" download="$downloadid$.html">HTML</a> &middot; <a href="../$downloadid$.pdf" download="$downloadid$.pdf">PDF</a> &middot; <a href="../$downloadid$.md" download="$downloadid$.md">Markdown</a></span>$endif$
 $if(switchhref)$<a class="switch" href="$switchhref$">$switchlabel$</a>$endif$
 </nav>
 $endif$
@@ -30,7 +31,7 @@ $body$
 <p>$presentationnote$</p>
 $if(homehref)$
 <p>Both presentations are built from one Markdown file, so they cannot drift
-apart. Downloads (Markdown, Word, PDF) are not wired up in this draft.</p>
+apart. Downloads carry the same draft notice as these pages.</p>
 $endif$
 </footer>
 $if(homehref)$

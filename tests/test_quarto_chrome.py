@@ -4,13 +4,14 @@ Needs both builds: build/site/ (the old build, the chrome's source) and
 build/quarto-site/. A missing build is an error, never a skip (LEDGER 53).
 """
 
-import base64
-import hashlib
 import re
+import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tests"))
+from test_quarto_site import converted    # noqa: E402
 QSITE = ROOT / "build" / "quarto-site"
 OLD = ROOT / "build" / "site"
 
@@ -29,15 +30,6 @@ def chrome_pages():
         if 'http-equiv="refresh"' in text or re.fullmatch(r"sims/[^/]+/index\.html", rel):
             continue
         yield rel, text
-
-
-LOGO = re.compile(r'src="data:image/png;base64,([^"]+)"')
-
-
-def logo_by_digest(fragment):
-    """Compare embedded images by their decoded bytes, not their encoding."""
-    return LOGO.sub(lambda m: 'src="sha256:{}"'.format(
-        hashlib.sha256(base64.b64decode(m.group(1))).hexdigest()), fragment)
 
 
 def old_parts(text):
@@ -86,13 +78,6 @@ class ChromeParity(unittest.TestCase):
                 want = old_parts((OLD / rel).read_text(encoding="utf-8"))[0]
                 self.assertTrue(new_parts(text)[0].startswith(want + " "))
 
-    def test_top_chrome_matches_old_build(self):
-        for rel, text in chrome_pages():
-            with self.subTest(page=rel):
-                want = old_parts((OLD / rel).read_text(encoding="utf-8"))[1].rstrip("\n")
-                got = new_parts(text)[1]
-                self.assertTrue(logo_by_digest(got).startswith(logo_by_digest(want)))
-
     def test_bottom_chrome_matches_old_build(self):
         for rel, text in chrome_pages():
             with self.subTest(page=rel):
@@ -118,16 +103,19 @@ class MainBare(unittest.TestCase):
 
 
 class Published(unittest.TestCase):
-    """D-0039: only the fonts and their license go out."""
+    """D-0039 amended: the fonts, their license and the header logo go out."""
 
-    def test_fonts_and_license_only(self):
+    def test_fonts_license_and_header_logo_only(self):
         names = sorted(p.name for p in (QSITE / "site" / "fonts").iterdir())
         self.assertEqual(names, ["OFL.txt", "OpenSans-Bold.woff2", "OpenSans-BoldItalic.woff2",
                                  "OpenSans-Italic.woff2", "OpenSans-Regular.woff2"])
-        self.assertFalse((QSITE / "site" / "brand").exists())
+        brand = sorted(p.name for p in (QSITE / "site" / "brand").iterdir())
+        self.assertEqual(brand, ["OSU_horizontal_2C_W_over_B.png"])
 
-    def test_no_markdown_published(self):
-        self.assertEqual([p.relative_to(QSITE).as_posix() for p in QSITE.rglob("*.md")], [])
+    def test_only_markdown_downloads_published(self):
+        # D-0053: each lab's source is a download; no other Markdown goes out.
+        want = sorted("labs/{0}/{0}.md".format(doc_id) for doc_id, _ in converted())
+        self.assertEqual(sorted(p.relative_to(QSITE).as_posix() for p in QSITE.rglob("*.md")), want)
 
 
 class PageShell(unittest.TestCase):
@@ -147,7 +135,7 @@ class PageShell(unittest.TestCase):
         # The reverts in the block sit at Bootstrap's specificity and work by
         # coming after it; a bare-element rule above the block in site.css is
         # cancelled the same way. So site.css must load after Bootstrap and
-        # before the document theme (CLAUDE.md, Keeping the measured match).
+        # before the document theme (docs/agent-reference.md, Measuring and keeping the measured match).
         for rel, text in chrome_pages():
             hrefs = re.findall(r'<link [^>]*href="([^"]+)"[^>]*rel="stylesheet"|'
                                r'<link [^>]*rel="stylesheet"[^>]*href="([^"]+)"', text)
