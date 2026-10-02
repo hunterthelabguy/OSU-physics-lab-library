@@ -33,8 +33,9 @@
   every converted document in both presentations. Relative links throughout,
   so it serves from any host and opens from disk. CI runs it too, so a broken
   build script fails `verify`. This is the old build, which keeps the
-  standalone Pandoc 3.11 (set inline on this command only) because production
-  is built with it (D-0046); the rest of the repo reads with Quarto's.
+  standalone Pandoc 3.11 (set inline on this command only) because the
+  retired Vercel project still builds with it until phase 4 (D-0046); the
+  rest of the repo reads with Quarto's. Production is the Quarto build.
 - Every site page carries the OSU header and footer via two Pandoc partials,
   `tools/brandheader.html` and `tools/brandfooter.html`. Logo files live in
   `site/brand/` and must never be edited; `tests/test_assets.py` pins each
@@ -50,9 +51,9 @@
   feeds both (ledger 28); never copy content into a second file.
 - Question numbers are generated at render time from document order by
   `tools/filters/questions.lua`. No number is stored in the source.
-- Quarto (D-0033, migration in progress; phases 2 and 3 are done, phase 5 is
-  next, then phase 4, in `docs/quarto-migration-plan.md`). Production still
-  serves the old build.
+- Quarto (D-0033, migration in progress; phases 2, 3 and 5 are done, phase 5
+  cut over on 2026-10-01; phase 4 is next, in `docs/quarto-migration-plan.md`).
+  Production serves the Quarto build (Deploy, below).
   - Setup: 1.10.18 at `C:\Program Files\Quarto\bin\quarto.exe`, not on PATH.
     It bundles Pandoc 3.10 (not 3.11) at `C:\Program Files\Quarto\bin\tools\pandoc.exe`
     (owner-supplied 2026-10-01). Never set `PANDOC` to the `quarto pandoc`
@@ -74,7 +75,8 @@
     not Quarto's, comparing `--version` against `quarto pandoc --version`,
     never a literal. `render.py --site` is the one exception: run it with
     `PANDOC="$PANDOC_OLD_BUILD"` on that command, as CI's "Site builds" does,
-    because production builds with 3.11. `PANDOC_OLD_BUILD` is read only by
+    because the retired Vercel project still builds with 3.11 until phase 4
+    (production moved to Cloudflare on 2026-10-01). `PANDOC_OLD_BUILD` is read only by
     `test_old_build_pandoc_reads_the_same_tree`, which asserts both Pandocs
     read every converted file to the same syntax tree. A missing tool fails
     these tests, never skips. CI's step "Use the Pandoc bundled with Quarto"
@@ -236,15 +238,42 @@
 
 ## Deploy
 
-- Vercel project `osu-physics-lab-library`, deploying from `main`. Production
-  is `https://osu-physics-lab-library.vercel.app`, unlisted (ledger 37, 47).
-- Vercel Authentication and password protection are both off (ledger 48).
-  Unlisted means `noindex` plus the banner, not access control.
-- The build settings are in the project, not in this repo (ledger 39, 49).
-  To set the same thing up on any host:
-  - Framework: none. Install command: `echo no install step`.
-  - Build command: `curl -sSL -o p.tgz https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-linux-amd64.tar.gz && tar xzf p.tgz && PANDOC=$PWD/pandoc-3.11/bin/pandoc python3 tools/render.py --site`
-  - Output directory: `build/site`.
+- Production is Cloudflare Pages, Direct Upload project `osu-physics-labs`
+  in the owner's own account: `https://osu-physics-labs.pages.dev/`,
+  unlisted (ledger 37, 48; D-0047 to D-0050). Cut over 2026-10-01.
+- `.github/workflows/verify.yml`, job `deploy` (needs `verify`): downloads
+  the folder `verify` tested (artifact `quarto-site`, `_quarto.yml`'s
+  `output-dir`), runs the pinned `npx --yes wrangler@<version> pages deploy`
+  (the pin lives in `tests/test_create_project_workflow.py`), then
+  `tools/check_deployed.py` against the deployment URL and, on a push to
+  `main`, against the `pages.dev` alias. A push to `main` is production; a
+  pull request from this repository is a preview (its own URL, `noindex`
+  by default, public); a fork's pull request deploys nothing.
+- Settings, never in the repo: secrets `CLOUDFLARE_API_TOKEN` (Account,
+  Cloudflare Pages, Edit) and `CLOUDFLARE_ACCOUNT_ID`, which Claude never
+  reads or handles; repository variable `CLOUDFLARE_PAGES_PROJECT`. Only
+  `verify.yml` and `create-pages-project.yml` may name a secret (tested).
+- To stand the site up in another account: set the two secrets and the
+  variable, run "create Pages project" once from the Actions tab (it sets
+  the production branch to `main`; the dashboard cannot create an empty
+  Direct Upload project), then push to `main`.
+- `check_deployed.py` sends its own user agent: Cloudflare refuses Python's
+  default one with a 403 (error 1010). To check a deployment by hand,
+  compare against that run's artifact (`gh run download <run> -n
+  quarto-site`), never a local build: the Linux and Windows builds name the
+  Bootstrap stylesheet with different hashes.
+- Never run wrangler from this machine inside a Claude Code session:
+  wrangler 4.146.0 detects an agent from environment variables and may
+  turn a Pages deploy or create into a Workers one.
+- Retired: Vercel project `osu-physics-lab-library`
+  (`https://osu-physics-lab-library.vercel.app`). One project routing rule
+  ("Moved to Cloudflare Pages", regex `^/(.*)$`, 308 to the same path on
+  `pages.dev`) redirects every path, set in the project's settings
+  2026-10-01; no file in the repo. Vercel still builds the old site from
+  `main` with `tools/render.py --site` and Pandoc 3.11 (build settings in
+  the project); before phase 4 deletes that, decide with the owner whether
+  to turn off the project's Git builds. Every Vercel change needs the
+  owner's word.
 
 ## Sims
 

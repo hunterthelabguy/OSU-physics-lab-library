@@ -25,7 +25,13 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 - Vercel: the redirect is live (308, path kept; phase 5 plan, "Cutover and
   Vercel"). Before phase 4: turn off the project's Git builds or not. Every
   change to Vercel needs the owner's word.
-- Downloads (D-0052): demo on 2026-10-06; built properly, not rushed.
+- Downloads (D-0052, D-0053): demo on 2026-10-06. Calls ruled; executable
+  plan `docs/superpowers/plans/2026-10-01-downloads-tasks.md`, handed to an
+  unattended Sonnet 5.5 run that opens a PR and never merges. Review the PR
+  and its preview on a phone; merging is the owner's.
+- Phase 5 Task 4 remainder: the migration plan's phase 5 marked done, and
+  the successor page in `OSU-lab-ops` (hosting, token renewal, standing the
+  site up in another account), by role. CLAUDE.md Deploy is done.
 - D-0051 (actions to current majors) is built after downloads or before, as
   the owner says; it waits on nothing.
 - Two design items were deliberately not built, pending a ruling:
