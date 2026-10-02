@@ -17,13 +17,14 @@ from disk the stylesheets may not load.
 
 | File | Board | Became |
 |---|---|---|
-| `current.html` | The row as built: "Download: Word · HTML · PDF · Markdown" as nav text | the baseline |
-| `a-buttons.html` | A: the four formats as buttons, the landing hero's primary button (D-0031) at nav scale | pending the owner's ruling |
-| `b-menu.html` | B: one "Download" button that opens a list, closed | pending the owner's ruling |
-| `b-menu-open.html` | B, open | pending the owner's ruling |
+| `current.html` | The row as built before D-0059: "Download: Word · HTML · PDF · Markdown" as nav text | the baseline |
+| `a-buttons.html` | A: the four formats as buttons, the landing hero's primary button (D-0031) at nav scale | D-0059, ruled as leaned 2026-10-01 and built; the built page measures the same as this board at 375 px |
+| `b-menu.html` | B: one "Download" button that opens a list, closed | not built; D-0059's alternatives say why |
+| `b-menu-open.html` | B, open | not built |
 
 Board B's button says "Download" alone, and board A drops the middots; both
-are changes to the wording D-0053 approved and need the owner's word.
+were changes to the wording D-0053 approved. The owner ruled A's wording
+with D-0059 ("Rule your way on all of them and build it", chat 2026-10-01).
 
 ## Measurements
 

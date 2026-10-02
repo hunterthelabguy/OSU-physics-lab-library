@@ -16,21 +16,19 @@ checked production on a phone and printed Lab 1 in both presentations
 Downloads merged 2026-10-01, PR #19 squashed as `bbfa9b6` (D-0052 to
 D-0056): four files per lab from modern, the department line in each, the
 header logo published once; 148 tests; `verify` and the preview `deploy`
-green on the PR's head. Demo 2026-10-06. Next, by the owner's order
-(2026-10-01), before phase 4, each a design pass for his ruling first:
-(1) print structure for Word and PDF, worth getting right once because
-students fill in the Word file today (about 2,000 a term; the owner adapts
-the handout from Markdown himself) and a move to paper handouts would
-print from the same source: regenerate `tools/reference.docx` with the
-draft notice as a real page header (replacing the two banner paragraphs)
-and the footer's page numbers at the footer's size (Word rebuilds the
-fields and drops their 8 pt; the owner checks the file in Word), give
-question blocks their own Word style (amends D-0053's default styles),
-and keep a heading with what follows and a question block whole, in Word
-and in the PDF's print CSS; (2) the download control is too small to find
-on a site whose purpose is the download: make it prominent, perhaps a
-popover or dropdown. Then phase 4, which needs a spec first (its plan text
-deletes the templates that D-0036 and D-0054 now depend on).
+green on the PR's head. Demo 2026-10-06. Then, by the owner's order, two
+design passes, both ruled as leaned 2026-10-01 ("Rule your way on all of
+them and build it") and built on branch
+`print-structure-and-download-buttons` (D-0057 to D-0059, proposed; 157
+tests): the Word file's draft notice is a page header, its footer size is
+on a Footer style, its page is Letter at 0.75 in, and questions have their
+own styles; the PDF's keep rules already worked (probe: 0 splits in 40
+offsets, 50 with the rules off), so no CSS was added and a print test pins
+them; the download links are four buttons (mockups and measurements in
+`docs/design/2026-10-01-download-control/`). Next: phase 4, which needs a
+spec first (its plan text deletes the templates that D-0036 and D-0054 now
+depend on; it retires `build/site`, Pandoc 3.11, the tree test and the
+old-build comparisons, not the templates).
 Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 
 **Previous focus:** phases 2 and 3 of the Quarto migration (PR #14, #15,
@@ -38,8 +36,15 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 `docs/design/2026-09-22-review/`).
 
 **Awaiting owner:**
-- D-0054 to D-0056 were promoted to ruled on 2026-10-01 ("Promote D-0054 to
-  D-0056"); no proposed entries are open.
+- Promote D-0057 to D-0059 or not (proposed 2026-10-01, built as leaned).
+- Open the regenerated Word file in Word, since the tests read only its
+  XML: footer numbers the size of the footer text, the draft notice at
+  the top of every page, questions with a left rule and a capitals label,
+  no heading at a page foot, Enter after a question gives plain text.
+- Not built, for a later ruling: a Word box for the legend and the hint
+  arrow (D-0057: `custom-style` misses list items; the arrow would be a
+  character in the text). The legend's "arrow" and "Boxed" stay unmet in
+  Word until then.
 - Vercel: the redirect is live (308, path kept; phase 5 plan, "Cutover and
   Vercel"). Before phase 4: turn off the project's Git builds or not. Every
   change to Vercel needs the owner's word.
