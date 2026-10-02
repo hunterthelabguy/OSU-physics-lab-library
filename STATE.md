@@ -30,9 +30,12 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
   plan `docs/superpowers/plans/2026-10-01-downloads-tasks.md`, handed to an
   unattended Sonnet 5.5 run that opens a PR and never merges. Review the PR
   and its preview on a phone; merging is the owner's.
-- Phase 5 Task 4 remainder: the migration plan's phase 5 marked done, and
-  the successor page in `OSU-lab-ops` (hosting, token renewal, standing the
-  site up in another account), by role. CLAUDE.md Deploy is done.
+- Phase 5 is done, Task 4 included (2026-10-01): migration plan marked,
+  CLAUDE.md Deploy rewritten, successor page
+  `OSU-lab-ops/lab-handbook/lab-library-site.md` (lab-ops ledger 29).
+  Open from lab-ops' hosting plan (driver 3, AI training): Cloudflare's
+  AI-training crawler setting has not been checked for `osu-physics-labs`;
+  it is a dashboard setting, the owner's to look at.
 - D-0051 (actions to current majors) is built after downloads or before, as
   the owner says; it waits on nothing.
 - Two design items were deliberately not built, pending a ruling:

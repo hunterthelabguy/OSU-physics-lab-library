@@ -116,14 +116,28 @@ says the site is built "with Pandoc and one build script".
 
 ## Phase 5: new host (D-0034)
 
+Status: done 2026-10-01 (PR #17, PR #18). Rulings: D-0047 to D-0051 (ruled
+2026-10-01). Implementation plan:
+`docs/superpowers/plans/2026-10-01-quarto-phase-5.md` (its "Cutover and
+Vercel" section is the record of the cutover); owner's side:
+`docs/quarto-phase-5-owner-checklist.md`. Production is the Quarto build on
+Cloudflare Pages, `https://osu-physics-labs.pages.dev/`, deployed by the
+`deploy` job in `verify.yml` and checked byte for byte at the deployment URL
+and the `pages.dev` alias by `tools/check_deployed.py`. The owner checked it
+on a phone and printed Lab 1 in both presentations. The old Vercel URL
+answers 308 to the same path, by a project routing rule set in Vercel's
+settings. Still open, for phase 4: whether to turn off the Vercel project's
+Git builds before phase 4 deletes what they run. The successor note is in
+`OSU-lab-ops`, `lab-handbook/`. The text below is the plan as written.
+
 GitHub Actions builds, then uploads `build/site/` to Cloudflare. Needs a
 deploy-scoped Cloudflare API token, which the owner creates and stores as a
 repo secret; Claude never handles it. Old Vercel URL gets a redirect or a
 notice before it is switched off.
 
-Planned 2026-10-01 (draft, calls open):
+Planned 2026-10-01 (calls ruled the same day):
 `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`, with D-0047 to D-0049
-proposed and the owner's side in `docs/quarto-phase-5-owner-checklist.md`.
+(now ruled) and the owner's side in `docs/quarto-phase-5-owner-checklist.md`.
 Corrections to the text above: the folder is `build/quarto-site/`, not
 `build/site/` (the old build, until phase 4); Cloudflare Pages needs a
 `404.html` or answers unknown paths with the landing page; and the Vercel
