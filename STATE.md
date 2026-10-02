@@ -1,6 +1,6 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-01.
+Volatile handoff, capped at one screen. Updated 2026-10-02.
 
 **Focus (2026-10-01):** Phase 5 cutover done. Production is the Quarto build
 on Cloudflare Pages, `https://osu-physics-labs.pages.dev/` (project
@@ -18,7 +18,7 @@ D-0056): four files per lab from modern, the department line in each, the
 header logo published once; 148 tests; `verify` and the preview `deploy`
 green on the PR's head. Demo 2026-10-06. Then two design passes, ruled as
 leaned 2026-10-01 ("Rule your way on all of them and build it"), merged as
-PR #20, squashed `6ee86ee` (D-0057 to D-0059, proposed; 158 tests): the
+PR #20, squashed `6ee86ee` (D-0057 to D-0059, ruled 2026-10-02; 158 tests): the
 Word file's draft notice is a page header, its footer size is on a Footer
 style, its page is Letter at 0.75 in, its body takes the modern page's
 spacing, and questions are the page's tinted, orange-ruled box; the owner
@@ -26,8 +26,8 @@ checked both builds in Word ("Looks right in Word, merge it"). The PDF's
 keep rules already worked (probe: no split in 40 offsets, 50 with the
 rules off), so no CSS was added and a print test pins them. The download
 links are four buttons (mockups and measurements in
-`docs/design/2026-10-01-download-control/`). Next: phase 4, which needs a
-spec first (its plan text deletes the templates that D-0036 and D-0054 now
+`docs/design/2026-10-01-download-control/`). Next: phase 4, spec written
+2026-10-02 for ruling (its plan text deletes the templates that D-0036 and D-0054 now
 depend on; it retires `build/site`, Pandoc 3.11, the tree test and the
 old-build comparisons, not the templates).
 Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
@@ -36,21 +36,28 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 #16); site design review of 2026-09-22 (PR #11, #12, boards in
 `docs/design/2026-09-22-review/`).
 
-**Red on main, first task (found 2026-10-01 at handoff):** the `main` run
-for `aab70bd` (a docs commit) failed at "Production serves the tested bytes
-at its alias"; `verify`, the deploy and the deployment-URL check passed.
-The `.docx` and `.pdf` carry their build time (`dcterms:created`;
-`/CreationDate`), so each build's bytes differ at the same size ("served
-14742 bytes, not the tested 14742"), and the alias still served the
-previous deployment's copies when checked. Before the downloads every file
-rebuilt byte-identical, which hid any alias lag. Production's content is
-unaffected. A fix (timestamps fixed per build, the alias check waiting for
-the switch, or both) is a design pass for the owner's ruling.
+**Red on main, intermittent (measured 2026-10-02, fix awaiting ruling):**
+two of seven `main` runs since the downloads landed failed "Production
+serves the tested bytes at its alias" (`f8173c8`, `aab70bd`); the
+deployment-URL check passed in all seven. The alias check starts 2 to 4 s
+after wrangler's "Deployment complete" and the alias sometimes still serves
+the previous deployment (in `f8173c8`, the previous build's Word file size).
+Builds of the same source differ only in the Word and PDF dates. Proposed
+fix D-0060: the alias step alone retries the full check every 5 s for up to
+120 s and logs the lag; dates left as built. D-0060 has the measurements
+and the date-fixing probes (Pandoc honors `SOURCE_DATE_EPOCH`; Chrome does
+not). Until it is built, a red alias step on a docs-only commit is this,
+not a production fault: confirm the deployment-URL step passed.
+Phase 4 spec, for ruling: `docs/superpowers/specs/2026-10-02-quarto-phase-4-design.md`
+(D-0061, seven calls).
 
 **Awaiting owner:**
-- Promote D-0057 to D-0059 or not (proposed 2026-10-01, built as leaned
-  and merged; D-0057 revised once on the branch after the owner's first
-  Word check).
+- D-0060 (alias wait) and D-0061 with the phase 4 spec's seven calls.
+- Asked 2026-10-02, not designed yet: a per-course "download all" (zip,
+  choose formats) for archiving in Box or SharePoint, possibly borrowing
+  D-0059's option B; and converting a second handout with equations and
+  images before the demo (candidates: PH212 Lab 1, equations and tables,
+  no images; Lab Guidance for Students, both, not a lab).
 - Not built, for a later ruling: a Word box for the legend and the hint
   arrow (D-0057: `custom-style` misses list items; the arrow would be a
   character in the text). The legend's "arrow" and "Boxed" stay unmet in
