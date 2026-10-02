@@ -17,13 +17,20 @@ Downloads merged 2026-10-01, PR #19 squashed as `bbfa9b6` (D-0052 to
 D-0056): four files per lab from modern, the department line in each, the
 header logo published once; 148 tests; `verify` and the preview `deploy`
 green on the PR's head. Demo 2026-10-06. Next, by the owner's order
-(2026-10-01), before phase 4: (1) the download control is too small to
-find (small text in the nav bar, no visual cue) and the library exists to
-be downloaded from, so make it prominent, perhaps a popover or dropdown;
-(2) printed Word and PDF files must not split related content across a
-page break. Both are a design pass for the owner's ruling first. Then
-phase 4, which needs a spec first (its plan text deletes the templates
-that D-0036 and D-0054 now depend on).
+(2026-10-01), before phase 4, each a design pass for his ruling first:
+(1) print structure for Word and PDF, worth getting right once because
+students fill in the Word file today (about 2,000 a term; the owner adapts
+the handout from Markdown himself) and a move to paper handouts would
+print from the same source: regenerate `tools/reference.docx` with the
+draft notice as a real page header (replacing the two banner paragraphs)
+and the footer's page numbers at the footer's size (Word rebuilds the
+fields and drops their 8 pt; the owner checks the file in Word), give
+question blocks their own Word style (amends D-0053's default styles),
+and keep a heading with what follows and a question block whole, in Word
+and in the PDF's print CSS; (2) the download control is too small to find
+on a site whose purpose is the download: make it prominent, perhaps a
+popover or dropdown. Then phase 4, which needs a spec first (its plan text
+deletes the templates that D-0036 and D-0054 now depend on).
 Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 
 **Previous focus:** phases 2 and 3 of the Quarto migration (PR #14, #15,
@@ -38,6 +45,14 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
   change to Vercel needs the owner's word.
 - Downloads: check production on a phone before the demo (the Download
   row, each file, the PDF footer); merged without the preview check.
+- Open, the owner's, not to be designed until he raises it: how students
+  complete handouts. Either a browser-only fillable worksheet with an
+  export (nothing leaves the browser, so no student data is stored; the
+  cost is work lost if the browser's storage is cleared), or paper
+  handouts completed individually during lab, one per group graded at
+  random each week, replacing the group lab report. His drivers: peer
+  accountability, answers free of AI text, the 1 h 50 min lab, and any
+  outside work moved to simulation-based prelabs. He has not decided.
 - Phase 5 is done, Task 4 included (2026-10-01): migration plan marked,
   CLAUDE.md Deploy rewritten, successor page
   `OSU-lab-ops/lab-handbook/lab-library-site.md` (lab-ops ledger 29).
