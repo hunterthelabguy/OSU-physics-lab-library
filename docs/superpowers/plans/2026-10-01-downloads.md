@@ -1,5 +1,7 @@
 # Downloads Plan: Word, HTML and PDF per lab
 
+Executable task plan: `docs/superpowers/plans/2026-10-01-downloads-tasks.md`.
+
 Status: calls 1 to 7 ruled 2026-10-01 (see "Rulings" below; D-0053
 proposed records them). Nothing built. Ruled already: D-0052 (proposed; the owner approved all six leans):
 one set per lab, Word by Pandoc through Quarto, a self-contained HTML, a PDF
