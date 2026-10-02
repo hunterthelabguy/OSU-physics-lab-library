@@ -186,5 +186,34 @@ class Html(unittest.TestCase):
                 self.assertLessEqual(size, HTML_CAP_BYTES)
 
 
+class Pdf(unittest.TestCase):
+    """The modern page printed with the site's print rules (D-0053)."""
+
+    def path(self, doc_id):
+        return QSITE / "labs" / doc_id / (doc_id + ".pdf")
+
+    def text(self, doc_id):
+        return subprocess.run([PDFTOTEXT, "-layout", str(self.path(doc_id)), "-"],
+                              check=True, capture_output=True, text=True,
+                              encoding="utf-8").stdout
+
+    def test_is_a_pdf(self):
+        for doc_id, _ in converted():
+            with self.subTest(doc=doc_id):
+                self.assertEqual(self.path(doc_id).read_bytes()[:5], b"%PDF-")
+
+    def test_banner_running_header_title_and_footer(self):
+        for doc_id, source in converted():
+            title = re.search(r"^# (.+)$", source.read_text(encoding="utf-8"), re.M).group(1)
+            text = flat(self.text(doc_id))
+            pages = int(re.search(r"Page 1 of (\d+)", text).group(1)) if "Page 1 of" in text else 0
+            with self.subTest(doc=doc_id):
+                self.assertIn(BANNER_MAIN, text)
+                self.assertIn("DRAFT: license pending", text)
+                self.assertIn(flat(title), text)
+                self.assertGreater(pages, 0, "no 'Page 1 of N'")
+                self.assertEqual(text.count(PHYSICS), pages, "the department on every page")
+
+
 if __name__ == "__main__":
     unittest.main()

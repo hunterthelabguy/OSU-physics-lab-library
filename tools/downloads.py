@@ -13,6 +13,7 @@ from disk. A missing tool is an error, never a skip (LEDGER 53).
 """
 
 import os
+import pathlib
 import re
 import shutil
 import subprocess
@@ -20,6 +21,7 @@ import subprocess
 import render
 
 THEME = "modern"
+CHROME = os.environ.get("CHROME", "google-chrome")
 EXTENSIONS = ("md", "docx", "html", "pdf")
 # The owner's words in every download, in place of the logo (chat, 2026-10-01).
 PHYSICS = "Department of Physics, Oregon State University"
@@ -74,6 +76,22 @@ def html(doc, dest):
         raise SystemExit("{} links into the site, which a download cannot: {}".format(dest, left[:5]))
 
 
+def pdf(page_path, dest):
+    """Headless Chrome prints the built modern page with the site's print
+    rules, which hide the header, nav and footer and supply the running
+    header, the department line and page numbers (site/site.css, @page).
+    --no-pdf-header-footer turns off Chrome's own."""
+    if shutil.which(CHROME) is None and not os.path.isfile(CHROME):
+        raise SystemExit("Chrome not found; set CHROME to the browser (LEDGER 53)")
+    proc = subprocess.run(
+        [CHROME, "--headless", "--disable-gpu", "--no-pdf-header-footer",
+         "--print-to-pdf=" + os.path.abspath(dest),
+         pathlib.Path(os.path.abspath(page_path)).as_uri()],
+        capture_output=True, text=True)
+    if proc.returncode != 0 or not os.path.isfile(dest) or os.path.getsize(dest) == 0:
+        raise SystemExit("Chrome did not print {}:\n{}".format(page_path, proc.stderr[-2000:]))
+
+
 def build(out, docs):
     """Write every lab's downloads into out/labs/<id>/."""
     for doc_id, doc in docs.items():
@@ -81,3 +99,4 @@ def build(out, docs):
         markdown(doc, os.path.join(folder, doc_id + ".md"))
         word(doc, os.path.join(folder, doc_id + ".docx"))
         html(doc, os.path.join(folder, doc_id + ".html"))
+        pdf(os.path.join(folder, THEME, "index.html"), os.path.join(folder, doc_id + ".pdf"))

@@ -63,6 +63,14 @@ jobs:
         env:
           PANDOC: /usr/bin/pandoc
         run: python3 tools/render.py --site
+      - name: Install pdftotext (PDF download tests)
+        # Not on the runner images; tests/test_downloads.py reads the PDFs
+        # with it. The PDFs themselves use the runner's google-chrome, which
+        # tools/downloads.py finds or fails on (LEDGER 53).
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+          pdftotext -v 2>&1 | head -1
       - name: Quarto site builds
         # Fails on any Quarto warning line (docs/quarto-migration-plan.md).
         run: python3 tools/quarto_build.py
