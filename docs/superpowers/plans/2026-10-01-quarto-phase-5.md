@@ -268,3 +268,19 @@ Recorded from the chat that followed the owner's approval; none of it is built.
   `main` must stop failing silently: either Vercel's Git builds are turned
   off for the project or the redirect holds whatever the build does; to be
   checked once the rule is live.
+- **Vercel redirect live (2026-10-01, on the owner's word).** One project
+  routing rule, "Moved to Cloudflare Pages": regex `^/(.*)$`, status 308,
+  `Location: https://osu-physics-labs.pages.dev/$1` (rule
+  `2c62b1ef-2f4a-4193-8f7a-842a135b74c7`, version
+  `ee4d901c-ef50-49bb-a4d4-0587a74e1513`). Staged first and checked on the
+  staging alias: `/`, `/courses/`, a lab page, a query string and an unknown
+  path all answered 308 to the same path, query kept; production still
+  served 200 while staged. Promoted, then checked on
+  `osu-physics-lab-library.vercel.app`: the same 308s, with no redeploy.
+  To undo: restore the previous routing version or disable the rule in the
+  project's settings. Kept until the owner says it can go; the owner notes
+  the old URL was not widely shared. Still open for phase 4: Vercel builds
+  the old site on every push to `main`, and phase 4 deletes what that build
+  runs; decide then whether to turn off the project's Git builds (the
+  redirect is a project setting and does not depend on a deployment, as the
+  promote without a redeploy showed).

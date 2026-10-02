@@ -12,8 +12,8 @@ URL and the `pages.dev` alias: every file byte for byte, unknown paths 404
 with `404.html`, so Pages does not rewrite the HTML. Cloudflare refuses
 Python's default user agent (error 1010); the check names itself. The owner
 checked production on a phone and printed Lab 1 in both presentations
-(2026-10-01): fine. Next: the Vercel redirect (read-only look done, change
-awaits the owner), then phase 4, plus downloads (D-0052) for a demo.
+(2026-10-01): fine. The old Vercel URL redirects there (308, path kept). Next: downloads
+(D-0052) for the demo on 2026-10-06, then phase 4.
 Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 
 **Previous focus:** phases 2 and 3 of the Quarto migration (PR #14, #15,
@@ -22,10 +22,10 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 
 **Awaiting owner:**
 - Promote D-0047 to D-0052, or edit them first?
-- Vercel redirect (D-0049, call 8): findings and the proposed change are in
-  the phase 5 plan, "Cutover and Vercel". Every change to Vercel needs the
-  owner's word.
-- Downloads (D-0052): the demo date, which decides one PR or two.
+- Vercel: the redirect is live (308, path kept; phase 5 plan, "Cutover and
+  Vercel"). Before phase 4: turn off the project's Git builds or not. Every
+  change to Vercel needs the owner's word.
+- Downloads (D-0052): demo on 2026-10-06; built properly, not rushed.
 - D-0051 (actions to current majors) is built after downloads or before, as
   the owner says; it waits on nothing.
 - Two design items were deliberately not built, pending a ruling:
