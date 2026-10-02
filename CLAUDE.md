@@ -61,10 +61,10 @@ Cloudflare and Vercel projects, sims, and Quarto internals. Lines tagged
   banner and "Department of Physics, Oregon State University" in place of
   the logo. The HTML is a plain Pandoc render with no site chrome; the PDF
   is the built modern page printed by Chrome with the `@page` rules. Word's
-  page header (the draft notice), footer, Letter page and question styles
-  come from the committed `tools/reference.docx` (D-0057); rerun
-  `tools/make_reference_docx.py` when one of those, `BANNER_MAIN` or the
-  Pandoc version changes. Pandoc's `custom-style` reaches a Div's
+  page header (the draft notice), footer, Letter page, body spacing and
+  question box come from the committed `tools/reference.docx` (D-0057);
+  rerun `tools/make_reference_docx.py` when one of those, `BANNER_MAIN`,
+  `themes/modern.css`'s spacing or the Pandoc version changes. Pandoc's `custom-style` reaches a Div's
   paragraphs, never its list items, so a block holding a list cannot be
   given a Word box that way (probe, 2026-10-01). The tests read the Word
   file's XML; only the owner, in Word, checks what it shows. The PDF

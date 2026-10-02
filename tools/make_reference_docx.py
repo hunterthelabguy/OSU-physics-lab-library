@@ -18,9 +18,13 @@ Starts from Pandoc's own default reference document and adds:
   the formatting of the cached one;
 - the PDF's page: Letter with site/site.css's 0.75 in margins;
 - the Question Label and Question styles that tools/filters/questions.lua
-  names for Word: the PDF's print look, a black rule down the left that Word
-  draws as one across both, the label in capitals, and both kept whole and
-  with what follows.
+  names for Word: the modern page's question block, its accent rule down
+  the left and its tint behind, one box across both paragraphs, the label
+  in capitals, and both kept whole and with what follows;
+- the modern page's spacing in Pandoc's Body Text and Compact styles: lines
+  at least 1.6 times the body size, and the paragraph and list item gaps in
+  the page's proportions (the owner found the first build's spacing tighter
+  than the page, 2026-10-01).
 Every other part is copied byte for byte, so the Word file otherwise keeps
 Pandoc's default styles.
 """
@@ -43,10 +47,49 @@ TWIPS_PER_INCH = 1440
 LETTER = (8.5, 11)    # inches, site/site.css @page size: letter
 MARGIN = 0.75         # inches, site/site.css @page margin
 
-# One left rule and one indent shared by both question styles, so Word joins
-# the label and the question into one ruled block.
-RULE = ('<w:pBdr><w:left w:val="single" w:sz="18" w:space="8" w:color="000000" /></w:pBdr>')
-INDENT = '<w:ind w:left="240" />'
+# The modern page's values (themes/modern.css), carried into Word's 12 pt
+# body: a length in rem is taken over the body's 1.0625rem, so it keeps its
+# proportion to the text. Colors are the light scheme's --accent and --tint.
+BODY_REM = 1.0625
+BODY_PT = 12
+LINE_HEIGHT = 1.6
+ACCENT, TINT = "D73F09", "F4F7F9"
+
+
+def pt(rem):
+    return rem / BODY_REM * BODY_PT
+
+
+def twips(points):
+    return round(points * 20)
+
+
+def spacing(after_rem):
+    """Lines at least 1.6 times the body (an exact proportion, whatever the
+    font's own metrics), nothing before, the page's gap after."""
+    return '<w:spacing w:before="0" w:after="{}" w:line="{}" w:lineRule="atLeast" />'.format(
+        twips(pt(after_rem)), twips(LINE_HEIGHT * BODY_PT))
+
+
+BODY_SPACING = spacing(1)      # p { margin: 0 0 1rem; }
+ITEM_SPACING = spacing(.5)     # li { margin: 0 0 .5rem; }
+
+# One border, shading and indent shared by both question styles, so Word
+# draws the label and the question as one box: the page's 4 px accent rule
+# (3 pt) on the left, its padding (.9rem, 1.1rem, 1rem) as the borders'
+# distance from the text, and top, right and bottom borders in the tint, so
+# they only hold the shading out to the padding. The indent keeps the rule
+# inside the text column, as on the page.
+LEFT = round(pt(1.1))
+BOX = ('<w:pBdr>'
+       '<w:top w:val="single" w:sz="4" w:space="{top}" w:color="{tint}" />'
+       '<w:left w:val="single" w:sz="24" w:space="{side}" w:color="{accent}" />'
+       '<w:bottom w:val="single" w:sz="4" w:space="{bottom}" w:color="{tint}" />'
+       '<w:right w:val="single" w:sz="4" w:space="{side}" w:color="{tint}" />'
+       '</w:pBdr><w:shd w:val="clear" w:color="auto" w:fill="{tint}" />').format(
+    top=round(pt(.9)), side=LEFT, bottom=round(pt(1)), tint=TINT, accent=ACCENT)
+INDENT = '<w:ind w:left="{}" w:right="{}" />'.format(twips(LEFT + 3), twips(LEFT))
+BLOCK_GAP = twips(pt(1.5))    # .question { margin: 1.5rem 0; }
 
 STYLES = (
     '<w:style w:type="paragraph" w:styleId="Header"><w:name w:val="header" />'
@@ -59,12 +102,16 @@ STYLES = (
     '<w:rPr><w:sz w:val="16" /><w:szCs w:val="16" /></w:rPr></w:style>'
     '<w:style w:type="paragraph" w:customStyle="1" w:styleId="QuestionLabel">'
     '<w:name w:val="Question Label" /><w:basedOn w:val="BodyText" /><w:next w:val="Question" /><w:qFormat />'
-    '<w:pPr><w:keepNext /><w:keepLines />' + RULE + '<w:spacing w:before="360" w:after="60" />' + INDENT + '</w:pPr>'
+    '<w:pPr><w:keepNext /><w:keepLines />' + BOX
+    + '<w:spacing w:before="{}" w:after="{}" w:line="240" w:lineRule="auto" />'.format(BLOCK_GAP, twips(pt(.35)))
+    + INDENT + '</w:pPr>'
+    # .question-label p: .8rem (9 pt), letter-spacing .08em, --quiet.
     '<w:rPr><w:caps /><w:color w:val="0D5257" /><w:spacing w:val="14" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr>'
     '</w:style>'
     '<w:style w:type="paragraph" w:customStyle="1" w:styleId="Question">'
     '<w:name w:val="Question" /><w:basedOn w:val="BodyText" /><w:next w:val="BodyText" /><w:qFormat />'
-    '<w:pPr><w:keepNext /><w:keepLines />' + RULE + '<w:spacing w:before="0" w:after="360" />' + INDENT + '</w:pPr>'
+    '<w:pPr><w:keepNext /><w:keepLines />' + BOX
+    + '<w:spacing w:before="0" w:after="{}" />'.format(BLOCK_GAP) + INDENT + '</w:pPr>'
     '</w:style>')
 
 
@@ -98,6 +145,18 @@ def once(pattern, text, repl):
     return new
 
 
+def respace(text, style_id, new):
+    """Replace the one spacing element of one of Pandoc's default styles."""
+    pattern = r'<w:style\b[^>]*\bw:styleId="{}".*?</w:style>'.format(style_id)
+    block = re.findall(pattern, text, re.S)
+    if len(block) != 1:
+        raise SystemExit("reference.docx: expected one {} style".format(style_id))
+    changed, n = re.subn(r"<w:spacing\b[^>]*/>", lambda m: new, block[0])
+    if n != 1:
+        raise SystemExit("reference.docx: expected one spacing in the {} style".format(style_id))
+    return text.replace(block[0], changed)
+
+
 def edit(name, data):
     text = data.decode("utf-8")
     if name == "word/document.xml":
@@ -113,6 +172,8 @@ def edit(name, data):
         for style_id in ("Header", "Footer", "QuestionLabel", "Question"):
             if 'w:styleId="{}"'.format(style_id) in text:
                 raise SystemExit("Pandoc's default already has the {} style; review this tool".format(style_id))
+        for style_id, new in (("BodyText", BODY_SPACING), ("Compact", ITEM_SPACING)):
+            text = respace(text, style_id, new)
         text = once(r"</w:styles>", text, STYLES + "</w:styles>")
     elif name == "word/_rels/document.xml.rels":
         rels = ''.join('<Relationship Type="http://schemas.openxmlformats.org/officeDocument/'

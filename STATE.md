@@ -37,10 +37,11 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 
 **Awaiting owner:**
 - Promote D-0057 to D-0059 or not (proposed 2026-10-01, built as leaned).
-- Open the regenerated Word file in Word, since the tests read only its
-  XML: footer numbers the size of the footer text, the draft notice at
-  the top of every page, questions with a left rule and a capitals label,
-  no heading at a page foot, Enter after a question gives plain text.
+- Word check, first build (owner, 2026-10-01): header, footer size, rule
+  and label, headings, Enter all as intended; spacing tighter than the
+  page and questions not prominent enough. Second build gives the page's
+  spacing and the page's tinted, orange-ruled question box: open it in
+  Word again before merge (the tests read only XML).
 - Not built, for a later ruling: a Word box for the legend and the hint
   arrow (D-0057: `custom-style` misses list items; the arrow would be a
   character in the text). The legend's "arrow" and "Boxed" stay unmet in

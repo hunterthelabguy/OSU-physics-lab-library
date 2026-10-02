@@ -26,6 +26,17 @@ from render import BANNER_MAIN, BANNER_DETAIL  # noqa: E402
 from test_quarto_site import converted    # noqa: E402
 
 LABELS = {"docx": "Word", "html": "HTML", "pdf": "PDF", "md": "Markdown"}
+
+# The modern page's values that the Word file follows (D-0057): the light
+# scheme's colors, the body's size and line height, and the paragraph and
+# list item gaps, all in rem except the unitless line height.
+_MODERN = (ROOT / "themes" / "modern.css").read_text(encoding="utf-8")
+MODERN_ROOT = dict(re.findall(r"(--[\w-]+):\s*(#[0-9a-fA-F]{6})", re.search(r":root\s*\{(.*?)\}", _MODERN, re.S).group(1)))
+_BODY = re.search(r"\nbody\s*\{(.*?)\}", _MODERN, re.S).group(1)
+MODERN_BODY = {"font-size": float(re.search(r"font-size:\s*([\d.]+)rem", _BODY).group(1)),
+               "line-height": float(re.search(r"line-height:\s*([\d.]+);", _BODY).group(1))}
+MODERN_P_GAP = float(re.search(r"\np\s*\{\s*margin:\s*0 0 ([\d.]+)rem;", _MODERN).group(1))
+MODERN_LI_GAP = float(re.search(r"\nli\s*\{\s*margin:\s*0 0 ([\d.]+)rem;", _MODERN).group(1))
 FOOTER_NEW = "Downloads carry the same draft notice as these pages."
 FOOTER_OLD = "are not wired up in this draft"
 # The owner's words for every download, in place of the logo (chat, 2026-10-01).
@@ -215,24 +226,49 @@ class MarkdownAndWord(unittest.TestCase):
                     self.assertEqual(text, "Question {}".format(n))
                     self.assertEqual(styled[i + 1], "Question")
 
-    def test_word_question_styles_keep_whole_and_rule_left(self):
-        # D-0057: the PDF's print look; both styles keep with the next
-        # paragraph and keep their lines, share one left rule so Word draws
-        # it as one, and Enter after a question starts plain Body Text.
+    def test_word_question_styles_are_the_modern_box(self):
+        # D-0057, amended after the owner's Word check (2026-10-01): the
+        # modern page's question block, its accent rule down the left and
+        # its tint behind, from themes/modern.css. Both styles keep with the
+        # next paragraph and keep their lines, and share one border, indent
+        # and shading so Word draws one box; Enter after a question starts
+        # plain Body Text.
+        accent, tint = (MODERN_ROOT[k].lstrip("#").upper() for k in ("--accent", "--tint"))
         for doc_id, _ in converted():
             with self.subTest(doc=doc_id):
                 label, question = self.style(doc_id, "QuestionLabel"), self.style(doc_id, "Question")
                 for s in (label, question):
                     self.assertIn("<w:keepNext", s)
                     self.assertIn("<w:keepLines", s)
-                rule = lambda s: re.search(r"<w:pBdr>.*?</w:pBdr>", s, re.S).group(0)
-                self.assertIn("<w:left ", rule(question))
-                self.assertEqual(rule(label), rule(question))
-                indent = lambda s: re.search(r"<w:ind\b[^>]*/>", s).group(0)
-                self.assertEqual(indent(label), indent(question))
+                for part in (r"<w:pBdr>.*?</w:pBdr>", r"<w:ind\b[^>]*/>", r"<w:shd\b[^>]*/>"):
+                    got = [re.search(part, s, re.S) for s in (label, question)]
+                    self.assertTrue(all(got), part)
+                    self.assertEqual(got[0].group(0), got[1].group(0))
+                self.assertRegex(question, r'<w:left\b(?=[^>]*\bw:color="{}")'.format(accent))
+                self.assertRegex(question, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(tint))
                 self.assertIn('<w:next w:val="BodyText"', question)
                 self.assertIn("<w:caps", label)
                 self.assertNotRegex(question, r"<w:b\s*/>")
+
+    def test_word_spacing_follows_the_modern_page(self):
+        # D-0057, amended after the owner's Word check: the body's line
+        # spacing at least [1.6] times the body size, and the gaps after a
+        # paragraph and a list item in the modern page's proportions
+        # (themes/modern.css: line-height, p and li margins over the body's
+        # font size), in twips of Word's 12 pt body.
+        body_pt = 12
+        line = round(MODERN_BODY["line-height"] * body_pt * 20)
+        para = round(MODERN_P_GAP / MODERN_BODY["font-size"] * body_pt * 20)
+        item = round(MODERN_LI_GAP / MODERN_BODY["font-size"] * body_pt * 20)
+        for doc_id, _ in converted():
+            with self.subTest(doc=doc_id):
+                styles = self.part(doc_id, "word/styles.xml")
+                self.assertRegex(styles, r'(?s)<w:rPrDefault>.*?<w:sz w:val="{}"'.format(body_pt * 2))
+                for style_id, after in (("BodyText", para), ("Compact", item)):
+                    spacing = re.search(r"<w:spacing\b[^>]*/>", self.style(doc_id, style_id)).group(0)
+                    for attr, want in (("before", 0), ("after", after), ("line", line)):
+                        self.assertRegex(spacing, r'\bw:{}="{}"'.format(attr, want), style_id)
+                    self.assertIn('w:lineRule="atLeast"', spacing, style_id)
 
     def test_word_headings_keep_with_next(self):
         # A pin, not a change: Pandoc's default Heading 1 to 3 already keep
