@@ -673,3 +673,53 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: the plan as written (breaks the Quarto build and the HTML download); keep the old build for comparison only (a second Pandoc for a reference production does not serve); port the chrome to Quarto partials so the templates can go (a rewrite of working chrome).
 - binds: D-0036, D-0038, D-0042, D-0046, D-0054, docs/quarto-migration-plan.md, tools/render.py, .github/workflows/verify.yml, tests/test_one_pandoc.py, tests/test_quarto_chrome.py, tests/test_quarto_config.py, tests/test_fonts.py, tests/test_site_chrome.py
 - test: to be written with phase 4 (the D-0038 pins in tests/test_quarto_chrome.py)
+
+### D-0062  Scan the full history before the repo goes public; start fresh only as the fallback
+- status: proposed
+- proposed-by: owner
+- date: 2026-10-02
+- decision: Before the repo is made public, scan every commit in its history, not only the current tree, for student-identifiable data, instructor-only material, credentials, and any file that was never meant to be public. If the scan is clean, the repo goes public with its history. If it finds something, remove it from history with `git filter-repo` and rescan. A fresh single-commit repo is the fallback only if filter-repo cannot remove it. Whichever route is taken, the private original is kept as the archive. The public flip also waits on the license (LEDGER 8).
+- rationale: The owner raised cloning or forking to a fresh repo so that early commits are not public, and said a scan is worth doing either way (chat, 2026-10-02). A public repo exposes every past commit, and the flip cannot be undone once the history has been read or copied. A fresh repo would also discard the ledger's dated sequence, which is its value to a successor (floor item 7: append-only, a wrong entry corrected by a new one).
+- alternatives: a fresh repo with no history (loses the ledger's history and the provenance of each ruling; right only if the scan finds what filter-repo cannot remove); go public as is without a scan (a one-way exposure of anything in history).
+- binds: LEDGER 8, the public flip, `OSU-physics-lab-library-instructor` (never copied into this repo)
+- test: none yet; the scan's date and result are recorded in `STATE.md` when it is run.
+
+### D-0063  Ask OSU Digital Experience about the domain and the logo in one conversation
+- status: proposed
+- proposed-by: owner
+- date: 2026-10-02
+- decision: The owner asks OSU Digital Experience, in one request, (a) whether the site may live at a physics.oregonstate.edu address, and (b) whether the logo files may be redistributed in a public repo and shown on the deployed site. Until they answer, the site stays on its Cloudflare Pages address and the logo stays under D-0007's exclusion. The owner raised the domain request; the logo question was added to the same request on the lean of D-0064.
+- rationale: The owner said the domain is open and may be requested from OSU Digital Experience, and that the logo files were behind a login and may have to be dropped while the prose stays (chat, 2026-10-02). Both questions go to the same kind of office, and one answer may settle both. This is the follow-through of D-0001 and D-0012 (a compliant site, shown to University Marketing, eventually under physics.oregonstate.edu).
+- alternatives: ask about the domain alone and decide the logo privately (leaves a trademark question unanswered in a public repo); drop the logo now (loses the branding D-0002 ruled on before anyone has said it is not allowed).
+- binds: D-0001, D-0002, D-0007, D-0012
+- test: none; the answers are recorded as new entries when they arrive.
+
+### D-0064  The build works without the logo; the README says to supply your own
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-02
+- decision: The logo is a replaceable asset. The build and the tests pass when the official logo files are absent, the site then shows its name as live text, and the README tells anyone redeploying to supply their own logo or none. This does not remove the logo from the deployed site; it removes the dependency, so that a ruling to drop the logo from the public repo costs a deletion and not a rebuild. Disclosed edit: `tests/test_assets.py` pins each logo file's SHA-256 and would need to treat a missing logo as allowed.
+- rationale: If the answer to D-0063 is no, the repo needs to work without the files. The same property lets a successor on another host deploy without trademark files they may not hold, which supports the continuity goal.
+- alternatives: keep the logo hard-wired (a no from OSU breaks the build and the pinned tests); remove the logo now (decides before the answer to D-0063).
+- binds: D-0002, D-0007, D-0063, site/brand/, tests/test_assets.py, tools/brandheader.html
+- test: to be written with the change (a build with the logo files removed passes).
+
+### D-0065  The README is tested cold before any claim that it enables a redeploy
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-02
+- decision: No document, slide, or README sentence says that someone else, or another tool, can deploy this site until a fresh agent that has only the README and a throwaway host account has done it. The run is recorded (date, host, what the README lacked) and each gap becomes a README fix. Until then the wording is that the README is written so the site can be rebuilt and moved, and no more. A cold test is rerun when the build or hosting changes.
+- rationale: The owner agreed not to claim more than the evidence supports (chat, 2026-10-02). The hosting migration plan says the move is three settings plus DNS, which is unproven. A repo must not lie about its verification (floor item 2).
+- alternatives: assert it from the migration plan alone (a claim without evidence); test with the owner as the reader (the owner already knows the unwritten steps, so the test would not find them).
+- binds: README.md, docs/hosting-migration-plan.md (in OSU-lab-ops), the curriculum meeting deck's slide 7 note
+- test: none; the dated run record is the evidence.
+
+### D-0066  The README names who holds the registrar, DNS, and host accounts, by role
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-02
+- decision: The README lists, by role and not by name, who holds the domain registrar account, the DNS records, and the Cloudflare account, and the handover step for each (how a successor takes the role). A line that says "unknown" or "undecided" is acceptable and is marked as such, never guessed. Who holds each is open as of this entry.
+- rationale: The site can be rebuilt from the repo anywhere, but the link only keeps working while someone controls the address. The owner has said the domain is undecided and will not be a university domain unless OSU Digital Experience agrees (chat, 2026-10-02). That control is the actual continuity risk, and the repo cannot close it by itself.
+- alternatives: leave it to the owner's memory (the thing the lab-ops repo exists to avoid); name people (violates the roles-not-names rule and goes stale).
+- binds: README.md, D-0063
+- test: none.
