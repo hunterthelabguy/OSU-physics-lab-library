@@ -399,6 +399,26 @@ body:where(.quarto-light) {
   body.site-page #quarto-content > main { padding-top: var(--space-3); }
   body.theme-modern #quarto-content > main { padding-top: var(--space-4); }
 }
+
+/* Lab downloads (D-0059): the four formats as buttons, the landing hero's
+   primary button (D-0031) at nav scale, since the download is what the site
+   is for. Only Quarto lab pages carry the row (D-0052, D-0055). White on
+   Beaver Orange is 4.56:1; the orange against the page is 4.56:1 light and
+   3.91:1 dark, so the button needs no dark-mode rule. Measured on the
+   mockups, docs/design/2026-10-01-download-control/. On a phone the label
+   takes its own line and the four buttons share one row. */
+.quarto-light .site-nav .download-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); }
+.quarto-light .site-nav a.download-button {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 .75rem;
+  border-radius: 6px; background: var(--chrome-accent); color: #fff;
+  font-size: 1rem; font-weight: 700; text-decoration: none;
+}
+.quarto-light .site-nav a.download-button:hover, .quarto-light .site-nav a.download-button:focus-visible { text-decoration: underline; text-underline-offset: .15em; }
+.quarto-light .site-nav a.download-button:focus-visible { outline: 3px solid var(--chrome-heading); outline-offset: 2px; }
+@media (max-width: 40rem) {
+  .quarto-light .site-nav .download-label { flex-basis: 100%; }
+  .quarto-light .site-nav a.download-button { flex: 1 1 auto; justify-content: center; }
+}
 /* quarto-only: end */
 
 /* Print: TAs and students print handouts. Paper gets the words, a running

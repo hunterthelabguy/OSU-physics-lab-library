@@ -20,7 +20,7 @@ $if(homehref)$
 <a href="$homehref$">OSU physics lab library</a>
 $if(uphref)$<a href="$uphref$">$uplabel$</a>$endif$
 <span class="spacer"></span>
-$if(downloadid)$<span>Download: <a href="../$downloadid$.docx" download="$downloadid$.docx">Word</a> &middot; <a href="../$downloadid$.html" download="$downloadid$.html">HTML</a> &middot; <a href="../$downloadid$.pdf" download="$downloadid$.pdf">PDF</a> &middot; <a href="../$downloadid$.md" download="$downloadid$.md">Markdown</a></span>$endif$
+$if(downloadid)$<span class="download-row"><span class="download-label">Download:</span> <a class="download-button" href="../$downloadid$.docx" download="$downloadid$.docx">Word</a> <a class="download-button" href="../$downloadid$.html" download="$downloadid$.html">HTML</a> <a class="download-button" href="../$downloadid$.pdf" download="$downloadid$.pdf">PDF</a> <a class="download-button" href="../$downloadid$.md" download="$downloadid$.md">Markdown</a></span>$endif$
 $if(switchhref)$<a class="switch" href="$switchhref$">$switchlabel$</a>$endif$
 </nav>
 $endif$

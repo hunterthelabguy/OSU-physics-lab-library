@@ -6,7 +6,10 @@
 -- theme=faithful: the original look. The question keeps its bold, prefixed
 --   with "N)" exactly as the Word original numbered it.
 -- theme=modern: the question becomes a labeled block ("Question N"), and its
---   bold is removed so that bold means emphasis again (ledger 29).
+--   bold is removed so that bold means emphasis again (ledger 29). For Word
+--   only, the label and the question name the Question Label and Question
+--   styles of tools/reference.docx (D-0057); any other output would carry
+--   the name into the page as an attribute, so it is never set there.
 
 local theme = "modern"
 local count = 0
@@ -40,6 +43,10 @@ return {
         first.content = unbold(first.content)
         local label = pandoc.Para({ pandoc.Str("Question " .. count) })
         label = pandoc.Div({ label }, pandoc.Attr("", { "question-label" }))
+        if FORMAT == "docx" then
+          label.attributes["custom-style"] = "Question Label"
+          el.attributes["custom-style"] = "Question"
+        end
         table.insert(el.content, 1, label)
       end
       return el

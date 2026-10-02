@@ -5,8 +5,9 @@ its own. Every file comes from the modern presentation, carries the draft
 banner (ledger 37) and names the Department of Physics in place of the
 logo, and is written beside the presentations as labs/<id>/<id>.<ext>, so
 a saved file is named after the lab. Markdown is the source, byte for
-byte (LEDGER 28). Word is Pandoc's, from the source, with the banner as
-its first two paragraphs and the department in its page footer. HTML is
+byte (LEDGER 28). Word is Pandoc's, from the source, with the banner in
+its page header and the department in its page footer, both from
+tools/reference.docx with the page size and question styles (D-0057). HTML is
 a plain Pandoc render of the source: the banner, the department line and
 the modern theme, everything embedded and no site chrome, so it opens
 from disk. A missing tool is an error, never a skip (LEDGER 53).
@@ -49,10 +50,10 @@ def markdown(doc, dest):
 
 
 def word(doc, dest):
-    """The banner as the first two paragraphs; the department line and page
-    count in the page footer, from tools/reference.docx."""
-    text = "**{}**\n\n{}\n\n".format(render.BANNER_MAIN, render.BANNER_DETAIL)
-    pandoc(doc, text + render.body_after_front_matter(doc["path"]),
+    """The source alone in the body; tools/reference.docx supplies the draft
+    notice as the page header, the department line and page count as the
+    page footer, the page, and the question styles (D-0057)."""
+    pandoc(doc, render.body_after_front_matter(doc["path"]),
            ["-t", "docx", "--reference-doc", REFERENCE_DOCX, "-M", "lang=en", "-o", dest])
 
 

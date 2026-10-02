@@ -184,6 +184,16 @@ class QuartoOnlyCss(unittest.TestCase):
         self.assertIn("margin-left: revert", m.group(1))
         self.assertIn("margin-bottom: revert", m.group(1))
 
+    def test_download_buttons(self):
+        # D-0059: the landing hero's primary button (D-0031) at nav scale,
+        # [44] px tall; measured 2026-10-01 on the mockups at 375 px.
+        body = re.sub(r"/\*.*?\*/", "", self.block(), flags=re.S)
+        m = re.search(r"\.quarto-light \.site-nav a\.download-button\s*\{([^}]*)\}", body)
+        self.assertIsNotNone(m, "no download-button rule")
+        for decl in ("min-height: 44px", "background: var(--chrome-accent)", "color: #fff", "font-weight: 700"):
+            with self.subTest(decl=decl):
+                self.assertIn(decl, m.group(1))
+
 
 if __name__ == "__main__":
     unittest.main()
