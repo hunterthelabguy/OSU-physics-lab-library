@@ -131,5 +131,60 @@ class MarkdownAndWord(unittest.TestCase):
                 self.assertRegex(footers[0], r'w:instr=" NUMPAGES "')
 
 
+# Measured 2026-10-01: 161,024 bytes (Lab 1), times 1.10, rounded up to the
+# next 10,000. Never a guess; remeasure when a lab is added.
+HTML_CAP_BYTES = 180_000
+
+
+class Html(unittest.TestCase):
+    """A plain render of the source: banner, department line, modern theme,
+    no site chrome, everything embedded (owner's ruling, chat 2026-10-01)."""
+
+    def path(self, doc_id):
+        return QSITE / "labs" / doc_id / (doc_id + ".html")
+
+    def download(self, doc_id):
+        return self.path(doc_id).read_text(encoding="utf-8")
+
+    def test_self_contained(self):
+        for doc_id, _ in converted():
+            text = self.download(doc_id)
+            with self.subTest(doc=doc_id):
+                self.assertNotIn("<script", text)
+                self.assertNotIn("<link", text)
+                for url in re.findall(r'\b(?:src|href)="([^"]*)"', text):
+                    self.assertFalse(downloads.is_relative(url), url)
+                self.assertIn("data:font/woff2;base64,", text)
+
+    def test_no_site_chrome(self):
+        for doc_id, _ in converted():
+            text = self.download(doc_id)
+            with self.subTest(doc=doc_id):
+                for chrome in ('class="osu-header"', 'class="site-nav"', 'class="osu-foot"'):
+                    self.assertNotIn(chrome, text)
+
+    def test_banner_department_and_noindex(self):
+        for doc_id, _ in converted():
+            text = self.download(doc_id)
+            with self.subTest(doc=doc_id):
+                self.assertIn(BANNER_MAIN, flat(text))
+                self.assertIn(PHYSICS, flat(text))
+                self.assertIn('<meta name="robots" content="noindex', text)
+
+    def test_main_is_the_line_then_the_modern_pages(self):
+        for doc_id, _ in converted():
+            want = re.search(r"<main>\n(.*?)</main>", page(doc_id, "modern"), re.S).group(1)
+            got = re.search(r"<main>\n(.*?)</main>", self.download(doc_id), re.S).group(1)
+            with self.subTest(doc=doc_id):
+                self.assertEqual(got, "<p>{}</p>\n{}".format(PHYSICS, want))
+
+    def test_size_capped(self):
+        self.assertIsNotNone(HTML_CAP_BYTES, "set HTML_CAP_BYTES from the measurement")
+        for doc_id, _ in converted():
+            size = self.path(doc_id).stat().st_size
+            with self.subTest(doc=doc_id, size=size):
+                self.assertLessEqual(size, HTML_CAP_BYTES)
+
+
 if __name__ == "__main__":
     unittest.main()
