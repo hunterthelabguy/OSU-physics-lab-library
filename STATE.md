@@ -24,9 +24,8 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 `docs/design/2026-09-22-review/`).
 
 **Awaiting owner:**
-- D-0054 to D-0056 are proposed, recording the owner's chat rulings of
-  2026-10-01 (downloads without chrome and with the department line; top
-  parity test retired; header logo published once). Promote or correct.
+- D-0054 to D-0056 were promoted to ruled on 2026-10-01 ("Promote D-0054 to
+  D-0056"); no proposed entries are open.
 - Vercel: the redirect is live (308, path kept; phase 5 plan, "Cutover and
   Vercel"). Before phase 4: turn off the project's Git builds or not. Every
   change to Vercel needs the owner's word.

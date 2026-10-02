@@ -583,30 +583,37 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0047 to D-0053")
 
 ### D-0054  Downloads carry no site chrome; the department is named in words in every file
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-01
 - decision: Amends D-0053's call 5 (the HTML download's chrome) and adds a line to every download. The HTML download is the source rendered by Pandoc through `tools/template.html` with only the banner variables set: the draft banner, then the line "Department of Physics, Oregon State University", the modern theme and the site's modern footer note, everything embedded; no header, logo, nav or policy footer. Every download names the department in those words in place of the logo: the HTML as its first line, the Word file in its page footer beside "Page N of M" (from `tools/reference.docx`, made once by `tools/make_reference_docx.py` from Pandoc's own default reference, adding only the footer), and the PDF in the print footer, through `@bottom-left` in `site/site.css`'s `@page` rule, which site printouts share. The PDF is otherwise as D-0053 rules: the built modern page printed, whose print rules already hide the header and footer. The HTML download is capped at [180000] bytes, measured 161,024 for Lab 1 times 1.10. The department line names where the lab comes from; it is not a copyright line and asserts no ownership (D-0023).
 - rationale: The owner ruled each part in chat on 2026-10-01: the policy links and absolute links are not needed in a download, a link inside a lab's own text works on its own, the logo is not needed if the department is named in words, and the line belongs in every download, including the PDF, because downloads get printed. A probe showed the plain render at 161,024 bytes with no network reference, against about 0.9 MB for the built page made self-contained by regex (`standalone()`, deleted with its 11 unit tests). Searches of the record and of OSU's sites found no OSU rule requiring the policy links; D-0009 chose them to mirror the Physics footer, so the site footer keeps them and the downloads need not.
 - alternatives: the built page made self-contained (`standalone()`: about 0.9 MB and regex to keep); the full chrome with absolute links to production (puts the unlisted address in every handed-out file, ledger 37, and bakes in today's host); the logo embedded in the Word body (crosses D-0010, about 234 KB a file); a Word footer by tab-aligned pair (Pandoc's default reference has no page size, so the tab position would be a guess).
 - binds: D-0009, D-0010, D-0023, D-0052, D-0053, site/site.css, tools/downloads.py, tools/reference.docx, tools/make_reference_docx.py
 - test: tests/test_downloads.py (Html, MarkdownAndWord::test_word_footer_names_the_department_and_counts_pages, Pdf::test_banner_running_header_title_and_footer)
+- corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0054 to D-0056")
 
 ### D-0055  Retire the top-chrome parity test; publish exactly the Markdown downloads
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-01
 - decision: `tests/test_quarto_chrome.py::ChromeParity::test_top_chrome_matches_old_build` is deleted. `Published::test_no_markdown_published` becomes `test_only_markdown_downloads_published`: the Quarto build publishes exactly `labs/<id>/<id>.md` for each converted lab and no other Markdown.
 - rationale: The owner ruled the deletion in chat on 2026-10-01. The download row is Quarto-only (D-0052), so the old build's top chrome is no longer a prefix of a modern lab page's; with the row removed the assertion held, measured. The test was the cutover's gate; the cutover is done and phase 4 deletes the old build. Bottom-chrome parity, the body-class check and the chrome contract (D-0042, `tests/test_site_chrome.py`, whose tests were edited, none dropped) stay. The Markdown guard still has a job, catching a leaked source or instructor file, so it is narrowed to the ruled downloads, not deleted.
 - alternatives: amend the parity test to strip the row (new parts for a test with weeks to live); give the old build the row (dead links in a build that writes no downloads); delete the Markdown guard (loses the leak check).
 - binds: D-0036, D-0042, D-0053, tests/test_quarto_chrome.py
+- test: tests/test_quarto_chrome.py::Published::test_only_markdown_downloads_published
+- corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0054 to D-0056"); the test: line, missing when proposed, added at promotion
 
 ### D-0056  Publish the header logo once and reference it from every page
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-01
 - decision: Amends D-0039. The header logo is a relative reference to one published file, `site/brand/OSU_horizontal_2C_W_over_B.png`, instead of a `data:` URI in every page. `tools/brandheader.html` marks it `data-external="1"` so `--embed-resources` leaves it alone; `_quarto.yml` publishes the one PNG, and `tools/render.py --site` copies it. Sims keep their own embedded logo (D-0026). `test_logo_unaltered_and_linked` requires the reference to resolve to a file whose SHA-256 is the official PNG's.
 - rationale: The owner ruled it in chat on 2026-10-01, because the library is about to grow by many lab pages. An embedded logo is about 234 KB of base64 in each page that no browser cache can share; a file is fetched once. Measured: the Quarto modern lab page fell from 261,916 to 28,149 bytes and the landing page from 256,206 to 22,015.
 - alternatives: keep it embedded (D-0039 as ruled; about 234 KB a page view).
 - binds: D-0014, D-0020, D-0026, D-0039, _quarto.yml, tools/brandheader.html, tools/render.py
 - test: tests/test_site_chrome.py::FullChrome::test_logo_unaltered_and_linked (both builds), tests/test_quarto_config.py::Pins::test_resources_exact, tests/test_quarto_chrome.py::Published
+- corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0054 to D-0056")
