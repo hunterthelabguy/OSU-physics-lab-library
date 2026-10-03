@@ -23,6 +23,8 @@ RESOURCES = [
     "site/fonts/OFL.txt",
     # The header logo, one cached file for every page (D-0039 amended).
     "site/brand/OSU_horizontal_2C_W_over_B.png",
+    # The course index's Download all script (D-0067).
+    "site/download-all.js",
 ]
 
 

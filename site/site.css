@@ -421,6 +421,25 @@ body:where(.quarto-light) {
   .quarto-light .site-nav .download-label { flex-basis: 100%; }
   .quarto-light .site-nav a.download-button { flex: 1 1 auto; justify-content: center; }
 }
+/* Download all (D-0067): under a course heading on the course index, a
+   details whose summary is the download button above, holding the four
+   format checkboxes and a "Download selected" button of the same look,
+   dimmed while it is disabled. Checkbox rows are 44 px tall, like the
+   buttons, so each is one tap. site/download-all.js does the zip. */
+.quarto-light .download-all > summary, .quarto-light .download-all button.download-selected {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 .75rem;
+  border: 0; border-radius: 6px; background: var(--chrome-accent); color: #fff;
+  font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer;
+}
+.quarto-light .download-all > summary { list-style: none; }
+.quarto-light .download-all > summary::-webkit-details-marker { display: none; }
+.quarto-light .download-all > summary:hover, .quarto-light .download-all > summary:focus-visible,
+.quarto-light .download-all button.download-selected:enabled:hover, .quarto-light .download-all button.download-selected:focus-visible { text-decoration: underline; text-underline-offset: .15em; }
+.quarto-light .download-all > summary:focus-visible, .quarto-light .download-all button.download-selected:focus-visible { outline: 3px solid var(--chrome-heading); outline-offset: 2px; }
+.quarto-light .download-all button.download-selected:disabled { opacity: .5; cursor: not-allowed; }
+.quarto-light .download-all .download-all-formats { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); margin: var(--space-1) 0; }
+.quarto-light .download-all .download-all-formats label { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 44px; }
+.quarto-light .download-all .download-all-formats input { width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--chrome-accent); }
 /* quarto-only: end */
 
 /* Print: TAs and students print handouts. Paper gets the words, a running

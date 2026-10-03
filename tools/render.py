@@ -185,6 +185,41 @@ def lab_entry(lab, docs, depth):
     return "\n".join(out)
 
 
+# Download all (D-0067): D-0053's names for the four formats, in the order of
+# the lab page's download row, each with its published file's extension.
+DOWNLOAD_FORMATS = (("docx", "Word"), ("html", "HTML"), ("pdf", "PDF"), ("md", "Markdown"))
+
+
+def download_all(course, docs, depth):
+    """The course's Download all control, or "" when no lab is converted.
+
+    Each checkbox carries its format's published files for the course's
+    converted labs, written here from the converted documents, never typed;
+    site/download-all.js zips the ticked ones in the page as <code>.zip, the
+    course code lowercased with its spaces removed (ph211.zip).
+    """
+    ids = [lab["document"] for lab in course.get("labs") or []
+           if lab.get("document") in docs]
+    if not ids:
+        return ""
+    e = html.escape
+    boxes = []
+    for ext, label in DOWNLOAD_FORMATS:
+        files = " ".join(up(depth) + "labs/{0}/{0}.{1}".format(doc_id, ext)
+                         for doc_id in ids)
+        boxes.append('<label><input type="checkbox" value="{}" data-files="{}" '
+                     'checked> {}</label>'.format(ext, e(files), e(label)))
+    zip_name = "".join(course["code"].split()).lower() + ".zip"
+    # A raw HTML block, so Pandoc passes it as written; read as Markdown,
+    # the labels would be wrapped in a paragraph.
+    return ("```{{=html}}\n"
+            '<details class="download-all" data-zip="{}">\n'
+            "<summary>Download all</summary>\n"
+            '<div class="download-all-formats">\n{}\n</div>\n'
+            '<button type="button" class="download-selected">Download selected</button>\n'
+            "</details>\n```\n").format(e(zip_name), "\n".join(boxes))
+
+
 def course_index_markdown(docs, depth):
     src = os.path.join(ROOT, "site", "courses.md")
     meta = pandoc_meta(src)
@@ -195,6 +230,9 @@ def course_index_markdown(docs, depth):
         if course.get("name"):
             heading += ": " + course["name"]
         parts.append("\n## " + heading + "\n")
+        control = download_all(course, docs, depth)
+        if control:
+            parts.append(control)
         if course.get("note"):
             parts.append('<p class="course-note">{}</p>\n'
                          .format(e(course["note"])))
@@ -207,6 +245,9 @@ def course_index_markdown(docs, depth):
         "PH 211 are quoted from {}. They are quoted, not converted: the "
         "content-unchanged check covers converted documents only.</p>\n"
         .format(e(meta["source_note"])))
+    if any(download_all(course, docs, depth) for course in meta["courses"]):
+        parts.append('<script src="{}site/download-all.js" defer></script>\n'
+                     .format(up(depth)))
     return "\n".join(parts)
 
 
