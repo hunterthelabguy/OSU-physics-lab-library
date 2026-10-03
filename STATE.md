@@ -36,37 +36,39 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 #16); site design review of 2026-09-22 (PR #11, #12, boards in
 `docs/design/2026-09-22-review/`).
 
-**Red on main, intermittent (measured 2026-10-02, fix awaiting ruling):**
-two of seven `main` runs since the downloads landed failed "Production
-serves the tested bytes at its alias" (`f8173c8`, `aab70bd`); the
-deployment-URL check passed in all seven. The alias check starts 2 to 4 s
-after wrangler's "Deployment complete" and the alias sometimes still serves
-the previous deployment (in `f8173c8`, the previous build's Word file size).
-Builds of the same source differ only in the Word and PDF dates. Proposed
-fix D-0060: the alias step alone retries the full check every 5 s for up to
-120 s and logs the lag; dates left as built. D-0060 has the measurements
-and the date-fixing probes (Pandoc honors `SOURCE_DATE_EPOCH`; Chrome does
-not). Until it is built, a red alias step on a docs-only commit is this,
-not a production fault: confirm the deployment-URL step passed.
-Phase 4 spec, for ruling: `docs/superpowers/specs/2026-10-02-quarto-phase-4-design.md`
-(D-0061, seven calls).
+**Build pass, ruled 2026-10-02, in this order (one PR each, squash):**
+1. D-0060: `check_deployed.py --wait`, alias step only. Until it merges, a
+   red alias step on a docs-only commit is the known lag (two of eight
+   `main` runs since the downloads), not a production fault: confirm the
+   deployment-URL step passed.
+2. D-0061, phase 4, per `docs/superpowers/specs/2026-10-02-quarto-phase-4-design.md`:
+   D-0038 pins first, then the deletions. Vercel still builds `main` and
+   posts a commit status until the owner turns builds off or deletes the
+   project; a red Vercel status after phase 4 blocks nothing.
+3. D-0067 (proposed; its calls ruled as leaned): Download all per course,
+   five zips; its words are approved pending the owner's look at the preview.
 
 **Awaiting owner:**
-- D-0060 (alias wait) and D-0061 with the phase 4 spec's seven calls.
-- Asked 2026-10-02, not designed yet: a per-course "download all" (zip,
-  choose formats) for archiving in Box or SharePoint, possibly borrowing
-  D-0059's option B; and converting a second handout with equations and
-  images before the demo (candidates: PH212 Lab 1, equations and tables,
-  no images; Lab Guidance for Students, both, not a lab).
+- Promote D-0067 (calls ruled; entry text proposed). D-0062 to D-0066
+  (public flip, logo, domain, cold test) are another session's, proposed.
+- Vercel: delete the project, the owner's leaning (2026-10-02); it ends the
+  redirect, the Git builds and the commit statuses. When he says it is done,
+  record it (an entry amending D-0049, the spec's call 1, the agent
+  reference's Vercel paragraph, lab-ops' `lab-handbook/lab-library-site.md`).
+- A second handout to convert: PH212 Lab 1 (17 equations, 4 tables, no
+  images) leaned; Lab Guidance for Students has 9 images and 54 equations
+  but is not a lab. The content check must count equations first
+  (`docs/conversion-spec.md`).
+- Originals' Word metadata names authors (`creator`, `lastModifiedBy`,
+  set in the committed PH211 original and the PH212 file): strip before
+  committing, and does PH211's history need it (see D-0062)?
 - Not built, for a later ruling: a Word box for the legend and the hint
   arrow (D-0057: `custom-style` misses list items; the arrow would be a
   character in the text). The legend's "arrow" and "Boxed" stay unmet in
   Word until then.
-- Vercel: the redirect is live (308, path kept; phase 5 plan, "Cutover and
-  Vercel"). Before phase 4: turn off the project's Git builds or not. Every
-  change to Vercel needs the owner's word.
-- Downloads: check production on a phone before the demo (the four
-  download buttons, each file, the PDF footer); PR #19 and PR #20 merged
+- Downloads: check production on a phone (the four download buttons,
+  each file, the PDF footer); the owner does not treat the 2026-10-06 demo
+  as a deadline; PR #19 and PR #20 merged
   without a phone check of the preview.
 - Open, the owner's, not to be designed until he raises it: how students
   complete handouts. Either a browser-only fillable worksheet with an

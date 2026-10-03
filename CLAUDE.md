@@ -22,7 +22,13 @@ Cloudflare and Vercel projects, sims, and Quarto internals. Lines tagged
   land direct on `main`, and every push to `main` deploys production: read
   that run once it reports (`gh run list --branch main`), since no PR tool
   watches it (a failed alias check went unread for a session, 2026-10-01). Merging on GitHub stamps the account's primary email
-  as merge author, which the owner accepts (ledger 36).
+  as merge author, which the owner accepts (ledger 36). Nothing on GitHub
+  enforces this rule: a private repo on the free plan has no rulesets or
+  branch protection (API 403, 2026-10-02), so the gate is this file.
+- **Shared checkout:** two sessions may work in this folder at once (one
+  appended D-0062 to D-0066 mid-session, 2026-10-02). Just before appending
+  to `DECISIONS.md` or editing `STATE.md`, run `git fetch` and `git log -3
+  origin/main`, and number a new entry from the file's last one.
 - **Living plan:** `DECISIONS.md` from 2026-09-21, under the decision
   ledger spec (`../OSU-lab-ops/docs/decision-ledger-spec.md`); this repo is
   its pilot. Agents append `proposed` entries only; the owner promotes in
@@ -72,7 +78,9 @@ Cloudflare and Vercel projects, sims, and Quarto internals. Lines tagged
   file's XML; only the owner, in Word, checks what it shows. The PDF
   needs `CHROME` (locally
   `/c/Program Files/Google/Chrome/Application/chrome.exe`; in CI the
-  runner's `google-chrome`, the default); the tests need `PDFTOTEXT`
+  runner's `google-chrome`, the default; never run it here except headless
+  with a print target, since `--help` hung a session, 2026-10-02); the
+  tests need `PDFTOTEXT`
   (locally poppler's from winget, the path in
   `docs/superpowers/plans/2026-10-01-downloads-tasks.md`; in CI
   `poppler-utils`). Missing either is an error. When a lab is added,

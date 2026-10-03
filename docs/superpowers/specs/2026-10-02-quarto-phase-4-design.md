@@ -1,6 +1,9 @@
 # Phase 4 design: retire the old build, keep the templates
 
-Status: draft for the owner's ruling, 2026-10-02. Nothing here is built.
+Status: ruled as leaned, 2026-10-02 (D-0061: "Rule D-0060, D-0061 and the
+download-all calls as leaned"). Not built yet. Call 1 is the owner's to
+carry out; he is considering deleting the Vercel project outright, which
+meets it.
 Amends the phase 4 text of `docs/quarto-migration-plan.md`, which was written
 before D-0036 and D-0054 made the Quarto build and the HTML download depend
 on the templates it would delete. DECISIONS.md wins over this file.
