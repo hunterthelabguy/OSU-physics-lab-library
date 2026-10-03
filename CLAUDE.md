@@ -9,9 +9,9 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
 
 - **Verify:** `python tools/check_unchanged.py <converted .md files>` with
   `PANDOC` set to the Pandoc bundled with Quarto (locally
-  `C:\Program Files\Quarto\bin\tools\pandoc.exe`; D-0044), plus the
-  no-em-dash scan outside `originals/`. CI job `verify` runs both on every
-  push to main and every PR, then the builds and the tests. It checks words
+  `C:\Program Files\Quarto\bin\tools\pandoc.exe`; D-0044). CI job
+  `verify` runs it on every push to main and every PR, plus a no-em-dash
+  scan of the published sources only, then the builds and the tests. It checks words
   only, not structure; review structure by parse-tree block counts. Manual
   before any commit: no student-identifiable data. Which Pandoc each step
   uses, and the variables to export locally, are under Build, "Which
@@ -124,9 +124,7 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   prompt stay out.
 - Conversion phase: no content changes. Format only, proven by the
   content-unchanged check (docs/conversion-spec.md).
-- Roles, not names. No em dashes. No invented record data. `grep -c` exits 1
-  when it counts zero, so never chain a commit after the em-dash grep with
-  `&&`; it silently skips the commit (bit twice, 2026-10-01).
+- Roles, not names. No invented record data.
 - Original source files are in `../Unsorted Legacy Resources/` and are unvetted.
 - In `site/site.css`, `body.site-page a` sets the link color and outranks the
   single-class chrome rules, so a chrome color must be scoped to its parent
