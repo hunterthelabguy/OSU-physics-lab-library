@@ -1,6 +1,7 @@
 # Quarto build (D-0033). Run it only through tools/quarto_build.py, which
 # checks the Quarto version, generates the pages listed under render, and
-# dresses them with the old build's chrome (D-0036).
+# dresses them with the chrome rendered from tools/template.html and
+# tools/template-site.html (D-0036, D-0061).
 # The render list is explicit: without it Quarto would render every
 # Markdown file in the repo, including the ledgers and the curriculum
 # sources themselves.

@@ -497,6 +497,7 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - test: tests/test_one_pandoc.py::test_old_build_pandoc_reads_the_same_tree
 - corrected: 2026-10-01, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0044 to D-0046"); the plan's seven calls were ruled the same day as leaned
 - corrected: 2026-10-01, test line updated: the tree test was written and merged in phase 3 (PR #15); it replaces "to be written in phase 3". Phase 3 as built sets PANDOC to the standalone Pandoc in "Site builds" and PANDOC_OLD_BUILD in "Tests" only (the decision's "scoped to that step and to the tree test" holds)
+- corrected: 2026-10-02, superseded by D-0061 as built in phase 4 (spec call 7): the 3.11 install, "Site builds", `PANDOC_OLD_BUILD` and the tree test were deleted with the old build, as this entry said they would be; the entry is kept as the record of why they existed
 
 ### D-0047  Host on Cloudflare Pages as a Direct Upload project, from the Quarto build's folder
 - status: ruled

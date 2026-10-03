@@ -1,7 +1,7 @@
-"""Phase 2 chrome on the Quarto build (D-0036 to D-0039, D-0042).
+"""The chrome on the Quarto build (D-0036 to D-0039, D-0042, D-0061).
 
-Needs both builds: build/site/ (the old build, the chrome's source) and
-build/quarto-site/. A missing build is an error, never a skip (LEDGER 53).
+Reads build/quarto-site/. A missing build is an error, never a skip
+(LEDGER 53).
 """
 
 import html
@@ -16,13 +16,11 @@ sys.path.insert(0, str(ROOT / "tools"))
 from test_quarto_site import converted    # noqa: E402
 import render                             # noqa: E402
 QSITE = ROOT / "build" / "quarto-site"
-OLD = ROOT / "build" / "site"
 
 
 def setUpModule():
-    for d, how in ((OLD, "tools/render.py --site"), (QSITE, "tools/quarto_build.py")):
-        if not d.is_dir():
-            raise RuntimeError("{} is missing: run {} first".format(d, how))
+    if not QSITE.is_dir():
+        raise RuntimeError("{} is missing: run tools/quarto_build.py first".format(QSITE))
 
 
 def chrome_pages():
@@ -33,18 +31,6 @@ def chrome_pages():
         if 'http-equiv="refresh"' in text or re.fullmatch(r"sims/[^/]+/index\.html", rel):
             continue
         yield rel, text
-
-
-def old_parts(text):
-    m = re.search(r'<body class="([^"]*)">\n(.*?)<main>.*?</main>\n(.*?)</body>', text, re.S)
-    return m.group(1), m.group(2), m.group(3)
-
-
-def new_parts(text):
-    body = re.search(r'<body class="([^"]*)">\n', text)
-    end = "</div> <!-- /content -->\n"
-    after = text.index(end) + len(end)
-    return body.group(1), text[body.end():text.index("<main>")], text[after:text.index("</body>")]
 
 
 class Navigation(unittest.TestCase):
@@ -63,35 +49,6 @@ class Navigation(unittest.TestCase):
         for rel, text in chrome_pages():
             with self.subTest(page=rel):
                 self.assertEqual(text.count('<nav class="osu-nav"'), 1)
-
-
-class ChromeParity(unittest.TestCase):
-    """D-0036, D-0038: every Quarto page carries the old page's chrome."""
-
-    def test_every_page_has_an_old_twin(self):
-        rels = [rel for rel, _ in chrome_pages()]
-        self.assertGreaterEqual(len(rels), 6)
-        for rel in rels:
-            with self.subTest(page=rel):
-                self.assertTrue((OLD / rel).is_file())
-
-    def test_body_class_carried(self):
-        for rel, text in chrome_pages():
-            with self.subTest(page=rel):
-                want = old_parts((OLD / rel).read_text(encoding="utf-8"))[0]
-                self.assertTrue(new_parts(text)[0].startswith(want + " "))
-
-    def test_bottom_chrome_matches_old_build(self):
-        for rel, text in chrome_pages():
-            with self.subTest(page=rel):
-                want = old_parts((OLD / rel).read_text(encoding="utf-8"))[2]
-                if rel == "index.html":
-                    # D-0038: the landing footnote names the old build.
-                    want = re.sub(r'<div class="site-foot">.*?</div>\n', "", want, flags=re.S)
-                self.assertEqual(new_parts(text)[2].strip(), want.strip())
-
-    def test_landing_footnote_not_carried(self):
-        self.assertNotIn("one build script", (QSITE / "index.html").read_text(encoding="utf-8"))
 
 
 def template(name):
@@ -124,7 +81,7 @@ def one_line(text):
 class ChromePieces(unittest.TestCase):
     """D-0038, D-0061: each piece of chrome pinned by its words.
 
-    Replaces ChromeParity's comparisons with the old build. Every expected
+    Replaced ChromeParity's comparisons with the old build. Every expected
     string is read from tools/render.py or the templates, never retyped, so
     a dress that drops or alters a piece fails. Whitespace is compared as
     single spaces, because the templates break the paragraph across lines.
@@ -205,6 +162,11 @@ class ChromePieces(unittest.TestCase):
                     self.assertNotIn('<div class="site-foot">', text)
 
 
+    def test_landing_footnote_not_carried(self):
+        # D-0038: it said the site is built with Pandoc and one build script.
+        self.assertNotIn("one build script", (QSITE / "index.html").read_text(encoding="utf-8"))
+
+
 class MainBare(unittest.TestCase):
     """D-0036: one bare <main>, no empty title block."""
 
@@ -265,8 +227,9 @@ class PageShell(unittest.TestCase):
 
 
 class QuartoOnlyCss(unittest.TestCase):
-    """Rules added for Quarto must not reach the old build, which shares
-    site/site.css and is still production."""
+    """Rules added for Quarto must not reach the HTML download, which embeds
+    site/site.css through tools/template.html without Quarto's markup
+    (D-0054, D-0061)."""
 
     def test_block_present_and_scoped(self):
         css = (ROOT / "site" / "site.css").read_text(encoding="utf-8")

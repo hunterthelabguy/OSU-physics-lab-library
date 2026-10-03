@@ -3,8 +3,7 @@
 Loaded every session, so it holds only what every session needs. Read the
 named section of `docs/agent-reference.md` before the task it covers:
 previewing or measuring a page, editing CSS (Widths), deploy or the
-Cloudflare and Vercel projects, sims, and Quarto internals. Lines tagged
-[phase 4] go when phase 4 deletes the old build.
+Cloudflare and Vercel projects, sims, and Quarto internals.
 
 ## Shipping contract (read by /handoff)
 
@@ -42,12 +41,11 @@ Cloudflare and Vercel projects, sims, and Quarto internals. Lines tagged
 ## Build
 
 - Production is the Quarto build (D-0033), deployed to Cloudflare Pages
-  (reference: Deploy). Phases 2, 3 and 5 of `docs/quarto-migration-plan.md`
-  are done; phase 4 is next.
-- Which Pandoc (D-0044 to D-0046). Export before the verify sequence:
+  (reference: Deploy). Phases 2 to 5 of `docs/quarto-migration-plan.md`
+  are done; phase 4 retired the old build and kept its templates (D-0061).
+- Which Pandoc (D-0044, D-0045, D-0061). Export before the verify sequence:
   `QUARTO="/c/Program Files/Quarto/bin/quarto.exe"`,
-  `PANDOC="/c/Program Files/Quarto/bin/tools/pandoc.exe"`,
-  `PANDOC_OLD_BUILD="$LOCALAPPDATA/Pandoc/pandoc.exe"` [phase 4], and for
+  `PANDOC="/c/Program Files/Quarto/bin/tools/pandoc.exe"`, and for
   the downloads `CHROME` and `PDFTOTEXT` (below). `PANDOC` is Quarto's
   bundled 3.10; the word check, the Quarto build, the chrome lift and the
   tests all read with it. Never set `PANDOC` to the `quarto pandoc`
@@ -58,11 +56,6 @@ Cloudflare and Vercel projects, sims, and Quarto internals. Lines tagged
   PATH). Generated pages (`/index.qmd`, `/courses/`, `/how-this-was-made/`,
   `/labs/`, `/sims/index.qmd`) are gitignored and rebuilt every run; never
   edit them. Its warning gate fails on any Quarto or Pandoc warning.
-- Old site [phase 4]: `PANDOC="$PANDOC_OLD_BUILD" python tools/render.py --site`
-  writes `build/site/`, which the tests also need. Pandoc 3.11 on that
-  command only, because the retired Vercel project still builds it (D-0046).
-  Rebuild it before running the suite after any template change: the parity
-  tests compare against it.
 - Downloads (D-0052 to D-0054): `tools/downloads.py`, run at the end of
   `tools/quarto_build.py`, writes `labs/<id>/<id>.md` (the source, byte for
   byte), `.docx`, `.html` and `.pdf`, all from modern, each with the draft
@@ -85,12 +78,14 @@ Cloudflare and Vercel projects, sims, and Quarto internals. Lines tagged
   `docs/superpowers/plans/2026-10-01-downloads-tasks.md`; in CI
   `poppler-utils`). Missing either is an error. When a lab is added,
   remeasure the HTML cap in `tests/test_downloads.py`.
-- Chrome (D-0036): every Quarto page is dressed with the old templates'
-  header and footer by `tools/quarto_chrome.py`. Never hand-edit the chrome
+- Chrome (D-0036, D-0061): every Quarto page is dressed with the header and
+  footer rendered from `tools/template.html` and `tools/template-site.html`
+  by `tools/quarto_chrome.py`; `tools/downloads.py` renders the HTML
+  download through `template.html`, so both templates stay. Never hand-edit the chrome
   in a Quarto page, and never copy the templates into a second file. Every
   Quarto-specific rule in `site/site.css` sits between its
   `quarto-only: start` and `quarto-only: end` comments, because that file
-  is shared with the old build; `QuartoOnlyCss` requires each selector there
+  is embedded in the HTML download too; `QuartoOnlyCss` requires each selector there
   to name `#quarto-content` or `.quarto-light`.
 - Quarto traps: it reserves the `theme` metadata key, so the presentation
   travels as `theme-name`. Never use the Cosmo theme (it imports Google

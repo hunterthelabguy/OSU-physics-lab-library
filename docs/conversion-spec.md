@@ -93,6 +93,9 @@ Quarto (3.10 under Quarto 1.10.18; D-0044). The standalone 3.11 stays only for
 the old build until phase 4 (D-0046). The 2026-09-19 line above records what
 the first conversion was checked with.
 
+2026-10-02: phase 4 retired the old build and the standalone Pandoc 3.11
+with it (D-0061). Every tool and test reads with Quarto's bundled Pandoc.
+
 ## Flow
 
 Word (once) -> Markdown (source of truth) -> web and Word. Feedback on any

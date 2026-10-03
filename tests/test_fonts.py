@@ -42,14 +42,5 @@ class Weights(unittest.TestCase):
                 self.assertTrue(found <= {"400", "700"}, found)
 
 
-class Embedded(unittest.TestCase):
-
-    def test_pages_embed_the_font(self):
-        page = ROOT / "build" / "site" / "index.html"
-        text = page.read_text(encoding="utf-8")
-        self.assertEqual(text.count("@font-face"), len(STYLES))
-        self.assertNotIn('url("fonts/', text)
-
-
 if __name__ == "__main__":
     unittest.main()

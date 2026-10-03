@@ -5,7 +5,7 @@ Usage: python tools/quarto_build.py
 Generates the pages Quarto renders (gitignored, never hand-edited) from the
 same sources and functions tools/render.py uses, runs Quarto, strips the
 search markup and search.json Quarto writes even with search off (D-0037),
-puts the old build's chrome on every page it rendered (D-0036), then adds
+puts the templates' chrome on every page it rendered (D-0036), then adds
 what Quarto does not make. Any Quarto warning line fails the
 build. Requires Quarto (QUARTO, or quarto on PATH), and the driver checks that
 it is exactly QUARTO_VERSION before doing anything; it also needs Pandoc for
@@ -175,7 +175,7 @@ def strip_search(out=OUT):
 
 
 def dress_pages(pages):
-    """Put the old build's chrome on every rendered page (D-0036)."""
+    """Put the templates' chrome on every rendered page (D-0036)."""
     for page in pages:
         path = os.path.join(OUT, *page["html"].split("/"))
         with open(path, encoding="utf-8") as fh:

@@ -1,4 +1,4 @@
-"""Checks on the built site (build/site/). CI runs this after "Site builds".
+"""The brand contract on the built site, build/quarto-site/ (D-0042, D-0061).
 
 A missing build is an error, never a skip (LEDGER 53).
 """
@@ -6,16 +6,13 @@ A missing build is an error, never a skip (LEDGER 53).
 import base64
 import hashlib
 import json
-import os
 import re
 import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-# SITE_DIR lets CI run this contract against the Quarto build (D-0033,
-# migration phase 1, non-blocking). Unset, it reads the old build as always.
-SITE = Path(os.environ["SITE_DIR"]) if os.environ.get("SITE_DIR") else ROOT / "build" / "site"
+SITE = ROOT / "build" / "quarto-site"
 sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "tests"))
 from render import BANNER_MAIN            # noqa: E402
@@ -30,18 +27,15 @@ POLICY_LINKS = [
 
 def setUpModule():
     if not SITE.is_dir():
-        raise RuntimeError("build/site is missing: run tools/render.py --site first")
+        raise RuntimeError("build/quarto-site is missing: run tools/quarto_build.py first")
 
 
 def pages():
     """Built pages that carry the full chrome: not redirect stubs, not sims.
 
-    The Quarto build's 404.html is one (D-0049); the old build has none, and
-    test_quarto_site.py requires it in the Quarto build.
+    The 404.html is one (D-0049); test_quarto_site.py requires it.
     """
-    found = sorted(SITE.rglob("index.html"))
-    if (SITE / "404.html").is_file():
-        found.insert(0, SITE / "404.html")
+    found = [SITE / "404.html"] + sorted(SITE.rglob("index.html"))
     for p in found:
         rel = p.relative_to(SITE).as_posix()
         text = p.read_text(encoding="utf-8")

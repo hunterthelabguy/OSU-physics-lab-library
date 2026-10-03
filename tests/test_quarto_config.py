@@ -117,10 +117,10 @@ class Version(unittest.TestCase):
             self.assertEqual((tag, name), (v, v))
 
     def test_ci_uses_quartos_pandoc(self):
-        # D-0044, D-0046. CI's PANDOC is Quarto's bundled binary; the
-        # standalone Pandoc is named only by the old build's step and by the
-        # step that runs the tree test. No version literal: the version test
-        # in test_one_pandoc.py compares the two Pandocs themselves.
+        # D-0044, D-0061. CI's PANDOC is Quarto's bundled binary, and no step
+        # names a standalone Pandoc: phase 4 retired the old build that kept
+        # one. No version literal: test_one_pandoc.py compares the binary
+        # with `quarto pandoc` itself.
         steps = ci_steps()
         names = [name for name, _ in steps]
         quarto = [i for i, (_, body) in enumerate(steps) if "quarto-cli/releases" in body]
@@ -135,15 +135,11 @@ class Version(unittest.TestCase):
         self.assertIn("--version", body, "the step prints the version it found")
         self.assertIn("exit 1", body, "the step fails when the binary is missing")
 
-        by_name = dict(steps)
-        pandoc = {n: re.findall(r"^\s+PANDOC:[ ]*(\S+)", b, re.M) for n, b in steps}
-        old = {n: re.findall(r"^\s+PANDOC_OLD_BUILD:[ ]*(\S+)", b, re.M) for n, b in steps}
-        self.assertEqual([n for n, v in pandoc.items() if v], ["Site builds"])
-        self.assertEqual([n for n, v in old.items() if v], ["Tests"])
-        self.assertEqual(pandoc["Site builds"], old["Tests"],
-                         "the old build and the tree test use the same standalone Pandoc")
-        self.assertEqual(len(old["Tests"]), 1)
-        self.assertIn("test_old_build_pandoc_reads_the_same_tree", by_name["Tests"])
+        for name, body in steps:
+            with self.subTest(step=name):
+                self.assertNotRegex(body, r"(?m)^\s+PANDOC(_OLD_BUILD)?:", "a step sets its own Pandoc")
+                self.assertNotIn("jgm/pandoc/releases", body, "a step installs a standalone Pandoc")
+                self.assertNotIn("/usr/bin/pandoc", body)
 
 
 if __name__ == "__main__":
