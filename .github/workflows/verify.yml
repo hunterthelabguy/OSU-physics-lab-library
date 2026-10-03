@@ -30,9 +30,15 @@ jobs:
           fi
           "$found" --version | head -1
           echo "PANDOC=$found" >> "$GITHUB_ENV"
-      - name: No em dashes outside originals
+      - name: No em dashes in published sources
         run: |
-          if grep -rIl $'\xe2\x80\x94' --exclude-dir=.git --exclude-dir=originals .; then
+          # Only what publishes to students and the public (2026-10-03
+          # ruling): the sources _quarto.yml, tools/quarto_build.py and
+          # tools/render.py turn into pages. Internal docs are not scanned.
+          if grep -rIl $'\xe2\x80\x94' curriculum site sims themes VISION.md \
+              title-block.html tools/template.html tools/template-site.html \
+              tools/brandheader.html tools/brandfooter.html tools/render.py \
+              tools/quarto_chrome.py tools/downloads.py tools/filters; then
             echo "em dash found in the files above"; exit 1
           fi
       - name: Content unchanged
