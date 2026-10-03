@@ -329,9 +329,11 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
 }
 
 /* quarto-only: start (D-0036) */
-/* Quarto pages put the old chrome and a bare <main> inside Quarto's page
-   grid, which the old layout never had. Selectors here name markup only
-   Quarto writes, so the old build is not affected. */
+/* Quarto pages put the templates' chrome and a bare <main> inside Quarto's
+   page grid, which the old build's layout never had. Selectors here name
+   markup only Quarto writes, so the HTML download, which embeds this file
+   through tools/template.html without Quarto's markup, is not affected
+   (D-0054, D-0061). */
 #quarto-content { display: block; }
 /* `.quarto-container` holds the grid open to the window's height less a
    navbar these pages do not have, which pushed a short page's footer down
@@ -349,7 +351,7 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
    only, and the reverts cover only the element types measured against the
    old build (strong, b and a dd have been; add one here for any new type). The root rule is the exception: it needs :has()
    to name a Quarto page and so outranks Bootstrap's, which is harmless
-   because nothing in the old build styles the root. No commas inside
+   because it matches only a Quarto page's root. No commas inside
    :where(): the scope test splits selectors on every comma. */
 :root:has(> body.quarto-light) { font-size: revert; height: revert; box-sizing: revert; }
 :where(.quarto-light) *, :where(.quarto-light) *::before, :where(.quarto-light) *::after { box-sizing: revert; }

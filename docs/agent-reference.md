@@ -4,14 +4,14 @@ Moved out of `CLAUDE.md` on 2026-10-01 so that file loads only what every
 session needs. `CLAUDE.md` says when to read each section below. The text
 is moved, not rewritten.
 
-## Site content and one-file renders
+## Site content
 
 - Site content: `site/landing.md` is the landing copy, `site/courses.md`
   holds the course index data in front matter, `site/site.css` is the shared
   chrome.
-- Render one converted file on its own, no site chrome:
-  `PANDOC="$LOCALAPPDATA/Pandoc/pandoc.exe" python tools/render.py <file.md>`
-  writes `build/<theme>/<id>.html`, theme embedded, `build/` not committed.
+- One converted file on its own, no site chrome, is the lab's HTML
+  download, `build/quarto-site/labs/<id>/<id>.html` (D-0054). Phase 4
+  deleted `tools/render.py`'s file mode with the old build (D-0061, call 2).
 - Themes: `themes/faithful.css` (original page settings) and
   `themes/modern.css` (evidence review plus WCAG 1.4.8).
 
@@ -23,18 +23,21 @@ is moved, not rewritten.
   `tools`, which held on the Linux runner at the first run of PR #15
   (reported 3.10). `tests/test_one_pandoc.py` fails when `PANDOC` is not
   Quarto's, comparing `--version` against `quarto pandoc --version`, never
-  a literal. `PANDOC_OLD_BUILD` is read only by
-  `test_old_build_pandoc_reads_the_same_tree`, which asserts both Pandocs
-  read every converted file to the same syntax tree. Phase 4 deletes the
-  3.11 install, `PANDOC_OLD_BUILD` and that test with the old build.
+  a literal. Phase 4 deleted the standalone Pandoc 3.11 install,
+  `PANDOC_OLD_BUILD` and the tree test with the old build (D-0061), and
+  `test_ci_uses_quartos_pandoc` fails if any step names a standalone Pandoc.
 - Chrome (D-0036), in full: the driver checks the Quarto version, then
-  dresses every page with the old build's chrome, lifted from the old
-  templates by Pandoc (`tools/quarto_chrome.py`). Three body settings in
-  `_quarto.yml` (`section-divs: false`, `anchor-sections: false`,
-  `wrap: auto`) make Quarto's `<main>` content byte-identical to the old
-  build's, and the driver swaps Quarto's `<main class="content" ...>` for
-  the bare `<main>` the old templates write. `tests/test_site_chrome.py`
-  runs against both builds and gates `verify` (D-0042);
+  dresses every page with the chrome rendered by Pandoc from
+  `tools/template.html` and `tools/template-site.html`, the templates the
+  old build used and phase 4 kept (`tools/quarto_chrome.py`, D-0061). Three
+  body settings in `_quarto.yml` (`section-divs: false`,
+  `anchor-sections: false`, `wrap: auto`) make Quarto's `<main>` content
+  byte-identical to the old build's (the fixture `test_bodies_unchanged`
+  reads), and the driver swaps Quarto's `<main class="content" ...>` for
+  the bare `<main>` the templates write. D-0038's pieces are pinned by
+  their words, read from `render.py` and the templates
+  (`tests/test_quarto_chrome.py::ChromePieces`). `tests/test_site_chrome.py`
+  reads `build/quarto-site/` and runs in "Tests" (D-0042);
   `test_footer_as_ruled` ignores script blocks because Quarto's inline link
   handler contains a `mailto:` regex that no setting removes (D-0041).
 - No navbar and no search (D-0037); math is MathML (D-0040:
@@ -55,11 +58,11 @@ is moved, not rewritten.
 - Check built pages over a local HTTP server, not `file://`. The desktop
   app's preview pane renders a local file as a processed snapshot, which
   drops injected markup: a sim's banner reads as missing when it is in fact
-  in the file. `python -m http.server 8733 --directory build/site` and load
-  `http://127.0.0.1:8733/`.
+  in the file. `python -m http.server 8733 --directory build/quarto-site`
+  and load `http://127.0.0.1:8733/`.
 - Start that server from the repo root with `--directory`, never by changing
-  into `build/site`. A process whose working directory is inside `build/site`
-  makes the next `--site` build fail on Windows when it clears the directory.
+  into `build/quarto-site`. A process whose working directory is inside it
+  makes the next build fail on Windows when it clears the directory.
 - Measure layout with a script in the page rather than by eye: the pane
   scales a wide emulated viewport down, so a correct layout can look wrong in
   a screenshot.
@@ -82,17 +85,16 @@ is moved, not rewritten.
 
 ## Measuring and keeping the measured match
 
-- Measuring: `tools/measure_chrome.js` loads every page of both builds in
-  same-origin iframes and returns the computed-style differences, 375 px
-  scroll widths, banner heights, contrast ratios and the sim bar fit. CI
-  does not run it. Serve the `build/` folder from the repo root with an
+- Measuring: `tools/measure_chrome.js` loads every page in same-origin
+  iframes and returns 375 px scroll widths, banner heights, contrast ratios
+  and the sim bar fit. Its `diffs` compared the old build's pages with
+  Quarto's; since phase 4 there is no `build/site/`, so `diffs` has no
+  reference and is to be ignored (D-0061). CI does not run it. Serve the `build/` folder from the repo root with an
   absolute path on a port not used before in the session
   (`python -m http.server <port> --directory <absolute path to build>`),
   open `http://127.0.0.1:<port>/quarto-site/` in the browser pane, run the
   file's text in the pane's JavaScript tool, and stop the server after. It
-  samples the first match of each of its 25 selectors only. On index.html
-  at 1440 and 375 px it reports two `.site-foot` "missing in quarto" rows;
-  that is expected (the landing footnote is not carried, D-0038).
+  samples the first match of each of its 25 selectors only.
 - Keeping the measured match: the quarto-only block is mostly `revert`
   rules at Bootstrap's own specificity (Bootstrap's reboot, undone). Its
   load-order dependency (Bootstrap, then `site.css`, then `themes/*.css`)
@@ -102,7 +104,9 @@ is moved, not rewritten.
   measured against the old build, so when a page brings a new one (nested
   lists, sub and sup, code, blockquote, hr, caption, table borders), measure
   it first with `tools/measure_chrome.js` plus an injected element and add a
-  revert. Measured 2026-10-01: `strong` (on all six pages) and an injected
+  revert. That measurement compared against the old build, which phase 4
+  deleted (D-0061); what replaces it as the reference is not yet chosen.
+  Measured 2026-10-01: `strong` (on all six pages) and an injected
   `b`, in a paragraph and in an h2, already match; `dd` did not (Bootstrap's
   `margin-left: 0` and `margin-bottom: .5rem`) and now has a revert, pinned
   by `QuartoOnlyCss::test_dd_margins_reverted`. Quarto's hover-preview
@@ -157,11 +161,12 @@ is an owner decision, not a styling one.
   (`https://osu-physics-lab-library.vercel.app`). One project routing rule
   ("Moved to Cloudflare Pages", regex `^/(.*)$`, 308 to the same path on
   `pages.dev`) redirects every path, set in the project's settings
-  2026-10-01; no file in the repo. Vercel still builds the old site from
-  `main` with `tools/render.py --site` and Pandoc 3.11 (build settings in
-  the project); before phase 4 deletes that, decide with the owner whether
-  to turn off the project's Git builds. Every Vercel change needs the
-  owner's word.
+  2026-10-01; no file in the repo. Its build settings still run
+  `tools/render.py --site`; phase 4 deleted that mode (D-0061), so the
+  command now writes nothing, and `build/site/` is never made. What Vercel
+  reports for such a build was not checked; a red Vercel status on `main`
+  blocks nothing. Turning the builds off or deleting the project is
+  the owner's (spec call 1). Every Vercel change needs the owner's word.
 
 ## Sims
 

@@ -1,11 +1,12 @@
-"""The old build's chrome, lifted for the Quarto pages (D-0036, D-0038).
+"""The chrome for the Quarto pages, rendered from the templates (D-0036, D-0038).
 
-The chrome is not copied. Each piece is rendered from the old templates,
-tools/template.html and tools/template-site.html (with the brand partials
-beside them), by Pandoc with an empty body and the metadata tools/render.py
-passes, then cut at <main>. Phase 4 moves the templates when it retires the
-old build. The Quarto shapes below are Quarto 1.10.18's; the driver pins
-that version, and dress() fails loudly if a shape is not found exactly once.
+The chrome is not copied. Each piece is rendered from the templates the old
+build used, tools/template.html and tools/template-site.html (with the brand
+partials beside them), by Pandoc with an empty body and the metadata from
+tools/render.py, then cut at <main>. Phase 4 retired the old build and kept
+the templates where they are, under their names (D-0061). The Quarto shapes
+below are Quarto 1.10.18's; the driver pins that version, and dress() fails
+loudly if a shape is not found exactly once.
 """
 
 import os
@@ -28,11 +29,11 @@ def css_path(*parts):
 
 
 def old_chrome(page):
-    """(body_class, top, bottom) for one page, from the old template.
+    """(body_class, top, bottom) for one page, from its template.
 
-    The arguments mirror render.render() and render.render_page(), including
-    --embed-resources; the header logo stays a file reference because
-    brandheader.html marks it data-external (D-0039 amended).
+    The arguments are those the old build passed, which phase 4 deleted,
+    --embed-resources included; the header logo stays a file reference
+    because brandheader.html marks it data-external (D-0039 amended).
     """
     cmd = [render.PANDOC, "-f", "markdown-smart", "-t", "html5", "--standalone",
            "--embed-resources", "-M", "pagetitle=chrome",

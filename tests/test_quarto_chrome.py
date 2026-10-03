@@ -1,9 +1,10 @@
-"""Phase 2 chrome on the Quarto build (D-0036 to D-0039, D-0042).
+"""The chrome on the Quarto build (D-0036 to D-0039, D-0042, D-0061).
 
-Needs both builds: build/site/ (the old build, the chrome's source) and
-build/quarto-site/. A missing build is an error, never a skip (LEDGER 53).
+Reads build/quarto-site/. A missing build is an error, never a skip
+(LEDGER 53).
 """
 
+import html
 import re
 import sys
 import unittest
@@ -11,15 +12,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tests"))
+sys.path.insert(0, str(ROOT / "tools"))
 from test_quarto_site import converted    # noqa: E402
+import render                             # noqa: E402
 QSITE = ROOT / "build" / "quarto-site"
-OLD = ROOT / "build" / "site"
 
 
 def setUpModule():
-    for d, how in ((OLD, "tools/render.py --site"), (QSITE, "tools/quarto_build.py")):
-        if not d.is_dir():
-            raise RuntimeError("{} is missing: run {} first".format(d, how))
+    if not QSITE.is_dir():
+        raise RuntimeError("{} is missing: run tools/quarto_build.py first".format(QSITE))
 
 
 def chrome_pages():
@@ -30,18 +31,6 @@ def chrome_pages():
         if 'http-equiv="refresh"' in text or re.fullmatch(r"sims/[^/]+/index\.html", rel):
             continue
         yield rel, text
-
-
-def old_parts(text):
-    m = re.search(r'<body class="([^"]*)">\n(.*?)<main>.*?</main>\n(.*?)</body>', text, re.S)
-    return m.group(1), m.group(2), m.group(3)
-
-
-def new_parts(text):
-    body = re.search(r'<body class="([^"]*)">\n', text)
-    end = "</div> <!-- /content -->\n"
-    after = text.index(end) + len(end)
-    return body.group(1), text[body.end():text.index("<main>")], text[after:text.index("</body>")]
 
 
 class Navigation(unittest.TestCase):
@@ -62,32 +51,119 @@ class Navigation(unittest.TestCase):
                 self.assertEqual(text.count('<nav class="osu-nav"'), 1)
 
 
-class ChromeParity(unittest.TestCase):
-    """D-0036, D-0038: every Quarto page carries the old page's chrome."""
+def template(name):
+    return (ROOT / "tools" / name).read_text(encoding="utf-8")
 
-    def test_every_page_has_an_old_twin(self):
-        rels = [rel for rel, _ in chrome_pages()]
-        self.assertGreaterEqual(len(rels), 6)
-        for rel in rels:
-            with self.subTest(page=rel):
-                self.assertTrue((OLD / rel).is_file())
 
-    def test_body_class_carried(self):
-        for rel, text in chrome_pages():
-            with self.subTest(page=rel):
-                want = old_parts((OLD / rel).read_text(encoding="utf-8"))[0]
-                self.assertTrue(new_parts(text)[0].startswith(want + " "))
+def from_template(name, pattern):
+    """The one match of pattern in a template: the words come from there."""
+    found = re.findall(pattern, template(name), re.S)
+    if len(found) != 1:
+        raise AssertionError("{}: expected one match of {!r}, found {}".format(name, pattern, len(found)))
+    return found[0]
 
-    def test_bottom_chrome_matches_old_build(self):
-        for rel, text in chrome_pages():
+
+def meta(args):
+    """{key: value} of render.py's -M arguments."""
+    return dict(a.split("=", 1) for a in args[1::2])
+
+
+def lab_theme(rel):
+    """The theme of a lab page's path, or None for a site page."""
+    m = re.fullmatch(r"labs/[^/]+/([^/]+)/index\.html", rel)
+    return m.group(1) if m else None
+
+
+def one_line(text):
+    return " ".join(text.split())
+
+
+class ChromePieces(unittest.TestCase):
+    """D-0038, D-0061: each piece of chrome pinned by its words.
+
+    Replaced ChromeParity's comparisons with the old build. Every expected
+    string is read from tools/render.py or the templates, never retyped, so
+    a dress that drops or alters a piece fails. Whitespace is compared as
+    single spaces, because the templates break the paragraph across lines.
+    """
+
+    def pages(self):
+        pages = list(chrome_pages())
+        labs = [rel for rel, _ in pages if lab_theme(rel)]
+        self.assertEqual(len(labs), 2 * len(list(converted())), labs)
+        self.assertEqual(sorted(rel for rel, _ in pages if not lab_theme(rel)),
+                         ["courses/index.html", "how-this-was-made/index.html",
+                          "index.html", "sims/index.html"])
+        return pages
+
+    def test_body_class(self):
+        # site/site.css scopes its rules to body.site-page and the themes to
+        # body.theme-<name>; the dress puts the template's class first.
+        site = from_template("template-site.html", r'<body class="([^"$]+)">')
+        doc = from_template("template.html", r'<body class="([^"]+)">')
+        for rel, text in self.pages():
+            theme = lab_theme(rel)
+            want = doc.replace("$theme$", theme) if theme else site
             with self.subTest(page=rel):
-                want = old_parts((OLD / rel).read_text(encoding="utf-8"))[2]
-                if rel == "index.html":
-                    # D-0038: the landing footnote names the old build.
-                    want = re.sub(r'<div class="site-foot">.*?</div>\n', "", want, flags=re.S)
-                self.assertEqual(new_parts(text)[2].strip(), want.strip())
+                classes = re.search(r'<body class="([^"]*)">', text).group(1).split()
+                self.assertEqual(classes[0], want)
+                self.assertGreater(len(classes), 1, "Quarto's own classes are kept")
+
+    def test_document_nav(self):
+        home = from_template("template.html", r'<a href="\$homehref\$">([^<$]+)</a>')
+        for rel, text in self.pages():
+            theme = lab_theme(rel)
+            if not theme:
+                continue
+            m = meta(render.document_extras(theme))
+            nav = re.findall(r'<nav class="site-nav">.*?</nav>', text, re.S)
+            with self.subTest(page=rel):
+                self.assertEqual(len(nav), 1)
+                links = [(html.unescape(a), one_line(html.unescape(t)))
+                         for a, t in re.findall(r"<a ([^>]*)>(.*?)</a>", nav[0], re.S)]
+                for piece in (('href="{}"'.format(render.up(3)), home),
+                              ('href="{}"'.format(m["uphref"]), m["uplabel"]),
+                              ('class="switch" href="{}"'.format(m["switchhref"]), m["switchlabel"])):
+                    self.assertEqual(links.count(piece), 1, (piece, links))
+
+    def test_no_document_nav_on_site_pages(self):
+        for rel, text in self.pages():
+            if not lab_theme(rel):
+                with self.subTest(page=rel):
+                    self.assertNotIn('<nav class="site-nav">', text)
+
+    def test_presentation_note_and_both_presentations(self):
+        both = from_template(
+            "template.html",
+            r'<footer class="doc-footer">\n<p>\$presentationnote\$</p>\n'
+            r'\$if\(homehref\)\$\n<p>([^<$]+)</p>\n\$endif\$\n</footer>')
+        for rel, text in self.pages():
+            theme = lab_theme(rel)
+            footer = re.findall(r'<footer class="doc-footer">\n(.*?)</footer>', text, re.S)
+            with self.subTest(page=rel):
+                if not theme:
+                    self.assertEqual(footer, [])
+                    continue
+                self.assertEqual(len(footer), 1)
+                paras = [one_line(html.unescape(p)) for p in re.findall(r"<p>(.*?)</p>", footer[0], re.S)]
+                self.assertEqual(paras, [one_line(render.THEME_NOTE[theme]), one_line(both)])
+
+    def test_method_footnote_only_on_its_page(self):
+        shape = from_template(
+            "template-site.html",
+            r'(<div class="site-foot">\n<p class="print-hide">)\$footnote\$(</p>\n</div>)')
+        for rel, text in self.pages():
+            found = re.findall(re.escape(shape[0]) + "(.*?)" + re.escape(shape[1]), text, re.S)
+            with self.subTest(page=rel):
+                if rel == "how-this-was-made/index.html":
+                    self.assertEqual([one_line(html.unescape(f)) for f in found],
+                                     [one_line(render.METHOD_FOOTNOTE)])
+                else:
+                    self.assertNotIn('<div class="site-foot">', text)
+
 
     def test_landing_footnote_not_carried(self):
+        # D-0038: it said the site is built with Pandoc and one build script.
         self.assertNotIn("one build script", (QSITE / "index.html").read_text(encoding="utf-8"))
 
 
@@ -151,8 +227,9 @@ class PageShell(unittest.TestCase):
 
 
 class QuartoOnlyCss(unittest.TestCase):
-    """Rules added for Quarto must not reach the old build, which shares
-    site/site.css and is still production."""
+    """Rules added for Quarto must not reach the HTML download, which embeds
+    site/site.css through tools/template.html without Quarto's markup
+    (D-0054, D-0061)."""
 
     def test_block_present_and_scoped(self):
         css = (ROOT / "site" / "site.css").read_text(encoding="utf-8")

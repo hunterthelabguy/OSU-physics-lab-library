@@ -1,36 +1,29 @@
-"""Render converted Markdown to HTML, one file at a time or as the whole site.
+"""Shared functions for the Quarto build (D-0061).
 
-Usage:
-  python tools/render.py FILE.md [FILE.md ...] [--theme faithful|modern]
-                         [--out DIR]
-  python tools/render.py --site [--out DIR]
+Once the old build's entry point, this is now a module with no command line:
+tools/quarto_build.py, tools/quarto_chrome.py, tools/downloads.py and
+tools/make_reference_docx.py import it. It holds the banner wording, the
+presentation notes and footnotes, the document nav's metadata, the course
+index, the "How this was made" page (lifted from VISION.md, never retyped),
+the sims and their bar, and the redirect stubs.
 
 Both themes render the same Markdown source (ledger 28): one keeps the
 original Word page settings, the other drops them and follows
 docs/presentation-evidence.md. Nothing is ever copied into a second file.
+Output is plain static files with relative links, so any host serves them
+(ledger 39). Every page carries the draft banner and asks search engines not
+to index the site (ledger 37).
 
-File mode writes build/<theme>/<id>.html, one standalone page per theme.
-
-Site mode writes build/site/: the landing page, the course index, the public
-"How this was made" page (lifted from VISION.md, never retyped), and every
-converted document in both presentations with a link that switches between
-them. Output is plain static files with relative links, so any host serves
-them and they also open from disk (ledger 39). Every page carries the draft
-banner and asks search engines not to index the site (ledger 37).
-
-build/ is not committed. Requires Pandoc on PATH or in PANDOC.
+Requires Pandoc in PANDOC (Quarto's bundled binary, D-0044) or on PATH.
 """
 
-import argparse
 import base64
 import glob
 import html
 import json
 import os
 import re
-import shutil
 import subprocess
-import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PANDOC = os.environ.get("PANDOC", "pandoc")
@@ -79,10 +72,8 @@ THEME_NOTE = {
     ),
 }
 
-# Footnotes on two site pages. The landing one names the old build, so the
-# Quarto build does not carry it (D-0038).
-LANDING_FOOTNOTE = ("This site is built from the repository "
-                    "OSU-physics-lab-library with Pandoc and one build script.")
+# The footnote on the "How this was made" page. The landing page's footnote
+# named the old build and was not carried (D-0038); phase 4 deleted it.
 METHOD_FOOTNOTE = ("This page is built from VISION.md in the project's "
                    "repository; ledger numbers refer to the dated decision "
                    "ledger kept there.")
@@ -139,57 +130,6 @@ def site_vars(depth):
         "-M", "simshref=" + r + "sims/",
         "-M", "logo=" + r + SITE_LOGO_URL,
     ]
-
-
-def render(md_path, theme, out_dir, out_path=None, depth=None, extra=()):
-    """Render one converted document in one presentation."""
-    name = os.path.splitext(os.path.basename(md_path))[0]
-    out = out_path or os.path.join(out_dir, theme, name + ".html")
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    # Absolute, so --embed-resources finds it wherever the output lands.
-    css = os.path.join(ROOT, "themes", theme + ".css").replace(os.sep, "/")
-    chrome = os.path.join(ROOT, "site", "site.css").replace(os.sep, "/")
-    cmd = [
-        PANDOC, md_path,
-        "-f", "markdown-smart",
-        "-t", "html5",
-        "--standalone",
-        # Embed the theme so a downloaded page works on its own.
-        "--embed-resources",
-        "--template", os.path.join(ROOT, "tools", "template.html"),
-        "--lua-filter", os.path.join(ROOT, "tools", "filters", "questions.lua"),
-        "-M", "theme=" + theme,
-        "-M", "css=" + css,
-    ]
-    if depth is not None:
-        cmd += ["-M", "presentationnote=" + THEME_NOTE[theme],
-                "-M", "chromecss=" + chrome] + site_vars(depth)
-    else:
-        cmd += ["-M", "presentationnote=Presentation: " + theme + "."]
-    cmd += list(extra) + ["-o", out]
-    run(cmd)
-    return out
-
-
-def render_page(md_text, title, out, depth, footnote="", nav=True):
-    """Render a site page (landing, course index, method) from Markdown text."""
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    chrome = os.path.join(ROOT, "site", "site.css").replace(os.sep, "/")
-    cmd = [
-        PANDOC,
-        "-f", "markdown-smart",
-        "-t", "html5",
-        "--standalone",
-        "--embed-resources",
-        "--template", os.path.join(ROOT, "tools", "template-site.html"),
-        "-M", "title=" + title,
-        "-M", "chromecss=" + chrome,
-        "-M", "footnote=" + footnote,
-        "-M", "uphref=" + ("1" if nav else ""),
-        "-o", out,
-    ] + site_vars(depth)
-    run(cmd, input=md_text, text=True, encoding="utf-8")
-    return out
 
 
 def converted_documents():
@@ -379,85 +319,3 @@ def sims_index_markdown(found):
             "nothing is sent.</p>\n</li>".format(e(sim_id), e(sim["title"])))
     parts.append('<ul class="lab-list">\n' + "\n".join(items) + "\n</ul>\n")
     return "\n".join(parts)
-
-
-def build_site(out_dir):
-    site = os.path.join(out_dir, "site")
-    if os.path.isdir(site):
-        shutil.rmtree(site)
-    os.makedirs(site)
-    written = []
-
-    logo = os.path.join(site, *SITE_LOGO_URL.split("/"))
-    os.makedirs(os.path.dirname(logo))
-    shutil.copyfile(SITE_LOGO, logo)
-    written.append(logo)
-
-    docs = converted_documents()
-    for doc_id, doc in docs.items():
-        for theme in THEMES:
-            out = os.path.join(site, "labs", doc_id, theme, "index.html")
-            written.append(render(
-                doc["path"], theme, out_dir, out_path=out, depth=3,
-                extra=document_extras(theme)))
-        written.append(redirect_page(
-            os.path.join(site, "labs", doc_id, "index.html"), "modern/"))
-
-    written.append(render_page(
-        body_after_front_matter(os.path.join(ROOT, "site", "landing.md")),
-        "OSU physics lab library",
-        os.path.join(site, "index.html"), 0, nav=False,
-        footnote=LANDING_FOOTNOTE))
-
-    written.append(render_page(
-        course_index_markdown(docs, 1), "Course index",
-        os.path.join(site, "courses", "index.html"), 1))
-
-    written.append(render_page(
-        how_this_was_made(), "How this was made",
-        os.path.join(site, "how-this-was-made", "index.html"), 1,
-        footnote=METHOD_FOOTNOTE))
-
-    found = sims()
-    for sim_id, sim in found.items():
-        written.append(render_sim(sim_id, sim, site))
-    if found:
-        written.append(render_page(
-            sims_index_markdown(found), "Sims",
-            os.path.join(site, "sims", "index.html"), 1))
-
-    robots = os.path.join(site, "robots.txt")
-    with open(robots, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write("# Unlisted draft while the license is open (ledger 37).\n"
-                 "User-agent: *\nDisallow: /\n")
-    written.append(robots)
-    return written
-
-
-def main(argv):
-    ap = argparse.ArgumentParser()
-    ap.add_argument("files", nargs="*")
-    ap.add_argument("--site", action="store_true",
-                    help="build the whole static site into build/site")
-    ap.add_argument("--theme", choices=THEMES)
-    ap.add_argument("--out", default=os.path.join(ROOT, "build"))
-    args = ap.parse_args(argv)
-
-    if args.site:
-        if args.files:
-            ap.error("--site builds every converted file; pass no file names")
-        for path in build_site(args.out):
-            print("wrote", os.path.relpath(path, ROOT))
-        return 0
-
-    if not args.files:
-        ap.error("pass a file to render, or --site")
-    themes = (args.theme,) if args.theme else THEMES
-    for md in args.files:
-        for theme in themes:
-            print("wrote", os.path.relpath(render(md, theme, args.out), ROOT))
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))

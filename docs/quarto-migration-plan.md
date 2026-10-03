@@ -103,6 +103,15 @@ so nothing was re-measured.
 
 ## Phase 4: retire the old build
 
+Status: done 2026-10-02, as amended by D-0061 and designed in
+`docs/superpowers/specs/2026-10-02-quarto-phase-4-design.md`. The text
+below is the plan as first written; D-0061 overrides it where they differ:
+the templates and the brand partials stay (the Quarto chrome and the HTML
+download are built from them), `render.py` stays under its name with the
+functions the Quarto build imports, and the "How this was made" item was
+already met, since the "one build script" sentence was the landing
+footnote that the Quarto build never carried (D-0038).
+
 Runs after phase 5's cutover, not before: until then the old build is what
 production serves.
 

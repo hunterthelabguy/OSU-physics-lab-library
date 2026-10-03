@@ -10,13 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Pandoc 3.11 (old build only, until phase 4)
-        # D-0046: production is built with this Pandoc. Only "Site builds" and
-        # the tree test in "Tests" use it; the deb installs /usr/bin/pandoc.
-        run: |
-          curl -sSLo pandoc.deb https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-1-amd64.deb
-          sudo dpkg -i pandoc.deb
-          /usr/bin/pandoc --version | head -1
       - name: Install Quarto 1.10.18
         run: |
           curl -sSLo quarto.deb https://github.com/quarto-dev/quarto-cli/releases/download/v1.10.18/quarto-1.10.18-linux-amd64.deb
@@ -58,11 +51,6 @@ jobs:
             [ -f "$t" ] || continue
             echo "== $t"; (cd "$(dirname "$t")" && node "$(basename "$t")")
           done
-      - name: Site builds
-        # The old build, with production's Pandoc (D-0046).
-        env:
-          PANDOC: /usr/bin/pandoc
-        run: python3 tools/render.py --site
       - name: Install pdftotext (PDF download tests)
         # Not on the runner images; tests/test_downloads.py reads the PDFs
         # with it. The PDFs themselves use the runner's google-chrome, which
@@ -75,16 +63,9 @@ jobs:
         # Fails on any Quarto warning line (docs/quarto-migration-plan.md).
         run: python3 tools/quarto_build.py
       - name: Tests
-        # Each asserts a ruled DECISIONS.md quantity, or reads build/site or build/quarto-site.
-        # PANDOC_OLD_BUILD is for test_old_build_pandoc_reads_the_same_tree (D-0046).
-        env:
-          PANDOC_OLD_BUILD: /usr/bin/pandoc
+        # Each asserts a ruled DECISIONS.md quantity, or reads build/quarto-site.
+        # The brand contract, test_site_chrome.py, is among them (D-0042, D-0061).
         run: python3 -m unittest discover -s tests -v
-      - name: Chrome contract against the Quarto build
-        # Phase 2 exit (D-0042): the brand contract gates the Quarto build.
-        env:
-          SITE_DIR: build/quarto-site
-        run: python3 -m unittest discover -s tests -p test_site_chrome.py -v
       - name: Hand the tested folder to deploy
         # D-0048: deploy ships exactly these bytes, never a rebuild. The path
         # is _quarto.yml's output-dir (tests/test_deploy_workflow.py).
