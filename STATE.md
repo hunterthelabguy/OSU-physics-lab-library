@@ -36,18 +36,22 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 #16); site design review of 2026-09-22 (PR #11, #12, boards in
 `docs/design/2026-09-22-review/`).
 
-**Build pass, ruled 2026-10-02, in this order (one PR each, squash):**
-1. D-0060: `check_deployed.py --wait`, alias step only. Until it merges, a
-   red alias step on a docs-only commit is the known lag (two of eight
-   `main` runs since the downloads), not a production fault: confirm the
-   deployment-URL step passed.
-2. D-0061, phase 4, per `docs/superpowers/specs/2026-10-02-quarto-phase-4-design.md`:
-   D-0038 pins first, then the deletions. Vercel still builds `main` and
-   posts a commit status until the owner turns builds off or deletes the
-   project; a red Vercel status after phase 4 blocks nothing.
-3. D-0067 (proposed; amended by the owner and ruled as leaned): Download
-   all per course, four format checkboxes, one zip written in the page by
-   its own script (no zips published); words approved pending the preview.
+**Build pass, ruled 2026-10-02 (one PR each, squash), 2026-10-02 state:**
+1. Done: D-0060, PR #21, `ad5057f`. The alias step alone runs
+   `check_deployed.py --wait 120`; its last line logs the lag. Measured on
+   `main`: `ad5057f` attempt 1 in 3.7 s; `37d526a` attempt 2 in 10.1 s
+   (the lag, caught; red before D-0060). 165 tests.
+2. Done: D-0061, phase 4, PR #22, `37d526a`. D-0038 pins
+   (`ChromePieces`, 5) landed green beside the parity tests, then 5 tests
+   and the old build went; 165 tests; the chrome contract runs in "Tests".
+   Found on the way: production had served a stray
+   `build/site/site/brand/OSU_horizontal_2C_W_over_B.png` (the old build's
+   logo copy, published by Quarto); it now answers 404. Vercel's check
+   fails on every PR since (its build runs the deleted `--site`); it
+   blocks nothing.
+3. Open: D-0067, PR #23, Download all on the course index (180 tests).
+   Not merged until the owner approves the six words on the PR's preview.
+   Not done: a zip opened on a phone.
 
 **Awaiting owner:**
 - Promote D-0067 (calls ruled; entry text proposed). D-0062 to D-0066
