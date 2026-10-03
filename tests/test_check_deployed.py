@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import unittest
 from pathlib import Path
 
@@ -168,6 +169,93 @@ class Served(unittest.TestCase):
         self.assertFailsMentioning("noindex")
 
 
+class Switching(unittest.TestCase):
+    """D-0060: the alias serves the previous deployment for a while.
+
+    The server answers its first `after` requests from the old copy, which
+    differs from the tested folder in one file, then from the new one, which
+    is identical to it. One complete run of the check makes len(SITE) + 1
+    requests (every file and the unknown path), so `after` set to that is an
+    alias that switches between two runs.
+    """
+
+    RUN = len(SITE) + 1
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.folder = Path(self.tmp.name, "tested")
+        self.old = Path(self.tmp.name, "old")
+        self.new = Path(self.tmp.name, "new")
+        for d in (self.folder, self.old, self.new):
+            write_site(d, SITE)
+        p = self.old / "site" / "site.css"
+        p.write_bytes(p.read_bytes().replace(b"#000", b"#001"))
+        self.server = None
+
+    def tearDown(self):
+        if self.server:
+            self.server.shutdown()
+            self.server.server_close()
+        self.tmp.cleanup()
+
+    def serve(self, after):
+        old, new, count, lock = str(self.old), str(self.new), [0], threading.Lock()
+
+        class Handler(PagesLike):
+            requested, agents = [], []
+
+            def __init__(self, *a, **k):
+                with lock:
+                    count[0] += 1
+                    n = count[0]
+                super().__init__(*a, directory=old if n <= after else new, **k)
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        return "http://127.0.0.1:{}/".format(self.server.server_address[1])
+
+    def test_interval_is_the_ruled_five_seconds(self):
+        self.assertEqual(check_deployed.INTERVAL, 5)
+
+    def test_one_run_fails_while_the_alias_lags(self):
+        self.assertTrue(any("site/site.css" in f for f in
+                            check_deployed.check(str(self.folder), self.serve(self.RUN))))
+
+    def test_wait_passes_once_the_alias_switches(self):
+        failures, attempts, seconds = check_deployed.check_until(
+            str(self.folder), self.serve(self.RUN), wait=10, interval=0.05)
+        self.assertEqual(failures, [])
+        self.assertEqual(attempts, 2)
+        self.assertGreaterEqual(seconds, 0.05)
+
+    def test_wait_fails_at_the_bound_when_it_never_switches(self):
+        start = time.monotonic()
+        failures, attempts, seconds = check_deployed.check_until(
+            str(self.folder), self.serve(10 ** 9), wait=0.5, interval=0.05)
+        elapsed = time.monotonic() - start
+        self.assertTrue(any("site/site.css" in f for f in failures), failures)
+        self.assertGreater(attempts, 1)
+        # No run starts once the bound has passed, and every run is complete.
+        self.assertGreaterEqual(seconds, 0.5 - 0.05)
+        self.assertLess(elapsed, 0.5 + 2)
+
+    def test_command_line_wait_reports_attempts_and_seconds(self):
+        # An alias already switched: one run, so no 5 s sleep in the suite.
+        proc = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "check_deployed.py"),
+             str(self.folder), self.serve(0), "--wait", "120"],
+            capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertRegex(proc.stdout, r"after 1 attempt\(s\) in \d+\.\d s")
+
+    def test_command_line_without_wait_fails_while_the_alias_lags(self):
+        proc = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "check_deployed.py"),
+             str(self.folder), self.serve(self.RUN)],
+            capture_output=True, text=True)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("site/site.css", proc.stdout)
+
+
 class CommandLine(unittest.TestCase):
 
     def run_tool(self, *args):
@@ -181,6 +269,12 @@ class CommandLine(unittest.TestCase):
         # LEDGER 53: a missing input fails, never skips.
         proc = self.run_tool(str(ROOT / "build" / "no-such-folder"), "http://127.0.0.1:9/")
         self.assertNotEqual(proc.returncode, 0)
+
+    def test_wait_must_be_a_positive_number(self):
+        for bad in ("0", "-5", "soon"):
+            with self.subTest(wait=bad):
+                proc = self.run_tool(str(ROOT / "build"), "http://127.0.0.1:9/", "--wait", bad)
+                self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
 
     def test_unreachable_host_fails(self):
         with tempfile.TemporaryDirectory() as d:
