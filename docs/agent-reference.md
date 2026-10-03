@@ -129,8 +129,12 @@ is an owner decision, not a styling one.
   the folder `verify` tested (artifact `quarto-site`, `_quarto.yml`'s
   `output-dir`), runs the pinned `npx --yes wrangler@<version> pages deploy`
   (the pin lives in `tests/test_create_project_workflow.py`), then
-  `tools/check_deployed.py` against the deployment URL and, on a push to
-  `main`, against the `pages.dev` alias. A push to `main` is production; a
+  `tools/check_deployed.py` against the deployment URL once and, on a push
+  to `main`, against the `pages.dev` alias with `--wait 120` (D-0060: the
+  alias can serve the previous deployment for seconds after "Deployment
+  complete", so that step reruns the whole check every 5 s until one
+  complete run passes; its last line gives the attempts and seconds, the
+  measured lag). A push to `main` is production; a
   pull request from this repository is a preview (its own URL, `noindex`
   by default, public); a fork's pull request deploys nothing.
 - Settings, never in the repo: secrets `CLOUDFLARE_API_TOKEN` (Account,

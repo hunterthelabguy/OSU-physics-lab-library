@@ -1,6 +1,6 @@
 """Check a deployed site against the folder that was tested (D-0049).
 
-Usage: python tools/check_deployed.py FOLDER BASE_URL
+Usage: python tools/check_deployed.py FOLDER BASE_URL [--wait SECONDS]
 
 For every file in FOLDER, fetches its public URL under BASE_URL and requires
 the same bytes; an index.html is fetched at its directory URL, because Pages
@@ -12,16 +12,26 @@ robots.txt, and every HTML page the noindex meta (ledger 37).
 The test suite reads folders, never URLs; this is the check that sees what
 the host serves, so a host that rewrites HTML fails here. Standard library
 only. Any failure, an unreachable host included, exits 1 (ledger 53).
+
+--wait SECONDS (D-0060, the production alias only): a host's alias can serve
+the previous deployment for seconds after the new one is complete, so the
+whole check runs again every 5 s until one complete run passes or SECONDS
+have passed since the first began. Nothing is loosened: a pass is still one
+run in which every file matched. The attempts and seconds are printed either
+way, so every run measures the lag.
 """
 
+import argparse
 import os
 import secrets
 import sys
+import time
 import urllib.error
 import urllib.request
 
 NOINDEX = b'<meta name="robots" content="noindex'
 TIMEOUT = 30
+INTERVAL = 5    # seconds between runs under --wait (D-0060)
 # Cloudflare refuses Python's default user agent with a 403 (error 1010,
 # first seen on the first preview, 2026-10-01), so the check names itself.
 USER_AGENT = "osu-physics-lab-library check_deployed"
@@ -98,18 +108,50 @@ def check(folder, base_url):
     return failures
 
 
+def check_until(folder, base_url, wait, interval=INTERVAL):
+    """(failures, attempts, seconds) of the last complete run.
+
+    Runs check() until a run passes or no further run can start before
+    `wait` seconds after the first began; seconds is from the first run's
+    start to the last run's end.
+    """
+    start = time.monotonic()
+    attempts = 0
+    while True:
+        attempts += 1
+        failures = check(folder, base_url)
+        seconds = time.monotonic() - start
+        if not failures or seconds + interval >= wait:
+            return failures, attempts, seconds
+        time.sleep(interval)
+
+
+def positive_seconds(text):
+    value = float(text)
+    if not value > 0:
+        raise ValueError(text)
+    return value
+
+
 def main(argv):
-    if len(argv) != 2:
-        print(__doc__.strip().splitlines()[2], file=sys.stderr)
-        return 2
-    folder, base_url = argv
-    failures = check(folder, base_url)
+    parser = argparse.ArgumentParser(
+        usage=__doc__.strip().splitlines()[2].split(": ", 1)[1])
+    parser.add_argument("folder")
+    parser.add_argument("base_url")
+    parser.add_argument("--wait", type=positive_seconds, metavar="SECONDS")
+    args = parser.parse_args(argv)
+    if args.wait is None:
+        failures, tail = check(args.folder, args.base_url), ""
+    else:
+        failures, attempts, seconds = check_until(args.folder, args.base_url, args.wait)
+        tail = " after {} attempt(s) in {:.1f} s".format(attempts, seconds)
     for line in failures:
         print(line)
     if failures:
-        print("{} failure(s) against {}".format(len(failures), base_url))
+        print("{} failure(s) against {}{}".format(len(failures), args.base_url, tail))
         return 1
-    print("OK: {} files served byte for byte at {}".format(len(list(files(folder))), base_url))
+    print("OK: {} files served byte for byte at {}{}".format(
+        len(list(files(args.folder))), args.base_url, tail))
     return 0
 
 

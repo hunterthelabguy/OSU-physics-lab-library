@@ -125,6 +125,11 @@ class DeployJob(unittest.TestCase):
         later = "".join(texts[i + 1:])
         self.assertIn("tools/check_deployed.py " + output_dir() + ' "$URL"', later, names)
         self.assertIn("WRANGLER_OUTPUT_FILE_PATH", texts[i])
+        # D-0060: the deployment URL is checked once; a retry there would
+        # hide a real fault, since it passed on its first run every time.
+        step = [t for t in texts[i + 1:] if '"$URL"' in t]
+        self.assertEqual(len(step), 1, names)
+        self.assertNotIn("--wait", step[0])
 
     def test_production_alias_checked_on_main(self):
         # D-0050: a project whose production branch is not main would take a
@@ -135,8 +140,10 @@ class DeployJob(unittest.TestCase):
         self.assertRegex(text, r"(?m)^        if: github.event_name == 'push' && "
                                r"github.ref == 'refs/heads/main'$", name)
         self.assertIn("PROJECT: ${{ vars." + PROJECT_VARIABLE + " }}", text)
+        # D-0060: the alias may lag the deployment by seconds, so this step
+        # alone reruns the whole check every 5 s for up to the ruled 120 s.
         self.assertIn('tools/check_deployed.py ' + output_dir()
-                      + ' "https://$PROJECT.pages.dev/"', text)
+                      + ' "https://$PROJECT.pages.dev/" --wait 120', text)
 
 
 class TestedFolderIsDeployedFolder(unittest.TestCase):

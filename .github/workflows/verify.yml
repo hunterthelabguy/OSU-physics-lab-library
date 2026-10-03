@@ -144,7 +144,10 @@ jobs:
         # D-0050: a push to main must change what the project's own address
         # serves, not only the deployment's URL. A production branch other
         # than main would leave the alias on older bytes and fail here.
+        # D-0060: the alias can serve the previous deployment for seconds
+        # after "Deployment complete", so this step alone reruns the whole
+        # check every 5 s until one complete run passes, for up to 120 s.
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
-        run: python3 tools/check_deployed.py build/quarto-site "https://$PROJECT.pages.dev/"
+        run: python3 tools/check_deployed.py build/quarto-site "https://$PROJECT.pages.dev/" --wait 120
