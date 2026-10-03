@@ -45,8 +45,9 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
    D-0038 pins first, then the deletions. Vercel still builds `main` and
    posts a commit status until the owner turns builds off or deletes the
    project; a red Vercel status after phase 4 blocks nothing.
-3. D-0067 (proposed; its calls ruled as leaned): Download all per course,
-   five zips; its words are approved pending the owner's look at the preview.
+3. D-0067 (proposed; amended by the owner and ruled as leaned): Download
+   all per course, four format checkboxes, one zip written in the page by
+   its own script (no zips published); words approved pending the preview.
 
 **Awaiting owner:**
 - Promote D-0067 (calls ruled; entry text proposed). D-0062 to D-0066
