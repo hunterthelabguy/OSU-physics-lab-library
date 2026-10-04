@@ -1,6 +1,6 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-02.
+Volatile handoff, capped at one screen. Updated 2026-10-03.
 
 **Focus (2026-10-01):** Phase 5 cutover done. Production is the Quarto build
 on Cloudflare Pages, `https://osu-physics-labs.pages.dev/` (project
@@ -36,32 +36,40 @@ Plans: `docs/superpowers/plans/2026-10-01-quarto-phase-5.md`.
 #16); site design review of 2026-09-22 (PR #11, #12, boards in
 `docs/design/2026-09-22-review/`).
 
-**Build pass, ruled 2026-10-02 (one PR each, squash), 2026-10-02 state:**
-1. Done: D-0060, PR #21, `ad5057f`. The alias step alone runs
-   `check_deployed.py --wait 120`; its last line logs the lag. Measured on
-   `main`: `ad5057f` attempt 1 in 3.7 s; `37d526a` attempt 2 in 10.1 s
-   (the lag, caught; red before D-0060). 165 tests.
-2. Done: D-0061, phase 4, PR #22, `37d526a`. D-0038 pins
-   (`ChromePieces`, 5) landed green beside the parity tests, then 5 tests
-   and the old build went; 165 tests; the chrome contract runs in "Tests".
-   Found on the way: production had served a stray
-   `build/site/site/brand/OSU_horizontal_2C_W_over_B.png` (the old build's
-   logo copy, published by Quarto); it now answers 404. Vercel's check
-   fails on every PR since (its build runs the deleted `--site`); it
-   blocks nothing.
-3. Open: D-0067, PR #23, Download all on the course index (180 tests).
-   Not merged until the owner approves the six words on the PR's preview.
-   Not done: a zip opened on a phone.
+**Build pass done 2026-10-02 to 03 (squash merges, all `main` runs green):**
+D-0060 PR #21 `ad5057f` (alias `--wait 120`; on `main`, attempt 1 in 3.7 s,
+then attempt 2 in 10.1 s on `37d526a`: the lag, caught); D-0061 phase 4 PR
+#22 `37d526a` (old build gone; a stray `build/site/...` logo copy that
+production served now 404s); D-0068 rows PR #25 `490240e` (one lab per row
+on the reading column; a 22 px `ul` indent fixed); D-0067 Download all PR
+#23 `8dbb8b7` (a quiet button after each course's list opens a dialog of
+opt-in formats; one stored zip written in the page). 186 tests. Vercel's
+check fails on every PR (its build runs the deleted `--site`); blocks nothing.
+
+**Next, plan only (owner, 2026-10-03; questions go in the plan):**
+1. A course select before the lab rows, so PH 212 and PH 213 readers do not
+   scroll past PH 211.
+2. Wider use of the screen on site pages (prose 700 px of 1440). Claude's
+   lean, not ruled: widen the rows and controls, keep prose lines near
+   68ch (LEDGER 56, 57).
+3. A visible close button and a failed-download message in the Download
+   all dialog (new words, the owner's to approve).
+4. Convert `../Old Reference Material/21X Lab Curriculum/PH213/Lab 2 -
+   Hypothesis Testing - Handout.docx`: equations and images, the pipeline's
+   real test. `site/courses.md` lists no PH 213 labs today.
 
 **Awaiting owner:**
-- Promote D-0067 (calls ruled; entry text proposed). D-0062 to D-0066
-  (public flip, logo, domain, cold test) are another session's, proposed.
+- Promote D-0067 (words approved 2026-10-03: "Words are fine. Go ahead and
+  merge.") and D-0068. D-0062 to D-0066 (public flip, logo, domain, cold
+  test) are another session's, proposed.
+- Not done: a Download all zip opened on a real phone.
 - Vercel: delete the project, the owner's leaning (2026-10-02); it ends the
   redirect, the Git builds and the commit statuses. When he says it is done,
   record it (an entry amending D-0049, the spec's call 1, the agent
   reference's Vercel paragraph, lab-ops' `lab-handbook/lab-library-site.md`).
-- A second handout to convert: PH212 Lab 1 (17 equations, 4 tables, no
-  images) leaned; Lab Guidance for Students has 9 images and 54 equations
+- A second handout to convert: answered 2026-10-03, PH213 Lab 2 (Next,
+  item 4). Earlier candidates: PH212 Lab 1 (17 equations, 4 tables, no
+  images); Lab Guidance for Students has 9 images and 54 equations
   but is not a lab. The content check must count equations first
   (`docs/conversion-spec.md`).
 - Originals' Word metadata names authors (`creator`, `lastModifiedBy`,

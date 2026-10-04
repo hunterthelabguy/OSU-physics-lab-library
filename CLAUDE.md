@@ -103,7 +103,13 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   `title-block.html` partial is what leaves one `<h1>` per page, so never
   delete it. `{{< include >}}` merges the included file's front matter into
   page metadata, so a curriculum key that collides with a Quarto option
-  (`lang`, `toc`, `css`, `date`, `author`) would change a page.
+  (`lang`, `toc`, `css`, `date`, `author`) would change a page. Inline
+  HTML in a generated page's Markdown (labels, inputs) gets wrapped in a
+  `<p>`; pass a control as a ```` ```{=html} ```` raw block, as
+  `render.download_all()` does. Quarto also publishes any local file a page
+  references, listed or not: list every published file under `resources`
+  (it published a stray `build/site/...` logo copy until phase 4, found by
+  diffing two CI artifacts, 2026-10-02).
 - Brand assets: the header and footer are two Pandoc partials,
   `tools/brandheader.html` and `tools/brandfooter.html`. Logo files in
   `site/brand/` are never edited (`tests/test_assets.py` pins each
@@ -137,6 +143,13 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
 - In `site/site.css`, `body.site-page a` sets the link color and outranks the
   single-class chrome rules, so a chrome color must be scoped to its parent
   (`.osu-banner .osu-sitename`). D-0032 is one bug this caused in production.
+  The same holds for `body.site-page ul`, which kept a 1.4rem indent on
+  `.lab-list` until D-0068 scoped it `body.site-page .lab-list`. Two more
+  from the course index (2026-10-03): a child of `main`'s grid stretches to
+  the column, so an inline control needs `justify-self: start`; and the
+  quarto-only block reverts `box-sizing` to the browser's `content-box`, so
+  a padded, width-capped box (the Download all dialog) needs `border-box`.
+  Measure, never assume: both were caught only by measuring at 375 px.
 - `ch` resolves against each element's own font, so a heading capped at
   `--chrome-measure` is wider than the shell. The prose column is a grid on
   `main` for that reason (D-0029), and grid items do not collapse margins:
