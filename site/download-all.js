@@ -105,13 +105,27 @@ async function fetchBytes(path) {
   return new Uint8Array(await response.arrayBuffer());
 }
 
-for (const control of document.querySelectorAll("details.download-all")) {
-  const boxes = Array.from(control.querySelectorAll('input[type="checkbox"]'));
-  const button = control.querySelector("button.download-selected");
+// The quiet button just before each dialog opens it as a modal; the button
+// is hidden in the page as built and shown only here, so a browser without
+// the script or without <dialog> shows no control that does nothing.
+for (const dialog of document.querySelectorAll("dialog.download-all")) {
+  const opener = dialog.previousElementSibling;
+  if (!opener || !opener.matches("button.download-all-open") || typeof dialog.showModal !== "function") continue;
+  const boxes = Array.from(dialog.querySelectorAll('input[type="checkbox"]'));
+  const button = dialog.querySelector("button.download-selected");
   const sync = () => { button.disabled = !boxes.some((box) => box.checked); };
-  // Every format is ticked each time the control opens (D-0067).
-  control.addEventListener("toggle", () => {
-    if (control.open) { boxes.forEach((box) => { box.checked = true; }); sync(); }
+  // Every format is opt-in: none is ticked each time the dialog opens.
+  opener.addEventListener("click", () => {
+    boxes.forEach((box) => { box.checked = false; });
+    sync();
+    dialog.showModal();
+  });
+  // Escape closes a modal dialog natively; a tap outside its box closes it too.
+  dialog.addEventListener("click", (event) => {
+    const r = dialog.getBoundingClientRect();
+    const inside = event.clientX >= r.left && event.clientX <= r.right
+      && event.clientY >= r.top && event.clientY <= r.bottom;
+    if (event.target === dialog && !inside) dialog.close();
   });
   boxes.forEach((box) => box.addEventListener("change", sync));
   button.addEventListener("click", async () => {
@@ -120,12 +134,13 @@ for (const control of document.querySelectorAll("details.download-all")) {
     button.disabled = true;
     try {
       const zip = await buildZip(paths, fetchBytes, new Date());
-      if (zip) save(zip, control.dataset.zip);
+      if (zip) { save(zip, dialog.dataset.zip); dialog.close(); }
     } catch (err) {
       console.error("Download all:", err);
     } finally {
       sync();
     }
   });
+  opener.hidden = false;
 }
 })();

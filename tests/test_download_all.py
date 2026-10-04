@@ -72,8 +72,20 @@ def sections():
     return out
 
 
+OPENER = re.compile(r'<button type="button" class="download-all-open"[^>]*>([^<]*)</button>')
+
+
 def controls(section):
-    return re.findall(r'<details class="download-all"[^>]*>.*?</details>', section, re.S)
+    """Each Download all dialog in a course's section."""
+    return re.findall(r'<dialog class="download-all"[^>]*>.*?</dialog>', section, re.S)
+
+
+def rules(selector):
+    """Declarations of every quarto-only rule whose selector list names selector."""
+    css = (ROOT / "site" / "site.css").read_text(encoding="utf-8")
+    block = re.sub(r"/\*.*?\*/", "", CSS_BLOCK.search(css).group(1), flags=re.S)
+    return " ".join(body for sel, body in re.findall(r"([^{}]+)\{([^}]*)\}", block)
+                    if selector in [x.strip() for x in sel.split(",")])
 
 
 def boxes(control):
@@ -153,12 +165,15 @@ class Control(unittest.TestCase):
                 self.assertEqual(len(controls(found[course["code"]])), 1 if ids else 0)
         self.assertTrue(any(ids for _, ids in courses()), "no course has a converted lab")
 
-    def test_control_right_under_its_heading(self):
+    def test_opener_then_dialog_after_the_lab_list(self):
+        # D-0067 as amended 2026-10-03: out of students' path, after the list.
         for code, section in sections().items():
             if controls(section):
                 with self.subTest(course=code):
-                    after_h2 = section.split("</h2>", 1)[1].lstrip()
-                    self.assertTrue(after_h2.startswith('<details class="download-all"'))
+                    after_list = section.split("</ul>", 1)[1].lstrip()
+                    self.assertRegex(after_list, r'^<button type="button" class="download-all-open"'
+                                                 r'[^>]*>[^<]*</button>\s*<dialog class="download-all"')
+                    self.assertEqual(len(OPENER.findall(section)), 1)
 
     def test_files_are_exactly_the_converted_labs_published_files(self):
         found = sections()
@@ -192,29 +207,40 @@ class Control(unittest.TestCase):
         for code, section in sections().items():
             for control in controls(section):
                 with self.subTest(course=code):
-                    self.assertEqual(re.findall(r"<summary>([^<]*)</summary>", control), ["Download all"])
+                    self.assertEqual(OPENER.findall(section), ["Download all"])
+                    self.assertIn('aria-label="Download all"', control)
                     self.assertEqual(re.findall(r'<button [^>]*>([^<]*)</button>', control),
                                      ["Download selected"])
                     self.assertEqual([label for _, _, label, _ in boxes(control)], row)
                     text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", control)).strip()
-                    self.assertEqual(text, " ".join(["Download all"] + row + ["Download selected"]))
+                    self.assertEqual(text, " ".join(row + ["Download selected"]))
 
-    def test_all_ticked_and_button_enabled_as_built(self):
+    def test_opt_in_and_hidden_until_the_script_runs(self):
+        # Nothing ticked, so "Download selected" starts disabled; the opener
+        # is hidden as built and shown by the script, never a dead button.
         for code, section in sections().items():
             for control in controls(section):
                 with self.subTest(course=code):
                     for _, _, _, tag in boxes(control):
-                        self.assertRegex(tag, r"\bchecked\b")
-                    self.assertNotIn("disabled", re.search(r"<button [^>]*>", control).group(0))
+                        self.assertNotRegex(tag, r"\bchecked\b")
+                    self.assertRegex(re.search(r"<button [^>]*>", control).group(0), r"\bdisabled\b")
+                    opener = re.search(r'<button type="button" class="download-all-open"[^>]*>', section).group(0)
+                    self.assertRegex(opener, r"\bhidden\b")
+                    self.assertIn('aria-haspopup="dialog"', opener)
 
-    def test_summary_is_the_download_button_in_the_quarto_only_block(self):
-        css = (ROOT / "site" / "site.css").read_text(encoding="utf-8")
-        block = re.sub(r"/\*.*?\*/", "", CSS_BLOCK.search(css).group(1), flags=re.S)
-        rules = [body for sel, body in re.findall(r"([^{}]+)\{([^}]*)\}", block)
-                 if ".quarto-light .download-all > summary" in [s.strip() for s in sel.split(",")]]
-        self.assertTrue(rules, "no rule for the summary in the quarto-only block")
-        decls = " ".join(rules)
+    def test_opener_is_quiet(self):
+        # Less prominent than the lab pages' orange buttons, still one tap.
+        opener = rules(".quarto-light .download-all-open")
+        for decl in ("min-height: 44px", "background: transparent", "color: var(--chrome-quiet)",
+                     "border: 1px solid var(--chrome-quiet)"):
+            with self.subTest(decl=decl):
+                self.assertIn(decl, opener)
+        self.assertNotIn("--chrome-accent", opener)
+        self.assertIn("display: none", rules(".quarto-light .download-all-open[hidden]"))
+
+    def test_download_selected_is_the_download_button(self):
         # D-0059's button: test_quarto_chrome.QuartoOnlyCss.test_download_buttons.
+        decls = rules(".quarto-light .download-all button.download-selected")
         for decl in ("min-height: 44px", "background: var(--chrome-accent)", "color: #fff",
                      "font-weight: 700", "font-size: 1rem", "border-radius: 6px"):
             with self.subTest(decl=decl):
