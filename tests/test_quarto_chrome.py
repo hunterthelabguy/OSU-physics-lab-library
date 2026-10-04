@@ -167,6 +167,46 @@ class ChromePieces(unittest.TestCase):
         self.assertNotIn("one build script", (QSITE / "index.html").read_text(encoding="utf-8"))
 
 
+class LabRows(unittest.TestCase):
+    """D-0068: one row per lab on the reading column; nothing clipped."""
+
+    def css(self):
+        return re.sub(r"/\*.*?\*/", "", (ROOT / "site" / "site.css").read_text(encoding="utf-8"), flags=re.S)
+
+    def rules(self, selector):
+        return [body for sel, body in re.findall(r"([^{}]+)\{([^}]*)\}", self.css())
+                if selector in [s.strip() for s in sel.split(",")]]
+
+    def test_one_column_at_every_width(self):
+        self.assertNotIn("auto-fill", self.css())
+        bodies = self.rules("body.site-page .lab-list")
+        self.assertTrue(bodies)
+        self.assertEqual([re.search(r"grid-template-columns:\s*([^;]+);", b).group(1).strip()
+                          for b in bodies if "grid-template-columns" in b], ["minmax(0, 1fr)"])
+
+    def test_on_the_reading_column(self):
+        self.assertEqual(self.rules("body.site-page main > .lab-list"), [])
+        # It must outrank `body.site-page ul`, or that rule indents the list.
+        self.assertIn("padding: 0", "".join(self.rules("body.site-page .lab-list")))
+
+    def test_descriptions_never_clipped(self):
+        for word in ("line-clamp", "text-overflow"):
+            self.assertNotIn(word, "".join(self.rules(".lab-desc")))
+
+    def test_pending_rows_quieter(self):
+        self.assertIn("border-style: dashed", "".join(self.rules(".lab-list > li.pending")))
+        self.assertIn("var(--chrome-quiet)", "".join(self.rules(".lab-list > li.pending .lab-title")))
+
+    def test_every_row_is_converted_or_pending(self):
+        text = (QSITE / "courses" / "index.html").read_text(encoding="utf-8")
+        rows = re.findall(r'<li class="([^"]*)">\s*<p class="lab-title">(.*?)</p>', text, re.S)
+        self.assertTrue(rows)
+        for cls, title in rows:
+            with self.subTest(row=title):
+                self.assertIn(cls, ("converted", "pending"))
+                self.assertEqual(cls == "converted", title.strip().startswith("<a "))
+
+
 class MainBare(unittest.TestCase):
     """D-0036: one bare <main>, no empty title block."""
 
