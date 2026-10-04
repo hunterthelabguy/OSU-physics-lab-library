@@ -24,6 +24,8 @@ project:
     - site/fonts/OpenSans-BoldItalic.woff2
     - site/fonts/OFL.txt
     - site/brand/OSU_horizontal_2C_W_over_B.png
+    # The course index's Download all script (D-0067).
+    - site/download-all.js
 
 website:
   title: "Physics Lab Library"

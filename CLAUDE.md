@@ -78,6 +78,14 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   `docs/superpowers/plans/2026-10-01-downloads-tasks.md`; in CI
   `poppler-utils`). Missing either is an error. When a lab is added,
   remeasure the HTML cap in `tests/test_downloads.py`.
+- Download all (D-0067): after the lab list of each course with a converted
+  lab, a quiet button (hidden until the script shows it) opens a dialog whose
+  opt-in checkboxes list the published files, written by
+  `render.download_all()`; `site/download-all.js` fetches the ticked ones
+  and writes `<code>.zip` in the page (stored, CRC-32, no library). No zip is
+  built or published. Its node test, `site/download-all.test.mjs`, runs
+  from `tests/test_download_all.py`, which also reads a zip the script's own
+  code writes with Python's `zipfile`. The fetches need the served site.
 - Chrome (D-0036, D-0061): every Quarto page is dressed with the header and
   footer rendered from `tools/template.html` and `tools/template-site.html`
   by `tools/quarto_chrome.py`; `tools/downloads.py` renders the HTML

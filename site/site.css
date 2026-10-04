@@ -421,6 +421,36 @@ body:where(.quarto-light) {
   .quarto-light .site-nav .download-label { flex-basis: 100%; }
   .quarto-light .site-nav a.download-button { flex: 1 1 auto; justify-content: center; }
 }
+/* Download all (D-0067, amended 2026-10-03): for instructors more than
+   students, so the button after each course's lab list is quiet, outlined
+   in the quiet ink with no fill, at the download buttons' 44 px. It opens a
+   modal dialog holding the four format checkboxes, none ticked, and a
+   "Download selected" button in the download buttons' look, dimmed while it
+   is disabled. Checkbox rows are 44 px tall, so each is one tap.
+   site/download-all.js shows the button, runs the dialog and writes the zip. */
+.quarto-light .download-all-open, .quarto-light .download-all button.download-selected {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 .75rem;
+  border-radius: 6px; font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer;
+}
+.quarto-light .download-all-open {
+  justify-self: start; margin: 0 0 var(--space-2); border: 1px solid var(--chrome-quiet);
+  background: transparent; color: var(--chrome-quiet);
+}
+.quarto-light .download-all-open[hidden] { display: none; }
+.quarto-light .download-all button.download-selected { border: 0; background: var(--chrome-accent); color: #fff; }
+.quarto-light .download-all-open:hover, .quarto-light .download-all-open:focus-visible,
+.quarto-light .download-all button.download-selected:enabled:hover, .quarto-light .download-all button.download-selected:focus-visible { text-decoration: underline; text-underline-offset: .15em; }
+.quarto-light .download-all-open:focus-visible, .quarto-light .download-all button.download-selected:focus-visible { outline: 3px solid var(--chrome-heading); outline-offset: 2px; }
+.quarto-light .download-all button.download-selected:disabled { opacity: .5; cursor: not-allowed; }
+.quarto-light dialog.download-all {
+  box-sizing: border-box; max-width: min(28rem, calc(100vw - 2rem)); padding: var(--space-3);
+  border: 1px solid var(--chrome-rule); border-radius: 8px;
+  background: var(--chrome-paper); color: var(--chrome-ink);
+}
+.quarto-light dialog.download-all::backdrop { background: rgba(0, 0, 0, .5); }
+.quarto-light .download-all .download-all-formats { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); margin: 0 0 var(--space-2); }
+.quarto-light .download-all .download-all-formats label { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 44px; }
+.quarto-light .download-all .download-all-formats input { width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--chrome-accent); }
 /* quarto-only: end */
 
 /* Print: TAs and students print handouts. Paper gets the words, a running
