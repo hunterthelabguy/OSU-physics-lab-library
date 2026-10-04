@@ -164,7 +164,6 @@ body.site-page main {
 }
 
 body.site-page main > * { grid-column: prose; min-width: 0; }
-body.site-page main > .lab-list { grid-column: full; }
 
 /* Landing hero (D-0031): a full-bleed Star Canvas band holding the title,
    the lead and two actions, on the same centered column as the prose.
@@ -247,20 +246,19 @@ body.site-page th, body.site-page td {
 
 body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; }
 
-/* Course index and sims: one card each. One column on a phone, and as many
-   as fit on a wide screen. */
-.lab-list {
+/* Course index and sims: one row per item, on the reading column, at every
+   width (D-0068, amending D-0029's full-width list). Rows are all one width;
+   their heights follow the quoted descriptions, which are never clipped. A
+   lab not yet converted is quieter: no link, a dashed border, a muted title.
+   Scoped to body.site-page so it outranks `body.site-page ul`, which had
+   kept a 1.4rem indent and its own margin on the list (measured 2026-10-03). */
+body.site-page .lab-list {
   list-style: none;
   padding: 0;
   margin: 0 0 1.5rem;
   display: grid;
   gap: .75rem;
-  grid-template-columns: 1fr;
-  align-items: start;
-}
-
-@media (min-width: 56rem) {
-  .lab-list { grid-template-columns: repeat(auto-fill, minmax(23rem, 1fr)); }
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .lab-list > li {
@@ -271,6 +269,8 @@ body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transfor
 }
 
 .lab-list > li.converted { border-left: 4px solid var(--chrome-accent); }
+.lab-list > li.pending { border-style: dashed; }
+.lab-list > li.pending .lab-title { color: var(--chrome-quiet); }
 
 .lab-title { font-weight: 700; margin: 0 0 .25rem; }
 .lab-desc { margin: 0 0 .5rem; }
