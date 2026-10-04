@@ -46,17 +46,15 @@ on the reading column; a 22 px `ul` indent fixed); D-0067 Download all PR
 opt-in formats; one stored zip written in the page). 186 tests. Vercel's
 check fails on every PR (its build runs the deleted `--site`); blocks nothing.
 
-**Next, plan only (owner, 2026-10-03; questions go in the plan):**
-1. A course select before the lab rows, so PH 212 and PH 213 readers do not
-   scroll past PH 211.
-2. Wider use of the screen on site pages (prose 700 px of 1440). Claude's
-   lean, not ruled: widen the rows and controls, keep prose lines near
-   68ch (LEDGER 56, 57).
-3. A visible close button and a failed-download message in the Download
-   all dialog (new words, the owner's to approve).
-4. Convert `../Old Reference Material/21X Lab Curriculum/PH213/Lab 2 -
-   Hypothesis Testing - Handout.docx`: equations and images, the pipeline's
-   real test. `site/courses.md` lists no PH 213 labs today.
+**Next: the four items of 2026-10-03, planned, nothing built.** Plan:
+`docs/superpowers/plans/2026-10-03-four-items.md` (`9f2b6df`, Q5 note
+`a06da83`), five PRs: 1 course links (no script), 3 dialog close and
+failure words, 4a the word check learns equations and images, 4b PH 213
+Lab 2, 2 wide site pages after mockups. Every PR waits on its questions,
+Q1 to Q17 in the plan; the owner has answered none yet. The owner's
+left-hand contents idea (links or a select that scrolls) is under Q5: mock
+it first. Vetted 2026-10-03: the PH 213 handout holds no student data; its
+`core.xml` names two people (Q16 gates committing it).
 
 **Awaiting owner:**
 - Promote D-0067 (words approved 2026-10-03: "Words are fine. Go ahead and

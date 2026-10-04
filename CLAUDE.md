@@ -139,7 +139,15 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
 - Conversion phase: no content changes. Format only, proven by the
   content-unchanged check (docs/conversion-spec.md).
 - Roles, not names. No invented record data.
-- Original source files are in `../Unsorted Legacy Resources/` and are unvetted.
+- Original source files are in `../Old Reference Material/` (the
+  `../Unsorted Legacy Resources/` this line once named does not exist,
+  checked 2026-10-03) and are unvetted: read one in full for student data
+  before planning around it.
+- `tools/check_unchanged.py` reads the original's `w:t` only: Word
+  equations (`m:t`) and image alt text (`wp:docPr descr`) are invisible to
+  it, while the converted side reads `Math` LaTeX and `Image` alt as words.
+  Do not convert a document with either until the check counts them
+  (`docs/superpowers/plans/2026-10-03-four-items.md`, item 4).
 - In `site/site.css`, `body.site-page a` sets the link color and outranks the
   single-class chrome rules, so a chrome color must be scoped to its parent
   (`.osu-banner .osu-sitename`). D-0032 is one bug this caused in production.
