@@ -474,6 +474,12 @@ Item 2:
 - **Q5.** Rows across the shell with the description kept at the measure
   beside the title (call 2.1, lean), or the course links in a sticky side
   column with rows as today (call 2.2)? Both after mockups.
+  Owner, chat 2026-10-03 after this plan landed, not a ruling: "Table of
+  contents on the left hand side? Select -> auto-scroll, etc." That is call
+  2.2 (a sticky list in the left track) and touches call 1.1 (a select that
+  scrolls on choice, which needs script). Next session: mock the left-hand
+  contents as links and as a select side by side at 375, 1024 and 1440 px,
+  and say whether call 2.2 then displaces call 2.1 as the lean.
 - **Q6.** Grow site-page type above 1440 px as document pages do (call 2.3)?
   Lean: not now.
 - **Q7.** Landing cards across the shell (call 2.4)? Lean: yes, in PR 2.
