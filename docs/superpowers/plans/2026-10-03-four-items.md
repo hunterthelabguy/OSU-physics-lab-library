@@ -480,6 +480,9 @@ Item 2:
   scrolls on choice, which needs script). Next session: mock the left-hand
   contents as links and as a select side by side at 375, 1024 and 1440 px,
   and say whether call 2.2 then displaces call 2.1 as the lean.
+  Done 2026-10-05: boards and measurements in
+  `docs/design/2026-10-05-left-contents/`. Lean now: call 2.2 as links (board
+  C) displaces call 2.1; the select (board D) stays declined.
 - **Q6.** Grow site-page type above 1440 px as document pages do (call 2.3)?
   Lean: not now.
 - **Q7.** Landing cards across the shell (call 2.4)? Lean: yes, in PR 2.
