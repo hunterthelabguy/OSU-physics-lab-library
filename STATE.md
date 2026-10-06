@@ -1,6 +1,6 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-03.
+Volatile handoff, capped at one screen. Updated 2026-10-06.
 
 **Focus (2026-10-01):** Phase 5 cutover done. Production is the Quarto build
 on Cloudflare Pages, `https://osu-physics-labs.pages.dev/` (project
@@ -46,7 +46,14 @@ on the reading column; a 22 px `ul` indent fixed); D-0067 Download all PR
 opt-in formats; one stored zip written in the page). 186 tests. Vercel's
 check fails on every PR (its build runs the deleted `--site`); blocks nothing.
 
-**Next: the four items of 2026-10-03, planned, nothing built.** Plan:
+**Next (2026-10-06): course pages, proposed, nothing built.** The owner
+reviewed board C and chose one page per course, the index as three tiles,
+course tabs, a dense Lab, Title, Description table on a 96rem shell, and a
+course download beside the h1 grouped by kind (D-0069 to D-0071, proposed;
+boards and open questions in `docs/design/2026-10-06-course-pages/`). This
+supersedes the plan's item 1 and item 2's calls 2.1 and 2.2 (its Q5 note).
+
+**Earlier next: the four items of 2026-10-03, planned, nothing built.** Plan:
 `docs/superpowers/plans/2026-10-03-four-items.md` (`9f2b6df`, Q5 note
 `a06da83`), five PRs: 1 course links (no script), 3 dialog close and
 failure words, 4a the word check learns equations and images, 4b PH 213
@@ -57,6 +64,9 @@ it first. Vetted 2026-10-03: the PH 213 handout holds no student data; its
 `core.xml` names two people (Q16 gates committing it).
 
 **Awaiting owner:**
+- Promote D-0069 to D-0071; rule the open items in the 2026-10-06 README
+  (collapse before launch or wait to deploy; rule 6's file count; how a CSV
+  or sim attaches to a lab); approve the new words listed there.
 - Promote D-0067 (words approved 2026-10-03: "Words are fine. Go ahead and
   merge.") and D-0068. D-0062 to D-0066 (public flip, logo, domain, cold
   test) are another session's, proposed.

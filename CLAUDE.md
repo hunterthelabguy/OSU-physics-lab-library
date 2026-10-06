@@ -164,7 +164,9 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   vertical spacing there is one-sided and adds up to the scale's steps.
 - Design mockups from a review are kept as files under `docs/design/`, with a
   README saying which decisions each board became. They are mockups, never
-  the source of truth for what the site does.
+  the source of truth for what the site does. Boards drawn on a Claude
+  Design canvas are kept as its `.dc.html` source and `canvas.json`; they
+  need the canvas runtime and do not open alone (2026-10-06 folder).
 - Deploy: never run wrangler from this machine inside a Claude Code session,
   never touch the Cloudflare or Vercel projects or any secret without the
   owner's word, and compare a deployment only against CI's artifact, never a
