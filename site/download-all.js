@@ -107,7 +107,8 @@ async function fetchBytes(path) {
 
 // The quiet button just before each dialog opens it as a modal; the button
 // is hidden in the page as built and shown only here, so a browser without
-// the script or without <dialog> shows no control that does nothing.
+// the script or without <dialog> shows no control that does nothing. The
+// dialog's "Close" is a dialog-method form, which closes it with no script.
 for (const dialog of document.querySelectorAll("dialog.download-all")) {
   const opener = dialog.previousElementSibling;
   if (!opener || !opener.matches("button.download-all-open") || typeof dialog.showModal !== "function") continue;

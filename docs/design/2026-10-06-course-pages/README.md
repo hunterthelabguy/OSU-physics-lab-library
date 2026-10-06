@@ -110,6 +110,26 @@ D-0070". What it shipped for those rulings:
   1440 px (192 px at 1920 px) between a site page (96rem) and a lab page
   (72rem); at 375 px the PH 211 h1 takes 4 lines (202 px).
 
+## Built 2026-10-06 (D-0071): for the owner before it merges
+
+The second PR, on top of the first, moves the course download beside the
+h1. Measured on a probe build with the threshold at one file, then on the
+built page (D-0071). **Ruled 2026-10-06, chat:** "Four files", "Approve PR
+2 words", "Promote D-0071".
+
+- **Rule 6's count: ruled four.** Claude leaned to one file per handout,
+  which would have hidden PH 211's control while it has one converted lab;
+  the owner ruled that each format counts, so one handout is four files and
+  PH 211 shows "Download PH 211 files" now. The two-file rule bites only on
+  lab files alone.
+- **Words, visible and new, approved:** "Download PH 211 files" (button and
+  dialog title); "One zip, a folder per lab. Only converted labs are
+  included."; "Handouts"; "Close" (Q8's lean). Kept: "Download selected"
+  and the four format names.
+- **Not built:** the "Lab files" group, "Data files (CSV)" and
+  "Simulations (HTML)": nothing can attach a data file or a simulation to
+  a lab yet, and no format for it is invented. Those words wait with it.
+
 ## Open, for whoever builds this
 
 - **Before launch.** The table assumes every lab is converted; today seven of
@@ -118,7 +138,7 @@ D-0070". What it shipped for those rulings:
   deploy until then. Ruled 2026-10-06: the collapse stands (above).
 - **Rule 6's count.** "Fewer than two downloadable files": one handout in
   four formats is four files. Whether that counts as one or four is not
-  ruled.
+  ruled. Ruled 2026-10-06: four (above).
 - **How a lab's data file or simulation is attached** to a lab (front
   matter, a manifest, a folder convention) is not designed. The sims
   catalog is the obvious source for simulations.

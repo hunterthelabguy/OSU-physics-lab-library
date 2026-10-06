@@ -12,11 +12,12 @@
 //   contrast     WCAG ratios of the chrome text on its background
 //   sim          the sim bar and page height at 1280x720
 //   courses      the course index and course pages at 375, 1440 and 1920 px
-//                (D-0069, D-0070): boxes of main, the h1, the intro, the
+//                (D-0069 to D-0071): boxes of main, the h1, the intro, the
 //                tiles, the tabs, the lab table and its columns, the
-//                collapse, Download all and the footnote; the most lines any
-//                description wraps to, with the collapse open; the header's
-//                left edge beside a lab page's
+//                collapse, the heading row, the course download and the
+//                footnote; the most lines any description wraps to, with the
+//                collapse open; the course download's dialog, opened, where
+//                a page has one; the header's left edge beside a lab page's
 // The old-build comparison it began with went with the old build (D-0061).
 await (async () => {
   const LAB = "labs/ph211-team-building-handout/";
@@ -81,11 +82,22 @@ await (async () => {
       descLongest: descs.length ? (d => ({chars: d.textContent.length, lines: lines(d)}))(
         descs.reduce((a, b) => b.textContent.length > a.textContent.length ? b : a)) : null,
       pendingSummary: pending && box(pending.querySelector("summary")),
+      head: box(q.querySelector(".course-head")),
       downloadAll: box(q.querySelector(".download-all-open")),
       footnote: box(q.querySelector("main > p.course-note:last-of-type")),
       header: box(q.querySelector(".osu-banner .osu-inner")),
     };
     if (pending) pending.open = false;
+    // The course download's dialog, opened as the page opens it (D-0071).
+    const dialog = q.querySelector("dialog.download-all");
+    if (dialog && typeof dialog.showModal === "function") {
+      dialog.showModal();
+      out.dialog = {box: box(dialog), title: box(dialog.querySelector("h2")),
+        rows: [...dialog.querySelectorAll(".download-all-formats label")].map(box),
+        buttons: [...dialog.querySelectorAll("button")].map(b => [b.textContent, box(b)]),
+        scrollWidth: q.documentElement.scrollWidth, clientWidth: q.documentElement.clientWidth};
+      dialog.close();
+    }
     return out;
   };
   const out = {scroll375: {}, banner1440: {}, landing1440: null, contrast: {}, sim: null, courses: {}};
