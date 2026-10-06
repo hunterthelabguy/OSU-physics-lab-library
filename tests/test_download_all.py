@@ -5,8 +5,9 @@ write a zip of a course's published files, reads the zip back with Python's
 zipfile, and checks the control: its words, its group, its file list, its
 CSS and its script, as render.download_all() writes it for a course with two
 converted labs, and on the course pages Quarto built, where it shows only
-with two files or more (D-0071). Needs build/quarto-site/ and node; either
-missing is an error, never a skip (LEDGER 53).
+with two files or more, four to a converted handout (D-0071). Needs
+build/quarto-site/ and node; either missing is an error, never a skip
+(LEDGER 53).
 """
 
 import functools
@@ -43,9 +44,9 @@ core.buildZip(paths, async (p) => new Uint8Array(fs.readFileSync(path.join(base,
   .catch((err) => { console.error(err); process.exit(1); });
 """
 
-# A course with two converted labs, for the control's markup: no course on
-# the built site has two yet, and under two the control is not written.
-# The ids are the test's own; only render.download_all() reads them.
+# A course with two converted labs, for the control's markup with more than
+# one lab: no course on the built site has two yet. The ids are the test's
+# own; only render.download_all() reads them.
 TWO = {"code": "PH 211", "labs": [{"number": "1", "title": "First", "document": "lab-one"},
                                  {"number": "2", "title": "Second", "document": "lab-two"}]}
 TWO_DOCS = {"lab-one": {}, "lab-two": {}}
@@ -120,11 +121,16 @@ class NodeTest(unittest.TestCase):
 
 
 class ZipReadBack(unittest.TestCase):
-    """A zip the page's code writes of PH 211's published files, read by
-    Python's zipfile, from the folder of PH 211's page."""
+    """A zip the page's code writes of the files PH 211's built control
+    lists, read by Python's zipfile, from the folder of PH 211's page."""
 
     def ids(self):
         return dict((c["code"], i) for c, i in courses())["PH 211"]
+
+    def course_files(self):
+        found = controls(page("PH 211").read_text(encoding="utf-8"))
+        self.assertEqual(len(found), 1, "PH 211's page has no course download")
+        return [(value, files) for value, files, _, _ in boxes(found[0])]
 
     def check_zip(self, paths):
         base = page("PH 211").parent
@@ -145,12 +151,13 @@ class ZipReadBack(unittest.TestCase):
 
     def test_every_format_of_ph211(self):
         self.assertTrue(self.ids(), "PH 211 has no converted lab")
-        paths = [p for ext in downloads.EXTENSIONS for p in published(self.ids(), ext)]
+        paths = [p for _, files in self.course_files() for p in files]
+        self.assertEqual(paths, [p for ext, _ in render.DOWNLOAD_FORMATS for p in published(self.ids(), ext)])
         self.assertEqual(len(paths), len(downloads.EXTENSIONS) * len(self.ids()))
         self.check_zip(paths)
 
     def test_one_format_only(self):
-        self.check_zip(published(self.ids(), "md"))
+        self.check_zip(dict(self.course_files())["md"])
 
     def test_no_format_writes_nothing(self):
         with tempfile.TemporaryDirectory() as d:
@@ -167,15 +174,19 @@ class Control(unittest.TestCase):
         self.assertEqual(len(found), 1)
         return found[0]
 
-    def test_hidden_under_two_files(self):
-        # D-0071, the owner's "6 hide". A handout counts once whatever its
-        # formats: Claude's lean, not ruled (render.downloadable_files).
+    def test_hidden_under_two_files_four_to_a_handout(self):
+        # D-0071: hidden under [2] files (the owner's "6 hide"), each format
+        # of a converted handout a file (the owner's "Four files"), so one
+        # converted lab already shows the control.
+        self.assertEqual(render.DOWNLOAD_MIN_FILES, 2)
         one = {"code": "PH 211", "labs": TWO["labs"][:1]}
-        self.assertEqual(render.downloadable_files(one, TWO_DOCS), 1)
-        self.assertEqual(render.download_all(one, TWO_DOCS, 2), "")
-        self.assertEqual(render.downloadable_files(TWO, TWO_DOCS), 2)
-        self.assertNotEqual(render.download_all(TWO, TWO_DOCS, 2), "")
-        self.assertEqual(render.download_all({"code": "PH 212", "labs": []}, TWO_DOCS, 2), "")
+        self.assertEqual(render.downloadable_files(one, TWO_DOCS), 4)
+        self.assertNotEqual(render.download_all(one, TWO_DOCS, 2), "")
+        self.assertEqual(render.downloadable_files(TWO, TWO_DOCS), 8)
+        unconverted = {"code": "PH 212", "labs": [{"number": "1", "title": "Not yet"}]}
+        self.assertEqual(render.downloadable_files(unconverted, TWO_DOCS), 0)
+        self.assertEqual(render.download_all(unconverted, TWO_DOCS, 2), "")
+        self.assertEqual(render.download_all({"code": "PH 213", "labs": []}, TWO_DOCS, 2), "")
 
     def test_words(self):
         # D-0071: the button and the dialog's title name the course and say
@@ -269,16 +280,47 @@ class Control(unittest.TestCase):
         self.assertIn("font-size: .85rem", decls)
 
 
+def files_of(ids):
+    """D-0071's count, made here: every format of each converted handout."""
+    return len(ids) * len(downloads.EXTENSIONS)
+
+
+def visible(fragment):
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", fragment)).strip()
+
+
 class BuiltPages(unittest.TestCase):
     """The course pages as built: the control only where a course has two
-    files, always in the heading row beside the h1."""
+    files, written as render.download_all() writes it, in the heading row
+    beside the h1."""
 
     def test_control_only_with_two_files(self):
+        shown = 0
         for course, ids in courses():
             text = page(course["code"]).read_text(encoding="utf-8")
+            want = 1 if files_of(ids) >= 2 else 0
+            shown += want
             with self.subTest(course=course["code"]):
-                self.assertEqual(len(controls(text)), 1 if len(ids) >= 2 else 0)
-                self.assertEqual(len(OPENER.findall(text)), 1 if len(ids) >= 2 else 0)
+                self.assertEqual(len(controls(text)), want)
+                self.assertEqual(len(OPENER.findall(text)), want)
+        self.assertTrue(shown, "no course page carries the course download")
+
+    def test_built_as_rendered(self):
+        # Quarto rewrites boolean attributes (hidden="") but must not change
+        # the boxes, their files, or a word.
+        docs = render.converted_documents()
+        for course, ids in courses():
+            if files_of(ids) < 2:
+                continue
+            built = page(course["code"]).read_text(encoding="utf-8")
+            rendered = render.download_all(course, docs, 2)
+            with self.subTest(course=course["code"]):
+                self.assertEqual([b[:3] for b in boxes(controls(built)[0])],
+                                 [b[:3] for b in boxes(controls(rendered)[0])])
+                self.assertEqual(visible(controls(built)[0]), visible(controls(rendered)[0]))
+                self.assertEqual(OPENER.findall(built), OPENER.findall(rendered))
+                self.assertRegex(re.search(r'<button type="button" class="download-all-open"[^>]*>',
+                                           built).group(0), r"\bhidden\b")
 
     def test_heading_row_holds_the_h1(self):
         # Quarto writes the fenced div as a <section> that takes the h1's id.
@@ -300,7 +342,7 @@ class Script(unittest.TestCase):
         # Published either way (_quarto.yml resources), linked only where a
         # control is written.
         tag = '<script src="../../site/download-all.js" defer'
-        with_control = {page(course["code"]) for course, ids in courses() if len(ids) >= 2}
+        with_control = {page(course["code"]) for course, ids in courses() if files_of(ids) >= 2}
         self.assertEqual((QSITE / "site" / "download-all.js").read_bytes(), SCRIPT.read_bytes())
         for built in QSITE.rglob("*.html"):
             with self.subTest(page=built.relative_to(QSITE).as_posix()):

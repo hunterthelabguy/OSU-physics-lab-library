@@ -299,13 +299,13 @@ DOWNLOAD_MIN_FILES = 2
 def downloadable_files(course, docs):
     """The files a course's download offers, as D-0071's rule counts them.
 
-    One per converted lab's handout, whatever its formats: Claude's lean,
-    not ruled. The owner hid the control because with one lab it repeats
-    that lab's own download row, which holds the same four formats. A lab's
-    data files and simulations would count one each, but no way to attach
-    them to a lab is designed, so none is counted or listed.
+    Each format of each converted lab's handout is a file, so one handout
+    in four formats is four (the owner, 2026-10-06: "Four files"), and a
+    course with a converted lab always shows the control. A lab's data files
+    and simulations would count one each, but no way to attach them to a lab
+    is designed, so none is counted or listed.
     """
-    return len(converted_labs(course, docs))
+    return len(converted_labs(course, docs)) * len(DOWNLOAD_FORMATS)
 
 
 def download_all(course, docs, depth):

@@ -86,7 +86,8 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   `tools/template-site.html` as a Pandoc variable (`-V`), which is inserted
   as written; metadata (`-M`) would be escaped.
 - Course download (D-0067, D-0071): beside the h1 of each course page with
-  two downloadable files or more (`render.downloadable_files`; none today),
+  two downloadable files or more, every format of a converted handout a
+  file (`render.downloadable_files`; so every course with a converted lab),
   a quiet button (hidden until the script shows it) opens a dialog whose
   opt-in checkboxes list the published files, written by
   `render.download_all()`; `site/download-all.js` fetches the ticked ones
@@ -94,11 +95,10 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   built or published. Its node test, `site/download-all.test.mjs`, runs
   from `tests/test_download_all.py`, which also reads a zip the script's own
   code writes with Python's `zipfile` and tests the markup on two made-up
-  labs, since no built page carries it yet. To see it built, lower
-  `DOWNLOAD_MIN_FILES` for a probe build and never commit that. The fetches
-  need the served site. The heading row is a fenced div (Quarto writes a
-  `<section>`); a raw `<div>` before the "#" heading makes Quarto lift the
-  h1 into its title block.
+  labs as well as PH 211's built page. The fetches need the served site.
+  The heading row is a fenced div (Quarto writes a `<section>`); a raw
+  `<div>` before the "#" heading makes Quarto lift the h1 into its title
+  block.
 - Chrome (D-0036, D-0061): every Quarto page is dressed with the header and
   footer rendered from `tools/template.html` and `tools/template-site.html`
   by `tools/quarto_chrome.py`; `tools/downloads.py` renders the HTML
