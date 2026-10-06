@@ -18,8 +18,8 @@ repo>`) and open `docs/design/2026-10-05-left-contents/<board>`.
 | File | Board | Became |
 |---|---|---|
 | `current.html` | The course index as built | the baseline |
-| `c-links.html` | C: the three course codes as links, no script; from 64rem a sticky column in the left track, below it a row above PH 211 | not ruled |
-| `d-select.html` | D: a select named "Courses" that scrolls to the course chosen, then resets; placed as C | not ruled |
+| `c-links.html` | C: the three course codes as links, no script; from 64rem a sticky column in the left track, below it a row above PH 211 | not built; reviewed 2026-10-06 and replaced by D-0069 to D-0071 (`../2026-10-06-course-pages/`) |
+| `d-select.html` | D: a select named "Courses" that scrolls to the course chosen, then resets; placed as C | not built; declined, D-0069's alternatives |
 
 Both new boards add visible words: C adds only the three course codes (the
 words Q2 proposes), D adds those and "Courses" as its first option, since a

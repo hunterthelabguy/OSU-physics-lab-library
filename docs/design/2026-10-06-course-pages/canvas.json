@@ -1,0 +1,67 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Course.dc.html": {
+      "expand": "fill",
+      "h": 1180,
+      "is_interactive": true,
+      "title": "PH 211 page at launch: dense table, all labs converted",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Download.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "is_interactive": true,
+      "title": "Future: Download PH 211 files (placeholder assets)",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 820,
+      "is_interactive": true,
+      "title": "Course index: the chooser",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Phone.dc.html": {
+      "h": 1500,
+      "is_interactive": true,
+      "title": "PH 211 page at phone width",
+      "w": 390,
+      "x": 4560,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-06T17:30:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "t1": {
+      "kind": "title1",
+      "maxW": 4950,
+      "text": "Course pages: chooser, PH 211, download dialog, phone",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Course.dc.html",
+    "Download.dc.html",
+    "Phone.dc.html"
+  ],
+  "pages": [],
+  "title": "Course pages redesign"
+}

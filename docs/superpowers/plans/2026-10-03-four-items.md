@@ -483,6 +483,11 @@ Item 2:
   Done 2026-10-05: boards and measurements in
   `docs/design/2026-10-05-left-contents/`. Lean now: call 2.2 as links (board
   C) displaces call 2.1; the select (board D) stays declined.
+  Superseded 2026-10-06: the owner reviewed board C and chose one page per
+  course, a dense lab table and a 96rem shell, so neither call 2.1 nor 2.2
+  is built. D-0069 to D-0071 (proposed), boards in
+  `docs/design/2026-10-06-course-pages/`. Item 1's nav and item 3's dialog
+  words change with them: read those entries before building either.
 - **Q6.** Grow site-page type above 1440 px as document pages do (call 2.3)?
   Lean: not now.
 - **Q7.** Landing cards across the shell (call 2.4)? Lean: yes, in PR 2.

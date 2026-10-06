@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PH 211 labs</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#fff}
+a{color:#003b5c}a:hover{color:#d73f09}
+.labs{width:100%;border-collapse:collapse;font-size:17px;line-height:1.5}
+.labs th{text-align:left;font-size:14px;font-weight:700;color:#0d5257;text-transform:uppercase;letter-spacing:.04em;padding:8px 16px;border-bottom:2px solid #003b5c}
+.labs td{padding:12px 16px;border-bottom:1px solid #d9dbd5;vertical-align:top}
+.labs tbody tr:hover td{background:#f4f5f2}
+.labs .num{white-space:nowrap;width:5.5rem;font-weight:700}
+.labs .title{width:20rem;font-weight:700}
+.labs .title{width:18rem}
+.tablebox{overflow-x:auto}
+.toggle{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border:1px solid #003b5c;background:#fff;color:#003b5c;font:inherit;font-weight:700;font-size:17px;cursor:pointer}
+.toggle:hover{background:#eef3f6}
+.toggle:focus-visible{outline:3px solid #003b5c;outline-offset:2px}
+.tabs a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;font-weight:700;text-decoration:none;color:#000;border-bottom:4px solid transparent}
+.tabs a:hover{border-bottom-color:#a7aca2}
+</style>
+</helmet>
+<div style="font-family: 'Open Sans', ui-sans-serif, system-ui, sans-serif; color: #000; background: #fff; display: flex; flex-direction: column">
+  <div style="background: #ffb500; color: #000; font-size: 15px; padding: 8px 16px"><strong>Draft: license pending, not for distribution.</strong> <span style="text-decoration: underline; margin-left: 8px">What this means</span></div>
+  <header>
+    <div style="background: #000; font-size: 14px; padding: 6px 0">
+      <div style="max-width: 96rem; margin: 0 auto; padding: 0 16px"><a href="#" style="color: #fff">Department of Physics</a></div>
+    </div>
+    <div style="background: #d73f09">
+      <div style="max-width: 96rem; margin: 0 auto; padding: 18px 16px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap">
+        <span style="border: 1px dashed #fff; color: #fff; font-size: 13px; padding: 10px 14px">[OSU logo]</span>
+        <a href="#" style="color: #fff; font-size: 28px; font-weight: 700; text-decoration: none">Physics Lab Library</a>
+      </div>
+    </div>
+    <nav aria-label="Library" style="background: #fff; border-bottom: 1px solid #a7aca2">
+      <div style="max-width: 96rem; margin: 0 auto; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 4px 24px; font-size: 15px; font-weight: 700">
+        <a href="#" style="color: #000; text-decoration: none">Library home</a>
+        <a href="Main.dc.html" style="color: #000; text-decoration: none; border-bottom: 3px solid #d73f09">Course index</a>
+        <a href="#" style="color: #000; text-decoration: none">Sims</a>
+        <a href="#" style="color: #000; text-decoration: none">How this was made</a>
+      </div>
+    </nav>
+    <nav class="tabs" aria-label="Courses" style="background: #f4f5f2; border-bottom: 1px solid #a7aca2">
+      <div style="max-width: 96rem; margin: 0 auto; padding: 0 16px; display: flex; flex-wrap: wrap; gap: 0 8px; font-size: 16px">
+        <a href="Course.dc.html" aria-current="page" style="border-bottom-color: #d73f09; color: #003b5c">PH 211</a>
+        <a href="#">PH 212</a>
+        <a href="#">PH 213</a>
+      </div>
+    </nav>
+  </header>
+  <main style="max-width: 96rem; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 32px 16px 64px">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px; margin: 0 0 16px">
+      <h1 style="margin: 0; color: #003b5c; font-size: 44px; line-height: 1.15">PH 211: General Physics with Calculus</h1>
+    </div>
+    <p style="margin: 0 0 32px; font-size: 18px; line-height: 1.6; max-width: 68ch">Every lab below is listed under the number and title its own course summary gives it.</p>
+
+    <div class="tablebox">
+      <table class="labs">
+        <thead><tr><th scope="col">Lab</th><th scope="col">Title</th><th scope="col">Description</th></tr></thead>
+        <tbody>
+          <sc-for list="{{labs}}" as="lab" hint-placeholder-count="8">
+            <tr>
+              <td class="num">{{lab.num}}</td>
+              <td class="title"><a href="#">{{lab.title}}</a></td>
+              <td class="desc">{{lab.desc}}</td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin: 40px 0 0; font-size: 15px; line-height: 1.6; max-width: 68ch; color: #0d5257">Lab numbers, titles and descriptions for PH 211 are quoted from PH 211 Curriculum Summary, in the original materials. They are quoted, not converted: the content-unchanged check covers converted documents only.</p>
+  </main>
+  <footer style="background: #000; color: #fff; padding: 24px 0 40px; font-size: 14px; line-height: 1.5">
+    <div style="max-width: 96rem; margin: 0 auto; padding: 0 16px">
+      <p style="margin: 0 0 8px; font-weight: 700; font-size: 18px">Department of Physics</p>
+      <p style="margin: 0"><a href="#" style="color: #fff">Accessibility Statement</a> · <a href="#" style="color: #fff">Privacy Disclaimer</a> · <a href="#" style="color: #fff">Non-Discrimination Statement</a></p>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+renderVals() {
+return {
+labs: [
+{ num: 'Lab 1', title: 'Team Building', desc: 'Discussion around inclusion; Build spaghetti towers' },
+{ num: 'Lab 2', title: 'Data Analysis', desc: 'Determine acceleration from data on position, focuses especially on linearizing and using graphs in Excel' },
+{ num: 'Lab 3', title: 'Uncertainty', desc: 'Measure a ball rolling off a ramp to understand measurement and statistical uncertainties.' },
+{ num: 'Lab 4', title: 'Hypothesis Testing', desc: 'Measure distance of a ball off a ramp to test two supplied hypotheses' },
+{ num: 'Lab 5', title: 'Designing an Experiment', desc: 'Design two experiments to measure acceleration vs. angle down a ramp; choose and perform one with reasoning behind the choice' },
+{ num: 'Lab 6', title: 'Describing an Experiment', desc: 'Perform one of two experiments to measure static friction, trade your procedure with a group using a different method, perform their procedure and comment on the description' },
+{ num: 'Lab 7', title: 'Capstone', desc: 'Two-week activity to revisit one of the previous experiments, addressing issues to improve the way the lab was done' },
+{ num: '', title: 'Lab Skills practical (not implemented)', desc: 'Written assessment of major skills students should have mastered throughout the curriculum' }
+]
+};
+}
+}
+</script>
+</body>
+</html>
