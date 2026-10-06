@@ -46,12 +46,28 @@ on the reading column; a 22 px `ul` indent fixed); D-0067 Download all PR
 opt-in formats; one stored zip written in the page). 186 tests. Vercel's
 check fails on every PR (its build runs the deleted `--site`); blocks nothing.
 
-**Next (2026-10-06): course pages, proposed, nothing built.** The owner
-reviewed board C and chose one page per course, the index as three tiles,
-course tabs, a dense Lab, Title, Description table on a 96rem shell, and a
-course download beside the h1 grouped by kind (D-0069 to D-0071, proposed;
-boards and open questions in `docs/design/2026-10-06-course-pages/`). This
-supersedes the plan's item 1 and item 2's calls 2.1 and 2.2 (its Q5 note).
+**Next: "How this site works" (D-0072, proposed), draft first.** The owner
+asked (2026-10-06) to re-frame the "How this was made" page: the build
+explained first, the AI use disclosed plainly in the body, a new title and
+address with the old one redirecting, and its own source file. Draft for his
+line edits: `docs/superpowers/plans/2026-10-06-how-this-site-works.md`;
+nothing is built until he approves the text. Found while drafting, in the
+same file: the landing page still says downloads are not built.
+
+**Done 2026-10-06: course pages, built, merged, all three entries ruled.**
+PR #26, squashed `67b9baa` (D-0069, D-0070): the course index is three
+tiles; one page per course at `/courses/ph211/` and so on, with course
+tabs; PH 211's converted lab in a Lab, Title, Description table across a
+96rem shell (site pages only), the other seven under "Not yet converted
+(7)" until converted (owner: "Collapse stands"). PR #28, squashed `f65b1d4`
+(D-0071; it replaces #27, which GitHub closed when #26's merge deleted its
+base branch): "Download PH 211 files" beside the h1, the formats under
+"Handouts", and "Close"; a handout counts as four files (owner: "Four
+files"), so PH 211 shows it. Both `main` runs green; the alias served all
+39 files byte for byte (1 attempt; then 2 attempts, 9.4 s). 207 tests.
+Measurements in D-0070 and D-0071; boards and rulings in
+`docs/design/2026-10-06-course-pages/`. Not built: the "Lab files" group,
+which waits on how a CSV or a simulation attaches to a lab.
 
 **Earlier next: the four items of 2026-10-03, planned, nothing built.** Plan:
 `docs/superpowers/plans/2026-10-03-four-items.md` (`9f2b6df`, Q5 note
@@ -61,12 +77,20 @@ Lab 2, 2 wide site pages after mockups. Every PR waits on its questions,
 Q1 to Q17 in the plan; the owner has answered none yet. The owner's
 left-hand contents idea (links or a select that scrolls) is under Q5: mock
 it first. Vetted 2026-10-03: the PH 213 handout holds no student data; its
-`core.xml` names two people (Q16 gates committing it).
+`core.xml` names two people (Q16 gates committing it). Since then the
+course pages replaced item 1 and calls 2.1 and 2.2, and D-0071 built item
+3's "Close" (Q8); item 3's failure words (Q9), the copy opened from disk
+(Q10) and a busy state (Q11) remain, as do items 4a and 4b.
 
 **Awaiting owner:**
-- Promote D-0069 to D-0071; rule the open items in the 2026-10-06 README
-  (collapse before launch or wait to deploy; rule 6's file count; how a CSV
-  or sim attaches to a lab); approve the new words listed there.
+- Line-edit and approve the "How this site works" draft (D-0072); say
+  whether the landing page's stale download lines ride in the same PR.
+- How a CSV or a simulation attaches to a lab, and whether the sims catalog
+  is the source for simulations (D-0071's "Lab files" group waits on it).
+- Seen by measuring, not ruled (D-0070): the header's content shifts 121 px
+  at 1440 px (192 px at 1920 px) between site pages (96rem) and lab pages
+  (72rem); PH 211's h1 takes 4 lines at 375 px. A lab page's "Course index"
+  link now lands on the chooser, one tap short of its course's page.
 - Promote D-0067 (words approved 2026-10-03: "Words are fine. Go ahead and
   merge.") and D-0068. D-0062 to D-0066 (public flip, logo, domain, cold
   test) are another session's, proposed.
