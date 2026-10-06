@@ -115,7 +115,7 @@ class ChromePieces(unittest.TestCase):
         labs = [rel for rel, _ in pages if lab_theme(rel)]
         self.assertEqual(len(labs), 2 * len(list(converted())), labs)
         self.assertEqual(sorted(rel for rel, _ in pages if not lab_theme(rel)),
-                         sorted(["courses/index.html", "how-this-was-made/index.html",
+                         sorted(["courses/index.html", "how-this-site-works/index.html",
                                  "index.html", "sims/index.html"] + course_page_paths()))
         return pages
 
@@ -178,7 +178,7 @@ class ChromePieces(unittest.TestCase):
         for rel, text in self.pages():
             found = re.findall(re.escape(shape[0]) + "(.*?)" + re.escape(shape[1]), text, re.S)
             with self.subTest(page=rel):
-                if rel == "how-this-was-made/index.html":
+                if rel == "how-this-site-works/index.html":
                     self.assertEqual([one_line(html.unescape(f)) for f in found],
                                      [one_line(render.METHOD_FOOTNOTE)])
                 else:

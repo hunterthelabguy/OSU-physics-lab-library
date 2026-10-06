@@ -46,7 +46,14 @@ on the reading column; a 22 px `ul` indent fixed); D-0067 Download all PR
 opt-in formats; one stored zip written in the page). 186 tests. Vercel's
 check fails on every PR (its build runs the deleted `--site`); blocks nothing.
 
-**Next: "How this site works" (D-0072, proposed), draft first.** The owner
+**Built 2026-10-06: "How this site works" (D-0072, proposed).** The
+owner approved the draft ("Say 'are being written' and build it"); it ships
+from `site/how-this-site-works.md` at `/how-this-site-works/`, the old
+address redirecting. Open for the account holder: what the Cloudflare
+account records, and its AI-crawler block (dropped from the page, not
+guessed). The history below was the drafting step.
+
+**Drafting step, same day.** The owner
 asked (2026-10-06) to re-frame the "How this was made" page: the build
 explained first, the AI use disclosed plainly in the body, a new title and
 address with the old one redirecting, and its own source file. Draft for his

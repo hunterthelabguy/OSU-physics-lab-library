@@ -26,7 +26,7 @@ import downloads
 ROOT = render.ROOT
 QUARTO = os.environ.get("QUARTO", "quarto")
 OUT = os.path.join(ROOT, "build", "quarto-site")
-GENERATED = ["index.qmd", "404.qmd", "courses", "how-this-was-made", "labs",
+GENERATED = ["index.qmd", "404.qmd", "courses", "how-this-site-works", "labs",
              os.path.join("sims", "index.qmd")]
 WARNING = re.compile(r"^\s*\[?(WARN|WARNING)\b", re.I | re.M)
 QUARTO_VERSION = "1.10.18"
@@ -86,8 +86,8 @@ def generate():
     courses = {"body-classes": "courses", "html-table-processing": "none"}
     write("courses/index.qmd", dict(title="Course index", **courses),
           render.course_index_markdown(meta, docs))
-    write("how-this-was-made/index.qmd", {"title": "How this was made"},
-          render.how_this_was_made())
+    write("how-this-site-works/index.qmd", {"title": "How this site works"},
+          include("how-this-site-works/index.qmd", "site/how-this-site-works.md"))
     write("sims/index.qmd", {"title": "Sims"},
           render.sims_index_markdown(render.sims()))
 
@@ -95,7 +95,7 @@ def generate():
         {"html": "index.html", "kind": "site", "depth": 0, "theme": None, "footnote": ""},
         {"html": "404.html", "kind": "site", "depth": 0, "theme": None, "footnote": ""},
         {"html": "courses/index.html", "kind": "site", "depth": 1, "theme": None, "footnote": ""},
-        {"html": "how-this-was-made/index.html", "kind": "site", "depth": 1, "theme": None,
+        {"html": "how-this-site-works/index.html", "kind": "site", "depth": 1, "theme": None,
          "footnote": render.METHOD_FOOTNOTE},
         {"html": "sims/index.html", "kind": "site", "depth": 1, "theme": None, "footnote": ""},
     ]
@@ -224,6 +224,9 @@ def post():
     for doc_id in render.converted_documents():
         render.redirect_page(os.path.join(OUT, "labs", doc_id, "index.html"),
                              "modern/")
+    # The page's old address (D-0072).
+    render.redirect_page(os.path.join(OUT, "how-this-was-made", "index.html"),
+                         "../" + render.METHOD_PATH, "Continue to How this site works")
     base_404(os.path.join(OUT, "404.html"))
     with open(os.path.join(OUT, "robots.txt"), "w", encoding="utf-8",
               newline="\n") as fh:

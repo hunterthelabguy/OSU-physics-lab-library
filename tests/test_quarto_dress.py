@@ -77,12 +77,12 @@ class OldChrome(unittest.TestCase):
 
     def test_site_page_with_footnote(self):
         body_class, top, bottom = quarto_chrome.old_chrome(
-            {"html": "how-this-was-made/index.html", "kind": "site", "depth": 1,
+            {"html": "how-this-site-works/index.html", "kind": "site", "depth": 1,
              "theme": None, "footnote": render.METHOD_FOOTNOTE})
         self.assertEqual(body_class, "site-page")
         self.assertNotIn("site-nav", top)
         self.assertIn('<div class="site-foot">', bottom)
-        self.assertIn("VISION.md", bottom)
+        self.assertIn("site/how-this-site-works.md", bottom)
 
     def test_site_page_without_footnote(self):
         _, _, bottom = quarto_chrome.old_chrome(

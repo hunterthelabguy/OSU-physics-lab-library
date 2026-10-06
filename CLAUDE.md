@@ -53,7 +53,7 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   missing tool fails the tests, never skips.
 - Quarto site: `python tools/quarto_build.py` writes `build/quarto-site/`
   (Quarto 1.10.18 at `C:\Program Files\Quarto\bin\quarto.exe`, not on
-  PATH). Generated pages (`/index.qmd`, `/courses/`, `/how-this-was-made/`,
+  PATH). Generated pages (`/index.qmd`, `/courses/`, `/how-this-site-works/`,
   `/labs/`, `/sims/index.qmd`) are gitignored and rebuilt every run; never
   edit them. Its warning gate fails on any Quarto or Pandoc warning.
 - Downloads (D-0052 to D-0054): `tools/downloads.py`, run at the end of
@@ -134,8 +134,8 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
 - One Markdown source feeds both presentations, `themes/faithful.css` and
   `themes/modern.css` (ledger 28); never copy content into a second file.
   Question numbers come from `tools/filters/questions.lua` at render time;
-  none is stored in the source. The "How this was made" page is lifted from
-  `VISION.md`; the banner wording is `BANNER_MAIN` and `BANNER_DETAIL` in
+  none is stored in the source. The "How this site works" page is
+  `site/how-this-site-works.md` (D-0072; its old address redirects); the banner wording is `BANNER_MAIN` and `BANNER_DETAIL` in
   `tools/render.py`. Output stays host-agnostic static files (ledger 39).
 - Tools not on PATH: Python 3.12 at
   `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`; the GitHub CLI at

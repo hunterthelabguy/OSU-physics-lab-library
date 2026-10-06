@@ -28,13 +28,14 @@ labs, the curriculum, and lab operations.
 5. **Changes are ruled, not drifted.** Every change to wording is a dated
    ledger entry by a named role.
 6. **Open about method.** How this material was made is published with it
-   (see below).
+   (see below, and the site's "How this site works" page).
 
 ## How this was made
 
-Hunter Reaves drafts by voice with Wispr Flow and directs Claude, an AI model
-from Anthropic, to convert the original Word documents to Markdown and to
-build the software that converts and checks them. In the current phase:
+The public page that explains how the site is built, how it is checked, and
+who did the work is "How this site works", from
+`site/how-this-site-works.md` (D-0072). Its commitments, in the current
+phase:
 
 - **No content changes.** Wording, curriculum, objectives, and conventions
   are exactly as the original authors wrote them. This is a change of format
@@ -48,17 +49,6 @@ build the software that converts and checks them. In the current phase:
 - **Same standard as students.** The project follows the students' own AI
   policy in these labs: disclose use, keep the reasoning human, and the human
   answers for the work.
-
-Common concerns, answered briefly:
-
-| Concern | Answer |
-|---|---|
-| Accuracy | The content-unchanged check, per document. |
-| Authorship and credit | Original authors are kept and credited. |
-| A double standard for faculty | The project follows the students' AI policy. |
-| Deskilling | Every judgment is a human ruling in the ledger. |
-| Data privacy | No student data enters any repo, by rule. |
-| Jobs and labor | Time saved goes to teaching and TA preparation. |
 
 The standard for the later phase, when wording does change, is still open
 (ledger 11).
