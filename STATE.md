@@ -46,7 +46,7 @@ on the reading column; a 22 px `ul` indent fixed); D-0067 Download all PR
 opt-in formats; one stored zip written in the page). 186 tests. Vercel's
 check fails on every PR (its build runs the deleted `--site`); blocks nothing.
 
-**Built 2026-10-06: "How this site works" (D-0072, proposed).** The
+**Done 2026-10-06: "How this site works" (D-0072, ruled; PR #29, `c3c8620`).** The
 owner approved the draft ("Say 'are being written' and build it"); it ships
 from `site/how-this-site-works.md` at `/how-this-site-works/`, the old
 address redirecting. Open for the account holder: what the Cloudflare
