@@ -10,6 +10,11 @@
 <body class="site-page">
 <div class="draft-banner"><details><summary><strong>$bannermain$</strong> <span class="draft-more">What this means</span></summary><p class="draft-detail">$bannerdetail$</p></details></div>
 $brandheader()$
+$if(coursetabs)$
+<nav class="course-tabs" aria-label="Courses"><div class="osu-inner">
+$coursetabs$
+</div></nav>
+$endif$
 <main>
 $body$
 </main>

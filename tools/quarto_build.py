@@ -78,8 +78,14 @@ def generate():
           include("404.qmd", "site/404.md"))
 
     docs = render.converted_documents()
-    write("courses/index.qmd", {"title": "Course index"},
-          render.course_index_markdown(docs, 1))
+    meta = render.courses_meta()
+    # The course index and each course's page (D-0069, D-0070) take the
+    # left-aligned grid in site/site.css by their body class. Quarto would
+    # parse a raw HTML table into its own and add Bootstrap's classes, so
+    # table processing is off for them.
+    courses = {"body-classes": "courses", "html-table-processing": "none"}
+    write("courses/index.qmd", dict(title="Course index", **courses),
+          render.course_index_markdown(meta, docs))
     write("how-this-was-made/index.qmd", {"title": "How this was made"},
           render.how_this_was_made())
     write("sims/index.qmd", {"title": "Sims"},
@@ -93,6 +99,14 @@ def generate():
          "footnote": render.METHOD_FOOTNOTE},
         {"html": "sims/index.html", "kind": "site", "depth": 1, "theme": None, "footnote": ""},
     ]
+
+    for course in meta["courses"]:
+        folder = "courses/" + render.course_slug(course)
+        write(folder + "/index.qmd", dict(title=render.course_heading(course), **courses),
+              render.course_page_markdown(course, docs))
+        pages.append({"html": folder + "/index.html", "kind": "site", "depth": 2,
+                      "theme": None, "footnote": "",
+                      "tabs": render.course_tabs(meta["courses"], course)})
 
     for doc_id, doc in docs.items():
         source = os.path.relpath(doc["path"], ROOT).replace(os.sep, "/")

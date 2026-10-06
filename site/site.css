@@ -22,9 +22,10 @@
   --chrome-warn: #ffb500;     /* Luminance, black text 11.86:1 (D-0022) */
   /* Two widths, deliberately. The reading measure is the evidence review's
      number (WCAG 2.2 SC 1.4.8 bounds a line at 80 characters) and governs
-     anything anyone reads as prose. The shell is the page frame, and lists
-     of cards may use all of it: a card holds a title and one short line, so
-     a wide grid never makes a long line of text. */
+     anything anyone reads as prose. The shell is the page frame: 72rem here,
+     the frame a document's reading column is centered in (LEDGER 57, 58),
+     and 96rem on site pages (body.site-page, D-0070), where the course
+     tiles and the lab table use all of it. */
   --chrome-measure: 68ch;
   --chrome-shell: 72rem;
   /* Spacing scale on an 8 px base. Every margin, padding and gap in the
@@ -130,8 +131,11 @@ body.theme-faithful {
 
 .switch:hover, .switch:focus { text-decoration: underline; }
 
-/* Site pages: landing, course index, how this was made. */
+/* Site pages: landing, course index, course pages, how this was made, sims.
+   Their shell is 96rem (D-0070, amending LEDGER 56's 72rem); the header and
+   footer inherit it, so they frame the same width as the page. */
 body.site-page {
+  --chrome-shell: 96rem;
   background: var(--chrome-paper);
   color: var(--chrome-ink);
   margin: 0;
@@ -164,6 +168,19 @@ body.site-page main {
 }
 
 body.site-page main > * { grid-column: prose; min-width: 0; }
+
+/* The course index and the course pages (D-0069, D-0070; body class
+   "courses", set by tools/quarto_build.py): the tiles and the lab table span
+   the shell, and the prose track sits at the shell's left edge instead of
+   centered (D-0029), so the h1, the prose and the table share one left edge,
+   as the 2026-10-06 boards draw. Prose keeps the measure. */
+body.site-page.courses main {
+  grid-template-columns:
+    [full-start prose-start] minmax(0, var(--chrome-measure))
+    [prose-end] minmax(0, 1fr) [full-end];
+}
+body.site-page.courses main > h1, body.site-page main > .course-tiles,
+body.site-page main > .lab-table, body.site-page main > .lab-pending { grid-column: full; }
 
 /* Landing hero (D-0031): a full-bleed Star Canvas band holding the title,
    the lead and two actions, on the same centered column as the prose.
@@ -246,12 +263,11 @@ body.site-page th, body.site-page td {
 
 body.site-page th { color: var(--chrome-quiet); font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; }
 
-/* Course index and sims: one row per item, on the reading column, at every
-   width (D-0068, amending D-0029's full-width list). Rows are all one width;
-   their heights follow the quoted descriptions, which are never clipped. A
-   lab not yet converted is quieter: no link, a dashed border, a muted title.
-   Scoped to body.site-page so it outranks `body.site-page ul`, which had
-   kept a 1.4rem indent and its own margin on the list (measured 2026-10-03). */
+/* The sims page: one row per item, on the reading column, at every width
+   (D-0068, amending D-0029's full-width list). Rows are all one width;
+   their heights follow their text, which is never clipped. Scoped to
+   body.site-page so it outranks `body.site-page ul`, which had kept a
+   1.4rem indent and its own margin on the list (measured 2026-10-03). */
 body.site-page .lab-list {
   list-style: none;
   padding: 0;
@@ -269,11 +285,77 @@ body.site-page .lab-list {
 }
 
 .lab-list > li.converted { border-left: 4px solid var(--chrome-accent); }
-.lab-list > li.pending { border-style: dashed; }
-.lab-list > li.pending .lab-title { color: var(--chrome-quiet); }
 
 .lab-title { font-weight: 700; margin: 0 0 .25rem; }
 .lab-desc { margin: 0 0 .5rem; }
+
+/* The course index (D-0069): one tile per course, all one size, in one row
+   above 48rem and stacked below it, each a link to its course's page. A
+   course with a converted lab gets the orange top rule. Border-box, since
+   the quarto-only block reverts box-sizing and a tile has padding. */
+body.site-page .course-tiles {
+  list-style: none; padding: 0; margin: 0 0 var(--space-2);
+  display: grid; gap: var(--space-3);
+  grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+}
+body.site-page .course-tiles li { margin: 0; display: flex; }
+body.site-page .course-tile {
+  flex: 1 1 auto; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--chrome-rule); border-top: 6px solid var(--chrome-rule);
+  color: var(--chrome-ink); text-decoration: none;
+}
+body.site-page .course-tile.converted { border-top-color: var(--chrome-accent); }
+.course-tile-code { font-size: var(--type-h1); font-weight: 700; line-height: var(--leading-tight); color: var(--chrome-heading); }
+.course-tile-name { font-size: var(--type-lead); line-height: 1.3; }
+.course-tile-count { margin-top: auto; font-size: var(--type-small); color: var(--chrome-quiet); }
+body.site-page .course-tile:hover .course-tile-code,
+body.site-page .course-tile:focus-visible .course-tile-code { text-decoration: underline; }
+body.site-page .course-tile:focus-visible { outline: 3px solid var(--chrome-heading); outline-offset: 3px; }
+@media (max-width: 48rem) {
+  body.site-page .course-tiles { grid-auto-flow: row; grid-auto-columns: auto; grid-auto-rows: 1fr; }
+}
+
+/* A course page's labs (D-0070): one table across the shell, Lab, Title,
+   Description, rules from the site table above. The first two columns are
+   fixed and the description takes the rest, wider than the measure: the
+   table is scanned, not read. Descriptions are quoted whole, never clipped.
+   "Lab N: " in the title cell is for screen readers here and shows only
+   when the rows stack. */
+body.site-page .lab-table { table-layout: fixed; }
+body.site-page .lab-table .lab-num { width: 5.5rem; white-space: nowrap; font-weight: 700; }
+body.site-page .lab-table .lab-title { width: 18rem; }
+body.site-page .lab-table .lab-prefix {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+/* Below 48rem the rows stack: "Lab N: Title" as the link, the description
+   under it, the Lab column and the header row hidden. The title cell is
+   named on its own, or its 18rem above (0,3,1) outranks the cells' reset. */
+@media (max-width: 48rem) {
+  body.site-page .lab-table, body.site-page .lab-table tbody,
+  body.site-page .lab-table tr, body.site-page .lab-table td,
+  body.site-page .lab-table .lab-title { display: block; width: auto; }
+  body.site-page .lab-table thead, body.site-page .lab-table .lab-num { display: none; }
+  body.site-page .lab-table tr { padding: var(--space-1) 0; border-bottom: 1px solid var(--chrome-rule); }
+  body.site-page .lab-table td { padding: 0; border: 0; }
+  body.site-page .lab-table .lab-prefix {
+    position: static; width: auto; height: auto; overflow: visible;
+    clip-path: none; white-space: normal;
+  }
+}
+
+/* Before launch only: the labs not yet converted, collapsed under the
+   table, no script. The summary is a quiet outlined control at least 44 px
+   tall, keeping its disclosure triangle. */
+body.site-page .lab-pending { margin: 0 0 var(--space-2); }
+body.site-page .lab-pending > summary {
+  width: fit-content; padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--chrome-quiet); border-radius: 6px;
+  color: var(--chrome-quiet); font-weight: 700; cursor: pointer;
+}
+body.site-page .lab-pending[open] > summary { margin-bottom: var(--space-2); }
 
 .lab-state {
   font-size: .85rem;
@@ -316,6 +398,23 @@ body.site-page .lab-list {
 .osu-nav .osu-inner { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; padding-top: .6rem; padding-bottom: .6rem; }
 .osu-nav a { color: #000; font-weight: 700; text-decoration: none; font-size: .95rem; }
 .osu-nav a:hover, .osu-nav a:focus { text-decoration: underline; }
+
+/* Course tabs (D-0069): under the site nav on every course page, one link
+   per course, 44 px tall with the current course's orange rule inside that
+   height. Fixed colors like the nav's, so the row reads the same in dark
+   mode. On a phone the tabs share the width. */
+.course-tabs { background: #fff; border-bottom: 1px solid var(--chrome-rule); }
+.course-tabs .osu-inner { display: flex; flex-wrap: wrap; gap: 0 var(--space-1); }
+.course-tabs a {
+  display: inline-flex; align-items: center; box-sizing: border-box;
+  min-height: 44px; padding: 0 var(--space-2); border-bottom: 4px solid transparent;
+  color: #000; font-weight: 700; text-decoration: none;
+}
+.course-tabs a[aria-current="page"] { border-bottom-color: var(--chrome-accent); color: #003b5c; }
+.course-tabs a:hover, .course-tabs a:focus-visible { text-decoration: underline; }
+@media (max-width: 40rem) {
+  .course-tabs a { flex: 1 1 0; justify-content: center; }
+}
 
 .osu-foot { background: #000; color: #fff; margin-top: 3rem; padding: 1.5rem 0 2.5rem; font-size: .9rem; line-height: 1.5; }
 .osu-foot a { color: #fff; }

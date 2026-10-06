@@ -4,6 +4,7 @@ Reads build/quarto-site/. A missing build is an error, never a skip
 (LEDGER 53).
 """
 
+import functools
 import html
 import re
 import sys
@@ -78,6 +79,28 @@ def one_line(text):
     return " ".join(text.split())
 
 
+@functools.lru_cache(maxsize=None)
+def courses():
+    """site/courses.md's courses, in order, and the converted documents."""
+    return tuple(render.courses_meta()["courses"]), render.converted_documents()
+
+
+def course_page_paths():
+    return ["courses/{}/index.html".format(render.course_slug(c)) for c in courses()[0]]
+
+
+def course_page(course):
+    return (QSITE / "courses" / render.course_slug(course) / "index.html").read_text(encoding="utf-8")
+
+
+def main_of(text):
+    return re.search(r"<main>(.*?)</main>", text, re.S).group(1)
+
+
+def text_of(fragment):
+    return one_line(html.unescape(re.sub(r"<[^>]+>", " ", fragment)))
+
+
 class ChromePieces(unittest.TestCase):
     """D-0038, D-0061: each piece of chrome pinned by its words.
 
@@ -92,8 +115,8 @@ class ChromePieces(unittest.TestCase):
         labs = [rel for rel, _ in pages if lab_theme(rel)]
         self.assertEqual(len(labs), 2 * len(list(converted())), labs)
         self.assertEqual(sorted(rel for rel, _ in pages if not lab_theme(rel)),
-                         ["courses/index.html", "how-this-was-made/index.html",
-                          "index.html", "sims/index.html"])
+                         sorted(["courses/index.html", "how-this-was-made/index.html",
+                                 "index.html", "sims/index.html"] + course_page_paths()))
         return pages
 
     def test_body_class(self):
@@ -167,44 +190,215 @@ class ChromePieces(unittest.TestCase):
         self.assertNotIn("one build script", (QSITE / "index.html").read_text(encoding="utf-8"))
 
 
+def site_css():
+    return re.sub(r"/\*.*?\*/", "", (ROOT / "site" / "site.css").read_text(encoding="utf-8"), flags=re.S)
+
+
+def css_rules(selector, css=None):
+    """Bodies of the innermost rules whose selector list names selector;
+    an @media wrapper is skipped over, so its rules count too."""
+    return [body for sel, body in re.findall(r"([^{}]+)\{([^{}]*)\}", site_css() if css is None else css)
+            if selector in [s.strip() for s in sel.split(",")]]
+
+
+def media_css(query):
+    """The rules inside every @media block with this query, as one text."""
+    return "\n".join(re.findall(r"@media " + re.escape(query) + r"\s*\{((?:[^{}]*\{[^{}]*\})*[^{}]*)\}",
+                                site_css()))
+
+
+TABLE = re.compile(r'<table class="lab-table">.*?</table>', re.S)
+PENDING = re.compile(r'<details class="lab-pending">\s*<summary>([^<]*)</summary>(.*?)</details>', re.S)
+
+
+def cells(table):
+    """[(lab cell, title cell, description cell)] of a lab table's body rows."""
+    body = re.search(r"<tbody>(.*?)</tbody>", table, re.S).group(1)
+    return re.findall(r'<tr><td class="lab-num">(.*?)</td><td class="lab-title">(.*?)</td>'
+                      r'<td class="lab-desc">(.*?)</td></tr>', body, re.S)
+
+
 class LabRows(unittest.TestCase):
-    """D-0068: one row per lab on the reading column; nothing clipped."""
+    """D-0068 for the sims page's rows, D-0070 for a course page's table:
+    Lab, Title, Description across the shell, no state line, nothing
+    clipped; before launch the unconverted labs collapsed under it."""
 
-    def css(self):
-        return re.sub(r"/\*.*?\*/", "", (ROOT / "site" / "site.css").read_text(encoding="utf-8"), flags=re.S)
-
-    def rules(self, selector):
-        return [body for sel, body in re.findall(r"([^{}]+)\{([^}]*)\}", self.css())
-                if selector in [s.strip() for s in sel.split(",")]]
-
-    def test_one_column_at_every_width(self):
-        self.assertNotIn("auto-fill", self.css())
-        bodies = self.rules("body.site-page .lab-list")
+    def test_sims_rows_one_column_at_every_width(self):
+        self.assertNotIn("auto-fill", site_css())
+        bodies = css_rules("body.site-page .lab-list")
         self.assertTrue(bodies)
         self.assertEqual([re.search(r"grid-template-columns:\s*([^;]+);", b).group(1).strip()
                           for b in bodies if "grid-template-columns" in b], ["minmax(0, 1fr)"])
 
-    def test_on_the_reading_column(self):
-        self.assertEqual(self.rules("body.site-page main > .lab-list"), [])
+    def test_sims_rows_on_the_reading_column(self):
+        self.assertEqual(css_rules("body.site-page main > .lab-list"), [])
         # It must outrank `body.site-page ul`, or that rule indents the list.
-        self.assertIn("padding: 0", "".join(self.rules("body.site-page .lab-list")))
+        self.assertIn("padding: 0", "".join(css_rules("body.site-page .lab-list")))
 
     def test_descriptions_never_clipped(self):
-        for word in ("line-clamp", "text-overflow"):
-            self.assertNotIn(word, "".join(self.rules(".lab-desc")))
+        for selector in (".lab-desc", "body.site-page .lab-table .lab-desc", "body.site-page .lab-table td"):
+            for word in ("line-clamp", "text-overflow", "max-height"):
+                with self.subTest(selector=selector, word=word):
+                    self.assertNotIn(word, "".join(css_rules(selector)))
 
-    def test_pending_rows_quieter(self):
-        self.assertIn("border-style: dashed", "".join(self.rules(".lab-list > li.pending")))
-        self.assertIn("var(--chrome-quiet)", "".join(self.rules(".lab-list > li.pending .lab-title")))
+    def test_table_spans_the_shell_description_takes_the_rest(self):
+        self.assertIn("grid-column: full", "".join(css_rules("body.site-page main > .lab-table")))
+        self.assertIn("table-layout: fixed", "".join(css_rules("body.site-page .lab-table")))
+        self.assertIn("width: 5.5rem", "".join(css_rules("body.site-page .lab-table .lab-num")))
+        self.assertIn("width: 18rem", "".join(css_rules("body.site-page .lab-table .lab-title")))
+        self.assertEqual(css_rules("body.site-page .lab-table .lab-desc"), [])
 
-    def test_every_row_is_converted_or_pending(self):
+    def test_rows_stack_below_48rem(self):
+        # The title cell is reset by name: its 18rem (0,3,1) outranked the
+        # cells' reset (0,2,2) and wrapped titles at 288 px (measured 2026-10-06).
+        phone = media_css("(max-width: 48rem)")
+        for selector in ("body.site-page .lab-table td", "body.site-page .lab-table .lab-title"):
+            with self.subTest(selector=selector):
+                rule = "".join(css_rules(selector, phone))
+                self.assertIn("display: block", rule)
+                self.assertIn("width: auto", rule)
+        hidden = "".join(css_rules("body.site-page .lab-table .lab-num", phone))
+        self.assertIn("display: none", hidden)
+        self.assertIn("position: static", "".join(css_rules("body.site-page .lab-table .lab-prefix", phone)))
+
+    def test_one_table_of_the_converted_labs(self):
+        listed, docs = courses()
+        for course in listed:
+            done = render.converted_labs(course, docs)
+            with self.subTest(course=course["code"]):
+                outside = PENDING.sub("", main_of(course_page(course)))
+                tables = TABLE.findall(outside)
+                self.assertEqual(len(tables), 1 if done else 0)
+                if not done:
+                    continue
+                self.assertEqual(re.findall(r'<th scope="col"[^>]*>([^<]*)</th>', tables[0]),
+                                 ["Lab", "Title", "Description"])
+                rows = cells(tables[0])
+                self.assertEqual(len(rows), len(done))
+                for (num, title, desc), lab in zip(rows, done):
+                    href = "../../labs/{}/modern/".format(lab["document"])
+                    name = ("Lab " + lab["number"] + ": " if lab.get("number") else "") + lab["title"]
+                    self.assertEqual(text_of(num), "Lab " + lab["number"] if lab.get("number") else "")
+                    self.assertRegex(title, r'^<a href="{}">'.format(re.escape(href)))
+                    self.assertEqual(text_of(title), name, "the link reads Lab N: Title")
+                    self.assertEqual(html.unescape(desc), lab["description"], "quoted whole")
+
+    def test_no_state_line_and_no_converted_heading(self):
+        for course in courses()[0]:
+            with self.subTest(course=course["code"]):
+                main = main_of(course_page(course))
+                self.assertNotIn("lab-state", main)
+                self.assertNotIn("Also available as it was written", main)
+                self.assertNotRegex(main, r"<h[2-6][^>]*>\s*Converted")
+
+    def test_unconverted_labs_collapsed_before_launch(self):
+        listed, docs = courses()
+        for course in listed:
+            pending = [lab for lab in course.get("labs") or [] if lab.get("document") not in docs]
+            found = PENDING.findall(main_of(course_page(course)))
+            with self.subTest(course=course["code"]):
+                self.assertEqual(len(found), 1 if pending else 0)
+                if not pending:
+                    continue
+                summary, inside = found[0]
+                self.assertEqual(summary, "Not yet converted ({})".format(len(pending)))
+                self.assertNotIn("<a ", inside)
+                self.assertEqual([html.unescape(d) for _, _, d in cells(TABLE.search(inside).group(0))],
+                                 [lab["description"] for lab in pending])
+
+
+class CoursePages(unittest.TestCase):
+    """D-0069: one page per course, the course index as tiles that choose
+    one, and course tabs under the site nav. Everything named here is read
+    from site/courses.md, never typed."""
+
+    def index(self):
+        return main_of((QSITE / "courses" / "index.html").read_text(encoding="utf-8"))
+
+    def test_one_page_per_course(self):
+        found = sorted(p.relative_to(QSITE).as_posix() for p in (QSITE / "courses").glob("*/index.html"))
+        self.assertEqual(found, sorted(course_page_paths()))
+        self.assertEqual(len(found), len(courses()[0]))
+
+    def test_index_chooses_with_one_tile_per_course(self):
+        listed, docs = courses()
+        tiles = re.findall(r'<a class="course-tile( converted)?" href="([^"]*)">(.*?)</a>', self.index(), re.S)
+        self.assertEqual([href for _, href, _ in tiles], [render.course_slug(c) + "/" for c in listed])
+        for (orange, _, inner), course in zip(tiles, listed):
+            labs, done = course.get("labs") or [], render.converted_labs(course, docs)
+            # The count, computed here from the data: none, all, or some.
+            n = len(labs)
+            count = ("No labs converted yet" if not done else
+                     "{} lab{}".format(n, "" if n == 1 else "s") if len(done) == n else
+                     "{} lab{} listed, {} converted".format(n, "" if n == 1 else "s", len(done)))
+            spans = re.findall(r'<span class="course-tile-([a-z]+)">([^<]*)</span>', inner)
+            with self.subTest(course=course["code"]):
+                want = [("code", course["code"])]
+                if course.get("name"):
+                    want.append(("name", course["name"]))
+                want.append(("count", count))
+                self.assertEqual([(k, html.unescape(v)) for k, v in spans], want)
+                self.assertEqual(bool(orange), bool(done))
+
+    def test_no_name_typed_before_it_is_in_hand(self):
+        # Q4 of the four-items plan: a course with no name shows its code alone.
+        for course in courses()[0]:
+            if course.get("name"):
+                continue
+            with self.subTest(course=course["code"]):
+                h1 = re.search(r"<h1[^>]*>(.*?)</h1>", course_page(course), re.S).group(1)
+                self.assertEqual(text_of(h1), course["code"])
+
+    def test_heading_names_the_course(self):
+        for course in courses()[0]:
+            with self.subTest(course=course["code"]):
+                h1 = re.search(r"<h1[^>]*>(.*?)</h1>", course_page(course), re.S).group(1)
+                self.assertEqual(text_of(h1), render.course_heading(course))
+
+    def test_no_popover_on_load(self):
         text = (QSITE / "courses" / "index.html").read_text(encoding="utf-8")
-        rows = re.findall(r'<li class="([^"]*)">\s*<p class="lab-title">(.*?)</p>', text, re.S)
-        self.assertTrue(rows)
-        for cls, title in rows:
-            with self.subTest(row=title):
-                self.assertIn(cls, ("converted", "pending"))
-                self.assertEqual(cls == "converted", title.strip().startswith("<a "))
+        for word in ("<dialog", "autofocus", "download-all.js", "popover"):
+            with self.subTest(word=word):
+                self.assertNotIn(word, text)
+
+    def test_tabs_name_every_course_and_mark_the_current_one(self):
+        listed = courses()[0]
+        for course in listed:
+            text = course_page(course)
+            navs = re.findall(r'<nav class="course-tabs" aria-label="Courses">(.*?)</nav>', text, re.S)
+            with self.subTest(course=course["code"]):
+                self.assertEqual(len(navs), 1)
+                # Under the site nav, before <main>.
+                self.assertLess(text.index('<nav class="osu-nav"'), text.index('<nav class="course-tabs"'))
+                self.assertLess(text.index('<nav class="course-tabs"'), text.index("<main>"))
+                tabs = re.findall(r'<a href="([^"]*)"( aria-current="page")?>([^<]*)</a>', navs[0])
+                self.assertEqual([(href, html.unescape(code)) for href, _, code in tabs],
+                                 [("../{}/".format(render.course_slug(c)), c["code"]) for c in listed])
+                self.assertEqual([code for _, current, code in tabs if current], [course["code"]])
+
+    def test_tabs_only_on_course_pages(self):
+        pages = set(course_page_paths())
+        for rel, text in chrome_pages():
+            if rel not in pages:
+                with self.subTest(page=rel):
+                    self.assertNotIn("course-tabs", text)
+
+    def test_tabs_44px_tall(self):
+        rule = "".join(css_rules(".course-tabs a"))
+        self.assertIn("min-height: 44px", rule)
+        self.assertIn("box-sizing: border-box", rule, "the orange rule counts inside the 44 px")
+
+    def test_footnote_names_the_source_where_labs_are_listed(self):
+        for course in courses()[0]:
+            notes = re.findall(r'<p class="course-note">(.*?)</p>', main_of(course_page(course)), re.S)
+            quoted = [n for n in notes if "are quoted from" in n]
+            with self.subTest(course=course["code"]):
+                if course.get("labs") and course.get("source_note"):
+                    self.assertEqual(len(quoted), 1)
+                    self.assertIn(course["source_note"], text_of(quoted[0]))
+                    self.assertIn("for {} are".format(course["code"]), text_of(quoted[0]))
+                else:
+                    self.assertEqual(quoted, [])
 
 
 class MainBare(unittest.TestCase):

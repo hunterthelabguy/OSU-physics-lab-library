@@ -72,12 +72,48 @@ converted labs are included." (dialog), "Download PH 211 files", "Lab
 files", "Data files (CSV)", "Simulations (HTML)", "Description". "Close"
 is Q8's lean.
 
+## Built 2026-10-06 (D-0069, D-0070): for the owner before it merges
+
+The first PR builds D-0069 and D-0070; measurements are in D-0070. What it
+ships that the owner has not yet ruled:
+
+- **Before launch: Claude's lean, built.** The collapse stands until the
+  last lab is converted: under the table, a `<details>` closed as built,
+  "Not yet converted (7)" for PH 211, the seven labs inside in the same
+  three columns without links. It needs no script and disappears by itself
+  once every listed lab is converted. Reason: it is the owner's own "5
+  collapsed"; it keeps what production shows today (all eight PH 211 labs)
+  one tap away; and the other branch would hold the course pages, and the
+  download work built on them, off `main` until the last lab is converted.
+  The other branch stays open: if the owner rules it, the PR does not merge.
+- **Words, visible and new:** "Choose a course to see its labs." (index);
+  the tile counts "8 labs listed, 1 converted" and "No labs converted yet"
+  (the board's), and "8 labs" once a course is fully converted (new, not
+  shown today); the column names "Lab", "Title", "Description"; "Not yet
+  converted (7)" (the site's "Not yet converted." with a count). At phone
+  width each link reads "Lab 1: Team Building", as the course index's links
+  read today.
+- **Words, spoken only:** the tabs' `<nav>` is named "Courses" (Q2's lean).
+- **Words that go:** "A lab reads as a link once its handout has been
+  converted ... Everything else is listed so the gap is visible, not
+  hidden."; "Converted and checked. Also available as it was written.";
+  "Not yet converted." under each pending lab.
+- **Builder's calls:** pages at `/courses/ph211/`, `/courses/ph212/`,
+  `/courses/ph213/`; a course name not in hand is left out (the tile and
+  the h1 show the code alone), never a placeholder; the h1 and the prose
+  on these pages sit at the shell's left edge, as drawn, which amends
+  D-0029's centering there; D-0067's Download all stays as it is, after the
+  table, until the second PR moves it.
+- **Seen by measuring, not ruled:** the header's content shifts 121 px at
+  1440 px (192 px at 1920 px) between a site page (96rem) and a lab page
+  (72rem); at 375 px the PH 211 h1 takes 4 lines (202 px).
+
 ## Open, for whoever builds this
 
 - **Before launch.** The table assumes every lab is converted; today seven of
   PH 211's eight are not. Either the collapse ("Not yet converted (N)")
   stands until the last lab is converted, or the new course pages do not
-  deploy until then. Not ruled.
+  deploy until then. Not ruled; built as the collapse, above.
 - **Rule 6's count.** "Fewer than two downloadable files": one handout in
   four formats is four files. Whether that counts as one or four is not
   ruled.
@@ -87,4 +123,7 @@ is Q8's lean.
 - **The description column's line length.** Computed, not measured: at
   1440 px the column is about 1,000 px, past the 68ch measure. The longest
   description (175 characters) wraps to about two lines. The owner chose
-  this; measure it on the built page and record the number.
+  this; measure it on the built page and record the number. Measured
+  2026-10-06 (D-0070): 979 px at 1440 px, 1,122 px at 1920 px; the longest
+  description is 173 characters and sets 2 lines, full lines of 111 and 127
+  characters.

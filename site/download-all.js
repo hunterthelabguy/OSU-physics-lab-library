@@ -1,6 +1,6 @@
 // Download all (D-0067): one zip of a course's lab files, written in the page.
-// The course index lists each format's published files on its checkbox, at
-// build time (tools/render.py, course_index_markdown). This script fetches
+// Each course page lists each format's published files on its checkbox, at
+// build time (tools/render.py, download_all). This script fetches
 // the ticked formats' files from this site, relative paths only, and writes
 // them into one zip byte for byte: stored, no compression, each with its
 // CRC-32, one folder per lab. No library and no request outside the site.
