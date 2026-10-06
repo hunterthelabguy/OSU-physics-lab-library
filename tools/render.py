@@ -282,39 +282,70 @@ def raw_html(fragment):
     return "```{=html}\n" + fragment + "\n```\n"
 
 
-# Download all (D-0067): D-0053's names for the four formats, in the order of
-# the lab page's download row, each with its published file's extension.
+# The course download (D-0067, amended by D-0071): D-0053's names for the
+# four formats, in the order of the lab page's download row, each with its
+# published file's extension.
 DOWNLOAD_FORMATS = (("docx", "Word"), ("html", "HTML"), ("pdf", "PDF"), ("md", "Markdown"))
+# Claude's words, for the owner's approval (D-0071): the button and the
+# dialog's title name the course and say files; the note says what the zip
+# holds; the formats are grouped as the handouts they apply to.
+DOWNLOAD_LABEL = "Download {} files"
+DOWNLOAD_NOTE = "One zip, a folder per lab. Only converted labs are included."
+DOWNLOAD_HANDOUTS = "Handouts"
+# The control is hidden under this many files (the owner's "6 hide").
+DOWNLOAD_MIN_FILES = 2
+
+
+def downloadable_files(course, docs):
+    """The files a course's download offers, as D-0071's rule counts them.
+
+    One per converted lab's handout, whatever its formats: Claude's lean,
+    not ruled. The owner hid the control because with one lab it repeats
+    that lab's own download row, which holds the same four formats. A lab's
+    data files and simulations would count one each, but no way to attach
+    them to a lab is designed, so none is counted or listed.
+    """
+    return len(converted_labs(course, docs))
 
 
 def download_all(course, docs, depth):
-    """The course's Download all control, or "" when no lab is converted.
+    """The course download control (HTML), or "" under two files.
 
-    A quiet button after the course page's lab table opens a dialog of four
-    format checkboxes, none ticked, and a "Download selected" button (D-0067,
-    as amended 2026-10-03). Each checkbox carries its format's published
-    files for the course's converted labs, written here from the converted
-    documents, never typed; site/download-all.js zips the ticked ones in the
-    page as <slug>.zip (ph211.zip). The button is hidden until the script
-    runs, so a page without it shows no dead control.
+    A quiet button beside the course page's h1, "Download PH 211 files",
+    opens a dialog with the same title, a note, the four formats as
+    checkboxes under "Handouts", none ticked, and "Download selected" and
+    "Close" (D-0067 as amended by D-0071). Each checkbox carries its
+    format's published files for the course's converted labs, written here
+    from the converted documents, never typed; site/download-all.js zips the
+    ticked ones in the page as <slug>.zip (ph211.zip), a folder per lab. The
+    button is hidden until the script runs, so a page without the script
+    shows no dead control; "Close" closes the dialog without it.
     """
-    ids = [lab["document"] for lab in converted_labs(course, docs)]
-    if not ids:
+    if downloadable_files(course, docs) < DOWNLOAD_MIN_FILES:
         return ""
+    ids = [lab["document"] for lab in converted_labs(course, docs)]
     e = html.escape
     boxes = []
-    for ext, label in DOWNLOAD_FORMATS:
+    for ext, name in DOWNLOAD_FORMATS:
         files = " ".join(up(depth) + "labs/{0}/{0}.{1}".format(doc_id, ext)
                          for doc_id in ids)
         boxes.append('<label><input type="checkbox" value="{}" data-files="{}">'
-                     ' {}</label>'.format(ext, e(files), e(label)))
-    return raw_html(
+                     ' {}</label>'.format(ext, e(files), e(name)))
+    return (
         '<button type="button" class="download-all-open" aria-haspopup="dialog" hidden>'
-        "Download all</button>\n"
-        '<dialog class="download-all" data-zip="{}" aria-label="Download all">\n'
-        '<div class="download-all-formats">\n{}\n</div>\n'
+        "{label}</button>\n"
+        '<dialog class="download-all" data-zip="{zip}" aria-labelledby="{title}">\n'
+        '<h2 id="{title}">{label}</h2>\n'
+        '<p class="download-all-note">{note}</p>\n'
+        "<fieldset>\n<legend>{handouts}</legend>\n"
+        '<div class="download-all-formats">\n{boxes}\n</div>\n</fieldset>\n'
+        '<div class="download-all-actions">\n'
         '<button type="button" class="download-selected" disabled>Download selected</button>\n'
-        "</dialog>".format(e(course_slug(course) + ".zip"), "\n".join(boxes)))
+        '<form method="dialog"><button class="download-all-close">Close</button></form>\n'
+        "</div>\n</dialog>").format(
+            label=e(DOWNLOAD_LABEL.format(course["code"])),
+            zip=e(course_slug(course) + ".zip"), title="download-" + course_slug(course),
+            note=e(DOWNLOAD_NOTE), handouts=e(DOWNLOAD_HANDOUTS), boxes="\n".join(boxes))
 
 
 def course_index_markdown(meta, docs):
@@ -324,13 +355,21 @@ def course_index_markdown(meta, docs):
 
 
 def course_page_markdown(course, docs, depth=2):
-    """One course's page (D-0069, D-0070): its h1, the intro from
-    site/courses.md, its converted labs as one table, D-0067's Download all
-    after it, and before launch the labs not yet converted, collapsed.
-    A course with no labs shows its note instead of the intro."""
+    """One course's page (D-0069 to D-0071): a heading row of its h1 and the
+    course download, the intro from site/courses.md, its converted labs as
+    one table, and before launch the labs not yet converted, collapsed. A
+    course with no labs shows its note instead of the intro."""
     e = html.escape
     labs = course.get("labs") or []
-    parts = ["# " + course_heading(course) + "\n"]
+    control = download_all(course, docs, depth)
+    # The heading row is a fenced div, which Quarto writes as a <section>
+    # holding the h1 and taking its id. A raw <div> before the "#" heading
+    # does not work: Quarto then lifts the h1 into its title block, past
+    # the empty partial (probed 2026-10-06).
+    head = "::: {.course-head}\n# " + course_heading(course) + "\n"
+    if control:
+        head += "\n" + raw_html(control)
+    parts = [head + ":::\n"]
     if labs:
         parts.append(body_after_front_matter(os.path.join(ROOT, "site", "courses.md")))
     if course.get("note"):
@@ -338,9 +377,6 @@ def course_page_markdown(course, docs, depth=2):
     done = converted_labs(course, docs)
     if done:
         parts.append(raw_html(lab_table(done, docs, depth)))
-    control = download_all(course, docs, depth)
-    if control:
-        parts.append(control)
     pending = pending_labs(course, docs, depth)
     if pending:
         parts.append(raw_html(pending))
