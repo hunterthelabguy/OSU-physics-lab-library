@@ -60,7 +60,7 @@ class Pages(unittest.TestCase):
 
     def test_expected_pages(self):
         want = ["index.html", "404.html", "courses/index.html",
-                "how-this-was-made/index.html", "sims/index.html"]
+                "how-this-site-works/index.html", "sims/index.html"]
         # One page per course in site/courses.md (D-0069).
         want += ["courses/{}/index.html".format(render.course_slug(c))
                  for c in render.courses_meta()["courses"]]
@@ -182,6 +182,25 @@ class SimsAndStubs(unittest.TestCase):
         text = (QSITE / "robots.txt").read_text(encoding="utf-8")
         self.assertIn("User-agent: *\nDisallow: /\n", text)
         self.assertNotIn("Sitemap", text)
+
+    def test_old_method_address_redirects(self):
+        # D-0072: /how-this-was-made/ became /how-this-site-works/.
+        text = (QSITE / "how-this-was-made" / "index.html").read_text(encoding="utf-8")
+        self.assertTrue(is_redirect(text))
+        self.assertIn("url=../how-this-site-works/", text)
+        self.assertIn(">Continue to How this site works</a>", text)
+
+    def test_method_page_from_its_own_source(self):
+        # D-0072: the page is site/how-this-site-works.md, not a VISION.md lift.
+        main = re.search(r"<main>(.*?)</main>",
+                         (QSITE / "how-this-site-works" / "index.html").read_text(encoding="utf-8"),
+                         re.S).group(1)
+        source = (ROOT / "site" / "how-this-site-works.md").read_text(encoding="utf-8")
+        for heading in re.findall(r"^##? (.+)$", source, re.M):
+            with self.subTest(heading=heading):
+                self.assertIn(heading, " ".join(html.unescape(main).split()))
+        self.assertIn("Claude, an AI model from Anthropic", " ".join(words(main)))
+        self.assertNotIn("Wispr", main)
 
     def test_trimmed_lab_url_redirects_to_modern(self):
         for doc_id, _ in converted():

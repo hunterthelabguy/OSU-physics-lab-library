@@ -30,9 +30,9 @@ far. Everything else is listed as not yet converted rather than left out.
 - [Sims](sims/)
   Small tools students use during a lab, each one a single
   page that runs in the browser, keeps nothing, and sends nothing.
-- [How this was made](how-this-was-made/)
-  The method, what is checked, and
-  what is not.
+- [How this site works](how-this-site-works/)
+  How a page is built, how it is checked against the original, and who
+  did the work.
 :::
 
 ## Why one lab is shown two ways

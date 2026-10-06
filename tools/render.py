@@ -4,8 +4,8 @@ Once the old build's entry point, this is now a module with no command line:
 tools/quarto_build.py, tools/quarto_chrome.py, tools/downloads.py and
 tools/make_reference_docx.py import it. It holds the banner wording, the
 presentation notes and footnotes, the document nav's metadata, the course
-index and the course pages, the "How this was made" page (lifted from
-VISION.md, never retyped), the sims and their bar, and the redirect stubs.
+index and the course pages, the "How this site works" page's footnote,
+the sims and their bar, and the redirect stubs.
 
 Both themes render the same Markdown source (ledger 28): one keeps the
 original Word page settings, the other drops them and follows
@@ -72,11 +72,13 @@ THEME_NOTE = {
     ),
 }
 
-# The footnote on the "How this was made" page. The landing page's footnote
-# named the old build and was not carried (D-0038); phase 4 deleted it.
-METHOD_FOOTNOTE = ("This page is built from VISION.md in the project's "
-                   "repository; ledger numbers refer to the dated decision "
-                   "ledger kept there.")
+# The footnote on the "How this site works" page (D-0072). The landing
+# page's footnote named the old build and was not carried (D-0038).
+METHOD_FOOTNOTE = ("This page's source is site/how-this-site-works.md in the "
+                   "project's repository; ledger numbers refer to the dated "
+                   "decision ledger kept there.")
+# Its address; the old one, /how-this-was-made/, redirects here.
+METHOD_PATH = "how-this-site-works/"
 
 
 def run(cmd, **kw):
@@ -126,7 +128,7 @@ def site_vars(depth):
         "-M", "bannerdetail=" + BANNER_DETAIL,
         "-M", "homehref=" + (r or "./"),
         "-M", "indexhref=" + r + "courses/",
-        "-M", "methodhref=" + r + "how-this-was-made/",
+        "-M", "methodhref=" + r + METHOD_PATH,
         "-M", "simshref=" + r + "sims/",
         "-M", "logo=" + r + SITE_LOGO_URL,
     ]
@@ -142,20 +144,6 @@ def converted_documents():
             continue          # not a converted document
         docs[meta["id"]] = {"path": path, "meta": meta}
     return docs
-
-
-def how_this_was_made():
-    """Lift the section of that name out of VISION.md rather than retyping it.
-
-    Principle 2 of the vision: one copy we edit. The public page is built
-    from it, so the two can never disagree.
-    """
-    with open(os.path.join(ROOT, "VISION.md"), encoding="utf-8") as fh:
-        text = fh.read()
-    m = re.search(r"^## How this was made$(.*?)(?=^## )", text, re.M | re.S)
-    if not m:
-        raise SystemExit("VISION.md has no 'How this was made' section")
-    return "# How this was made\n" + m.group(1).rstrip() + "\n"
 
 
 def courses_meta():
@@ -392,8 +380,8 @@ def course_page_markdown(course, docs, depth=2):
     return "\n".join(parts)
 
 
-def redirect_page(out, target):
-    """A plain meta-refresh stub, so a trimmed URL still lands somewhere.
+def redirect_page(out, target, label="Continue to the lab"):
+    """A plain meta-refresh stub, so a trimmed or old URL still lands somewhere.
 
     It carries the banner too, so no page on the site is without it.
     """
@@ -406,8 +394,8 @@ def redirect_page(out, target):
             '<meta http-equiv="refresh" content="0; url={0}">\n'
             "<title>Redirecting</title>\n</head>\n<body>\n"
             "<p>{1}</p>\n"
-            '<p><a href="{0}">Continue to the lab</a>.</p>\n'
-            "</body>\n</html>\n".format(target, html.escape(BANNER_MAIN)))
+            '<p><a href="{0}">{2}</a>.</p>\n'
+            "</body>\n</html>\n".format(target, html.escape(BANNER_MAIN), html.escape(label)))
     return out
 
 

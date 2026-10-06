@@ -14,7 +14,7 @@ project:
     - courses/index.qmd
     # One page per course (D-0069), named by tools/quarto_build.py.
     - courses/*/index.qmd
-    - how-this-was-made/index.qmd
+    - how-this-site-works/index.qmd
     - sims/index.qmd
     - labs/**/*.qmd
   # Fonts and their license only (D-0039). The logo travels embedded in

@@ -23,7 +23,7 @@ await (async () => {
   const LAB = "labs/ph211-team-building-handout/";
   const COURSES = ["courses/index.html", "courses/ph211/index.html",
     "courses/ph212/index.html", "courses/ph213/index.html"];
-  const PAGES = ["index.html", "how-this-was-made/index.html", "sims/index.html",
+  const PAGES = ["index.html", "how-this-site-works/index.html", "sims/index.html",
     LAB + "modern/index.html", LAB + "faithful/index.html"].concat(COURSES);
   const SIM = "sims/modified-electric-force/index.html";
   const frame = (src, w, h) => new Promise(done => {
