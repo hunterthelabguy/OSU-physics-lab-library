@@ -20,13 +20,27 @@ The draft keeps the current page's substance: the four commitments, the
 concerns table, the open standard for the later phase. It changes the order
 (what the site is made of, how a page is built, how it is checked, how a
 change is published, then who did the work) and adds plain explanations of
-the tools. 551 words against today's 233 (counted 2026-10-06).
+the tools. 1013 words against today's 233 (counted 2026-10-06).
 
 > # How this site works
 >
 > This site holds the lab handouts for OSU's introductory physics courses,
 > to read on screen or download. It is a set of plain files, the same for
 > every reader: no accounts, and nothing loaded from other sites.
+>
+> ## The basics, in plain terms
+>
+> - **A static site.** Every page is a finished file, made ahead of time and
+>   handed to your browser as is. There is no program running behind the
+>   page, no database, and nothing to log in to. A static site is cheap to
+>   host, fast, and hard to break into, and a copy of its files works
+>   anywhere.
+> - **A build.** "Building" the site means running the tools below once to
+>   turn the handouts into those files. A change to a handout means a new
+>   build, never an edit to a page.
+> - **A repository.** The handouts, the tools' settings and the site's
+>   history live in one Git repository: a folder that records every change,
+>   who made it and when, so any earlier version can be recovered.
 >
 > ## One file per handout
 >
@@ -66,6 +80,29 @@ the tools. 551 words against today's 233 (counted 2026-10-06).
 > Each decision behind the site is written down, dated, in a decision ledger
 > kept with it.
 >
+> ## Where the site lives
+>
+> The files are served by Cloudflare Pages, a service that hosts static
+> sites. Cloudflare keeps copies of the files on servers around the world
+> and sends each reader the nearest one. The site's own pages set no
+> cookies, run no analytics, and load nothing from other sites, so the site
+> itself learns nothing about who reads it. Like any web host, Cloudflare
+> handles each request and keeps its own records under its own privacy
+> policy: [Cloudflare's privacy policy](https://www.cloudflare.com/privacypolicy/).
+> [Placeholder: what this account's settings record, and whether
+> Cloudflare's optional web analytics is off, to be checked in the
+> dashboard by the account holder before this is published.]
+>
+> ## Search engines and AI crawlers
+>
+> While the license is open, the site asks not to be found. Every page tells
+> search engines not to index it or follow its links, and the site's
+> robots.txt asks every crawler, search engines and AI crawlers alike, to
+> read nothing. These are requests: well-behaved crawlers honor them, and
+> nothing forces the rest to. [Placeholder: Cloudflare's setting for
+> blocking AI crawlers, not yet checked for this site.] When the license is
+> settled, these rules will be decided again.
+>
 > ## Who did the work
 >
 > Hunter Reaves directs Claude, an AI model from Anthropic, to convert the
@@ -86,6 +123,19 @@ the tools. 551 words against today's 233 (counted 2026-10-06).
 > | Data privacy | No student data enters any repo, by rule. |
 > | Jobs and labor | Time saved goes to teaching and TA preparation. |
 >
+> ## If the people change
+>
+> The site is built so that it does not depend on any one person. Everything
+> needed to rebuild it, the handouts, the original Word files, the build
+> settings, the tests and the decision ledger, is in one repository. That
+> repository is private for now and is planned to become public once its
+> whole history has been checked for anything that must not be published.
+> Its instructions are written so that a successor can rebuild the site and
+> move it to another host; they have not yet been tested by someone starting
+> from nothing, and until they are, that is all this page claims for them.
+> The accounts the site depends on (the host, and later a domain) are to be
+> listed in the repository by role, with how each is handed over.
+>
 > ## Not settled yet
 >
 > The license for this material is not settled, so the site is an unlisted
@@ -105,6 +155,36 @@ originals kept byte for byte (LEDGER 18, `originals/`); the publish path
 207 tests at `f65b1d4` ("more than two hundred" holds while the count stays
 above 200); the disclosure and the concerns table, today's page, word for
 word except where marked below.
+
+## Revision 2, 2026-10-06: the owner's additions
+
+The owner, after reading the draft ("So far looks good"): include "a brief
+explanation of Cloudflare Pages, its privacy policy, how AI crawlers and
+search are treated, and a section on institutional continuity (git repo to
+be made public, instructions provided), and a short laymans explanation of
+the other site basics (static site, etc.)". Added: "The basics, in plain
+terms" (first, before the build); "Where the site lives"; "Search engines
+and AI crawlers"; "If the people change". Sources and limits:
+
+- Static files, no cookies, no analytics, nothing loaded from other sites:
+  the repo writes no cookie or analytics code, and
+  `tests/test_quarto_site.py::NoThirdParty` checks the pages load nothing
+  from other hosts. What Cloudflare records at the host is not the repo's
+  to know: placeholder, for the account holder.
+- Cloudflare Pages, copies near each reader: D-0047; Cloudflare serves
+  Pages sites from its global network. The privacy policy link is
+  Cloudflare's public page; confirm it before publishing.
+- Crawlers: `robots.txt` is `User-agent: *` / `Disallow: /` (ledger 37,
+  the build's `post()`), and every page carries `noindex, nofollow`.
+  Cloudflare's AI-crawler setting is unchecked (STATE, from lab-ops'
+  hosting plan): placeholder.
+- Continuity: going public after a full-history scan is D-0062, proposed;
+  the instructions' limits are D-0065 (no claim of a redeploy until a cold
+  test), proposed; accounts by role is D-0066, proposed. The text says
+  "planned" and "to be" for that reason. Today's README is a few lines and
+  has none of the rebuild instructions yet; the page should not go live
+  claiming instructions exist until D-0064 to D-0066 are done, or it says
+  "are being written". Owner's call.
 
 ## Words that change, and where
 
