@@ -1,11 +1,11 @@
-"""Download all on the course index (D-0067).
+"""Download all on each course page (D-0067; the pages are D-0069's).
 
 Runs the node test beside site/download-all.js, has that script's own code
 write a zip of a course's published files, reads the zip back with Python's
-zipfile, and checks the course index Quarto built: one control per course
-with a converted lab, its file list, its words, its CSS and its script.
-Needs build/quarto-site/ and node; either missing is an error, never a skip
-(LEDGER 53).
+zipfile, and checks the course pages Quarto built: one control on each
+course page with a converted lab, its file list, its words, its CSS and its
+script. Needs build/quarto-site/ and node; either missing is an error, never
+a skip (LEDGER 53).
 """
 
 import functools
@@ -26,7 +26,6 @@ import downloads                          # noqa: E402
 import render                             # noqa: E402
 
 QSITE = ROOT / "build" / "quarto-site"
-INDEX = QSITE / "courses" / "index.html"
 SCRIPT = ROOT / "site" / "download-all.js"
 NODE = shutil.which("node")
 CSS_BLOCK = re.compile(r"/\* quarto-only: start \(D-0036\) \*/(.*?)/\* quarto-only: end \*/", re.S)
@@ -55,21 +54,20 @@ def setUpModule():
 def courses():
     """[(course, [converted lab ids])] in the order of site/courses.md."""
     docs = render.converted_documents()
-    meta = render.pandoc_meta(str(ROOT / "site" / "courses.md"))
-    return tuple((c, [lab["document"] for lab in c.get("labs") or [] if lab.get("document") in docs])
-            for c in meta["courses"])
+    return tuple((c, [lab["document"] for lab in render.converted_labs(c, docs)])
+                 for c in render.courses_meta()["courses"])
+
+
+def page(code):
+    """A course page's built file (D-0069)."""
+    return QSITE / "courses" / "".join(code.split()).lower() / "index.html"
 
 
 def sections():
-    """{course code: the course index's HTML from its h2 to the next}."""
-    text = INDEX.read_text(encoding="utf-8")
-    parts = re.split(r"(?=<h2\b)", text)
-    out = {}
-    for course, _ in courses():
-        found = [p for p in parts[1:] if re.match(r"<h2[^>]*>" + re.escape(course["code"]) + r"\b", p)]
-        assert len(found) == 1, (course["code"], len(found))
-        out[course["code"]] = found[0]
-    return out
+    """{course code: the <main> of that course's page}."""
+    return {course["code"]: re.search(r"<main>.*?</main>", page(course["code"]).read_text(encoding="utf-8"),
+                                      re.S).group(0)
+            for course, _ in courses()}
 
 
 OPENER = re.compile(r'<button type="button" class="download-all-open"[^>]*>([^<]*)</button>')
@@ -123,16 +121,17 @@ class ZipReadBack(unittest.TestCase):
         return [(value, files) for value, files, _, _ in boxes(control)]
 
     def check_zip(self, paths):
+        base = page("PH 211").parent
         with tempfile.TemporaryDirectory() as d:
             out = Path(d, "course.zip")
-            write_zip(paths, INDEX.parent, out)
+            write_zip(paths, base, out)
             with zipfile.ZipFile(out) as z:
                 self.assertIsNone(z.testzip(), "a CRC-32 does not match")
                 infos = z.infolist()
                 self.assertEqual([i.filename for i in infos],
                                  ["/".join(p.split("/")[-2:]) for p in paths])
                 for info, path in zip(infos, paths):
-                    want = (INDEX.parent / path).resolve().read_bytes()
+                    want = (base / path).resolve().read_bytes()
                     with self.subTest(entry=info.filename):
                         self.assertEqual(info.compress_type, zipfile.ZIP_STORED)
                         self.assertEqual(info.CRC, zlib.crc32(want))
@@ -151,12 +150,12 @@ class ZipReadBack(unittest.TestCase):
     def test_no_format_writes_nothing(self):
         with tempfile.TemporaryDirectory() as d:
             out = Path(d, "course.zip")
-            write_zip([], INDEX.parent, out)
+            write_zip([], page("PH 211").parent, out)
             self.assertFalse(out.exists())
 
 
 class Control(unittest.TestCase):
-    """The course index as built."""
+    """The course pages as built."""
 
     def test_one_control_per_course_with_a_converted_lab(self):
         found = sections()
@@ -165,14 +164,15 @@ class Control(unittest.TestCase):
                 self.assertEqual(len(controls(found[course["code"]])), 1 if ids else 0)
         self.assertTrue(any(ids for _, ids in courses()), "no course has a converted lab")
 
-    def test_opener_then_dialog_after_the_lab_list(self):
-        # D-0067 as amended 2026-10-03: out of students' path, after the list.
+    def test_opener_then_dialog_after_the_lab_table(self):
+        # D-0067 as amended 2026-10-03: out of students' path, after the
+        # list, which is now the course page's table (D-0070).
         for code, section in sections().items():
             if controls(section):
                 with self.subTest(course=code):
-                    after_list = section.split("</ul>", 1)[1].lstrip()
-                    self.assertRegex(after_list, r'^<button type="button" class="download-all-open"'
-                                                 r'[^>]*>[^<]*</button>\s*<dialog class="download-all"')
+                    after_table = section.split("</table>", 1)[1].lstrip()
+                    self.assertRegex(after_table, r'^<button type="button" class="download-all-open"'
+                                                  r'[^>]*>[^<]*</button>\s*<dialog class="download-all"')
                     self.assertEqual(len(OPENER.findall(section)), 1)
 
     def test_files_are_exactly_the_converted_labs_published_files(self):
@@ -184,9 +184,9 @@ class Control(unittest.TestCase):
                 listed = boxes(controls(found[course["code"]])[0])
                 self.assertEqual(sorted(v for v, _, _, _ in listed), sorted(downloads.EXTENSIONS))
                 for value, files, _, _ in listed:
-                    self.assertEqual(files, ["../labs/{0}/{0}.{1}".format(i, value) for i in ids])
+                    self.assertEqual(files, ["../../labs/{0}/{0}.{1}".format(i, value) for i in ids])
                     for f in files:
-                        self.assertTrue((INDEX.parent / f).resolve().is_file(), f)
+                        self.assertTrue((page(course["code"]).parent / f).resolve().is_file(), f)
 
     def test_zip_named_by_course_code(self):
         found = sections()
@@ -255,14 +255,18 @@ class Script(unittest.TestCase):
         self.assertIsNone(re.search(r"[\"'`]//", text))
         self.assertNotRegex(text, r"\bimport\b|\brequire\s*\(")
 
-    def test_linked_once_from_the_course_index_only(self):
-        tag = '<script src="../site/download-all.js" defer'
-        self.assertEqual(INDEX.read_text(encoding="utf-8").count(tag), 1)
+    def test_linked_once_from_each_course_page_with_a_control(self):
+        tag = '<script src="../../site/download-all.js" defer'
+        with_control = {page(course["code"]) for course, ids in courses() if ids}
+        self.assertTrue(with_control)
         self.assertEqual((QSITE / "site" / "download-all.js").read_bytes(), SCRIPT.read_bytes())
-        for page in QSITE.rglob("*.html"):
-            if page != INDEX:
-                with self.subTest(page=page.relative_to(QSITE).as_posix()):
-                    self.assertNotIn("download-all.js", page.read_text(encoding="utf-8"))
+        for built in QSITE.rglob("*.html"):
+            with self.subTest(page=built.relative_to(QSITE).as_posix()):
+                text = built.read_text(encoding="utf-8")
+                if built in with_control:
+                    self.assertEqual(text.count(tag), 1)
+                else:
+                    self.assertNotIn("download-all.js", text)
 
     def test_no_zip_published(self):
         self.assertEqual([p.relative_to(QSITE).as_posix() for p in QSITE.rglob("*.zip")], [])

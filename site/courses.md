@@ -6,11 +6,15 @@ title: "Course index"
 # the content-unchanged check does not cover this file, because the source
 # document has not been converted. Nothing here is written by Claude.
 # See ledger 43. Nothing is added for a lab that document does not list.
-source_note: "PH 211 Curriculum Summary, in the original materials"
+# Each course gets its own page, /courses/<code lowercased, no spaces>/
+# (D-0069); the text after this front matter opens every course page that
+# lists labs (D-0070), and source_note names where a course's list is quoted
+# from, in that page's footnote.
 courses:
   - code: "PH 211"
     name: "General Physics with Calculus"
     name_source: "the Lab 1 handout's own course line"
+    source_note: "PH 211 Curriculum Summary, in the original materials"
     labs:
       - number: "1"
         title: "Team Building"
@@ -48,6 +52,4 @@ courses:
 ---
 
 Every lab below is listed under the number and title its own course summary
-gives it. A lab reads as a link once its handout has been converted from the
-original Word file and checked word for word against it. Everything else is
-listed so the gap is visible, not hidden.
+gives it.

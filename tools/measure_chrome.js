@@ -1,28 +1,30 @@
-// Manual layout check for the Quarto migration (phase 2). CI does not run it.
-// Serve both builds from one origin, on a port not used before in the session
+// Manual layout check of the built site. CI does not run it.
+// Serve build/ from one origin, on a port not used before in the session
 // (the pane caches per origin):
 //   python -m http.server <port> --directory <absolute path to build>
 // Open http://127.0.0.1:<port>/quarto-site/ in the browser pane and run this
-// file's text with the pane's JavaScript tool. It loads every page of both
-// builds in same-origin iframes at fixed sizes and returns JSON:
-//   diffs        computed-style and box differences, old build versus Quarto
-//   scroll375    each Quarto page's scrollWidth at 375 px (want <= 375)
+// file's text with the pane's JavaScript tool. It loads every page in
+// same-origin iframes at fixed sizes and returns JSON:
+//   scroll375    each page's scrollWidth and clientWidth at 375 px (no
+//                sideways scroll when scrollWidth <= clientWidth)
 //   banner1440   draft banner height, closed and open, at 1440 px
 //   landing1440  the landing prose column's left and right gaps at 1440 px
 //   contrast     WCAG ratios of the chrome text on its background
 //   sim          the sim bar and page height at 1280x720
+//   courses      the course index and course pages at 375, 1440 and 1920 px
+//                (D-0069, D-0070): boxes of main, the h1, the intro, the
+//                tiles, the tabs, the lab table and its columns, the
+//                collapse, Download all and the footnote; the most lines any
+//                description wraps to, with the collapse open; the header's
+//                left edge beside a lab page's
+// The old-build comparison it began with went with the old build (D-0061).
 await (async () => {
   const LAB = "labs/ph211-team-building-handout/";
-  const PAGES = ["index.html", "courses/index.html", "how-this-was-made/index.html",
-    "sims/index.html", LAB + "modern/index.html", LAB + "faithful/index.html"];
+  const COURSES = ["courses/index.html", "courses/ph211/index.html",
+    "courses/ph212/index.html", "courses/ph213/index.html"];
+  const PAGES = ["index.html", "how-this-was-made/index.html", "sims/index.html",
+    LAB + "modern/index.html", LAB + "faithful/index.html"].concat(COURSES);
   const SIM = "sims/modified-electric-force/index.html";
-  const SEL = [".draft-banner", ".draft-banner summary", ".osu-strip", ".osu-strip a",
-    ".osu-banner", ".osu-logo img", ".osu-sitename", ".osu-nav", ".osu-nav a", "main",
-    "main h1", "main h2", "main p", "main li", ".hero", ".hero .lead", ".hero .button",
-    ".link-cards li", ".lab-list > li", ".site-nav", ".site-nav a", ".doc-footer",
-    ".site-foot", ".osu-foot", ".osu-foot a"];
-  const PROPS = ["font-family", "font-size", "font-weight", "line-height", "color",
-    "background-color", "margin-top", "margin-bottom", "padding-top", "padding-bottom"];
   const frame = (src, w, h) => new Promise(done => {
     const f = document.createElement("iframe");
     f.style.cssText = `position:absolute;left:-20000px;top:0;border:0;width:${w}px;height:${h}px`;
@@ -31,13 +33,18 @@ await (async () => {
     document.body.appendChild(f);
   });
   const css = el => el.ownerDocument.defaultView.getComputedStyle(el);
-  const snap = doc => Object.fromEntries(SEL.map(s => {
-    const el = doc.querySelector(s);
-    if (!el) return [s, null];
-    const r = el.getBoundingClientRect(), cs = css(el);
-    return [s, Object.assign(Object.fromEntries(PROPS.map(p => [p, cs.getPropertyValue(p)])),
-      {left: Math.round(r.left), width: Math.round(r.width), height: Math.round(r.height)})];
-  }));
+  const box = el => {
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return {left: Math.round(r.left), width: Math.round(r.width), height: Math.round(r.height)};
+  };
+  // Line boxes of an element's text, counted by their tops (a cell's box
+  // would count its padding too).
+  const lines = el => {
+    const r = el.ownerDocument.createRange();
+    r.selectNodeContents(el);
+    return new Set([...r.getClientRects()].map(x => Math.round(x.top))).size;
+  };
   const lum = c => {
     const [r, g, b] = c.match(/[\d.]+/g).slice(0, 3).map(Number).map(v => {
       v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
@@ -55,19 +62,40 @@ await (async () => {
     const [a, b] = [lum(css(el).color), lum(back(el))].sort((x, y) => y - x);
     return Math.round((a + 0.05) / (b + 0.05) * 100) / 100;
   };
-  const out = {diffs: {}, scroll375: {}, banner1440: {}, landing1440: null, contrast: {}, sim: null};
+  const course = q => {
+    const pending = q.querySelector(".lab-pending");
+    if (pending) pending.open = true;
+    const table = q.querySelector("main > .lab-table");
+    const descs = [...q.querySelectorAll(".lab-table td.lab-desc")];
+    const out = {
+      main: box(q.querySelector("main")),
+      h1: box(q.querySelector("main h1")),
+      intro: box(q.querySelector("main > h1 + p")),
+      tiles: [...q.querySelectorAll(".course-tile")].map(box),
+      tabs: [...q.querySelectorAll(".course-tabs a")].map(box),
+      table: box(table),
+      columns: table && [...table.querySelectorAll("th")].map(th => [th.textContent, Math.round(th.getBoundingClientRect().width)]),
+      rows: [...q.querySelectorAll("main > .lab-table tbody tr")].map(box),
+      titleCells: [...q.querySelectorAll(".lab-table td.lab-title")].map(td => Math.round(td.getBoundingClientRect().width)),
+      descMaxLines: descs.length ? Math.max(...descs.map(lines)) : null,
+      descLongest: descs.length ? (d => ({chars: d.textContent.length, lines: lines(d)}))(
+        descs.reduce((a, b) => b.textContent.length > a.textContent.length ? b : a)) : null,
+      pendingSummary: pending && box(pending.querySelector("summary")),
+      downloadAll: box(q.querySelector(".download-all-open")),
+      footnote: box(q.querySelector("main > p.course-note:last-of-type")),
+      header: box(q.querySelector(".osu-banner .osu-inner")),
+    };
+    if (pending) pending.open = false;
+    return out;
+  };
+  const out = {scroll375: {}, banner1440: {}, landing1440: null, contrast: {}, sim: null, courses: {}};
   for (const page of PAGES) {
-    for (const [w, h] of [[1440, 900], [375, 812]]) {
-      const a = await frame("/site/" + page, w, h), b = await frame("/quarto-site/" + page, w, h);
-      const sa = snap(a.contentDocument), sb = snap(b.contentDocument), d = [];
-      for (const s of SEL) {
-        if (JSON.stringify(sa[s]) === JSON.stringify(sb[s])) continue;
-        if (!sa[s] || !sb[s]) { d.push([s, sa[s] ? "missing in quarto" : "only in quarto"]); continue; }
-        for (const k of Object.keys(sa[s])) if (sa[s][k] !== sb[s][k]) d.push([s, k, sa[s][k], sb[s][k]]);
-      }
-      if (d.length) out.diffs[page + " @" + w] = d;
-      const q = b.contentDocument;
-      if (w === 375) out.scroll375[page] = q.documentElement.scrollWidth;
+    for (const [w, h] of [[1920, 1080], [1440, 900], [375, 812]]) {
+      const f = await frame("/quarto-site/" + page, w, h), q = f.contentDocument;
+      const root = q.documentElement;
+      if (w === 375) out.scroll375[page] = {scrollWidth: root.scrollWidth, clientWidth: root.clientWidth};
+      if (COURSES.includes(page) || page === LAB + "modern/index.html")
+        out.courses[page + " @" + w] = Object.assign({clientWidth: root.clientWidth}, course(q));
       if (w === 1440) {
         const banner = q.querySelector(".draft-banner"), det = banner.querySelector("details");
         const closed = Math.round(banner.getBoundingClientRect().height);
@@ -87,7 +115,7 @@ await (async () => {
           out.landing1440 = {selector: "main > p", left: Math.round(r.left), right: Math.round(w - r.right)};
         }
       }
-      a.remove(); b.remove();
+      f.remove();
     }
   }
   const s = await frame("/quarto-site/" + SIM, 1280, 720), sd = s.contentDocument.documentElement;

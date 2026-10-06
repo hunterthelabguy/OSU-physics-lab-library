@@ -51,6 +51,10 @@ def old_chrome(page):
         cmd += ["--template", os.path.join(render.ROOT, "tools", "template-site.html"),
                 "-M", "footnote=" + page["footnote"]]
         cmd += render.site_vars(page["depth"])
+        if page.get("tabs"):
+            # A variable, not metadata: Pandoc inserts it as written, links
+            # and all, where metadata would be escaped (D-0069).
+            cmd += ["-V", "coursetabs=" + page["tabs"]]
     out = render.run(cmd, input="", capture_output=True, text=True, encoding="utf-8").stdout
     m = OLD.search(out)
     if m is None:

@@ -165,6 +165,31 @@ class DraftBanner(unittest.TestCase):
         self.fail("no .draft-banner rule")
 
 
+class Widths(unittest.TestCase):
+    """LEDGER 56 to 58 and D-0070 (proposed): two widths. Prose keeps the
+    [68ch] measure everywhere; the shell is [72rem] for document pages and
+    [96rem] (1,536 px) on site pages."""
+
+    def site_page_tokens(self):
+        found = {}
+        for selector, body in rules():
+            if selector.strip() == "body.site-page":
+                found.update(re.findall(r"(--[\w-]+)\s*:\s*([^;]+);", body))
+        return found
+
+    def test_measure_68ch(self):
+        self.assertEqual(light_root_tokens()["--chrome-measure"].strip(), "68ch")
+        self.assertNotIn("--chrome-measure", self.site_page_tokens())
+
+    def test_document_shell_72rem(self):
+        self.assertEqual(light_root_tokens()["--chrome-shell"].strip(), "72rem")
+
+    def test_site_page_shell_96rem(self):
+        shell = self.site_page_tokens()["--chrome-shell"].strip()
+        self.assertEqual(shell, "96rem")
+        self.assertEqual(to_px(shell), 1536)
+
+
 class PaletteOnly(unittest.TestCase):
     """D-0008 and D-0015: every color in the chrome is a palette value."""
 

@@ -86,15 +86,21 @@ is moved, not rewritten.
 ## Measuring and keeping the measured match
 
 - Measuring: `tools/measure_chrome.js` loads every page in same-origin
-  iframes and returns 375 px scroll widths, banner heights, contrast ratios
-  and the sim bar fit. Its `diffs` compared the old build's pages with
-  Quarto's; since phase 4 there is no `build/site/`, so `diffs` has no
-  reference and is to be ignored (D-0061). CI does not run it. Serve the `build/` folder from the repo root with an
+  iframes and returns 375 px scroll widths (with each page's client
+  width), banner heights, contrast ratios, the sim bar fit, and under
+  `courses` the course index and course pages at 375, 1440 and 1920 px:
+  the boxes of main, the h1, the intro, tiles, tabs, the lab table and its
+  columns, the collapse, Download all and the footnote, and the lines the
+  descriptions set with the collapse open (D-0069, D-0070). Its old-build
+  comparison was removed with the old build's last reference, 2026-10-06.
+  CI does not run it. Serve the `build/` folder from the repo root with an
   absolute path on a port not used before in the session
-  (`python -m http.server <port> --directory <absolute path to build>`),
-  open `http://127.0.0.1:<port>/quarto-site/` in the browser pane, run the
-  file's text in the pane's JavaScript tool, and stop the server after. It
-  samples the first match of each of its 25 selectors only.
+  (`python -m http.server <port> --directory <absolute path to build>`;
+  the sandbox's `.claude/launch.json` holds one configuration per port for
+  `preview_start`), open `http://127.0.0.1:<port>/quarto-site/` in the
+  browser pane, run the file's text in the pane's JavaScript tool, and
+  stop the server after. A page taller than its frame gives 15 px to the
+  scrollbar, so record the client width beside a box.
 - Keeping the measured match: the quarto-only block is mostly `revert`
   rules at Bootstrap's own specificity (Bootstrap's reboot, undone). Its
   load-order dependency (Bootstrap, then `site.css`, then `themes/*.css`)
@@ -117,12 +123,17 @@ is moved, not rewritten.
 
 ## Widths
 
-Two, on purpose (ledger 56 to 58). `--chrome-measure` is 68 characters, the
-evidence review's reading measure, and governs anything read as prose.
-`--chrome-shell` is 72rem, the page frame, and card lists may use all of it.
-Document reading columns stay at the measure and grow their type above
-1440 px instead. Do not widen a reading column to fill a screen; that number
-is an owner decision, not a styling one.
+Two, on purpose (ledger 56 to 58, D-0070). `--chrome-measure` is 68
+characters, the evidence review's reading measure, and governs anything read
+as prose. `--chrome-shell` is the page frame: 72rem on document pages (the
+`:root` value) and 96rem on site pages (set on `body.site-page`), where the
+course tiles and the lab table use all of it. On the course index and course
+pages (body class `courses`) the prose track sits at the shell's left edge;
+elsewhere it is centered (D-0029). Document reading columns stay at the
+measure and grow their type above 1440 px instead. Do not widen a reading
+column to fill a screen; that number is an owner decision, not a styling
+one. A table's description column is not a reading column: the owner chose
+it wider than the measure (D-0070).
 
 ## Deploy
 

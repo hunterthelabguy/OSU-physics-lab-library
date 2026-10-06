@@ -17,7 +17,9 @@ QSITE = ROOT / "build" / "quarto-site"
 PANDOC = os.environ.get("PANDOC", "pandoc")
 FILTER = ROOT / "tools" / "filters" / "questions.lua"
 sys.path.insert(0, str(ROOT / "tests"))
+sys.path.insert(0, str(ROOT / "tools"))
 import test_site_chrome as chrome         # noqa: E402  (for SimBar.BAR only)
+import render                             # noqa: E402
 
 
 def setUpModule():
@@ -59,6 +61,9 @@ class Pages(unittest.TestCase):
     def test_expected_pages(self):
         want = ["index.html", "404.html", "courses/index.html",
                 "how-this-was-made/index.html", "sims/index.html"]
+        # One page per course in site/courses.md (D-0069).
+        want += ["courses/{}/index.html".format(render.course_slug(c))
+                 for c in render.courses_meta()["courses"]]
         for doc_id, _ in converted():
             want += [f"labs/{doc_id}/modern/index.html",
                      f"labs/{doc_id}/faithful/index.html"]

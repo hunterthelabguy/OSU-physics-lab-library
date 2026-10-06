@@ -78,8 +78,15 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   `docs/superpowers/plans/2026-10-01-downloads-tasks.md`; in CI
   `poppler-utils`). Missing either is an error. When a lab is added,
   remeasure the HTML cap in `tests/test_downloads.py`.
-- Download all (D-0067): after the lab list of each course with a converted
-  lab, a quiet button (hidden until the script shows it) opens a dialog whose
+- Course pages (D-0069, D-0070): `tools/quarto_build.py` writes the chooser
+  at `/courses/` and one page per course in `site/courses.md` at
+  `/courses/<code lowercased, no spaces>/`, with body class `courses` and
+  `html-table-processing: none` (otherwise Quarto parses a raw HTML table
+  into its own and adds Bootstrap's `table` classes). The course tabs reach
+  `tools/template-site.html` as a Pandoc variable (`-V`), which is inserted
+  as written; metadata (`-M`) would be escaped.
+- Download all (D-0067): after the lab table of each course page with a
+  converted lab, a quiet button (hidden until the script shows it) opens a dialog whose
   opt-in checkboxes list the published files, written by
   `render.download_all()`; `site/download-all.js` fetches the ticked ones
   and writes `<code>.zip` in the page (stored, CRC-32, no library). No zip is
@@ -157,7 +164,10 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   the column, so an inline control needs `justify-self: start`; and the
   quarto-only block reverts `box-sizing` to the browser's `content-box`, so
   a padded, width-capped box (the Download all dialog) needs `border-box`.
-  Measure, never assume: both were caught only by measuring at 375 px.
+  Measure, never assume: both were caught only by measuring at 375 px. So
+  was a third (2026-10-06): a phone media query's reset of table cells
+  (0,2,2) lost to the desktop width on `.lab-title` (0,3,1), so a reset
+  names every selector it undoes.
 - `ch` resolves against each element's own font, so a heading capped at
   `--chrome-measure` is wider than the shell. The prose column is a grid on
   `main` for that reason (D-0029), and grid items do not collapse margins:
