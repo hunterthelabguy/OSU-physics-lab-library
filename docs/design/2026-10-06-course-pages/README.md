@@ -74,8 +74,10 @@ is Q8's lean.
 
 ## Built 2026-10-06 (D-0069, D-0070): for the owner before it merges
 
-The first PR builds D-0069 and D-0070; measurements are in D-0070. What it
-ships that the owner has not yet ruled:
+The first PR builds D-0069 and D-0070; measurements are in D-0070.
+**Ruled 2026-10-06, chat, everything below as drafted:** "Collapse stands";
+"Approve, merge PR 1" (the words and the builder's calls); "Promote D-0069,
+D-0070". What it shipped for those rulings:
 
 - **Before launch: Claude's lean, built.** The collapse stands until the
   last lab is converted: under the table, a `<details>` closed as built,
@@ -113,7 +115,7 @@ ships that the owner has not yet ruled:
 - **Before launch.** The table assumes every lab is converted; today seven of
   PH 211's eight are not. Either the collapse ("Not yet converted (N)")
   stands until the last lab is converted, or the new course pages do not
-  deploy until then. Not ruled; built as the collapse, above.
+  deploy until then. Ruled 2026-10-06: the collapse stands (above).
 - **Rule 6's count.** "Fewer than two downloadable files": one handout in
   four formats is four files. Whether that counts as one or four is not
   ruled.
