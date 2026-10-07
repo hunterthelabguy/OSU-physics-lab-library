@@ -1,14 +1,21 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-06.
+Volatile handoff, capped at one screen. Updated 2026-10-07.
 
-**Focus (2026-10-06, evening):** the conversion of the remaining 18 PH 21X
-handouts, then a Word report template per lab. Spec
-`docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md`
-(rulings from chat in its section 3, not yet in the ledger) and its two-pass step-1
-critique beside it (14 findings, then F1 to F16 from a fresh agent; none ruled). Next: the critique's question
-rounds with the owner; nothing is converted, surveyed or built until they
-settle. Throwaway probe templates sit in the ignored `build/probe-report-template/`.
+**Focus (2026-10-07):** the conversion of the remaining 18 PH 21X handouts,
+then a Word report template per lab, then a cross-reference against the
+instructor notes. The critique is done (steps 2 and 3 with the owner,
+2026-10-07): the canon is section 11 of
+`docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md`,
+entered as D-0074 to D-0092 (proposed) and D-0093 to D-0098 (declined,
+`DECLINED.md`); the critique file records where each finding went. Eight
+passes (D-0082): 1 survey, 2a checks, 2b downloads, 3 the hardest two then
+PH 211, 4 PH 212, 5 PH 213, 6 template, 7 cross-reference; recounted after
+the survey. Templates target Winter 2027 and slip if conversion does
+(D-0080). Next: the owner promotes D-0074 to D-0092; then pass 1, the
+survey, whose gate is that promotion. Nothing is surveyed, converted or
+built before it. Probe parameters are in D-0079; the probe files stay in
+the ignored `build/probe-report-template/`.
 
 **Focus (2026-10-01):** Phase 5 cutover done. Production is the Quarto build
 on Cloudflare Pages, `https://osu-physics-labs.pages.dev/` (project
@@ -114,14 +121,19 @@ course pages replaced item 1 and calls 2.1 and 2.2, and D-0071 built item
   redirect, the Git builds and the commit statuses. When he says it is done,
   record it (an entry amending D-0049, the spec's call 1, the agent
   reference's Vercel paragraph, lab-ops' `lab-handbook/lab-library-site.md`).
+- Promote D-0074 to D-0092 (critique rulings, 2026-10-07); before Winter
+  2027, a TA estimate of minutes per report (D-0091).
 - A second handout to convert: answered 2026-10-03, PH213 Lab 2 (Next,
-  item 4). Earlier candidates: PH212 Lab 1 (17 equations, 4 tables, no
+  item 4). Since 2026-10-07, pass 3 opens with the two hardest by the
+  survey, likely PH 213 Lab 2 and PH 212 Lab 1 (D-0082). Earlier candidates: PH212 Lab 1 (17 equations, 4 tables, no
   images); Lab Guidance for Students has 9 images and 54 equations
   but is not a lab. The content check must count equations first
   (`docs/conversion-spec.md`).
 - Originals' Word metadata names authors (`creator`, `lastModifiedBy`,
   set in the committed PH211 original and the PH212 file): strip before
-  committing, and does PH211's history need it (see D-0062)?
+  committing, and does PH211's history need it (see D-0062)? Strip ruled
+  2026-10-07 for every identity part, both repos (D-0086, proposed); the
+  history question stays D-0062's.
 - Not built, for a later ruling: a Word box for the legend and the hint
   arrow (D-0057: `custom-style` misses list items; the arrow would be a
   character in the text). The legend's "arrow" and "Boxed" stay unmet in
@@ -137,7 +149,8 @@ course pages replaced item 1 and calls 2.1 and 2.2, and D-0071 built item
   replacing the group lab report. His drivers: peer accountability, answers
   free of AI text, the 1 h 50 min lab, and any outside work moved to
   simulation-based prelabs. He has not decided; the template work is ruled
-  separate from this decision (spec rule 3.3).
+  separate from this decision (spec rule 3.3), and since 2026-10-07 ships
+  either way (D-0074).
 - Phase 5 is done, Task 4 included (2026-10-01): migration plan marked,
   CLAUDE.md Deploy rewritten, successor page
   `OSU-lab-ops/lab-handbook/lab-library-site.md` (lab-ops ledger 29).

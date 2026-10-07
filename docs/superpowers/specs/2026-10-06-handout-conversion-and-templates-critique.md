@@ -316,3 +316,40 @@ pre-scan) and F6, plus finding 4, F4 and F5. Order and purpose: findings 5,
 typed). Then the rest of spec section 9, findings 6, 7, 10 to 14 and F8 to
 F13, F15, F16. Where the two passes disagree (finding 2's method against F1,
 finding 10 against F12), the owner rules.
+
+## Steps 2 and 3 (2026-10-07, with the owner)
+
+Eight question rounds in the order above, then synthesis into the spec's
+section 11 and `DECISIONS.md` D-0074 to D-0092 (proposed), with D-0093 to
+D-0098 declined (`DECLINED.md`). The findings above stand as written; this
+records where each went.
+
+| Finding | Outcome |
+|---|---|
+| 1 | Pass 2a probes every equation through the Word and HTML writers; an equation rule follows (D-0082) |
+| 2, F1 | Disagreement put to the owner with no lean. Pandoc's read, earned by a pass-1 count of hard numbering; the XML reader only where the count calls for it (D-0078). The owner asked whether the rubrics could supply the numbers: not as the check (D-0078's rationale); their "Qn:" text became pass 7's job |
+| 3, F14(b) | Pass 2a: the Word question box becomes a one-cell shaded table (D-0082) |
+| 4 | Pass 1's markup rule covers every output (D-0085) |
+| 5 | Winter 2027 target, slipping if conversion does; the template carries no draft notice (D-0080); Claude's lean of no target declined (D-0096) |
+| 6 | A TA estimate before and after (D-0091) |
+| 7, F14(c) | PH 212 and PH 213 lists quoted in pass 1; LEDGER 45 amended (D-0088) |
+| 8 | One question per page confirmed alone (D-0075) |
+| 9 | The two hardest handouts first, then course order (D-0082) |
+| 10, F12 | Disagreement put to the owner with no lean. Neither: a separate pass 7 with a named job, from an instructor checkout (D-0083; D-0098 declined) |
+| 11 | The pin called a deliberate lock (D-0077) |
+| 12 | Eight passes, recounted after the survey (D-0082) |
+| 13 | Cross-repo CI checks wait for the public flip (D-0089) |
+| 14 | The AI file cites the statement by title; authors per D-0073 (D-0076) |
+| F2 | Pass 2 is all of 4a, as 2a and 2b; Q12 to Q15 and Q17 accepted as leaned (D-0082, D-0092) |
+| F3 | No pre-scan: the owner's word clears the handouts (D-0084; D-0094 declined); `List of terms.docx` excluded |
+| F4, F5 | Pass 1 counts em dashes and hashes every original (D-0085); a Word original stays live until sections switch (D-0087) |
+| F6 | Every identity-bearing part stripped, both repos; the instructor repo in pass 7 (D-0086) |
+| F7 | B ships regardless (D-0074; D-0095 declined); the survey records each lab's deliverable and pass 6 rules (D-0085) |
+| F8 | Per-student sign-in closes most of it; forgotten logouts are lab-ops (D-0074); photos and sketches are pass 6's design |
+| F9 | Reopen triggers, four invariants, probe parameters recorded (D-0079) |
+| F10 | The instructor repo's copy and Pandoc lag until pass 7 (D-0083) |
+| F11 | No ruling needed; D-0078 is the interim guard |
+| F13 | Absolute path in prompts; `.superpowers/` tracked in `.gitignore` (D-0085) |
+| F14(a) | `questions.lua` fails instead of numbering silently (D-0082) |
+| F15 | Proposed-by recorded per rule (spec section 3, amended); 3.4 a premise |
+| F16 | The owner's review split (D-0090); gates 3 and 4 noted as repeats; the AI statement cleared with the handouts (D-0084) |
