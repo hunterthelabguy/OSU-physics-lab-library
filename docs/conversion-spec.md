@@ -56,6 +56,13 @@ question-text cells are declared as ruled omissions.
 Each original file is committed under `originals/`, byte for byte, and its
 SHA-256 is recorded in the converted file's front matter (ledger 18).
 
+2026-10-07, D-0086 (amends ledger 18): every identity-bearing part is
+stripped before commit (`core.xml` creator and lastModifiedBy, `app.xml`
+Company and template, comment and revision authors, `people.xml`, photo
+EXIF); `source_sha256` names the stripped file, and an entry records both
+hashes. No `w:t` changes. A Word original stays live until sections switch
+to the library's version (D-0087).
+
 ## Content-unchanged check
 
 `tools/check_unchanged.py FILE.md ...` verifies the original's hash, reads

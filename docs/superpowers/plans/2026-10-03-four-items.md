@@ -292,7 +292,7 @@ declined visible close button).
 
 ## Item 4: PH 213 Lab 2 through the pipeline (PRs 4a and 4b)
 
-Superseded 2026-10-07 (D-0082, proposed): 4a becomes passes 2a (checks) and
+Superseded 2026-10-07 (D-0082, ruled): 4a becomes passes 2a (checks) and
 2b (downloads) of `docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md`
 (its section 11.2), and 4b becomes a task of its pass 3. The calls below
 still hold as that work's design where not amended; Q12 to Q15 and Q17 are
@@ -427,7 +427,7 @@ back to a system font).
 
 ### Call 4.6: the course index entry (owner's, Q3 and Q4)
 
-Amended 2026-10-07 (D-0088, proposed): pass 1 quotes the PH 212 and PH 213
+Amended 2026-10-07 (D-0088, ruled): pass 1 quotes the PH 212 and PH 213
 lab lists from their summaries, now in the owner's folder, which answers Q3;
 Q4 (the course name's source) stays open.
 

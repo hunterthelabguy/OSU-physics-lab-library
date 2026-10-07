@@ -157,11 +157,13 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   The PH 21X set (handouts, instructor notes, rubrics, summaries) is under
   its `21X Lab Curriculum/`; layout and files not to open are in section 2
   of `docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md`.
+  D-0084: the owner's word clears its handouts, summaries and course-wide
+  files; nothing outside that in-scope list is opened; notes only in pass 7.
 - `tools/check_unchanged.py` reads the original's `w:t` only: Word
   equations (`m:t`) and image alt text (`wp:docPr descr`) are invisible to
   it, while the converted side reads `Math` LaTeX and `Image` alt as words.
   Do not convert a document with either until the check counts them
-  (`docs/superpowers/plans/2026-10-03-four-items.md`, item 4).
+  (pass 2a, D-0082; spec section 11.2).
 - In `site/site.css`, `body.site-page a` sets the link color and outranks the
   single-class chrome rules, so a chrome color must be scoped to its parent
   (`.osu-banner .osu-sitename`). D-0032 is one bug this caused in production.

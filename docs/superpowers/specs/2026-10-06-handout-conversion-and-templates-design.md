@@ -13,7 +13,8 @@ rulings are in section 11 and in `DECISIONS.md` as D-0074 to D-0092
 (proposed) and D-0093 to D-0098 (declined; full entries in `DECLINED.md`).
 Sections 1 to 10 are kept as written, with short "Amended" notes where a
 ruling changed them; where they differ from section 11, section 11 and the
-ledger win.
+ledger win. D-0074 to D-0092 promoted to ruled the same day ("Promote
+D-0074 to D-0092").
 
 ## 1. Goal
 
