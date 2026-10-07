@@ -6,6 +6,8 @@ the session that wrote the spec, at the owner's request ("Run the hard
 critique now, since you already hold the context"). Steps 2 and 3 (question
 rounds, synthesis) are the next session's, with the owner. Findings are
 proposals; none is ruled. Premises were checked against files the same day.
+A second pass by a fresh agent follows the first (F1 to F16), with its
+corrections to the first marked where they apply.
 
 ## Fixed in the spec before its first commit
 
@@ -97,6 +99,10 @@ Factual errors, corrected because a repo must not state them (charter floors
    list from its summary's Activities table. Proposed: after vetting the two
    summaries, quote both lists (a small PR, in pass 1 or before it), so
    course pages list the labs before they are converted, as PH211's does.
+   Corrected by the second pass: the quoting rule is LEDGER 45, not 43 (43
+   is the first site build); `site/courses.md` line 8 carries the same wrong
+   citation, and the PR amends LEDGER 45's last sentence, so it needs a
+   `DECISIONS.md` entry.
 
 8. **A ruling recorded on an ambiguous yes.** Rule 3.5 (one question per
    page) rests on the owner's "Yes" to a question that bundled two things:
@@ -150,14 +156,163 @@ Factual errors, corrected because a repo must not state them (charter floors
   not `sketches`), as section 7 says.
 - D-0052's title carries "each carrying the draft banner", as call 4.3 says.
 - The SDD workspace `.superpowers/sdd/` is ignored by its own `.gitignore`,
-  so pass ledgers cannot be committed by accident.
+  so pass ledgers cannot be committed by accident. Disputed by the second
+  pass (its finding 13): that `.gitignore` is untracked (`git ls-files
+  .superpowers` is empty) and the root `.gitignore` has no rule, so this
+  holds in the main checkout only, not in a fresh worktree.
 - The instructor repo has its own word check (`tools/check_unchanged.py`)
-  and CI (`.github/workflows/verify.yml`), as section 7 says.
+  and CI (`.github/workflows/verify.yml`), as section 7 says. Disputed in
+  part by the second pass (its finding 10): its CI installs Pandoc 3.11,
+  which the library retired (D-0044, D-0061), and pass 2 would break its
+  LEDGER 5 rule that the check is an identical copy.
 - The counts in section 2's table match the folder's file list (86 files in
   all, listed by name 2026-10-06).
 
+## Second pass (a fresh agent, 2026-10-06)
+
+The owner asked for a second hard critique by a fresh subagent that had not
+seen the conversation; it read the spec, formed its critique, then read the
+first pass and dropped exact duplicates. Its 16 findings are condensed below
+as F1 to F16, most severe first. The session that wrote the spec re-checked
+these citations before recording them: the four-items plan's 4a scope and
+Q12 to Q17 (lines 367 to 368, 506 to 529); LEDGER 22(e) and 45; the em-dash
+scan's paths (`verify.yml` lines 38 to 41); `render.converted_labs` needing a
+`document` key; `.superpowers/` untracked; the instructor repo's Pandoc 3.11
+and LEDGER 5; and the handouts' file dates (11 of 19 dated 2026-07-20 to
+2026-08-20, by `ls -l`). Not re-checked, the second pass's own reads: Lab 1's
+`numbering.xml` ids and formats, the rubric workbooks' sheet names, the
+`app.xml` Company field, file sizes.
+
+- **F1, high. The number check must read Word's numbering from the XML,
+  not through Pandoc.** Disputes the method of finding 2. The word check
+  reads the original "independent of Pandoc" (`docs/conversion-spec.md`),
+  and the four-items plan declined Pandoc as the source of truth for images
+  for the same reason (line 537). Questions become Divs at conversion, so
+  Pandoc's numbers are lost, and `questions.lua` hard-codes the faithful
+  "N)" from Lab 1. Proposed: in pass 2, map each question, stem and
+  no-answer block to its source paragraph (the word alignment exists) and
+  compute Word's displayed label from `numPr` and `numbering.xml`, restarts
+  included; compare with both presentations, letter formats included. Pass
+  1 tabulates each handout's list formats. Owner ruling only if some
+  original is not "N)".
+- **F2, high. "Supersedes 4a and 4b" drops most of 4a and five open
+  questions.** Pass 2 lists only the check, the pin and metadata. 4a also
+  carried `--resource-path` and `--mathml` for the downloads, image
+  extraction and alt-text compare, CSS for img, figure and math, and HTML
+  caps per lab; Q12 (the labelled photo), Q13, Q14, Q15 and Q17 are missing
+  from spec section 9. Section 5 has no row for text boxes over a photo,
+  one-cell tables whose description repeats the box text, or math letters
+  outside the font subset, all already in the four-items premises. A
+  plain-text sample cannot see them. Proposed: pass 2 is all of 4a (or 2a
+  and 2b); carry Q12 to Q15 and Q17 with their leans; survey columns read
+  from the XML. Extends finding 1.
+- **F3, medium-high. FERPA: delegated vetting puts unvetted text into three
+  more transcripts, and the exclusions have holes.** "Never quoted in a
+  report" protects the report, not the reader's context. The four
+  course-wide files are assigned to no reader. `PH211/List of terms.docx` at
+  the course root is not excluded, though LEDGER 22(e) groups it with the
+  sample-contract candidates and records that the PDF names a TA and a
+  term. Out-of-scope files (make-up data, raw CSVs) are not forbidden by
+  gate 8.1. Proposed: a pre-scan script that prints counts and locations
+  only (comment and revision authors, `people.xml`, email patterns, 9-digit
+  numbers, document properties), then only flagged spots are read, by the
+  main session or the owner; gate 8.1 becomes "nothing outside the in-scope
+  list is opened". Owner rules whether vetting may be delegated.
+- **F4, medium (conditional). The em-dash scan can collide with
+  format-only conversion.** CI fails on U+2014 in `curriculum/` and `site/`,
+  and the word check fails on any changed word, so an original holding an
+  em dash has no legitimate route to green; the AI file in `site/` has the
+  same exposure. Whether any original holds one is unverified. Proposed: the
+  survey counts them; a rule before pass 3; implementers never write
+  `ruled_omissions` or `ruled_additions` without a promoted entry.
+- **F5, medium. The originals are live documents.** 11 of 19 handouts were
+  saved between 2026-07-20 and 2026-08-20, and sections use the Word files
+  now. Nothing freezes them or detects a later edit, and rule 3.8 does not
+  say which version is "the original". Proposed: pass 1 records each hash;
+  each task re-hashes and stops on a change; a rule on who edits a Word
+  original after conversion and how the edit reaches the Markdown.
+- **F6, medium. Spec 9.2 is too narrow.** Identity also sits in comment and
+  revision authors, `people.xml`, `app.xml`, template paths, and photo EXIF,
+  and in both repos: the instructor repo's committed rubric workbook carries
+  `creator` and `lastModifiedBy` (presence checked by the second pass).
+  Proposed: widen 9.2 to every identity-bearing part and both repos; EXIF
+  stripped or ruled before any image is published.
+- **F7, medium. The template does not fit every lab.** If paper wins the
+  open decision, pass 6 has no user, and its gate does not say so. Capstones
+  span two weeks with their own rubric sheets; some labs may hand in paper
+  data sheets (file names only); the legend counts "data, plots, or
+  drawings" as report items, which a questions-only template drops; and the
+  handout itself says "If you submit through Gradescope". Proposed: pass 6's
+  gate adds "typed ruled, or the owner rules B ships regardless"; the survey
+  records per lab the deliverable, weeks and submissions; capstones get a
+  rule. Extends findings 5 and 8.
+- **F8, medium. The reason for holding A applies to B.** A Word file on a
+  shared lab PC leaves names and answers in Downloads, the recent-files list
+  and AutoRecover; and how sketches and photos reach a lab PC's Word file is
+  untested, though Lab 1 question 2 asks for every member's sketch.
+  Proposed: record the lab PCs' reset policy (a lab-ops fact) beside the
+  decline, and name where the file is saved and how photos arrive.
+- **F9, medium. A one-time owner check gates a file rebuilt on every push.**
+  Gate 8.6 covers the first merge only; later changes to sources, filters,
+  `reference.docx`, the Pandoc pin or the AI file ship unchecked, and pass 6
+  names no test invariants. The probe's parameters (one-cell table, row
+  height 1440 twips, border colour 8C8C8C) are recorded nowhere durable, and
+  explicit page breaks may leave a near-blank page when an answer ends at a
+  page foot (unprobed). Proposed: name what reopens the owner check; pin
+  per template that question words equal the source's, page breaks equal
+  answered items less one, one table per answered item, an at-least row
+  height; record the owner's check in an entry, as D-0057 did.
+- **F10, medium-low. Pass 2 breaks the instructor repo's copy rule** (its
+  LEDGER 5), and that repo's CI still installs Pandoc 3.11. Proposed: pass 2
+  updates the instructor copy and its Pandoc, or the owner rules it may lag.
+- **F11, medium-low. The rubric lockstep exists for 1 lab of 19.** Only
+  PH211 Lab 1's rubric is converted and keyed by id; the others name
+  questions as "Qn:" text. F1's check is the interim guard. (Spec section 7
+  corrected; see below.)
+- **F12, medium-low. The cross-reference has no job yet, and several
+  outputs have no named file.** In a format-only phase its findings change
+  nothing, they land in the instructor repo with no file named, written
+  from a library worktree (a path around gate 8.7). Pass 1's survey table,
+  the outline maintainers' notice (4.8) and 9.2's second hash have no named
+  home. Proposed: delete the cross-reference until content changes begin,
+  or name its file and run it from an instructor checkout; name the rest.
+  Contradicts finding 10, which keeps it.
+- **F13, medium-low. Worktrees break the relative path and may lose the
+  SDD ignore.** Proposed: pass prompts carry the absolute originals path;
+  track a `.superpowers/` line in the root `.gitignore` before pass 1.
+- **F14, low-medium. Three code paths.** (a) `questions.lua` counts a
+  question before checking that it opens with a paragraph, then returns
+  silently, so a block opening with a list keeps a number but gets no label;
+  make it an error. (b) S8 breaks the D-0057 Word box as S4 does; add it to
+  finding 3's fix. (c) PH212 and PH213 labs stay off course pages, tiles and
+  the course download until each has a `document` key in `site/courses.md`;
+  add the keys per conversion through an entry amending LEDGER 45.
+- **F15, low-medium. Spec section 3 mixes rulings, restatements and
+  Claude's calls.** 3.11 restates LEDGER 2 and embeds a recommendation; 3.7's
+  mechanism is also call 4.6; 3.4's "never a phone" is a premise, not a
+  ruling; no rule records who proposed it, which `DECISIONS.md` requires.
+  Proposed: a proposed-by per rule; 3.4 to premises; 3.7's mechanism to
+  section 4. Extends finding 8.
+- **F16, low. Smaller errors and parts with no job.** Three spec errors,
+  fixed (below). Gates 8.3 and 8.4 repeat the pass gates. The owner's review
+  of 18 labs, each four downloads and two pages, is uncounted, and his time,
+  not dispatches, is the binding cost. The AI statement is unvetted, yet 4.6
+  plans around its sentence; the probe's paraphrase is the one 4.6 declines.
+
+**Fixed in the spec from the second pass** (factual, no design changed):
+section 5 said PH211 Lab 1 has none of the structures, but it has S7 (bold
+that is not a question, LEDGER 25); section 7 said rubric rows are keyed to
+question ids, true only for PH211 Lab 1's converted rubric; section 2 read
+D-0071's Lab files group as covering figures and slide decks, but it names
+only data files (CSV) and simulations (HTML).
+
 ## For the question rounds
 
-Load-bearing first: findings 1, 2 and 3 shape pass 2; finding 4 and spec
-9.1, 9.2 gate pass 1; findings 5, 8 and 9 set the order. Then the rest of
-spec section 9, and findings 6, 7, 10 to 14.
+Load-bearing first. Pass 2's shape: findings 1, 2, 3 with F1 (how the number
+check reads Word), F2 (all of 4a, Q12 to Q15 and Q17) and F14. Pass 1's
+gates: spec 9.1 and 9.2 with F3 (who may read unvetted files, a no-print
+pre-scan) and F6, plus finding 4, F4 and F5. Order and purpose: findings 5,
+8, 9 with F7 (does the template fit every lab, and does it wait on paper or
+typed). Then the rest of spec section 9, findings 6, 7, 10 to 14 and F8 to
+F13, F15, F16. Where the two passes disagree (finding 2's method against F1,
+finding 10 against F12), the owner rules.

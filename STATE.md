@@ -5,8 +5,8 @@ Volatile handoff, capped at one screen. Updated 2026-10-06.
 **Focus (2026-10-06, evening):** the conversion of the remaining 18 PH 21X
 handouts, then a Word report template per lab. Spec
 `docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md`
-(rulings from chat in its section 3, not yet in the ledger) and its step-1
-critique beside it (14 findings, none ruled). Next: the critique's question
+(rulings from chat in its section 3, not yet in the ledger) and its two-pass step-1
+critique beside it (14 findings, then F1 to F16 from a fresh agent; none ruled). Next: the critique's question
 rounds with the owner; nothing is converted, surveyed or built until they
 settle. Throwaway probe templates sit in the ignored `build/probe-report-template/`.
 

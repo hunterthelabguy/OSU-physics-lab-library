@@ -3,7 +3,7 @@
 Status: draft for `/critique`, 2026-10-06. Written by Claude from the owner's
 rulings in chat the same day. Step 1 of the critique (hard critique) is in
 `2026-10-06-handout-conversion-and-templates-critique.md` beside this file;
-its findings are not yet applied here. Nothing here is binding until it is entered in
+its findings (two passes) are not yet applied here. Nothing here is binding until it is entered in
 `DECISIONS.md`; ledger entries win over this file. Supersedes items 4a and 4b
 of `docs/superpowers/plans/2026-10-03-four-items.md` once ruled (both are
 folded into passes 2 and 5 below).
@@ -65,8 +65,9 @@ or class-collected material, and the survey needs none of them:
   Instructor notes.docx`); such files usually hold the name of whoever had
   the document open.
 
-Data files, `.gambl` files, figures and slide decks are lab files (D-0071's
-unbuilt "Lab files" group), out of scope here.
+Data files, `.gambl` files, figures and slide decks are out of scope here.
+D-0071's unbuilt "Lab files" group names only data files (CSV) and
+simulations (HTML); how the rest attach to a lab is not designed.
 
 **In scope for the survey:** the 19 handouts, the instructor notes (less the
 excluded files), the rubric workbooks, the three curriculum summaries, and the
@@ -134,8 +135,9 @@ settles; the owner promotes.
 ## 5. The interface: how a graded item is marked up
 
 The conversion marks up graded items; the template filter reads that markup.
-So the rules come first (pass 1), before any conversion. PH211 Lab 1 has none
-of the cases below; the sample (section 2) shows all of them. Item numbers are
+So the rules come first (pass 1), before any conversion. PH211 Lab 1 has
+none of the cases below except S7 (its bold that is not a question, LEDGER
+25); the sample (section 2) shows all of them. Item numbers are
 from a plain-text extraction and are re-derived by the survey.
 
 | | Structure | Seen in the sample | Proposed handling (ruled in pass 1) |
@@ -199,8 +201,10 @@ holds PH211 Lab 1's instructor notes and rubric, converted, with its own word
 check and CI. Its conversion rules for rubrics are already in
 `docs/conversion-spec.md` ("Rubrics (instructor repo)"): one
 `::: {.rubric-item question="<question id>"}` per scored question, the
-question text found by id, never copied. Rubric rows are therefore already
-keyed to handout question ids, which is the lockstep mechanism.
+question text found by id, never copied. A converted rubric is therefore
+keyed to handout question ids, which is the lockstep mechanism; today that
+is PH211 Lab 1's alone, and the unconverted rubrics name questions by number
+in their cells ("Q1:").
 
 The owner proposed keeping them git-ignored in this repo. Recommended
 against, owner to rule in the critique: the private repo already tracks
