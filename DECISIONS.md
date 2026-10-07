@@ -825,191 +825,229 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - test: none; the entry holds no quantity. When a license is ruled, its text and its reach by path need a test of their own
 
 ### D-0074  Lab reports are written in a Word template generated per converted lab and submitted to Gradescope as one PDF per group, whichever way paper or typed goes
-- status: proposed
+- status: ruled
 - proposed-by: owner
+- ruled-by: owner
 - date: 2026-10-06
 - decision: Students complete the lab report in a Word report template generated per converted lab from that lab's Markdown source: the questions only, with an answer area after each (approach B; spec `docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md`, rule 3.1). Every section submits to Gradescope as a PDF, one report per group (rule 3.2). The template is separate from the open paper-or-typed decision (rule 3.3) and ships whichever way that decision goes. The in-page worksheet (A) is held; Gradescope's Online Assignment (C) is declined (spec section 10). Premises, the owner's (rule 3.4, a premise rather than a rule): the group's scribe writes the report on a lab PC or a laptop, never a phone; some groups open the Word file in Google Docs and co-edit there, so the template must survive Word and Google Docs; each student signs in to a lab PC with their own account, so files stay in their own profile, though some students forget to log out.
 - rationale: The owner chose B, the PDF per group and the separation in chat on 2026-10-06 (rules 3.1 to 3.3 are the owner's, confirmed 2026-10-07). On whether the template waits for the paper decision (critique F7), the owner, 2026-10-07: "B ships regardless and record the reason: if paper wins, the templates already exist and serve as the starting point for the paper worksheets." On F8 (a Word file on a shared lab PC leaves answers behind), the owner, 2026-10-07: own sign-in per student, but "occasionally some students forget to log out before leaving the lab"; a forgotten logout exposes any file a student opens in lab, so it is a lab-ops matter, not the template's. The same fact weakens the spec's shared-PC reason for holding A; A stays held because one browser is one author and groups co-edit.
 - alternatives: A, the in-page worksheet (held, earmarked if typed wins); C, Gradescope Online Assignment (a second copy of every question built by hand; group support unverified); pass 6 held until the paper decision (D-0095, declined).
 - binds: spec sections 1, 3, 6 and 10; tools/downloads.py (pass 6); STATE.md (paper or typed, open)
 - test: none yet; pass 6's, under D-0079
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0075  The template puts one question on each page, with a one-cell bordered answer box after each
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-06
 - decision: In the report template every answered question starts a new page (rule 3.5), by an explicit page-break paragraph (call 4.5). A stem's text heads its first child's page with no box (spec section 5, S2); an item needing no answer is left out, its number a visible gap (S1). The answer area is a one-cell bordered box (rule 3.6): one per question, unless the Gradescope outlines grade lettered sub-parts as separate questions, in which case one per sub-part (spec 9.4); pass 6 asks the outline maintainers, by role, before it builds.
 - rationale: Students tag pages to questions in Gradescope faster when each question has its own page. The owner's "Yes" of 2026-10-06 answered a question that bundled this with the PDF submission (critique finding 8); confirmed alone on 2026-10-07 ("Yes, one per page"). A plain empty paragraph as the answer area is invisible, so students guess where to type (spec section 10). Rules 3.5 and 3.6 were Claude's proposals, ruled by the owner (owner, 2026-10-07). 9.4's lean accepted 2026-10-07.
 - alternatives: questions flowing, each boxed (fewer pages; one page may hold parts of two questions, so tagging is slower); a plain empty paragraph; a "page break before" style (its Google Docs import is unverified, call 4.5). Unprobed: a near-blank page when an answer ends at a page foot (F9).
 - binds: spec sections 3, 4.5 and 5; tools/filters/report-template.lua (pass 6, new)
 - test: D-0079's invariants (page breaks equal answered items less one; one table per answered item)
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0076  The template adds a group-members line and an AI-use slot read from its own file; the lab page gets its own template button
-- status: proposed
+- status: ruled
 - proposed-by: owner
+- ruled-by: owner
 - date: 2026-10-06
 - decision: The template adds two things the handout does not hold (rule 3.7): a "Group members:" line on page 1, and an "AI use" slot at the end whose words live in their own file (call 4.6, for example `site/report-template-ai-use.md`), so colleagues can edit it or delete it entirely; with the file present the template ends with the slot, with it absent there is no slot and no code change. The slot applies to every PH 21X course, so one file serves every template and no per-course switch is built (spec 9.6). Its words name their source by title, "Statement on AI and labs" (a PH 21X course-wide file); the statement's authors are credited by name when D-0073's license conversation settles credit for every handout. The lab page gets a separate button, "Download template (.docx)" (rule 3.9).
 - rationale: Rules 3.7 and 3.9 are the owner's (chat, 2026-10-06). On the slot's reach (spec 9.6) the owner, 2026-10-07: "Every course". On credit (critique finding 14: the template would quote co-owned work without credit, charter floor 9), the owner chose to cite by title now and name the authors by D-0073's rule, one rule for all course materials.
 - alternatives: a per-course switch (no job: every course); the statement converted as a twentieth document the slot cites (another conversion and its own license question); the authors' names in the AI file now (names in a public repo ahead of D-0073).
 - binds: D-0059, D-0073, spec 3.7, 3.9 and call 4.6; site/ (the AI file, pass 6); tools/render.py (the button, pass 6)
 - test: pass 6: the template with the AI file present and absent (call 4.6)
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0077  The template's question numbers equal the handout's, which equal the original's; the ordered ids are pinned per lab
-- status: proposed
+- status: ruled
 - proposed-by: owner
+- ruled-by: owner
 - date: 2026-10-06
 - decision: The template's question numbers equal the converted handout's, which equal the Word original's (rule 3.8). Gradescope outlines and the rubrics follow the original numbers. The rubrics are the owner's to edit in lockstep with handout changes; the outlines are not his task. The ordered question ids are pinned per lab by a test (call 4.8, built in pass 2a): adding, removing or reordering a question fails the build until the pin is updated in the same PR with an entry naming the numbers that moved, the owner's cue to edit the rubrics and the outline maintainers' notice. The pin is a deliberate lock that fails loudly, as `tests/test_assets.py` pins the logo hashes, not the second copy that call 4.1 declines (critique finding 11).
 - rationale: Rule 3.8 is the owner's (chat, 2026-10-06; confirmed as his 2026-10-07). The pin freezes the order the conversion produced; that the order agrees with the original is D-0078's job, so the two guards have separate jobs: D-0078 during conversion, the pin once ruled content changes begin.
 - alternatives: none raised.
 - binds: spec 3.8 and call 4.8; tests (pass 2a)
 - test: pass 2a: reordering a question in a fixture fails the pin
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0078  A check compares the original's question numbers, read through Pandoc, wherever a pass-1 count shows Word's numbering is simple
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Pass 1's survey counts per handout, computing no labels, the numbering features that make Word's displayed numbers hard to read: a restart or override at the question level, more than one list among the questions, a label format other than "N)". Where a handout has none, pass 2a's check compares Pandoc's reading of the original's numbered items with the converted lab's question numbers, items needing no answer and stems included. Where a handout has any, its conversion task stops and comes to the owner, and a reader of Word's own numbering (`numPr` and `numbering.xml`, critique F1) is built only then. The faithful page's "N)" prefix (`tools/filters/questions.lua`) is right only where the count finds "N)".
 - rationale: D-0077 is ruled but nothing proves it: the word check reads `w:t` only and cannot see Word's list numbers, and the pin freezes whatever the conversion produced (critique finding 2). The two critique passes disagreed on the method: finding 2 read the original through Pandoc (the sample extraction kept Word's numbering, including numbers that continue across parts), F1 read the XML, independent of the converter, as the word check is (`docs/conversion-spec.md`, "independent of Pandoc"). The owner, 2026-10-07: "The less manual work for me, the better, but also the best code is no code. I lean toward relying on Pandoc but only if there's low risk of mistake." The count measures that risk per handout before the check relies on it. The owner asked whether the rubric workbooks could supply the numbers. They cannot here: they are instructor material, never in this repo, which never reads the instructor repo (spec section 7); they score only some questions (PH 211 Lab 1's, four of five), so the S1 and S2 calls that shift numbers are invisible to them; and they are what the lockstep keeps in step. Their "Qn:" text is pass 7's job instead (D-0083).
 - alternatives: XML from the start (F1; the largest code in pass 2, built whether or not any handout needs it); no number check, the task reviewer and the pin only (a missed S1 or S2 call shifts every later number silently, then is pinned); XML with Pandoc as a second opinion (both bodies of code; every disagreement a stop).
 - binds: tools/check_unchanged.py or a sibling (pass 2a); tools/filters/questions.lua; docs/conversion-spec.md; the survey (pass 1)
 - test: pass 2a: a fixture where an item needing no answer is marked a question, shifting later numbers, must fail
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0079  The template's merge waits on the owner's check in Word and Google Docs; named changes reopen it, and tests pin its shape
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Gate 8.6 stands: the template merges only after the owner checks it in Word and Google Docs, and the check is recorded in an entry as D-0057's was. The check reopens on any change to `tools/filters/report-template.lua`, `tools/reference.docx`, the Pandoc pin, the AI file, or when a structure (spec section 5) first reaches the template. Tests pin per template: its question words equal the source's; page breaks equal answered items less one; one table per answered item; an answer row at least the probe's height. The probe's parameters, recorded here so they outlive the ignored `build/probe-report-template/` (critique F9): a one-cell table, row height 1440 twips, border colour 8C8C8C.
 - rationale: A one-time owner check gates a file the build rewrites on every push, so later changes would ship unchecked (F9). Accepted by the owner 2026-10-07.
 - alternatives: the first merge only (gate 8.6 as written).
 - binds: spec 8.6 and section 6; tests (pass 6)
 - test: pass 6, the four invariants above
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0080  Templates come after all 18 conversions; Winter 2027 is the target and slips if conversion does; the template carries no draft notice
-- status: proposed
+- status: ruled
 - proposed-by: owner
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Rule 3.10 holds: pass 6 builds the template after every remaining handout is converted. The target for students to have the templates is Winter term 2027; it is a target, not a commitment, and slips if conversion runs long. The template ships without the draft notice ("Draft: license pending, not for distribution."), amending D-0052 for the template file only; every other download keeps it. What the template's page header carries instead is pass 6's design. Amends call 4.3.
 - rationale: Rule 3.10 is the owner's (chat, 2026-10-06). On the target term (critique finding 5) the owner, 2026-10-07: "Winter 2027, distribution ruled", the distribution ruling being that the template ships without the draft notice. Where the date and 3.10 collide, the owner, 2026-10-07: "3.10 holds; Winter slips".
 - alternatives: no target until the paper decision and the license settle (D-0096, declined); the template built after pass 3 (D-0097, declined); 3.10 with a cut-off date after which pass 6 runs on what is converted; Spring 2027.
 - binds: D-0052, spec 3.10 and call 4.3; tools/downloads.py (pass 6)
 - test: pass 6: the template has no draft notice; every other download still has it
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0081  Instructor notes and rubrics are tracked in the private instructor repo, never in this one
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Instructor notes, rubric workbooks and anything drawn from them live tracked in `OSU-physics-lab-library-instructor` (private), never in this repo, tracked or ignored (rule 3.11; LEDGER 2). The private repo reads this one; this one never reads it (spec section 7).
 - rationale: The private repo already tracks PH 211 Lab 1's notes and rubric with its own check and CI; history is what lockstep needs ("what did the rubric say when the handout said X"); a tracked file is durable (charter floor 12); a check on it can run in CI (floor 2); and one `git add -f` of an ignored file would put answer keys into a public repo's permanent history. The owner, 2026-10-07: "Tracked, private instructor repo".
 - alternatives: git-ignored in this repo (the owner's first proposal; D-0093, declined).
 - binds: LEDGER 2, spec 3.11 and section 7, CLAUDE.md (Conventions: this repo will become public)
 - test: none; the entry holds no quantity
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0082  Eight passes: survey, checks, downloads, the hardest two then PH 211, PH 212, PH 213, the template, the cross-reference; supersedes four-items 4a and 4b
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: The work runs as eight passes, each a session ending with /handoff, recounted after the survey. Pass 1: vet and survey (D-0084, D-0085) and the PH 212 and PH 213 course lists (D-0088). Pass 2a, checks, one PR: the word check counts equations and image alt text (four-items calls 4.2 and 4.3's check); the number check (D-0078); the ordered-ids pin (D-0077); every equation the survey finds probed through the Word and HTML writers, since Pandoc's "Could not convert TeX math" warnings, seen with the plain writer, would fail the build's warning gates, and an equation rule added to `docs/conversion-spec.md` (critique finding 1); `tools/filters/questions.lua` fails on a question that opens with anything but a paragraph, where today it counts the question and returns without a label (F14(a)); the Word question box redrawn as a one-cell shaded table, the answer box's mechanism, so a question holding a list or bullets between its parts draws whole (finding 3, F14(b); D-0057's `custom-style` misses list items), which reopens the owner's D-0057 Word check of that box, with Google Docs added; the metadata strip (D-0086). Pass 2b, downloads, one PR, merged before pass 3: `--resource-path` and `--mathml` for the downloads, image extraction and publishing, CSS reverts for img, figure and math, HTML caps per lab (four-items item 4a). Pass 3: the two hardest handouts by the survey (the likely pair is PH 213 Lab 2, the owner's 2026-10-03 pick, and PH 212 Lab 1), then PH 211 Labs 2 to 7, hardest first. Pass 4: the rest of PH 212. Pass 5: the rest of PH 213. Pass 6: the template (D-0074 to D-0080). Pass 7: the cross-reference (D-0083). Supersedes items 4a and 4b of `docs/superpowers/plans/2026-10-03-four-items.md` and its Order for them.
 - rationale: Check before content (four-items call 4.1: a check written in the same diff as the content it passes cannot be told from one shaped to pass). The spec's pass 2 dropped most of 4a (F2). A rule wrong for a hard case is found before 16 labs embody it, and the hardest handouts are tested first (finding 9). Eight passes against the owner's budget of six; the survey sets 2b's size and each conversion pass's difficulty, so the recount waits for it (finding 12). The owner, 2026-10-07: "2a checks, 2b downloads", "Pass 2: one-cell shaded table", "Hardest two first, then courses", "Eight; recount after survey".
 - alternatives: pass 2 as the spec wrote it (check, pin, metadata; download and CSS work would land inside a content PR); all of 4a as one PR; the question box fixed in pass 6 (broken boxes in production Word downloads for passes 3 to 5) or a build failure in its place; course order, hardest first within each pass; PH 213 Lab 2 alone first; seven passes (2a and 2b in one session) or six (also the rest of PH 212 and PH 213 in one pass).
 - binds: spec section 6; docs/superpowers/plans/2026-10-03-four-items.md (items 4a and 4b, Order); D-0057; tools/check_unchanged.py; tools/filters/questions.lua; tools/reference.docx; tools/downloads.py; STATE.md
 - test: per pass; pass 2a's include PH 211 Lab 1 unchanged at 989 words and bold on 943
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0083  The cross-reference becomes pass 7, after the template: rubric and notes numbers against each handout, run from an instructor checkout
-- status: proposed
+- status: ruled
 - proposed-by: owner
+- ruled-by: owner
 - date: 2026-10-07
 - decision: No instructor notes or rubrics are read in passes 1 to 6. Pass 7, after the template, runs from a checkout of `OSU-physics-lab-library-instructor` and compares, per lab, the rubric's "Qn:" text and the notes' cited question numbers with the converted handout's question n; misalignments are recorded by lab in a named file in the instructor repo, and nothing in either repo's content changes. Pass 7 also copies the instructor originals into the instructor repo's `originals/` (spec 9.5), brings the owner the two PH 211 Lab 6 notes files to pick the canonical one (9.3), fixes the instructor `CLAUDE.md`'s stale path (9.8), applies D-0086's strip there, and brings the instructor repo's copy of the check and its Pandoc up to the library's (critique F10); until then that copy and that repo's CI's Pandoc 3.11 lag the library's, which pass 7 records in that repo's own LEDGER. Pass 1's "notes and rubric facts" landing is dropped.
 - rationale: The two critique passes disagreed: finding 10 kept the cross-reference in passes 3 to 5 and dropped pass 1's instructor landing; F12 would delete it until content changes begin, since in a format-only phase its findings change nothing. The owner, 2026-10-07: "F12 but instead of deleting it and waiting until content changes, we do it in a separate pass once the rest of the work is done." Claude's conditions, confirmed by the owner the same day: a named job (the owner's own question that day, whether the rubric workbooks hold the numbers, supplies it) and an instructor checkout, which keeps gate 8.7 and needs no secret (D-0089).
 - alternatives: once per course in passes 3 to 5 (finding 10; D-0098, declined); deleted until content changes (F12); its job left to its plan.
 - binds: spec sections 6 and 7 and 9.3, 9.5, 9.8; OSU-physics-lab-library-instructor (its LEDGER 5, its CI's Pandoc, its CLAUDE.md)
 - test: pass 7's own
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0084  Vetting: the owner's word clears the handouts, summaries and course-wide files; no pre-scan; nothing outside the in-scope list is opened
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: The owner's word is the ruling that the 19 PH 21X handouts, the PH 212 and PH 213 curriculum summaries and the four course-wide files at the folder's root (spec section 2) hold no student data; PH 211's summary was read and quoted on 2026-09-19 (LEDGER 45). Sonnet subagents may read them in full in pass 1; each reader's prompt says that on meeting anything resembling a student record it stops and reports the file and the location only, never the text. No pre-scan script is built. The excluded files (spec section 2) stay unopened, and PH 211's `List of terms.docx` joins them; gate 8.1 becomes: nothing outside the in-scope list is opened. Instructor notes and rubrics are read only in pass 7 (D-0083).
 - rationale: The owner, 2026-10-07: "These are lab handouts; no student PII is in them. Is there still any need for a pre-scan?" A pre-scan (critique F3) would print counts and locations only; with the owner's word, its one remaining job, finding names in file metadata, belongs to the strip (D-0086), which reports what it removes. `CLAUDE.md`'s rule, read an original in full for student data before planning around it, is met by the survey's full read. LEDGER 22(e) groups `List of terms.docx` with the sample-contract candidates, and F3 found it unexcluded; F3 also found that gate 8.1 did not forbid out-of-scope files. The owner, 2026-10-07: "None; add List of terms", then "No pre-scan; subagents may read".
 - alternatives: a pre-scan first (F3; D-0094, declined); the handouts alone cleared, the summaries and course-wide files read by the main session; three Sonnet readers with no clearance (spec section 6 as written); the excluded files moved out of the folder by the owner.
 - binds: spec sections 2, 6, 8.1 and 9.1; CLAUDE.md (Conventions: originals unvetted); LEDGER 22(e); charter floor 11
 - test: none; the entry holds no quantity
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0085  Pass 1's survey: one markup rule per structure for every output, em dashes counted, every original hashed, each lab's deliverable recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Pass 1 reads each in-scope handout and records, in a table in this repo that holds nothing drawn from notes or rubrics (spec 9.7): its structures (spec section 5, S1 to S8 and any new one), D-0078's numbering counts, its count of U+2014, its SHA-256, and per lab the deliverable, the weeks, the submissions and any report item that is not an answer to a question (data, plots, drawings; F7). It amends `docs/conversion-spec.md` with one markup rule per structure, each stating what the faithful page (the original's "4)" exactly), the modern page, the Word download and the template show, so an item needing no answer or a stem is never labelled "Question N" or boxed (finding 4). If any original holds an em dash, a rule comes before pass 3, since CI fails on U+2014 in `curriculum/` and `site/` and the word check fails on a changed word (F4); implementers never write `ruled_omissions` or `ruled_additions` without a promoted entry. Each conversion task re-hashes its original and stops on a change (F5). Pass 6 makes a template only for labs whose deliverable is a question report; capstones and the rest get none until the owner rules on the survey's evidence. Agent worktrees: pass prompts carry the absolute path to the originals, never committed, and the root `.gitignore` gains `.superpowers/` before pass 1 (F13).
 - rationale: The owner, 2026-10-07, accepted finding 4, F4 and F5, and "Survey records it; pass 6 rules" for F7. Spec 9.7 and F13 were taken as Claude's calls, the owner told he could veto either; he did not.
 - alternatives: none raised for finding 4, F4 or F5; for F7, every lab gets a template, or capstones ruled before the survey.
 - binds: docs/conversion-spec.md; spec sections 5 and 9.7; .gitignore; the em-dash scan in .github/workflows/verify.yml
 - test: none in pass 1; the hash re-check is per task
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0086  Originals are committed with every identity-bearing part stripped, in both repos; amends LEDGER 18
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Before an original is committed, in either repo, every identity-bearing part is stripped: `creator` and `lastModifiedBy` in `docProps/core.xml`, `docProps/app.xml`'s Company and template path, comment and revision authors, `word/people.xml`, and EXIF in embedded photos. The stripped file is committed and front matter's `source_sha256` names it; an entry records both hashes, the original's and the stripped file's, so anyone holding the original can tie the two. No text run (`w:t`) changes, so the word check is unaffected; image checks read the stripped file. The strip is built in pass 2a and runs on every original committed here from then on; the instructor repo gets it in pass 7 (D-0083), its committed PH 211 rubric workbook replaced by a stripped copy. Neither repo's history is rewritten: PH 211 Lab 1's committed original and its history stay D-0062's question; the instructor repo is private and never published. Settles four-items Q16 for PH 213 Lab 2. Amends LEDGER 18 (originals byte for byte).
 - rationale: This repo will become public, git history is permanent, and the house rule is roles, not names (`CLAUDE.md`). F6 found spec 9.2 too narrow: identity also sits in comment and revision authors, `people.xml`, `app.xml`, template paths and photo EXIF, and in both repos (the instructor repo's committed rubric workbook carries `creator` and `lastModifiedBy`). The owner, 2026-10-07: "Strip all parts, both repos", then "Pass 7, with 9.5 and 9.8" for the instructor repo.
 - alternatives: `core.xml` only (spec 9.2's lean); this repo only; commit as is (LEDGER 18); the instructor strip in pass 2a.
 - binds: LEDGER 18; docs/conversion-spec.md (Originals); four-items Q16; D-0062; both repos' `originals/`
 - test: pass 2a: a fixture original with each identity part; after the strip none remains and its word sequence is unchanged
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0087  A Word original stays the live document until sections switch to the library's version
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Until sections hand out the library's version of a handout, its Word original is the live document. When a colleague edits it after conversion, the new file is stripped (D-0086) and hashed, its word difference from the old original is applied to the Markdown, the check runs against the new file, and an entry records the old and new hashes. Once sections switch, the Markdown is the source (`docs/conversion-spec.md`, Flow) and edits are made there. Before a conversion merges, a changed original stops its task (D-0085).
 - rationale: 11 of 19 handouts were saved between 2026-07-20 and 2026-08-20 and sections use the Word files now; rule 3.8 did not say which version is "the original" (critique F5). The owner chose this 2026-10-07.
 - alternatives: frozen at conversion, later edits recorded for the content-change phase (the library drifts from what students hold this year); asking colleagues to stop editing the Word files (a mid-term ask they may not follow).
 - binds: docs/conversion-spec.md (Flow); D-0077; D-0085
 - test: none; when sections switch is the owner's call
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0088  PH 212 and PH 213 course lists are quoted from their summaries in pass 1; amends LEDGER 45
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: After pass 1 reads the PH 212 and PH 213 curriculum summaries, one PR quotes each summary's lab numbers, titles and one-line descriptions into `site/courses.md` word for word, as PH 211's were quoted from its Activities table, every lab under "Not yet converted" until converted; the two notes saying none is in hand to list are removed; the file's comment's "ledger 43" becomes "ledger 45". If a summary has no such list, the PR stops and the owner rules. Each later conversion adds its lab's `document` key the same way (F14(c)). Amends LEDGER 45's last sentence ("PH 212 and PH 213 have no material in hand").
 - rationale: The live course pages for PH 212 and PH 213 say none is in hand to list (`site/courses.md` lines 47 and 51), false since both summaries reached the owner's folder (critique finding 7). A converted lab appears on its course page, tile and course download only through a row with a `document` key, and LEDGER 45 permits a row only for a lab its summary lists, so each conversion needs the quoting anyway. The owner, 2026-10-07: "Quote both lists in pass 1".
 - alternatives: correct the sentence only and quote row by row as labs convert (the pages unlike PH 211's until the end; the same quoting ten times); leave until conversion (a false statement on the live site for several passes).
 - binds: LEDGER 45; site/courses.md; D-0069; D-0070; D-0071
 - test: the PR's: each course page lists its quoted labs
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0089  A check that crosses the two repos waits for the public flip; pass 7 runs locally
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Pass 7 (D-0083) runs on the owner's machine from the two checkouts and needs no token or deploy key. Any CI check in the instructor repo that reads this repo's source (spec section 7, later) waits until this repo is public (D-0062); none is built before.
 - rationale: While this repo is private, the instructor repo's CI could read it only with a secret, and `CLAUDE.md` forbids touching a secret without the owner's word (critique finding 13). Accepted by the owner 2026-10-07.
 - alternatives: a deploy key or token for the instructor repo's CI.
 - binds: spec section 7; D-0062
 - test: none; the entry holds no quantity
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0090  Claude checks every page and PDF; the owner checks Word for the hardest two handouts and one lab per later pass
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: For each converted lab, Claude screenshots the modern page, the faithful page and the PDF in the browser pane and checks them against the original (equations, arrows, images, boxes). The owner checks the Word download, in Word, for the two hardest handouts (pass 3's first two), which set the conversion rules, and for one lab per later conversion pass. The template's check is D-0079's.
 - rationale: The owner's time, not dispatches, is the binding cost: 18 labs, each two pages and four downloads, about 108 views (critique F16); only the owner, in Word, checks what Word shows (D-0057). The owner chose this 2026-10-07.
 - alternatives: every view of every lab by the owner (full strength); the template check alone (Word display faults seen by no one before students).
 - binds: spec section 6; D-0057
 - test: none; a review practice
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0091  The outcome measure: a TA estimate of minutes per report before Winter 2027, and the same question a term after first use
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Before Winter 2027, a few TAs are asked for a one-line estimate of the minutes they spend grading one group report; a term after the templates' first use, the same question. Both answers are recorded in an entry. No timed study.
 - rationale: The spec says how B is built, not how anyone will know it worked; the 2026-10-06 session named TA minutes per report as the measure, and without a baseline taken before first use there is nothing to compare (critique finding 6). The owner chose this lean-plus-earmark 2026-10-07.
 - alternatives: a timed week before and after (full strength: TA time and the owner's follow-up); no measure.
 - binds: STATE.md (awaiting owner)
 - test: none; two recorded answers
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0092  PH 213 Lab 2's carried calls: labels at Word's positions, a stop on equation differences, its id, the photograph as is, the 3 MB original
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: The leans of `docs/superpowers/plans/2026-10-03-four-items.md` Q12 to Q15 and Q17, carried into pass 3 by D-0082 (critique F2): Q12, the labelled photograph keeps its labels at the positions Word stores, generated by the build from the original (call 4.4, A); Q13, if the equation round trip shows differences normalization cannot remove, Claude stops and brings the list to the owner; Q14, the id `ph213-hypothesis-testing-handout`; Q15, the photograph published as is (944 KB, 2637 px wide), the page measured on a phone, then a smaller derived copy decided; Q17, the 3 MB original committed, stripped per D-0086 (Q16).
 - rationale: "Do not use" must stay on its knob (Q12); a check loosened until it passes is no check (Q13); the course code separates it from PH 211 Lab 4, also titled "Hypothesis Testing" (Q14); the size is a one-time cost (Q17). The owner accepted all five leans 2026-10-07.
 - alternatives: as the plan lists them (Q12 B and C; Q15's derived copy now; Q17 not committing the original).
 - binds: docs/superpowers/plans/2026-10-03-four-items.md (calls 4.3 to 4.5, Q12 to Q17); D-0082; D-0086
 - test: pass 2b's and pass 3's
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
