@@ -2,6 +2,14 @@
 
 Volatile handoff, capped at one screen. Updated 2026-10-06.
 
+**Focus (2026-10-06, evening):** the conversion of the remaining 18 PH 21X
+handouts, then a Word report template per lab. Spec
+`docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md`
+(rulings from chat in its section 3, not yet in the ledger) and its step-1
+critique beside it (14 findings, none ruled). Next: the critique's question
+rounds with the owner; nothing is converted, surveyed or built until they
+settle. Throwaway probe templates sit in the ignored `build/probe-report-template/`.
+
 **Focus (2026-10-01):** Phase 5 cutover done. Production is the Quarto build
 on Cloudflare Pages, `https://osu-physics-labs.pages.dev/` (project
 `osu-physics-labs` in the owner's own account; name from the repository
@@ -122,14 +130,14 @@ course pages replaced item 1 and calls 2.1 and 2.2, and D-0071 built item
   each file, the PDF footer); the owner does not treat the 2026-10-06 demo
   as a deadline; PR #19 and PR #20 merged
   without a phone check of the preview.
-- Open, the owner's, not to be designed until he raises it: how students
-  complete handouts. Either a browser-only fillable worksheet with an
-  export (nothing leaves the browser, so no student data is stored; the
-  cost is work lost if the browser's storage is cleared), or paper
-  handouts completed individually during lab, one per group graded at
-  random each week, replacing the group lab report. His drivers: peer
-  accountability, answers free of AI text, the 1 h 50 min lab, and any
-  outside work moved to simulation-based prelabs. He has not decided.
+- Open, the owner's: paper or typed reports. Either typed (since
+  2026-10-06, a Word report template per lab is the typed path, spec rule
+  3.1; the browser-only worksheet is held), or paper handouts completed
+  individually during lab, one per group graded at random each week,
+  replacing the group lab report. His drivers: peer accountability, answers
+  free of AI text, the 1 h 50 min lab, and any outside work moved to
+  simulation-based prelabs. He has not decided; the template work is ruled
+  separate from this decision (spec rule 3.3).
 - Phase 5 is done, Task 4 included (2026-10-01): migration plan marked,
   CLAUDE.md Deploy rewritten, successor page
   `OSU-lab-ops/lab-handbook/lab-library-site.md` (lab-ops ledger 29).

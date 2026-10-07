@@ -152,10 +152,11 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
 - Conversion phase: no content changes. Format only, proven by the
   content-unchanged check (docs/conversion-spec.md).
 - Roles, not names. No invented record data.
-- Original source files are in `../Old Reference Material/` (the
-  `../Unsorted Legacy Resources/` this line once named does not exist,
-  checked 2026-10-03) and are unvetted: read one in full for student data
-  before planning around it.
+- Original source files are in `../Old Reference Material/` and are
+  unvetted: read one in full for student data before planning around it.
+  The PH 21X set (handouts, instructor notes, rubrics, summaries) is under
+  its `21X Lab Curriculum/`; layout and files not to open are in section 2
+  of `docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md`.
 - `tools/check_unchanged.py` reads the original's `w:t` only: Word
   equations (`m:t`) and image alt text (`wp:docPr descr`) are invisible to
   it, while the converted side reads `Math` LaTeX and `Image` alt as words.
