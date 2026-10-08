@@ -59,3 +59,18 @@ All four leans: a converter of our own (`tools/figures.py`), no LibreOffice
 in CI; label lines broken by a Liberation Serif width table; inline SVG on
 the page and a PNG by headless Chrome for Word; PH 212 Lab 3 as one figure
 of four drawings, PH 213 Lab 4's Text Box 2 as a box.
+
+## Built (pass 2b PR)
+
+`tools/figures.py` draws the three figures from the originals (scratchpad
+copies; no handout converted). Against Word's PDFs, turned to vectors with
+poppler's `pdftocairo -svg`: every label's baseline within 0.11 pt and every
+start within 0.06 pt on PH 213 Labs 2 and 4; box widths equal (104.65 pt
+in Word, 104.66 computed); arrowheads 6 by 6 pt as Word's. Its rules and the
+calls made while building it (reading, anchored drawings, Word's size and
+crop, font numbers) are D-0118.
+
+Seen, not changed, for the owner's eye at conversion (D-0090): a label in a
+face the reader's machine lacks falls back. PH 213 Lab 4's "ℓ" is the
+letter l in Script MT Bold, which Linux, and so CI's PNG for Word, does not
+have.

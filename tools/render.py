@@ -29,6 +29,11 @@ import subprocess
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PANDOC = os.environ.get("PANDOC", "pandoc")
 THEMES = ("modern",)
+# How every step reads a source: no smart quotes, so words match the
+# originals, and no implicit figures, so a lone picture is not given its alt
+# text as a visible caption Word does not have (D-0118). _quarto.yml's
+# `from` and tools/check_unchanged.py's FROM say the same (tested).
+FROM = "markdown-smart-implicit_figures"
 
 # Official logo files, committed byte for byte (DECISIONS D-0014, D-0020).
 BRAND = os.path.join(ROOT, "site", "brand")
@@ -84,7 +89,7 @@ def pandoc_meta(md_path):
     a PH 212 title, "Sharing & Comparing", showed as "&amp;" (2026-10-07).
     """
     out = subprocess.run(
-        [PANDOC, md_path, "-f", "markdown-smart", "-t", "html",
+        [PANDOC, md_path, "-f", FROM, "-t", "html",
          "--template", os.path.join(ROOT, "tools", "meta.template")],
         check=True, capture_output=True, text=True, encoding="utf-8",
     ).stdout
@@ -319,8 +324,13 @@ def download_all(course, docs, depth):
     e = html.escape
     boxes = []
     for ext, name in DOWNLOAD_FORMATS:
-        files = " ".join(up(depth) + "labs/{0}/{0}.{1}".format(doc_id, ext)
-                         for doc_id in ids)
+        paths = ["labs/{0}/{0}.{1}".format(doc_id, ext) for doc_id in ids]
+        if ext == "md":
+            # A Markdown file names its pictures and figures by relative
+            # path, so they travel with it (four-items call 4.3).
+            paths += ["labs/{0}/{0}-media/{1}".format(doc_id, f)
+                      for doc_id in ids for f in docs[doc_id].get("published", [])]
+        files = " ".join(up(depth) + p for p in paths)
         boxes.append('<label><input type="checkbox" value="{}" data-files="{}">'
                      ' {}</label>'.format(ext, e(files), e(name)))
     return (

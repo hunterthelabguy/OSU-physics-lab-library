@@ -17,13 +17,30 @@ from Pandoc's syntax tree, and compares:
    there; then, in order, display against inline, and the equation's text and
    structure, the converted side's read back from the OMML that Pandoc's own
    Word writer makes of its TeX ("Equation rule" in docs/conversion-spec.md).
-4. pictures (four-items call 4.3): each picture (`w:drawing` holding a
-   `pic:pic`) and each `Image` node takes one place in the word sequence; then,
-   in order, Word's alt text (`wp:docPr descr`) against the image's alt text,
-   word for word.
+4. pictures (four-items call 4.3): each picture (a `pic:pic`, in a drawing of
+   its own or inside a drawn figure) and each `Image` node takes one place in
+   the word sequence; then, in order, Word's alt text (`descr`) against the
+   image's alt text, word for word. A picture of its own is also its file: the
+   Markdown names it in front matter `images:` (`file`, `source_part`,
+   `sha256`), its bytes are the original's part byte for byte, and its
+   `width` and `height` (inches) and `crop` (Word's `srcRect`, l t r b) are
+   Word's (D-0118).
+5. drawn figures (S13; D-0101, D-0117): an `Image` with class `drawn` names
+   the original's drawings in `drawings` (their `wp:docPr` ids); its words,
+   equations and pictures are read in place from the SVG that
+   tools/figures.py makes of those drawings, and its alt text is Word's
+   `descr` of each that is not a picture. Every drawing that is not a
+   picture belongs to a figure, except a lone text box, whose words are
+   read as words (D-0117, call 4). A figure's words are exempt from the
+   bold compare, as headings are.
 
 A SYMBOL field counts as the character Word displays, not its stored result
-(survey section 6). A text box's words are read once, where it is anchored.
+(survey section 6). A text box's words are read once. A drawing anchored to
+a paragraph (`wp:anchor`) is read after that paragraph's words, where Word
+shows it: all 23 in the 19 handouts sit at their paragraph's start and are
+placed below its first lines (D-0118); an inline one is read in place.
+Markdown is read as the build reads it, with implicit figures off, so a
+lone image is not given its alt text as a visible caption (D-0118).
 List markers, block structure, italics, and underline are not compared.
 
 Differences are allowed only when declared in front matter and ruled in a
@@ -58,9 +75,17 @@ X = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 M = "{http://schemas.openxmlformats.org/officeDocument/2006/math}"
 WP = "{http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing}"
 A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
+PIC = "{http://schemas.openxmlformats.org/drawingml/2006/picture}"
 PIC_URI = "http://schemas.openxmlformats.org/drawingml/2006/picture"
+WPS = "{http://schemas.microsoft.com/office/word/2010/wordprocessingShape}"
+R = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 MC_FALLBACK = "{http://schemas.openxmlformats.org/markup-compatibility/2006}Fallback"
 PANDOC = os.environ.get("PANDOC", "pandoc")
+# How every step reads a converted source (render.FROM, _quarto.yml's from):
+# no smart quotes, and no implicit figures (D-0118).
+FROM = "markdown-smart-implicit_figures"
+# Word's size in inches to four places is within this many EMU of its extent.
+SIZE_TOLERANCE = 46
 INLINE_CONTAINERS = {
     "Emph", "Underline", "Strikeout", "Superscript", "Subscript",
     "SmallCaps", "Span", "Link", "Cite",
@@ -200,9 +225,16 @@ def omml_equations(xml_bytes):
 
 
 def docx_content(path):
-    """The original's (char, bold) pairs, equations and pictures' alt text."""
-    z = zipfile.ZipFile(path)
-    styles = ET.fromstring(z.read("word/styles.xml"))
+    """The original's (char, bold) pairs, equations, pictures and drawings.
+
+    Each picture is {"descr", "part", "extent", "crop", "in_figure"}; each
+    drawing that is not a picture is {"id", "descr", "lone_text_box"}.
+    """
+    with zipfile.ZipFile(path) as z:
+        styles = ET.fromstring(z.read("word/styles.xml"))
+        rels = {r.get("Id"): r.get("Target")
+                for r in ET.fromstring(z.read("word/_rels/document.xml.rels"))}
+        document = z.read("word/document.xml")
     info, default_para = {}, None
     for s in styles.iter(W + "style"):
         sid = s.get(W + "styleId")
@@ -226,8 +258,11 @@ def docx_content(path):
             sid = info[sid]["based"]
         return None
 
-    root = without_fallbacks(z.read("word/document.xml"))
-    out, equations, pictures = [], [], []
+    root = without_fallbacks(document)
+    # The sinks text, equations and pictures go to; an anchored drawing is
+    # read into sinks of its own and laid after its paragraph's words.
+    sink = {"out": [], "equations": [], "pictures": []}
+    drawings = []
     fields = []  # open complex fields: {"instr", "shown"}
 
     def blocks(el):
@@ -238,6 +273,50 @@ def docx_content(path):
             else:
                 blocks(ch)
 
+    def picture(pic, extent, in_figure, drawing_id=None):
+        doc_pr = pic.find(f"{PIC}nvPicPr/{PIC}cNvPr")
+        blip = pic.find(f".//{A}blip")
+        src = pic.find(f".//{A}srcRect")
+        crop = tuple(int(src.get(k, "0")) for k in "ltrb") if src is not None else (0, 0, 0, 0)
+        target = rels.get(blip.get(R + "embed")) if blip is not None else None
+        sink["pictures"].append({
+            "id": drawing_id,
+            "descr": doc_pr.get("descr", "") if doc_pr is not None else "",
+            "part": ("word/" + target) if target else None,
+            "extent": extent,
+            "crop": crop if any(crop) else None,
+            "in_figure": in_figure,
+        })
+        placeholder(sink["out"], PICTURE)
+
+    def figure_content(el):
+        """A drawing that is not a picture: its pictures and text boxes, in
+        the order the XML holds them."""
+        for ch in el:
+            if ch.tag == PIC + "pic":
+                picture(ch, None, True)
+            elif ch.tag == W + "txbxContent":
+                blocks(ch)
+            else:
+                figure_content(ch)
+
+    def drawing(el):
+        holder = el[0]
+        doc_pr = holder.find(WP + "docPr")
+        data = el.find(f".//{A}graphicData")
+        if data is not None and data.get("uri") == PIC_URI:
+            ext = holder.find(WP + "extent")
+            picture(data.find(PIC + "pic"), (int(ext.get("cx")), int(ext.get("cy"))), False,
+                    doc_pr.get("id") if doc_pr is not None else None)
+            return
+        shapes = data.findall(WPS + "wsp") if data is not None else []
+        drawings.append({
+            "id": doc_pr.get("id") if doc_pr is not None else None,
+            "descr": doc_pr.get("descr", "") if doc_pr is not None else "",
+            "lone_text_box": len(shapes) == 1 and shapes[0].find(f"{WPS}txbx") is not None,
+        })
+        figure_content(el)
+
     def paragraph(p):
         ps = p.find(f"{W}pPr/{W}pStyle")
         pstyle = ps.get(W + "val") if ps is not None else default_para
@@ -245,6 +324,7 @@ def docx_content(path):
             HEADING_STYLE.match(pstyle or "")
             or HEADING_STYLE.match(info.get(pstyle, {}).get("name", "")))
         para_bold = style_bold(pstyle)
+        anchored = []
 
         def run_bold(r):
             if heading:
@@ -275,26 +355,26 @@ def docx_content(path):
                                     f"{path}: SYMBOL field character {code} is not in"
                                     " SYMBOL_FONT; read what Word displays (survey section 6)")
                             fields[-1]["shown"] = SYMBOL_FONT[code]
-                            out.append((fields[-1]["shown"], bold))
+                            sink["out"].append((fields[-1]["shown"], bold))
                     elif kind == "end" and fields:
                         fields.pop()
                 elif el.tag == W + "instrText" and fields:
                     fields[-1]["instr"] += el.text or ""
                 elif el.tag == W + "t":
                     if not any(f["shown"] for f in fields):
-                        out.extend((c, bold) for c in (el.text or ""))
+                        sink["out"].extend((c, bold) for c in (el.text or ""))
                 elif el.tag in (W + "tab", W + "br", W + "cr"):
-                    out.append((" ", bold))
+                    sink["out"].append((" ", bold))
                 elif el.tag == W + "drawing":
-                    data = el.find(f".//{A}graphicData")
-                    if data is not None and data.get("uri") == PIC_URI:
-                        doc_pr = el.find(f".//{WP}docPr")
-                        pictures.append(doc_pr.get("descr", "") if doc_pr is not None else "")
-                        placeholder(out, PICTURE)
+                    if el[0].tag == WP + "anchor":
+                        anchored.append(el)
                     else:
-                        blocks(el)  # shapes and groups: their text boxes
+                        drawing(el)
                 else:
-                    blocks(el)  # text boxes in other wrappers
+                    for d in el.iter(W + "drawing"):
+                        (anchored.append(d) if d[0].tag == WP + "anchor" else drawing(d))
+                    if el.find(f".//{W}drawing") is None:
+                        blocks(el)  # text boxes in other wrappers
 
         def inline(el):
             for ch in el:
@@ -302,21 +382,24 @@ def docx_content(path):
                     run(ch)
                 elif ch.tag == M + "oMathPara":
                     for om in ch.findall(M + "oMath"):
-                        equations.append(equation(om, "display"))
-                        placeholder(out, EQUATION)
+                        sink["equations"].append(equation(om, "display"))
+                        placeholder(sink["out"], EQUATION)
                 elif ch.tag == M + "oMath":
-                    equations.append(equation(ch, "inline"))
-                    placeholder(out, EQUATION)
+                    sink["equations"].append(equation(ch, "inline"))
+                    placeholder(sink["out"], EQUATION)
                 elif ch.tag == W + "p":
                     paragraph(ch)
                 elif ch.tag != W + "pPr":
                     inline(ch)  # hyperlinks, content controls, simple fields
 
         inline(p)
-        out.append((" ", False))
+        sink["out"].append((" ", False))
+        for d in anchored:
+            drawing(d)
+            sink["out"].append((" ", False))
 
     blocks(root)
-    return out, equations, pictures
+    return sink["out"], sink["equations"], sink["pictures"], drawings
 
 
 def xlsx_chars(path, sheet_name):
@@ -356,7 +439,9 @@ def xlsx_chars(path, sheet_name):
 def ast_chars(node, out, bold=False, found=None):
     """Collect (char, bold) from a Pandoc JSON node; attributes are skipped.
 
-    found, when given, collects {"math": [(kind, tex)], "images": [alt]}.
+    found, when given, collects {"math": [(kind, tex)], "images": [{...}],
+    "figures": [{...}]} and holds "figure", which reads a drawn figure's
+    words, equations and pictures from its SVG (figure_tokens).
     """
     if isinstance(node, list):
         for n in node:
@@ -375,11 +460,29 @@ def ast_chars(node, out, bold=False, found=None):
             found["math"].append((kind, c[1]))
         placeholder(out, EQUATION)
     elif t == "Image":
-        if found is not None:
-            alt = []
-            ast_chars(c[1], alt)
-            found["images"].append(" ".join(w for w, _ in tokens(alt)))
-        placeholder(out, PICTURE)
+        if found is None:
+            placeholder(out, PICTURE)
+            return
+        (_, classes, attrs), alt_inlines, (target, _) = c
+        alt = []
+        ast_chars(alt_inlines, alt)
+        alt = " ".join(w for w, _ in tokens(alt))
+        attrs = dict(attrs)
+        if "drawn" not in classes:
+            found["images"].append({"alt": alt, "src": target, "attrs": attrs, "figure": False})
+            placeholder(out, PICTURE)
+            return
+        ids = attrs.get("drawings", "").split()
+        found["figures"].append({"alt": alt, "ids": ids, "src": target})
+        for kind, value in found["figure"](ids):
+            if kind == "text":
+                out.extend((ch, None) for ch in value)
+            elif kind == "math":
+                found["math"].append(("figure", value))
+                placeholder(out, EQUATION)
+            else:
+                found["images"].append({"alt": value, "figure": True})
+                placeholder(out, PICTURE)
     elif t == "Code":
         out.extend((ch, bold) for ch in c[1])
     elif t == "Quoted":
@@ -420,10 +523,50 @@ def tex_equations(math, api_version):
         subprocess.run([PANDOC, "-f", "json", "-t", "docx", "-o", out],
                        input=json.dumps(doc), check=True, capture_output=True,
                        encoding="utf-8")
-        back = omml_equations(zipfile.ZipFile(out).read("word/document.xml"))
+        with zipfile.ZipFile(out) as z:
+            back = omml_equations(z.read("word/document.xml"))
     for eq, (kind, tex) in zip(back, math):
         eq["kind"], eq["tex"] = kind, tex
     return back
+
+
+def svg_equation(node):
+    """A figure's equation, drawn by tools/figures.py as tspans that mirror
+    its OMML, as the record compare_equations reads."""
+    text = "".join(node.itertext())
+    return {"kind": node.get("data-kind", "inline"), "text": text, "norm": math_norm(text),
+            "shape": tuple(sum(1 for el in node.iter() if el.get("data-omml") == k) for k in OMML_KINDS),
+            "tex": "(figure) " + text}
+
+
+def figure_tokens(svg_text):
+    """A drawn figure's labels and pictures in the original's reading order
+    (data-i): ("text", str), ("math", record) and ("picture", alt)."""
+    root = ET.fromstring(svg_text)
+    items = sorted((el for el in root.iter() if el.get("data-i")),
+                   key=lambda el: tuple(int(x) for x in el.get("data-i").split(".")))
+    out = []
+
+    def walk(node, top):
+        if node.get("class") == "figure-math":
+            out.append(("math", svg_equation(node)))
+        else:
+            if node.text:
+                out.append(("text", node.text))
+            for child in node:
+                walk(child, False)
+        if node.tail and not top:
+            out.append(("text", node.tail))
+
+    for el in items:
+        if el.get("class") == "figure-picture":
+            out.append(("picture", el.get("data-alt", "")))
+            continue
+        for line in el:
+            out.append(("text", " "))
+            walk(line, True)
+        out.append(("text", " "))
+    return out
 
 
 def meta_value(m):
@@ -476,19 +619,85 @@ def compare_equations(original, converted):
     return problems
 
 
-def compare_pictures(original, converted):
+def same_words(a, b):
+    split = lambda s: [w for w, _ in tokens([(ch, False) for ch in s])]
+    return split(a) == split(b)
+
+
+def compare_pictures(original, converted, entries, md_dir, package, figures):
+    """Alt text for every picture; for a picture of its own, its file, its
+    front matter entry and Word's size and crop (D-0118)."""
     problems = []
     if len(original) != len(converted):
         problems.append(f"pictures: original {len(original)}, converted {len(converted)}")
+    # A picture a figure lists among its drawings is drawn in that figure
+    # (PH 212 Lab 3's screenshots under their arrows, D-0117 call 4).
+    in_figures = {d for f in figures for d in f["ids"]}
+    by_file = {e.get("file"): e for e in entries}
+    used = set()
     for i, (o, c) in enumerate(zip(original, converted), 1):
-        if [w for w, _ in tokens([(ch, False) for ch in o])] != c.split():
-            problems.append(f"picture {i}: alt text {c!r}, Word's is {o!r}")
+        if not same_words(o["descr"], c["alt"]):
+            problems.append(f"picture {i}: alt text {c['alt']!r}, Word's is {o['descr']!r}")
+        o_figure = o["in_figure"] or o["id"] in in_figures
+        if o_figure != c["figure"]:
+            where = "inside a drawn figure" if o_figure else "a picture of its own"
+            problems.append(f"picture {i}: Word's is {where}")
+            continue
+        if c["figure"]:
+            continue
+        entry = by_file.get(c["src"])
+        if entry is None:
+            problems.append(f"picture {i}: {c['src']!r} is not listed in front matter images")
+            continue
+        used.add(c["src"])
+        path = os.path.join(md_dir, c["src"])
+        data = open(path, "rb").read() if os.path.isfile(path) else None
+        if data is None:
+            problems.append(f"picture {i}: no file {c['src']!r}")
+        elif hashlib.sha256(data).hexdigest() != entry.get("sha256"):
+            problems.append(f"picture {i}: {c['src']!r} does not hash to its sha256")
+        if entry.get("source_part") != o["part"]:
+            problems.append(f"picture {i}: source_part {entry.get('source_part')!r}, Word's is {o['part']!r}")
+        elif data is not None and data != package.read(o["part"]):
+            problems.append(f"picture {i}: {c['src']!r} is not {o['part']} byte for byte")
+        for axis, emu in zip(("width", "height"), o["extent"]):
+            value = c["attrs"].get(axis, "")
+            if not value.endswith("in"):
+                problems.append(f"picture {i}: {axis} {value!r}, Word's is {emu / 914400:.4f}in")
+            elif abs(float(value[:-2]) * 914400 - emu) > SIZE_TOLERANCE:
+                problems.append(f"picture {i}: {axis} {value}, Word's is {emu / 914400:.4f}in")
+        crop = c["attrs"].get("crop")
+        want = " ".join(str(v) for v in o["crop"]) if o["crop"] else None
+        if crop != want:
+            problems.append(f"picture {i}: crop {crop!r}, Word's is {want!r}")
+    for e in entries:
+        if e.get("file") not in used:
+            problems.append(f"front matter images lists {e.get('file')!r}, which no picture shows")
+    return problems
+
+
+def compare_figures(drawings, figures, descrs):
+    """Every drawing that is not a picture is in one figure, or is a lone
+    text box; a figure's alt text is Word's descr of its drawings."""
+    problems = []
+    listed = {}
+    for k, f in enumerate(figures, 1):
+        for d in f["ids"]:
+            if d in listed:
+                problems.append(f"drawing {d} is in figures {listed[d]} and {k}")
+            listed[d] = k
+        want = " ".join(descrs.get(k, []))
+        if not same_words(want, f["alt"]):
+            problems.append(f"figure {k}: alt text {f['alt']!r}, Word's is {want!r}")
+    for d in drawings:
+        if d["id"] not in listed and not d["lone_text_box"]:
+            problems.append(f"drawing {d['id']} ({d['descr']!r}) is in no figure (S13)")
     return problems
 
 
 def check(md_path, repo_root):
     doc = json.loads(subprocess.run(
-        [PANDOC, "-f", "markdown-smart", "-t", "json", md_path],
+        [PANDOC, "-f", FROM, "-t", "json", md_path],
         capture_output=True, check=True, encoding="utf-8").stdout)
     meta = {k: meta_value(v) for k, v in doc["meta"].items()}
     problems = []
@@ -498,15 +707,28 @@ def check(md_path, repo_root):
     if digest != meta.get("source_sha256"):
         problems.append(f"source_sha256 mismatch: file is {digest}")
 
-    o_eqs, o_pics = [], []
+    o_eqs, o_pics, o_drawings = [], [], []
     if src.lower().endswith(".docx"):
-        chars, o_eqs, o_pics = docx_content(src)
+        chars, o_eqs, o_pics, o_drawings = docx_content(src)
         original = tokens(chars)
     elif src.lower().endswith(".xlsx"):
         original = tokens(xlsx_chars(src, meta["source_sheet"]))
     else:
         raise SystemExit(f"unsupported original type: {src}")
-    buf, found = [], {"math": [], "images": []}
+    descrs = {}
+
+    def figure(ids):
+        """Make the figure's SVG as the build does and read it back."""
+        import figures
+        try:
+            text, alts = figures.svg(src, ids)
+        except SystemExit as e:
+            problems.append(f"figure {ids}: {e}")
+            return []
+        descrs[len(found["figures"])] = alts
+        return figure_tokens(text)
+
+    buf, found = [], {"math": [], "images": [], "figures": [], "figure": figure}
     ast_chars(doc["blocks"], buf, found=found)
     converted = tokens(buf)
 
@@ -551,11 +773,18 @@ def check(md_path, repo_root):
             if pair and not run:
                 run = (i, *pair)
 
-    problems += compare_equations(o_eqs, tex_equations(found["math"], doc["pandoc-api-version"]))
-    problems += compare_pictures(o_pics, found["images"])
+    back = iter(tex_equations([m for m in found["math"] if m[0] != "figure"], doc["pandoc-api-version"]))
+    c_eqs = [m[1] if m[0] == "figure" else next(back) for m in found["math"]]
+    problems += compare_equations(o_eqs, c_eqs)
+    if src.lower().endswith(".docx"):
+        with zipfile.ZipFile(src) as package:
+            problems += compare_pictures(o_pics, found["images"], meta.get("images") or [],
+                                         os.path.dirname(os.path.abspath(md_path)), package,
+                                         found["figures"])
+        problems += compare_figures(o_drawings, found["figures"], descrs)
     words = sum(1 for w in a if w not in SHOWN)
     return {"words": words, "bold": compared, "equations": len(o_eqs),
-            "pictures": len(o_pics)}, problems
+            "pictures": len(o_pics), "figures": len(found["figures"])}, problems
 
 
 def main(paths):
@@ -570,8 +799,8 @@ def main(paths):
                 print("  " + line)
         else:
             print(f"ok   {p} ({n['words']} words identical; bold identical on"
-                  f" {n['bold']} words outside headings; {n['equations']} equations"
-                  f" and {n['pictures']} pictures identical)")
+                  f" {n['bold']} words outside headings; {n['equations']} equations,"
+                  f" {n['pictures']} pictures and {n['figures']} drawn figures identical)")
     return 1 if failed else 0
 
 

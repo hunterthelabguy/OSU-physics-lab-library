@@ -126,7 +126,16 @@ is moved, not rewritten.
   lists, sub and sup, code, blockquote, hr, caption, table borders), measure
   it first with `tools/measure_chrome.js` plus an injected element and add a
   revert. That measurement compared against the old build, which phase 4
-  deleted (D-0061); what replaces it as the reference is not yet chosen.
+  deleted (D-0061). Since pass 2b the reference is the lab's HTML download,
+  which renders the same Markdown with the same theme and no Bootstrap
+  (four-items call 4.3): load the modern page and the download in two
+  same-origin iframes at 375 and 1440 px and compare computed styles and
+  boxes element by element. Measured 2026-10-08 on a made-up lab (a cropped
+  picture, a drawn figure, inline and display equations) built in a
+  worktree and removed after: `img`, the crop span, `svg.drawn-figure` and
+  `math` match with no new revert, since Bootstrap's `vertical-align` on
+  img and svg was already reverted and no `<figure>` is made
+  (`tests/test_quarto_build.py::LabPages` fails if one appears).
   Measured 2026-10-01: `strong` (on all six pages) and an injected
   `b`, in a paragraph and in an h2, already match; `dd` did not (Bootstrap's
   `margin-left: 0` and `margin-bottom: .5rem`) and now has a revert, pinned
@@ -135,6 +144,25 @@ is moved, not rewritten.
   (null-guarded, silent). Quarto adds table classes inside `<main>` on
   how-this-was-made: the styles match, the markup is not byte-identical,
   and `test_bodies_unchanged` covers lab pages only.
+
+## Drawn figures (S13)
+
+- `tools/figures.py`'s layout rules come from Word's own PDFs of the
+  originals: print a scratchpad copy through Word (above), turn the page
+  into vectors with poppler's `pdftocairo -svg`, and read glyph origins
+  (`<use x y>`) and outline paths from it. That gave each rule in the
+  module (baselines, insets from the outline's inner edge, line height from
+  the larger of the Windows and hhea metrics, Cambria Math by its hhea,
+  arrowheads three times at least 2 pt, a word too wide for its box at the
+  left inset) and the measured fit: within 0.11 pt of Word on every label
+  of PH 213 Labs 2 and 4 (`docs/superpowers/plans/2026-10-08-pass-2b-figures.md`).
+- A new drawn figure that stops the converter names what it lacks; measure
+  that against Word's PDF the same way before adding it.
+- `tools/font-metrics.json` is made once by `tools/make_font_metrics.py`
+  from Liberation Serif 2.1.5 and Carlito (OFL; the release and repository
+  are in its docstring) and Windows' Cambria Math and Script MT Bold
+  (numbers only). Fetch the free fonts into the scratchpad; never commit a
+  font file.
 
 ## Widths
 

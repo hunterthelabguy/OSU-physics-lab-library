@@ -36,5 +36,36 @@ class WarningGate(unittest.TestCase):
         self.assertIsNotNone(WARNING.search(clean + "WARN: a Quarto note\n"))
 
 
+class LabPages(unittest.TestCase):
+    """The generated lab pages (D-0118): tools/filters/media.lua runs at
+    pre-ast, before Quarto's own figures, which would caption a lone
+    picture with its alt text and drop the alt attribute (probed
+    2026-10-08). Reads the pages tools/quarto_build.py generated."""
+
+    def test_media_filter_runs_before_quartos_figures(self):
+        pages = sorted((ROOT / "labs").glob("*/modern/index.qmd"))
+        self.assertTrue(pages, "run tools/quarto_build.py first")
+        for page in pages:
+            text = page.read_text(encoding="utf-8")
+            with self.subTest(page=page.parent.parent.name):
+                self.assertRegex(text, r'\{"path": "[./]+/tools/filters/media\.lua", "at": "pre-ast"\}')
+
+
+    def test_no_quarto_figure_on_a_lab_page(self):
+        # Measured 2026-10-08 on a made-up lab with a picture, a cropped
+        # picture, a drawn figure and equations: against the HTML download,
+        # img, svg and math take the same computed styles at 375 and 1440
+        # px once Bootstrap's vertical-align is reverted, because Quarto
+        # makes no figure of them. A figure or Bootstrap's image classes on
+        # a lab page would mean that no longer holds.
+        pages = sorted((ROOT / "build" / "quarto-site" / "labs").glob("*/modern/index.html"))
+        self.assertTrue(pages, "run tools/quarto_build.py first")
+        for page in pages:
+            main = page.read_text(encoding="utf-8").split("<main>", 1)[1].split("</main>", 1)[0]
+            with self.subTest(page=page.parent.parent.name):
+                for found in ("<figure", "<figcaption", "img-fluid", "figure-img", "quarto-float"):
+                    self.assertNotIn(found, main)
+
+
 if __name__ == "__main__":
     unittest.main()

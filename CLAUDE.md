@@ -86,7 +86,20 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   (locally poppler's from winget, the path in
   `docs/superpowers/plans/2026-10-01-downloads-tasks.md`; in CI
   `poppler-utils`). Missing either is an error. When a lab is added,
-  remeasure the HTML cap in `tests/test_downloads.py`.
+  measure its HTML download and add its cap to `HTML_CAPS` in
+  `tests/test_downloads.py`; a lab without one fails.
+- Pictures and drawn figures (D-0117, D-0118; spec "Pictures and drawn
+  figures"): `tools/media.py` fills the generated `labs/<id>/<id>-media/`
+  with a lab's pictures and each figure's SVG (`tools/figures.py`, from the
+  original) and PNG (headless Chrome, so the build needs `CHROME`); the page
+  lists them under `resources`. `tools/filters/media.lua` places them and
+  must run at Quarto's `pre-ast`: later, Quarto turns a lone picture into a
+  figure captioned with its alt text. Every step reads sources as
+  `render.FROM` (`markdown-smart-implicit_figures`). The figure's layout
+  rules were measured on Word's own PDFs; its fonts' numbers are
+  `tools/font-metrics.json` (`tools/make_font_metrics.py`). LibreOffice
+  26.2.5.2 is installed locally only as the measured alternative; nothing
+  runs it.
 - Course pages (D-0069, D-0070): `tools/quarto_build.py` writes the chooser
   at `/courses/` and one page per course in `site/courses.md` at
   `/courses/<code lowercased, no spaces>/`, with body class `courses` and
@@ -178,8 +191,10 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   against Word's `descr`. Pandoc misreads a typed "√" or "°" and a
   delimiter's bars; the source's TeX is corrected, never the comparison.
   It reads a SYMBOL field as Word displays it (`SYMBOL_FONT`) and stops on
-  a slot it does not know. A drawn figure (S13) is not a picture: its words
-  and equations wait for pass 2b's SVG, so such a lab fails until then.
+  a slot it does not know. A drawn figure (S13) is read from the SVG
+  `tools/figures.py` makes of its drawings; a drawing anchored to a
+  paragraph is read after that paragraph's words; a picture is also its
+  file, Word's size and Word's crop (D-0118).
   Strip an original with `tools/strip_identity.py` before committing it
   (D-0086); it stops on comments, revisions, people or EXIF it does not
   strip. Questions and checkpoints are pinned in order in

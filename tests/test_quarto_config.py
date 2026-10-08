@@ -78,8 +78,13 @@ class Pins(unittest.TestCase):
         self.assertEqual(values("anchor-sections"), ["false"])
         self.assertEqual(values("wrap"), ["auto"])
 
-    def test_straight_quotes(self):
-        self.assertEqual(values("from"), ["markdown-smart"])
+    def test_straight_quotes_and_no_implicit_figures(self):
+        # D-0118: every step reads a source alike, so a lone picture never
+        # gets its alt text as a caption Word does not have.
+        import check_numbers, check_unchanged, render
+        self.assertEqual(values("from"), ["markdown-smart-implicit_figures"])
+        self.assertEqual({render.FROM, check_unchanged.FROM, check_numbers.FROM},
+                         {"markdown-smart-implicit_figures"})
 
     def test_title_partial_wired(self):
         self.assertIn("title-block.html", items("template-partials"))

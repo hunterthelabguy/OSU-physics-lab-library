@@ -58,6 +58,7 @@ check("crc32 of one zero byte is d202ef8d", core.crc32(new Uint8Array([0])) === 
 console.log("-- paths and names");
 check("entry name is the lab's folder and the file", core.entryName("../labs/ph211-x/ph211-x.docx") === "ph211-x/ph211-x.docx");
 check("the same from a course page two folders down", core.entryName("../../labs/ph211-x/ph211-x.pdf") === "ph211-x/ph211-x.pdf");
+check("a lab's picture stays in its media folder", core.entryName("../../labs/ph211-x/ph211-x-media/a.png") === "ph211-x/ph211-x-media/a.png");
 check("a relative path is in the site", core.isRelative("../labs/a/a.pdf"));
 for (const outside of ["https://example.org/a.pdf", "http://x/a", "//cdn.example/a.js", "data:text/plain,a", "HTTPS://X/A"]) {
   check("refused: " + outside, !core.isRelative(outside));

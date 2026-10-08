@@ -40,8 +40,10 @@ format:
     theme: default
     css: site/site.css
     lang: en
-    # As the Pandoc build: no smart quotes, so words match the originals.
-    from: markdown-smart
+    # As every step reads a source (render.FROM): no smart quotes, so words
+    # match the originals; no implicit figures (D-0118). Lab pages also run
+    # tools/filters/media.lua before Quarto's figures, which ignore this.
+    from: markdown-smart-implicit_figures
     # Flat body (D-0036): no section wrappers, no anchor markup, lines
     # wrapped as Pandoc wraps them. With these, <main> holds the old
     # build's bytes.

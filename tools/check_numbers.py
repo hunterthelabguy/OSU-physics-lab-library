@@ -31,6 +31,8 @@ import sys
 import zipfile
 
 PANDOC = os.environ.get("PANDOC", "pandoc")
+# How every step reads a source (render.FROM; tested to agree).
+FROM = "markdown-smart-implicit_figures"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FILTER = os.path.join(ROOT, "tools", "filters", "questions.lua")
 LABELS = os.path.join(ROOT, "docs", "word-labels.json")
@@ -89,7 +91,7 @@ def plain(node):
 def rendered_items(md_path):
     """[(level, kind, label, id)] in document order, as the filter labels them."""
     doc = json.loads(subprocess.run(
-        [PANDOC, md_path, "-f", "markdown-smart", "-t", "json",
+        [PANDOC, md_path, "-f", FROM, "-t", "json",
          "--lua-filter", FILTER, "-M", "theme-name=modern"],
         capture_output=True, check=True, encoding="utf-8").stdout)
     items = []
@@ -156,7 +158,7 @@ def check(md_path, repo_root=ROOT, labels=None):
         with open(LABELS, encoding="utf-8") as fh:
             labels = json.load(fh)
     doc = json.loads(subprocess.run(
-        [PANDOC, md_path, "-f", "markdown-smart", "-t", "json"],
+        [PANDOC, md_path, "-f", FROM, "-t", "json"],
         capture_output=True, check=True, encoding="utf-8").stdout)
     meta = doc["meta"]["source_file"]
     source = meta["c"] if meta["t"] == "MetaString" else plain(meta["c"])
