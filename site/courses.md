@@ -26,6 +26,7 @@ courses:
       - number: "2"
         title: "Data Analysis"
         description: "Determine acceleration from data on position, focuses especially on linearizing and using graphs in Excel"
+        document: "ph211-data-analysis-handout"
       - number: "3"
         title: "Uncertainty"
         description: "Measure a ball rolling off a ramp to understand measurement and statistical uncertainties."
