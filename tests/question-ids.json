@@ -21,6 +21,19 @@
    ["question", "ph211-designing-an-experiment:results-follow-expected-relationship"],
    ["question", "ph211-designing-an-experiment:make-results-more-robust"]
   ],
+  "ph211-hypothesis-testing-handout": [
+   ["question", "ph211-hypothesis-testing:experimental-setup"],
+   ["question", "ph211-hypothesis-testing:data-to-collect"],
+   ["question", "ph211-hypothesis-testing:uncertainty-sources"],
+   ["question", "ph211-hypothesis-testing:analysis-plan"],
+   ["question", "ph211-hypothesis-testing:data-table"],
+   ["question", "ph211-hypothesis-testing:statistical-uncertainty"],
+   ["question", "ph211-hypothesis-testing:analyze-data"],
+   ["question", "ph211-hypothesis-testing:conclusion"],
+   ["question", "ph211-hypothesis-testing:recommendation"],
+   ["question", "ph211-hypothesis-testing:catching-cup"],
+   ["question", "ph211-hypothesis-testing:reflection"]
+  ],
   "ph211-team-building-handout": [
    ["question", "ph211-team-building:good-lab-partner"],
    ["question", "ph211-team-building:sketches"],

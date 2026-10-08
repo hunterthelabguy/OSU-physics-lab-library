@@ -32,6 +32,7 @@ courses:
       - number: "4"
         title: "Hypothesis Testing"
         description: "Measure distance of a ball off a ramp to test two supplied hypotheses"
+        document: "ph211-hypothesis-testing-handout"
       - number: "5"
         title: "Designing an Experiment"
         description: "Design two experiments to measure acceleration vs. angle down a ramp; choose and perform one with reasoning behind the choice"
