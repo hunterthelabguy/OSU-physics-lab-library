@@ -388,6 +388,23 @@ class CoursePages(unittest.TestCase):
         self.assertIn("min-height: 44px", rule)
         self.assertIn("box-sizing: border-box", rule, "the orange rule counts inside the 44 px")
 
+    def test_every_course_lists_its_summary(self):
+        # D-0088: each course's labs are quoted from its own summary, and
+        # the line that said none was in hand to list is gone.
+        for course in courses()[0]:
+            with self.subTest(course=course["code"]):
+                self.assertTrue(course.get("labs"))
+                self.assertTrue(course.get("source_note"))
+                raw = main_of(course_page(course))
+                main = text_of(raw)
+                self.assertNotIn("none is in hand", main)
+                for lab in course["labs"]:
+                    self.assertIn(one_line(lab["title"]), main)
+                    self.assertIn(one_line(lab["description"]), main)
+                    # Escaped once: "Sharing & Comparing" once read "&amp;".
+                    self.assertIn(html.escape(lab["title"]), raw)
+                self.assertNotIn("&amp;amp;", raw)
+
     def test_footnote_names_the_source_where_labs_are_listed(self):
         for course in courses()[0]:
             notes = re.findall(r'<p class="course-note">(.*?)</p>', main_of(course_page(course)), re.S)
