@@ -5,8 +5,8 @@ Volatile handoff, capped at one screen. Updated 2026-10-08.
 **Pass 2b (2026-10-08): merged, #35 `25b6283`; 286 tests.**
 - LibreOffice measured, not faithful (no label survives); our own
   `tools/figures.py` instead (D-0117, ruled). Within 0.11 pt of Word's
-  PDFs on every label of PH 213 Labs 2 and 4. LibreOffice 26.2.5.2 stays
-  installed locally; CI never installs it.
+  PDFs on every label of PH 213 Labs 2 and 4. LibreOffice uninstalled
+  locally (owner, 2026-10-08); CI never installs it.
 - Pictures at Word's size and crop, `images:` front matter,
   `tools/media.py list|extract` for conversion; figures inline on pages,
   PNG in Word; `--resource-path`, `--mathml`; per-lab HTML caps; no new

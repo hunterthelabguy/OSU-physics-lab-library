@@ -98,9 +98,9 @@ Quarto internals.
   figure captioned with its alt text. Every step reads sources as
   `render.FROM` (`markdown-smart-implicit_figures`). The figure's layout
   rules were measured on Word's own PDFs; its fonts' numbers are
-  `tools/font-metrics.json` (`tools/make_font_metrics.py`). LibreOffice
-  26.2.5.2 is installed locally only as the measured alternative; nothing
-  runs it.
+  `tools/font-metrics.json` (`tools/make_font_metrics.py`). LibreOffice is
+  not used: measured and set aside (D-0117), and uninstalled 2026-10-08 on
+  the owner's word.
 - Course pages and the course download (D-0067 to D-0071): read the
   reference's "Course pages" before changing either.
 - Chrome (D-0036, D-0061): every Quarto page is dressed with the header and
