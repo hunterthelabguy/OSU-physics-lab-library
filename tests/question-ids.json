@@ -10,6 +10,17 @@
    ["question", "ph211-describing-an-experiment:our-analysis"],
    ["question", "ph211-describing-an-experiment:better-explanation"]
   ],
+  "ph211-designing-an-experiment-handout": [
+   ["question", "ph211-designing-an-experiment:get-familiar-with-data"],
+   ["question", "ph211-designing-an-experiment:design-an-experiment"],
+   ["question", "ph211-designing-an-experiment:list-important-quantities"],
+   ["question", "ph211-designing-an-experiment:estimate-measurement-uncertainty"],
+   ["question", "ph211-designing-an-experiment:plan-your-analysis"],
+   ["question", "ph211-designing-an-experiment:run-the-experiment"],
+   ["question", "ph211-designing-an-experiment:analyze-your-data"],
+   ["question", "ph211-designing-an-experiment:results-follow-expected-relationship"],
+   ["question", "ph211-designing-an-experiment:make-results-more-robust"]
+  ],
   "ph211-team-building-handout": [
    ["question", "ph211-team-building:good-lab-partner"],
    ["question", "ph211-team-building:sketches"],

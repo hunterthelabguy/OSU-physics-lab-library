@@ -35,6 +35,7 @@ courses:
       - number: "5"
         title: "Designing an Experiment"
         description: "Design two experiments to measure acceleration vs. angle down a ramp; choose and perform one with reasoning behind the choice"
+        document: "ph211-designing-an-experiment-handout"
       - number: "6"
         title: "Describing an Experiment"
         description: "Perform one of two experiments to measure static friction, trade your procedure with a group using a different method, perform their procedure and comment on the description"
