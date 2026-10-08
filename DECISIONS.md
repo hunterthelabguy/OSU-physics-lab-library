@@ -1300,3 +1300,24 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: (1) Heading 1 as `##` beside Parts (withdrawn: 1.3.1); every lab shifted, PH 211 Lab 1 included. (2) A marked span with a math font in CSS (markup added to content); self-hosting a math font. (3) The alt text kept as a visible caption. (4) A ~700 px derived copy now.
 - binds: D-0092 (Q15); D-0101 (S14); D-0119; themes/modern.css; site/site.css (print); tests/test_fonts.py; tests/test_downloads.py; tests/test_quarto_site.py; tests/test_download_all.py; tools/media.py; curriculum/ph212/ph212-designing-experiments-handout.md
 - test: test_fonts (math-font characters, text outside equations); PrintKeeps and the Word keep test read h4; Helpers (restart, figures)
+
+### D-0121  PH 212 Lab 3's and PH 213 Lab 2's originals are committed stripped; both hashes of each recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-08
+- decision: Under D-0086 and D-0119 call 5, pass 3's first PR commits each original stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` removed from `docProps/core.xml`, and from `docProps/app.xml` `Company` (empty in both), `Manager` (empty, PH 213 Lab 2 only) and `Template`; every other part byte for byte, so no `w:t` changes and Word's labels match by the content parts (D-0112). PH 212 Lab 3, `originals/PH212/Lab 3 - Designing Experiments - Handout.docx`: original SHA-256 `62d6708bf2b2cd6bea3f0170dab8ce92b09eb5a20ffd9f27fdb23486879fda6f` (the survey's), stripped `4713cbfe3ebb4e3cdb2fe2ef80534268122710295b65c9b56ae18a87418ac76f`, its `source_sha256`. PH 213 Lab 2, `originals/PH213/Lab 2 - Hypothesis Testing - Handout.docx`: original `36f41045875ea1bb0c1699a1ed50c7b18ae2d8e6397a0da37d05546aa069ab68` (the survey's), stripped `52bb40c81369f95310ee1de828b3f83d5f787e1c4c6b64dab4e05f43156130fc`. Each original was re-hashed from the owner's folder on 2026-10-08 and equals the survey's (D-0085). Neither has an external link; each `customXml` part is an empty bibliography and names no one.
+- rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0119; originals/PH212; originals/PH213; curriculum/ph212/ph212-designing-experiments-handout.md; curriculum/ph213/ph213-hypothesis-testing-handout.md
+- test: CI's content check (hash, words, bold, equations, pictures, figures) and number check on both labs
+
+### D-0122  The number check places anchors outside the question lists: x-anchors in order by label, report-item lists, and a `.numbered` list for an appendix entry; amends D-0112 call 3
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-08
+- decision: `docs/word-labels.json` records three kinds of numbered paragraph no rule placed, so the number check failed on them (D-0112, call 3): PH 211 Lab 6's x1 to x4 ("1." to "4.", bold report items in a second list, S11), PH 211 Lab 3's x1 to x3 (question 13's parts "a." to "c.", from a second list), and PH 211 Lab 3's o14.0.1 and o14.0.2 (the appendix's contents, "1." and "2.", at the question list's third level with no part above them). One check-only PR with made-up fixtures, before PH 211 Lab 6 (D-0119, call 4): (1) an `xN` anchor is matched in document order with the rest; it records no level, so its label alone is compared, with a part's marker or a report-item list's; (2) the check reads the ordered list inside each `::: report-item` (S11) in place; (3) a list Word numbers from its question list outside any question is marked `::: {.numbered anchors="o14.0.1 o14.0.2"}`, which shows nothing on the page, and the check compares its markers with Word's labels at those anchors. An anchor still unplaced fails, as before.
+- rationale: Word's labels are in document order, so order places the second lists without guessing; S11's mark already exists; the explicit marker states in the source what a bespoke rule would leave implied. The owner, 2026-10-08: "Leans agreed".
+- alternatives: an `oN.0.K` anchor allowed anywhere after question N with no markup; the anchors re-read as `oN` (a second reading of Word's labels).
+- binds: D-0102; D-0112 (call 3); D-0101 (S11); tools/check_numbers.py; tests/test_check_numbers.py; docs/conversion-spec.md (S11)
+- test: the PR's fixtures: x-anchors as parts and as a report-item list pass, a wrong label fails; a `.numbered` list passes and fails on a wrong marker or a missing anchor
