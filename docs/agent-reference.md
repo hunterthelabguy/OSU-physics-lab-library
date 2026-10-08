@@ -15,6 +15,32 @@ is moved, not rewritten.
 - Themes: `themes/faithful.css` (original page settings) and
   `themes/modern.css` (evidence review plus WCAG 1.4.8).
 
+## Course pages
+
+Moved from `CLAUDE.md` on 2026-10-08, verbatim.
+
+- Course pages (D-0069, D-0070): `tools/quarto_build.py` writes the chooser
+  at `/courses/` and one page per course in `site/courses.md` at
+  `/courses/<code lowercased, no spaces>/`, with body class `courses` and
+  `html-table-processing: none` (otherwise Quarto parses a raw HTML table
+  into its own and adds Bootstrap's `table` classes). The course tabs reach
+  `tools/template-site.html` as a Pandoc variable (`-V`), which is inserted
+  as written; metadata (`-M`) would be escaped.
+- Course download (D-0067, D-0071): beside the h1 of each course page with
+  two downloadable files or more, every format of a converted handout a
+  file (`render.downloadable_files`; so every course with a converted lab),
+  a quiet button (hidden until the script shows it) opens a dialog whose
+  opt-in checkboxes list the published files, written by
+  `render.download_all()`; `site/download-all.js` fetches the ticked ones
+  and writes `<code>.zip` in the page (stored, CRC-32, no library). No zip is
+  built or published. Its node test, `site/download-all.test.mjs`, runs
+  from `tests/test_download_all.py`, which also reads a zip the script's own
+  code writes with Python's `zipfile` and tests the markup on two made-up
+  labs as well as PH 211's built page. The fetches need the served site.
+  The heading row is a fenced div (Quarto writes a `<section>`); a raw
+  `<div>` before the "#" heading makes Quarto lift the h1 into its title
+  block.
+
 ## Quarto details
 
 - Which Pandoc, CI side: CI's step "Use the Pandoc bundled with Quarto"
@@ -88,6 +114,9 @@ is moved, not rewritten.
   `Close`/`Quit`, then stop only the WINWORD process ids that appeared after
   `New-Object`) and render pages with poppler's `pdftoppm` beside
   `PDFTOTEXT`; `-gray` gives a PGM whose rows measure box edges in pixels.
+  Word drops its COM connection on `Close` after an export
+  (`RPC_E_DISCONNECTED`, 2026-10-08): start one Word per file and wrap
+  `Close` and `Quit` in `try`; the PDF is already written.
 - A fixture page (Pandoc `-s --embed-resources --css themes/modern.css`)
   can be checked in the pane by copying it into the ignored `build/` and
   serving that folder; the pane will not act on a `file://` tab. Delete the
@@ -115,7 +144,9 @@ is moved, not rewritten.
   `preview_start`), open `http://127.0.0.1:<port>/quarto-site/` in the
   browser pane, run the file's text in the pane's JavaScript tool, and
   stop the server after. A page taller than its frame gives 15 px to the
-  scrollbar, so record the client width beside a box.
+  scrollbar, so record the client width beside a box. Those configurations
+  serve the main checkout's `build/`; a worktree's build needs its own, on
+  ports not used before.
 - Keeping the measured match: the quarto-only block is mostly `revert`
   rules at Bootstrap's own specificity (Bootstrap's reboot, undone). Its
   load-order dependency (Bootstrap, then `site.css`, then `themes/*.css`)

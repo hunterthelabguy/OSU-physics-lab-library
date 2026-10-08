@@ -3,7 +3,8 @@
 Loaded every session, so it holds only what every session needs. Read the
 named section of `docs/agent-reference.md` before the task it covers:
 previewing or measuring a page, editing CSS (Widths), deploy or the
-Cloudflare and Vercel projects, sims, and Quarto internals.
+Cloudflare and Vercel projects, sims, course pages, drawn figures, and
+Quarto internals.
 
 ## Shipping contract (read by /handoff)
 
@@ -100,27 +101,8 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   `tools/font-metrics.json` (`tools/make_font_metrics.py`). LibreOffice
   26.2.5.2 is installed locally only as the measured alternative; nothing
   runs it.
-- Course pages (D-0069, D-0070): `tools/quarto_build.py` writes the chooser
-  at `/courses/` and one page per course in `site/courses.md` at
-  `/courses/<code lowercased, no spaces>/`, with body class `courses` and
-  `html-table-processing: none` (otherwise Quarto parses a raw HTML table
-  into its own and adds Bootstrap's `table` classes). The course tabs reach
-  `tools/template-site.html` as a Pandoc variable (`-V`), which is inserted
-  as written; metadata (`-M`) would be escaped.
-- Course download (D-0067, D-0071): beside the h1 of each course page with
-  two downloadable files or more, every format of a converted handout a
-  file (`render.downloadable_files`; so every course with a converted lab),
-  a quiet button (hidden until the script shows it) opens a dialog whose
-  opt-in checkboxes list the published files, written by
-  `render.download_all()`; `site/download-all.js` fetches the ticked ones
-  and writes `<code>.zip` in the page (stored, CRC-32, no library). No zip is
-  built or published. Its node test, `site/download-all.test.mjs`, runs
-  from `tests/test_download_all.py`, which also reads a zip the script's own
-  code writes with Python's `zipfile` and tests the markup on two made-up
-  labs as well as PH 211's built page. The fetches need the served site.
-  The heading row is a fenced div (Quarto writes a `<section>`); a raw
-  `<div>` before the "#" heading makes Quarto lift the h1 into its title
-  block.
+- Course pages and the course download (D-0067 to D-0071): read the
+  reference's "Course pages" before changing either.
 - Chrome (D-0036, D-0061): every Quarto page is dressed with the header and
   footer rendered from `tools/template.html` and `tools/template-site.html`
   by `tools/quarto_chrome.py`; `tools/downloads.py` renders the HTML
