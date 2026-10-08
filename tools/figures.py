@@ -439,9 +439,10 @@ def label_runs(style, p):
                 stop("the run element " + el.tag.split("}")[1])
 
     def math(om):
-        parts = []
+        """An equation as a tree that mirrors its OMML: a run is
+        ("r", props, text, depth); a script is (kind, [(part, [nodes])])."""
 
-        def walk(el, depth, kinds):
+        def walk(el, depth):
             tag = el.tag[len(M):] if el.tag.startswith(M) else None
             if tag == "r":
                 props = style.run(base, el)
@@ -450,25 +451,23 @@ def label_runs(style, p):
                 text = "".join(t.text or "" for t in el.iter(M + "t"))
                 plain = sty is not None and sty.get(M + "val") == "p"
                 props["i"] = not plain and text.isalpha()
-                parts.append((kinds + ("r",), depth, props, text))
-            elif tag in ("sSub", "sSup", "sSubSup"):
+                return [("r", props, text, depth)]
+            if tag in ("sSub", "sSup", "sSubSup"):
+                parts = []
                 for child in el:
                     ct = child.tag[len(M):]
                     if ct.endswith("Pr"):
                         continue
-                    shift = {"e": 0, "sub": -1, "sup": 1}.get(ct)
-                    if shift is None:
+                    if ct not in ("e", "sub", "sup"):
                         stop("the equation part " + ct)
-                    for c in child:
-                        walk(c, depth + ((shift,) if shift else ()), kinds + (tag,) if ct == "e" else kinds + (tag, ct))
-            elif tag in ("rPr", "ctrlPr") or (tag and tag.endswith("Pr")):
-                pass
-            else:
-                stop("the equation element " + el.tag.split("}")[1])
+                    inner = depth + ((-1 if ct == "sub" else 1,) if ct != "e" else ())
+                    parts.append((ct, [n for c in child for n in walk(c, inner)]))
+                return [(tag, parts)]
+            if tag and tag.endswith("Pr"):
+                return []
+            stop("the equation element " + el.tag.split("}")[1])
 
-        for child in om:
-            walk(child, (), ())
-        pieces.append(("math", parts))
+        pieces.append(("math", [n for child in om for n in walk(child, ())]))
 
     for el in p:
         if el.tag == W + "r":
@@ -482,6 +481,16 @@ def label_runs(style, p):
         else:
             stop("the paragraph element " + el.tag.split("}")[1])
     return para, base, pieces
+
+
+def math_runs(nodes):
+    """An equation tree's runs in order: (props, text, depth)."""
+    for node in nodes:
+        if node[0] == "r":
+            yield node[1], node[2], node[3]
+        else:
+            for _, inner in node[1]:
+                yield from math_runs(inner)
 
 
 def words(pieces):
@@ -515,7 +524,7 @@ def seg_width(fonts, seg):
         w = fonts.width(p["font"], p["b"], p["i"], text)
         return (None, False) if w is None else (w * p["size"], True)
     total = 0
-    for _, depth, p, text in seg[1]:
+    for p, text, depth in math_runs(seg[1]):
         size = p["size"] * (SCRIPT_SIZE ** len(depth))
         # Word spaces an equation's runs by its own rules, so its width is an
         # estimate and a line holding one is never a close call (BREAK_MARGIN).
@@ -542,7 +551,7 @@ def lines_of(fonts, para_words, space_props, avail):
             stop("a label of more than one word in the face {!r}, which has no widths".format(
                 word[0][1]["font"] if word[0][0] == "text" else "Cambria Math"))
         ww = sum(w for w, _ in widths)
-        glyphs = sum(len(s[2]) if s[0] == "text" else sum(len(t) for *_, t in s[1]) for s in word)
+        glyphs = sum(len(s[2]) if s[0] == "text" else sum(len(t) for _, t, _ in math_runs(s[1])) for s in word)
         # An equation's width is estimated (seg_width), so its whole width
         # counts as doubt.
         rough = sum(w for w, exact in widths if not exact)
@@ -653,7 +662,10 @@ class Figure:
         self.style = Style(pkg)
         self.fonts = Fonts()
         self.defs, self.body = [], []
-        self.items = 0          # labels and pictures, in the original's order
+        # Labels and pictures are numbered "drawing.item" in the original's
+        # reading order, which the word check follows; they paint in
+        # Word's stacking order.
+        self.drawing, self.items = 0, 0
         self.patterns = {}
         # Text may run past its box, as Word draws it: the label's ink, in points.
         self.ink = [math.inf, -math.inf]
@@ -783,10 +795,10 @@ class Figure:
         l, t, r, b = crop
         self.items += 1
         self.body.append(
-            '<svg class="figure-picture" data-i="{i}" data-alt="{alt}"{label} x="{x}" y="{y}" width="{w}" height="{h}"'
+            '<svg class="figure-picture" data-i="{d}.{i}" data-alt="{alt}"{label} x="{x}" y="{y}" width="{w}" height="{h}"'
             ' viewBox="{vx} {vy} {vw} {vh}" preserveAspectRatio="none">'
             '<image width="1" height="1" preserveAspectRatio="none" href="{uri}"/></svg>'.format(
-                i=self.items, alt=html.escape(descr), label=label, x=pt(x), y=pt(y), w=pt(w), h=pt(h),
+                d=self.drawing, i=self.items, alt=html.escape(descr), label=label, x=pt(x), y=pt(y), w=pt(w), h=pt(h),
                 vx=num(l), vy=num(t), vw=num(1 - l - r), vh=num(1 - t - b), uri=data_uri(part, data)))
 
     def shape(self, el, frame):
@@ -901,7 +913,7 @@ class Figure:
                 above = below = 0.0
                 for word in line:
                     for seg in word:
-                        segs = [(seg[1], ())] if seg[0] == "text" else [(pp, d) for _, d, pp, _ in seg[1]]
+                        segs = [(seg[1], ())] if seg[0] == "text" else [(pp, d) for pp, _, d in math_runs(seg[1])]
                         for props, depth in segs:
                             a, d = self.fonts.vertical(props["font"], props["b"], props["i"])
                             s = props["size"] * (SCRIPT_SIZE ** len(depth))
@@ -925,8 +937,8 @@ class Figure:
         for para, base, laid in blocks:
             cursor += para["before"] / 20
             self.items += 1
-            out = ['<text class="figure-label" data-i="{}" xml:space="preserve" font-family="{}" font-size="{}"'
-                   ' fill="{}"{}{}>'.format(self.items, html.escape(family(base["font"])), num(base["size"]),
+            out = ['<text class="figure-label" data-i="{}.{}" xml:space="preserve" font-family="{}" font-size="{}"'
+                   ' fill="{}"{}{}>'.format(self.drawing, self.items, html.escape(family(base["font"])), num(base["size"]),
                                            base["color"], ' font-weight="bold"' if base["b"] else "",
                                            ' font-style="italic"' if base["i"] else "")]
             below_prev = 0.0
@@ -964,19 +976,26 @@ class Figure:
     def segment(self, seg, base):
         if seg[0] == "text":
             return run_tspan(seg[1], base, html.escape(seg[2]))
-        out = ['<tspan class="figure-math" data-kind="inline">']
-        for kinds, depth, props, text in seg[1]:
-            attrs = ' data-omml="{}"'.format(" ".join(kinds))
-            size = props["size"] * (SCRIPT_SIZE ** len(depth))
-            shift = sum((SUP_SHIFT if d > 0 else -SUB_SHIFT) * props["size"] * (SCRIPT_SIZE ** k)
-                        for k, d in enumerate(depth))
-            style = ' font-family="{}"'.format(html.escape(family(props["font"])))
-            style += ' font-style="{}"'.format("italic" if props["i"] else "normal")
-            if depth:
-                style += ' font-size="{}" baseline-shift="{}"'.format(num(size), num(shift))
-            out.append('<tspan{}{}>{}</tspan>'.format(attrs, style, html.escape(text)))
-        out.append("</tspan>")
-        return "".join(out)
+        def emit(node, size):
+            if node[0] == "r":
+                _, props, text, _ = node
+                return '<tspan data-omml="r" font-family="{}" font-style="{}">{}</tspan>'.format(
+                    html.escape(family(props["font"])), "italic" if props["i"] else "normal",
+                    html.escape(text))
+            out = ['<tspan data-omml="{}">'.format(node[0])]
+            for part, inner in node[1]:
+                if part == "e":
+                    out.append('<tspan data-omml="e">' + "".join(emit(n, size) for n in inner) + "</tspan>")
+                else:
+                    shift = (SUP_SHIFT if part == "sup" else -SUB_SHIFT) * size
+                    out.append('<tspan data-omml="{}" font-size="{}" baseline-shift="{}">{}</tspan>'.format(
+                        part, num(size * SCRIPT_SIZE), num(shift),
+                        "".join(emit(n, size * SCRIPT_SIZE) for n in inner)))
+            out.append("</tspan>")
+            return "".join(out)
+
+        return ('<tspan class="figure-math" data-kind="inline">'
+                + "".join(emit(n, base["size"]) for n in seg[1]) + "</tspan>")
 
 
 def family(name):
@@ -1058,8 +1077,7 @@ def svg(original, ids, title=""):
         x0, y0, cx, cy, _ = frame_of[id(d)]
         data = d[0].find("a:graphic/a:graphicData", NS)
         start = len(fig.body)
-        base_items = fig.items
-        fig.items = 1000 * reading[id(d)]
+        fig.drawing, fig.items = reading[id(d)], 0
         child = data[0]
         if child.tag == WPS + "wsp":
             sppr_xfrm = child.find(f"{WPS}spPr/a:xfrm", NS)
@@ -1080,7 +1098,6 @@ def svg(original, ids, title=""):
             if (int(ext.get("cx")), int(ext.get("cy"))) != (cx, cy):
                 stop("a group whose size differs from its drawing's")
         fig.walk(child, frame)
-        fig.items = max(fig.items, base_items)
     # The figure's box: Word's frames, and any label's ink beyond them.
     y0 = min(0.0, fig.ink[0] * EMU_PT) if fig.ink[0] < math.inf else 0.0
     y1 = max(bottom - top, fig.ink[1] * EMU_PT) if fig.ink[1] > -math.inf else bottom - top
