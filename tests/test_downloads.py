@@ -659,8 +659,9 @@ class PrintKeeps(unittest.TestCase):
         for i, pg in enumerate(pages, 1):
             lines = [flat(l) for l in pg.split("\n") if l.strip()]
             body = [l for l in lines if not l.startswith(PHYSICS) and l != "DRAFT: license pending"]
-            if body and any(h.endswith(body[-1]) for h in headings):
-                found.append("page {} ends with a heading: {}".format(i, body[-1]))
+            ending = self.ends_with_heading("\n".join(body), headings)
+            if ending:
+                found.append("page {} ends with a heading: {}".format(i, ending))
         text = "\f".join(" ".join(words(p)) for p in pages)
         start = -1
         for n, rest in re.findall(r'<div class="question-label">\s*<p>Question (\d+)</p>\s*</div>(.*?)</div>', main, re.S):
@@ -675,6 +676,17 @@ class PrintKeeps(unittest.TestCase):
         return found
 
     @staticmethod
+    def ends_with_heading(page_text, headings):
+        """The heading a printed page ends with, or None. A heading may wrap,
+        so the page's last one to three lines, joined, must end with a whole
+        heading; a lone last word that merely ends one (a table cell's
+        "Experiment" against "Week 2 – Perform the Experiment", PH 211
+        Lab 7) is not a heading."""
+        body = [flat(l) for l in page_text.split("\n") if l.strip()]
+        tails = [" ".join(body[-k:]) for k in (1, 2, 3) if len(body) >= k]
+        return next((h for h in headings if any(tail.endswith(h) for tail in tails)), None)
+
+    @staticmethod
     def last_words(block):
         """Up to three words that end a question block as pdftotext prints
         them: after its last equation if words follow it, else before it,
@@ -687,6 +699,13 @@ class PrintKeeps(unittest.TestCase):
         if not tail and len(parts) > 1:
             tail = words(re.sub(r"<[^>]+>", " ", parts[-2]))
         return tail[-3:]
+
+    def test_a_page_ending_in_a_heading_is_found_whole(self):
+        heads = ["Week 2 – Perform the Experiment"]
+        page = "Title\nSome text above\nWeek 2 – Perform the\nExperiment\n"
+        cell = "Title\nLab 06 – Describing an\nExperiment\n"
+        self.assertEqual(self.ends_with_heading(page, heads), "Week 2 – Perform the Experiment")
+        self.assertIsNone(self.ends_with_heading(cell, heads))
 
     def test_last_words_skip_math_and_figures(self):
         last = self.last_words
