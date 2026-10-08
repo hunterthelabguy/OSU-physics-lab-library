@@ -74,6 +74,15 @@ def lab_media(doc):
     return out
 
 
+def published(doc):
+    """The names build() publishes for a lab, in its order: each picture's
+    file, then each figure's SVG. The course download lists them beside the
+    lab's Markdown (render.download_all)."""
+    media = lab_media(doc)
+    return ([os.path.basename(e["file"]) for e in media["images"]]
+            + [f["file"] for f in media["figures"]])
+
+
 def build(doc, dest, chrome):
     """Fill dest (a lab's media folder) and return the files to publish."""
     media = lab_media(doc)

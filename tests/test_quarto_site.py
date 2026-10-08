@@ -35,6 +35,42 @@ def converted():
             yield re.search(r"^id:\s*(\S+)", text, re.M).group(1), p
 
 
+def question_numbers(source_text):
+    """The number each question block shows, in order, as
+    tools/filters/questions.lua counts them: from 1, again from 1 at a
+    `.restart` (S9). Checkpoints are counted apart and are not here."""
+    numbers, n = [], 0
+    for classes in re.findall(r"^:::+ *\{([^}]*)\}", source_text, re.M):
+        names = re.findall(r"\.([\w-]+)", classes)
+        if "question" not in names:
+            continue
+        n = 1 if "restart" in names else n + 1
+        numbers.append(n)
+    return numbers
+
+
+def split_figures(fragment):
+    """(the markup without its inline drawn figures, [each figure's
+    markup]), a figure's nested <svg> included. The word check reads a
+    figure's words from the original (D-0117)."""
+    out, found, i = [], [], 0
+    opener = re.compile(r'<svg\b[^>]*class="drawn-figure"')
+    while True:
+        m = opener.search(fragment, i)
+        if m is None:
+            return "".join(out) + fragment[i:], found
+        out.append(fragment[i:m.start()] + " ")
+        depth = 0
+        for tag in re.finditer(r"<(/?)svg\b[^>]*>", fragment[m.start():]):
+            depth += -1 if tag.group(1) else 1
+            if depth == 0:
+                i = m.start() + tag.end()
+                break
+        else:
+            raise ValueError("an unclosed drawn figure")
+        found.append(fragment[m.start():i])
+
+
 def is_redirect(text):
     return 'http-equiv="refresh"' in text
 
@@ -136,32 +172,51 @@ class Documents(unittest.TestCase):
     """LEDGER 28 and the question filter, as Quarto renders them."""
 
     def reference_words(self, source, theme):
+        # Read as the build reads (D-0118), its math as MathML (D-0040).
         out = subprocess.run(
-            [PANDOC, str(source), "-f", "markdown-smart", "-t", "html",
+            [PANDOC, str(source), "-f", render.FROM, "-t", "html", "--mathml",
              "--lua-filter", str(FILTER), "-M", "theme-name=" + theme],
             check=True, capture_output=True, text=True, encoding="utf-8").stdout
         return words(out)
 
     def test_words_match_a_plain_pandoc_render(self):
-        # The document's words, in order, appear unbroken inside Quarto's <main>.
+        # The document's words, in order, appear unbroken inside Quarto's
+        # <main>; a drawn figure's are the word check's (D-0117).
         for doc_id, source in converted():
             for theme in ("modern",):
                 with self.subTest(doc=doc_id, theme=theme):
                     page = (QSITE / "labs" / doc_id / theme / "index.html").read_text(encoding="utf-8")
-                    main = re.search(r"<main\b.*?</main>", page, re.S).group(0)
+                    main, _ = split_figures(re.search(r"<main\b.*?</main>", page, re.S).group(0))
                     want = "\x00".join(self.reference_words(source, theme))
                     self.assertIn(want, "\x00".join(words(main)))
 
     def test_questions_numbered(self):
+        # In order, as the source counts them; a `.restart` starts again
+        # at 1 (S9, D-0112).
         for doc_id, source in converted():
-            n = len(re.findall(r"\{\.question\b", source.read_text(encoding="utf-8")))
-            self.assertGreater(n, 0)
-            base = QSITE / "labs" / doc_id
-            modern = (base / "modern" / "index.html").read_text(encoding="utf-8")
+            want = question_numbers(source.read_text(encoding="utf-8"))
+            self.assertTrue(want)
+            modern = (QSITE / "labs" / doc_id / "modern" / "index.html").read_text(encoding="utf-8")
             with self.subTest(doc=doc_id):
-                for k in range(1, n + 1):
-                    self.assertIn(f"Question {k}<", modern)
-                self.assertNotIn(f"Question {n + 1}<", modern)
+                self.assertEqual([int(k) for k in re.findall(r"Question (\d+)<", modern)], want)
+
+
+class Helpers(unittest.TestCase):
+    """The helpers above, on made-up markup."""
+
+    def test_question_numbers_restart(self):
+        text = ("::: {.question #a}\nA\n:::\n\n::: {.checkpoint #c}\nC\n:::\n\n"
+                "::: {.question #b}\nB\n:::\n\n:::: {.question .restart #d}\nD\n::::\n\n"
+                "::: action\n- x\n:::\n\n::: {.question #e}\nE\n:::\n")
+        self.assertEqual(question_numbers(text), [1, 2, 1, 2])
+
+    def test_split_figures_takes_only_drawn_figures(self):
+        page = ('<p>Before</p><svg class="drawn-figure" viewbox="0 0 1 1"><svg class="figure-picture">'
+                '<image></image></svg><text>Label</text></svg><p>After</p>'
+                '<svg class="other"><text>Kept</text></svg>')
+        rest, figures = split_figures(page)
+        self.assertEqual(words(rest), ["Before", "After", "Kept"])
+        self.assertEqual([words(f) for f in figures], [["Label"]])
 
 
 class SimsAndStubs(unittest.TestCase):

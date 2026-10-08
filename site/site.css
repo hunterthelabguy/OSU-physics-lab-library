@@ -579,7 +579,7 @@ body:where(.quarto-light) {
   body.site-page .link-cards li { border: none; padding: 0; }
   body.site-page { font-size: 11pt; }
   body.site-page main { max-width: none; padding: 0; }
-  h1, h2, h3 { break-after: avoid; }
+  h1, h2, h3, h4 { break-after: avoid; }
   p, li { orphans: 3; widows: 3; }
   .lab-list > li, table, figure, img { break-inside: avoid; }
   a { color: #000; }

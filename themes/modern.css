@@ -44,7 +44,7 @@ main {
   text-align: left;                    /* never justified */
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
   color: var(--heading);
   line-height: 1.25;
   font-weight: 700;
@@ -52,7 +52,9 @@ h1, h2, h3 {
 
 h1 { font-size: 2rem; margin: 0 0 .25rem; }
 
-h1 + h2 {                              /* course line under the title */
+h1 + h2,                               /* course line under the title; */
+h1 + h3 {                              /* an h3 where Word's outline has
+                                          Heading 1 (D-0120) */
   font-size: 1rem;
   font-weight: 400;
   color: var(--quiet);
@@ -63,6 +65,7 @@ h1 + h2 {                              /* course line under the title */
 
 h2 { font-size: 1.35rem; margin: 2.5rem 0 .75rem; }
 h3 { font-size: 1.1rem; margin: 1.75rem 0 .5rem; }
+h4 { font-size: 1rem; margin: 1.5rem 0 .5rem; }  /* under h3 at every width */
 
 p { margin: 0 0 1rem; }                 /* paragraph gap > 1.5x line spacing */
 
@@ -169,5 +172,5 @@ main img, main svg.drawn-figure { max-width: 100%; height: auto; }
   .question, .checkpoint { background: none; border-left: 3px solid #000; }
   .doc-footer { display: none; }
   .question, .checkpoint, .box, svg.drawn-figure, .picture-crop { break-inside: avoid; }
-  h1, h2, h3 { break-after: avoid; }
+  h1, h2, h3, h4 { break-after: avoid; }
 }

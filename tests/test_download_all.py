@@ -25,6 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import downloads                          # noqa: E402
+import media                              # noqa: E402
 import render                             # noqa: E402
 
 QSITE = ROOT / "build" / "quarto-site"
@@ -318,6 +319,9 @@ class BuiltPages(unittest.TestCase):
         # Quarto rewrites boolean attributes (hidden="") but must not change
         # the boxes, their files, or a word.
         docs = render.converted_documents()
+        for doc in docs.values():
+            # What the build published beside each lab (tools/media.py).
+            doc["published"] = media.published(doc)
         for course, ids in courses():
             if files_of(ids) < 2:
                 continue
