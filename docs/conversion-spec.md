@@ -62,7 +62,7 @@ column lapses; S1 at the top level is a checkpoint (D-0109, D-0110).
 | S2 | One question block: the stem's paragraph, then its parts (S3) | "N)", stem, parts | "Question N" (the stem is question N), one box around stem and parts | One box | Stem and parts on one page; one box after the last part, or one per part if the outlines split parts (D-0075) |
 | S3 | An ordered list inside the block, nested and marked ("a.", "i.") as Word shows | Word's letters exactly | Word's letters; unbolded | Inside the box | As S2 |
 | S4 | Inside the block as written: round bullets `::: action`, arrows `::: hint`, others plain | As written, bold kept | Inside the box; lean: every paragraph and item in the block unbolded, where `questions.lua` today unbolds only the first | Inside the box | On the question's page, above the answer box |
-| S5 | Pandoc's TeX math from Word's equations, display kept display; italic-text symbols stay text | Rendered math | Rendered math | Word equations | As Word; the equation rule itself comes from pass 2a's probe (D-0082) |
+| S5 | Pandoc's TeX math from Word's equations, display kept display, corrected where the round trip differs (equation rule below); italic-text symbols stay text | Rendered math | Rendered math | Word equations | As Word; the equation rule itself comes from pass 2a's probe (D-0082) |
 | S6 | Text as written, no link | As written | As written | As written | As written; the number check and the ids pin keep it true |
 | S7 | A plain paragraph, `**bold**` as written, never in a question block | Bold | Bold (bold is emphasis on modern) | Bold | Absent |
 | S8 | `::: action` or `::: hint` inside the block, where Word puts it | In place | In place, inside the box | Inside the box | On the question's page, in place |
@@ -75,6 +75,53 @@ column lapses; S1 at the top level is a checkpoint (D-0109, D-0110).
 | S15 | Not converted: page numbers and running headers (outside `document.xml`, so the word check loses nothing). The contents field becomes a list of links to the same headings, words unchanged. SEQ numbers stay text as stored. A content control's text stays plain text; empty controls vanish. The SYMBOL field gives what Word displays (section 6) | As listed | As listed | As listed | Absent |
 | S16 | No markup; recorded in the table | | | | Pass 6 rules each lab's scope on this evidence (D-0085) |
 | S17 | The owner's ruling before those conversions (section 7) | | | | |
+
+## Equation rule (S5; pass 2a's probe, D-0113)
+
+Probed 2026-10-07 on all 19 handouts (322 equations, 35 display) with
+Quarto's Pandoc 3.10, by a scratchpad script, not committed:
+
+- **Writers.** Pandoc's Word writer and its HTML writer with `--mathml`
+  (the site's `html-math-method`) warn on none of the 322. Only the plain
+  writer warns ("Could not convert TeX math", 66 warnings in 15 handouts),
+  and no build step uses it. `tests/test_downloads.py` reads both the
+  source and the Word download through it to compare words, so that test
+  compares equations apart once a lab has them (pass 2b).
+- **Round trip.** Pandoc's TeX, written back to OMML by its Word writer,
+  equals Word's equation in 315 of 322 under the comparison below.
+- **The source keeps Pandoc's TeX, corrected where the round trip
+  differs.** The correction carries Word's own characters and structure,
+  and the comparison is never loosened to pass it. The probe's six:
+  - a typed "√" before R², which Pandoc reads as an empty `\sqrt{}`
+    (PH 211 Lab 5): written as the character `√`;
+  - a typed "°" (PH 212 Lab 1, twice; Lab 2, once), which Pandoc reads as
+    a superscript `{^\circ}`: written as the character `°`;
+  - bars that Word stores as a delimiter around E (PH 213 Lab 3, twice),
+    which Pandoc writes as literal `|`: written `\left| E \right|`.
+- **An equation inside a drawn figure** (S13) is not Math in the source:
+  PH 213 Lab 2's one equation among the photograph's labels, which Pandoc
+  drops, reaches the page with the figure's SVG (pass 2b). The word check
+  takes figure equations from the figure, not from `Math`.
+
+The comparison, four-items call 4.2 as amended here:
+
+- **Count, kind, position:** every `m:oMath` outside a drawn figure (not
+  nested in another, `mc:Fallback` removed) and every `Math` node take one
+  place in the word sequence; display (inside `m:oMathPara`) against
+  `DisplayMath`.
+- **Text:** the equation's `m:t` in order, with the characters OMML keeps
+  in attributes put in place: a delimiter's begin, separator and end
+  (defaults "(", "|", ")"), an n-ary's operator (default "∫"), an
+  accent's mark (default U+0302) and a group character's (default U+23DF).
+  Normalized: Unicode NFKC; whitespace, U+200B and U+2061 to U+2064
+  removed; U+2206 to U+0394; U+002D to U+2212.
+- **Structure:** counts of `m:f`, `m:sSub`, `m:sSup`, `m:sSubSup`,
+  `m:sPre`, `m:rad`, `m:acc`, `m:bar`, `m:d`, `m:nary`, `m:limLow`,
+  `m:limUpp`, `m:groupChr`, `m:eqArr`, `m:m`, `m:box`, `m:borderBox`,
+  `m:phant`. `m:func` is left out: it is how Word sets "sin" upright, and
+  MathML does the same without it.
+- **Bold:** none. `\mathbf` is styling inside math; equations are exempt
+  from the bold compare, as headings are.
 
 ## Rubrics (instructor repo)
 
