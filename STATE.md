@@ -29,8 +29,10 @@ leans"):
 - eight passes in seven sessions;
 - course names come from the handouts' course lines (a site PR, not made).
 
-Next: pass 2a, after Word's labels are read for all 19, and 2b. 2b's gate
-is pass 1 alone.
+Word's labels for all 19 read 2026-10-07 (`docs/word-labels.json`,
+survey section 3). PH 213 Lab 6 shows students "0)": S9 needs a start
+value, the owner's to rule. PH 213 Lab 5's symbol is Ω. Next: passes 2a
+and 2b; 2b's gate is pass 1 alone.
 
 **Focus (2026-10-01):** Phase 5 cutover done. Production is the Quarto build
 on Cloudflare Pages, `https://osu-physics-labs.pages.dev/` (project

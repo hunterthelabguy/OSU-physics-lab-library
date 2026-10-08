@@ -201,6 +201,41 @@ them.
 only where a count calls for it. The counts call for it in nine of 19, and in
 four of PH 212's six. Section 10 carries the choice.
 
+**Word's readings, 2026-10-07 (D-0102).** Read through Word's own automation
+(`ListFormat.ListString`) on read-only copies whose hashes match the table.
+All 371 anchored paragraphs are recorded in `docs/word-labels.json`, keyed to
+each original's SHA-256. Every anchor matched a Word paragraph.
+
+- **The ten simple handouts.** Word shows 1) to N), the same numbers Pandoc
+  prints.
+- **PH 212 Labs 1, 2 and 5.** The style-set parts show as a., b.: last
+  questions 16), 9), 8). Pandoc's 19, 17 and 12 are wrong.
+- **Week restarts.** The Week 2 questions are numbered from 1) in three
+  handouts, and Pandoc misreads each:
+  - PH 211 Lab 7 reads 1) to 7), then 1) to 4). Pandoc printed 1, 8, 9, 10
+    for the Week 2 questions.
+  - PH 212 Lab 3 reads 1) to 11), then 1) to 13). Pandoc printed 26 to 42
+    after the restart.
+  - PH 212 Lab 6 reads 1) to 4), then 1) to 6), matching its intro's
+    "Questions 1 and 2". Pandoc printed 1, 1, 5, 6, 7, 2.
+- **PH 211 Lab 6.** x1 to x4 read 1. to 4.
+- **PH 213 Lab 5.** Its two lists read 1) to 9), as Pandoc prints.
+- **PH 213 Lab 6** reads **0) 1) 2)**, then 1) to 5), then 1). Its first
+  list has no start value, and Word starts it at 0, as Claude recalled the
+  standard would.
+  Pandoc printed 1 to 3. So the original shows students a question "0)".
+  This is recorded, not changed (gate 8.5), and S9's markup will need a start
+  value, not only `.restart`.
+- **Parts.** Every part's letters restart at a. under their own question,
+  the overrides included. Pandoc got two wrong: PH 212 Lab 6's o1.3 reads c.
+  (Pandoc printed a.), and PH 213 Lab 4's o10.1 to o10.3 read a., b., c.
+  (Pandoc printed a., a., b.).
+- **PH 213 Lab 5's symbol.** The field's stored result is "W" in Times New
+  Roman, but Word's PDF of the page prints U+F057, the Symbol font's "W"
+  slot, which draws as Ω. Students see "Ohm (Ω)". Under section 6's ruled
+  lean, the converted text holds Ω, and pass 2a teaches the word check to
+  read a SYMBOL field's character.
+
 ## 4. Structures
 
 S1 to S8 are spec section 5's; S9 to S17 are new, each with a draft rule in
