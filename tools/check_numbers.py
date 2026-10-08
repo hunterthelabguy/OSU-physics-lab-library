@@ -18,8 +18,15 @@ reads, in document order, the labels students see:
   in such an item, its marker ("a.", "i.") from the list's own numbering,
   against Word's label at the part's anchor and level.
 
-An anchor outside the question lists (`xN`) is placed by no rule yet and
-fails. Exit code 0 when every file passes.
+- an `xN` anchor (a numbered paragraph in a second list, D-0122): matched in
+  document order with the rest; it records no level, so its label alone is
+  compared, with a part's marker or with an item of the ordered list inside
+  a `::: report-item` (S11), which the check reads in place;
+- a `::: {.numbered anchors="..."}` list: a list Word numbers from its
+  question list outside any question (PH 211 Lab 3's appendix contents);
+  its markers, in order, against Word's labels at the anchors it names.
+
+An anchor no rule places fails. Exit code 0 when every file passes.
 """
 
 import hashlib
@@ -89,7 +96,10 @@ def plain(node):
 
 
 def rendered_items(md_path):
-    """[(level, kind, label, id)] in document order, as the filter labels them."""
+    """[(level, kind, label, id)] in document order, as the filter labels them.
+    A report item's list items are kind "report" (level None); a `.numbered`
+    list's are kind "numbered", their id the anchor named for them, or None
+    past the last one named."""
     doc = json.loads(subprocess.run(
         [PANDOC, md_path, "-f", FROM, "-t", "json",
          "--lua-filter", FILTER, "-M", "theme-name=modern"],
@@ -105,11 +115,31 @@ def rendered_items(md_path):
                                   marker(start + k, style["t"], delim["t"]), None))
                     parts(entry, level + 1)
 
+    def listed(blocks, kind, anchors):
+        for b in blocks:
+            if b["t"] == "OrderedList":
+                (start, style, delim), entries = b["c"]
+                for k, entry in enumerate(entries):
+                    anchor = anchors.pop(0) if anchors else None
+                    items.append((None, kind, marker(start + k, style["t"], delim["t"]), anchor))
+                    listed(entry, kind, anchors)
+            elif b["t"] == "Div":
+                listed(b["c"][1], kind, anchors)
+
     def walk(blocks):
         for b in blocks:
             if b["t"] != "Div":
                 continue
-            (ident, classes, _), content = b["c"]
+            (ident, classes, attrs), content = b["c"]
+            if "report-item" in classes:
+                listed(content, "report", [])
+                continue
+            if "numbered" in classes:
+                anchors = dict(attrs).get("anchors", "").split()
+                listed(content, "numbered", anchors)
+                for anchor in anchors:
+                    items.append((None, "numbered", None, anchor))
+                continue
             kind = next((k for k in ("question", "checkpoint") if k in classes), None)
             if kind is None:
                 walk(content)
@@ -124,17 +154,46 @@ def rendered_items(md_path):
 def compare(word, items):
     """Problems between Word's [(anchor, label)] and the rendered items."""
     problems = []
+    labels = dict(word)
+    named = set()
+    for _, kind, shown, anchor in items:
+        if kind != "numbered":
+            continue
+        if anchor is None:
+            problems.append(f"a .numbered list item {shown!r} has no anchor named for it")
+        elif anchor not in labels:
+            problems.append(f".numbered names {anchor}, which Word's labels do not have")
+        elif shown is None:
+            problems.append(f".numbered names {anchor} ({labels[anchor]!r}), but its list ends first")
+        elif shown != labels[anchor]:
+            problems.append(f"{anchor} (Word {labels[anchor]!r}, converted {shown!r}): .numbered label differs")
+        named.add(anchor)
+    items = [i for i in items if i[1] != "numbered"]
     for anchor, label in word:
-        if not anchor.startswith("o"):
-            problems.append(f"anchor {anchor} ({label!r}) is outside the question"
-                            " lists; no rule places it yet (D-0112)")
-    word = [(a, l) for a, l in word if a.startswith("o")]
+        if anchor[0] not in "ox":
+            problems.append(f"anchor {anchor} ({label!r}): no rule places it (D-0112, D-0122)")
+    word = [(a, l) for a, l in word if a[0] in "ox" and a not in named]
     if len(word) != len(items):
-        problems.append(f"Word has {len(word)} numbered paragraphs in its question"
-                        f" lists, the converted lab {len(items)}")
+        problems.append(f"Word has {len(word)} numbered paragraphs to place, the"
+                        f" converted lab {len(items)}; Word's from"
+                        f" {word[len(items)][0]} on are unmatched"
+                        if len(word) > len(items) else
+                        f"Word has {len(word)} numbered paragraphs to place, the"
+                        f" converted lab {len(items)}")
     for (anchor, label), (level, kind, shown, ident) in zip(word, items):
         where = f"{anchor} (Word {label!r}, converted {shown!r}"
         where += f", #{ident})" if ident else ")"
+        if anchor.startswith("x"):
+            # A second list's paragraph records no level (D-0122).
+            if kind not in ("part", "report"):
+                problems.append(f"{where}: Word's {anchor} is a second list's item,"
+                                f" converted as a {kind}")
+            elif shown != label:
+                problems.append(f"{where}: label differs")
+            continue
+        if kind == "report":
+            problems.append(f"{where}: a report item's list where Word's question list numbers")
+            continue
         if anchor.count(".") != level:
             problems.append(f"{where}: Word's level {anchor.count('.')},"
                             f" converted level {level}")
