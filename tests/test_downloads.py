@@ -448,6 +448,10 @@ class Html(unittest.TestCase):
             # void elements as HTML5 does (<br>, <col ...>).
             text = re.sub(r"<table\b[^>]*>", "<table>", text)
             text = re.sub(r"<tr\b[^>]*>", "<tr>", text)
+            text = text.replace('<blockquote class="blockquote">', "<blockquote>")
+            # Quarto's serializer writes characters, Pandoc's some entities
+            # (&#39;, &nbsp;): the same text either way.
+            text = html.unescape(text)
             text = re.sub(r"\s*/>", ">", text)
             return re.sub(r'\bsrc="[^"]*"', 'src=""', text)
         for doc_id, _ in converted():
