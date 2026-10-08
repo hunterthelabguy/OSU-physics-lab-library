@@ -1,0 +1,175 @@
+<title>Checkpoint Colour Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+/* Layout: one column of three options; each option shows the same lab fragment
+   in the modern page's light and dark themes side by side, stacking on phones.
+   Board chrome follows the viewer's theme; the two panels per option are fixed
+   mockups of the lab page, so their colours do not change with the viewer. */
+:root {
+  --bg: #f4f7f9;
+  --surface: #ffffff;
+  --fg: #000000;
+  --muted: #0d5257;          /* Rogue Wave */
+  --line: #d6dbe0;
+  --head: #003b5c;           /* Star Canvas */
+  --font: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* The lab page as themes/modern.css draws it today. */
+  --l-paper: #ffffff; --l-ink: #000000; --l-tint: #f4f7f9; --l-quiet: #0d5257; --l-head: #003b5c;
+  --d-paper: #14181b; --d-ink: #f2f4f6; --d-tint: #1c2227; --d-quiet: #c6dae7; --d-head: #b8dde1;
+  --orange: #d73f09;         /* Beaver Orange: the question box's rule */
+
+  /* Candidates, all from the OSU palette (tests/test_brand.py PALETTE). */
+  --pine: #4a773c;           /* Pine Stand */
+  --tide: #00859b;           /* High Tide */
+  --candela: #fdd26e;        /* Candela */
+  --luminance: #ffb500;      /* Luminance */
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101417; --surface: #171c20; --fg: #f2f4f6; --muted: #c6dae7; --line: #33393f; --head: #b8dde1;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101417; --surface: #171c20; --fg: #f2f4f6; --muted: #c6dae7; --line: #33393f; --head: #b8dde1;
+  color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 1rem; line-height: 1.55; }
+.wrap { max-width: 76rem; margin: 0 auto; padding-inline: 16px; padding-block: 2rem 3rem; display: grid; gap: 2.25rem; }
+header { display: grid; gap: .6rem; max-width: 68ch; }
+h1 { color: var(--head); font-size: 1.75rem; line-height: 1.2; margin: 0; text-wrap: balance; }
+h2 { color: var(--head); font-size: 1.25rem; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.eyebrow { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+code { font-size: .9em; }
+
+.option { display: grid; gap: 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 1.25rem; }
+.option-head { display: grid; gap: .35rem; max-width: 68ch; }
+.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1rem; }
+.facts { width: 100%; border-collapse: collapse; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.facts th, .facts td { text-align: left; padding: .35rem .5rem; border-top: 1px solid var(--line); vertical-align: top; }
+.facts th { font-weight: 600; color: var(--muted); width: 45%; }
+.table-scroll { overflow-x: auto; }
+
+/* A lab fragment, as the modern page draws it. */
+.page { border-radius: 6px; padding: 1.1rem 1.1rem .4rem; min-width: 0; font-size: .95rem; line-height: 1.6; border: 1px solid var(--line); }
+.page.light { background: var(--l-paper); color: var(--l-ink); --tint: var(--l-tint); --quiet: var(--l-quiet); }
+.page.dark  { background: var(--d-paper); color: var(--d-ink); --tint: var(--d-tint); --quiet: var(--d-quiet); }
+.page .theme { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--quiet); margin-bottom: .6rem; }
+.block { background: var(--tint); padding: .9rem 1.1rem .1rem; margin: 0 0 1.1rem; border-radius: 0 6px 6px 0; border-left: 4px solid var(--orange); }
+.block .label { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--quiet); margin: 0 0 .35rem; }
+.block p.text { margin: 0 0 .9rem; }
+.placeholder { font-style: italic; }
+
+.opt-a .checkpoint { border-left-color: var(--pine); }
+.opt-b .checkpoint { border-left-color: var(--tide); }
+.opt-c .light .checkpoint { background: var(--candela); border-left-color: var(--luminance); }
+.opt-c .light .checkpoint .label { color: var(--l-quiet); }
+.opt-c .dark .checkpoint { border-left-color: var(--luminance); }
+
+.swatch { display: inline-block; width: .9em; height: .9em; border-radius: 2px; vertical-align: -.1em; margin-right: .35em; border: 1px solid var(--line); }
+.notes { display: grid; gap: .6rem; max-width: 68ch; }
+.notes ul { margin: 0; padding-left: 1.2rem; display: grid; gap: .35rem; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Pass 2a design board, 2026-10-07</div>
+    <h1>Checkpoint colour</h1>
+    <p>A numbered item that needs no answer is shown as "Checkpoint N" on its own count, in a question-like block of another palette colour (D-0109, D-0110). PH 213 Lab 6's "0)" becomes Checkpoint 1, so its questions read Question 1 and 2. Pick one of the three options below. The Word download gets the same colour once you pick (PR 2).</p>
+    <p>Each panel draws the modern page as it is today. The question box keeps its Beaver Orange rule. The checkpoint's words below are a placeholder; the question words are PH 211 Lab 1's.</p>
+  </header>
+
+  <section class="option opt-a" aria-labelledby="a-title">
+    <div class="option-head">
+      <div class="eyebrow">Option A</div>
+      <h2 id="a-title"><span class="swatch" style="background: var(--pine)"></span>Pine Stand rule, the question's tint</h2>
+      <p>The same block as a question with a green rule. One colour in both themes.</p>
+    </div>
+    <div class="panels">
+      <div class="page light">
+        <div class="theme">Light</div>
+        <div class="block checkpoint"><p class="label">Checkpoint 1</p><p class="text placeholder">[The item's own words from the original, unchanged.]</p></div>
+        <div class="block"><p class="label">Question 1</p><p class="text">Describe the qualities and actions of a good lab partner in your lab report. Discuss how your group came to a consensus on your final response.</p></div>
+        <div class="block"><p class="label">Question 2</p><p class="text">Add everyone’s individual sketches (identified by team member) as well as the team’s final plan.</p></div>
+      </div>
+      <div class="page dark">
+        <div class="theme">Dark</div>
+        <div class="block checkpoint"><p class="label">Checkpoint 1</p><p class="text placeholder">[The item's own words from the original, unchanged.]</p></div>
+        <div class="block"><p class="label">Question 1</p><p class="text">Describe the qualities and actions of a good lab partner in your lab report. Discuss how your group came to a consensus on your final response.</p></div>
+        <div class="block"><p class="label">Question 2</p><p class="text">Add everyone’s individual sketches (identified by team member) as well as the team’s final plan.</p></div>
+      </div>
+    </div>
+    <div class="table-scroll"><table class="facts">
+      <tr><th>Rule against the block's tint</th><td>4.89:1 light, 3.06:1 dark (3:1 needed for a graphic)</td></tr>
+      <tr><th>Against the question's orange rule</th><td>1.15:1: told apart by hue and the label word only</td></tr>
+    </table></div>
+  </section>
+
+  <section class="option opt-b" aria-labelledby="b-title">
+    <div class="option-head">
+      <div class="eyebrow">Option B</div>
+      <h2 id="b-title"><span class="swatch" style="background: var(--tide)"></span>High Tide rule, the question's tint</h2>
+      <p>The same block with a teal rule, further from orange in hue than green is. One colour in both themes.</p>
+    </div>
+    <div class="panels">
+      <div class="page light">
+        <div class="theme">Light</div>
+        <div class="block checkpoint"><p class="label">Checkpoint 1</p><p class="text placeholder">[The item's own words from the original, unchanged.]</p></div>
+        <div class="block"><p class="label">Question 1</p><p class="text">Describe the qualities and actions of a good lab partner in your lab report. Discuss how your group came to a consensus on your final response.</p></div>
+        <div class="block"><p class="label">Question 2</p><p class="text">Add everyone’s individual sketches (identified by team member) as well as the team’s final plan.</p></div>
+      </div>
+      <div class="page dark">
+        <div class="theme">Dark</div>
+        <div class="block checkpoint"><p class="label">Checkpoint 1</p><p class="text placeholder">[The item's own words from the original, unchanged.]</p></div>
+        <div class="block"><p class="label">Question 1</p><p class="text">Describe the qualities and actions of a good lab partner in your lab report. Discuss how your group came to a consensus on your final response.</p></div>
+        <div class="block"><p class="label">Question 2</p><p class="text">Add everyone’s individual sketches (identified by team member) as well as the team’s final plan.</p></div>
+      </div>
+    </div>
+    <div class="table-scroll"><table class="facts">
+      <tr><th>Rule against the block's tint</th><td>4.04:1 light, 3.69:1 dark</td></tr>
+      <tr><th>Against the question's orange rule</th><td>1.05:1: told apart by hue and the label word only</td></tr>
+    </table></div>
+  </section>
+
+  <section class="option opt-c" aria-labelledby="c-title">
+    <div class="option-head">
+      <div class="eyebrow">Option C (lean)</div>
+      <h2 id="c-title"><span class="swatch" style="background: var(--candela)"></span>Candela fill with a Luminance rule</h2>
+      <p>A yellow block, the "pay attention, do this" colour. In dark it keeps the dark tint with a Luminance rule, since a bright yellow slab on a dark page would glare.</p>
+    </div>
+    <div class="panels">
+      <div class="page light">
+        <div class="theme">Light</div>
+        <div class="block checkpoint"><p class="label">Checkpoint 1</p><p class="text placeholder">[The item's own words from the original, unchanged.]</p></div>
+        <div class="block"><p class="label">Question 1</p><p class="text">Describe the qualities and actions of a good lab partner in your lab report. Discuss how your group came to a consensus on your final response.</p></div>
+        <div class="block"><p class="label">Question 2</p><p class="text">Add everyone’s individual sketches (identified by team member) as well as the team’s final plan.</p></div>
+      </div>
+      <div class="page dark">
+        <div class="theme">Dark</div>
+        <div class="block checkpoint"><p class="label">Checkpoint 1</p><p class="text placeholder">[The item's own words from the original, unchanged.]</p></div>
+        <div class="block"><p class="label">Question 1</p><p class="text">Describe the qualities and actions of a good lab partner in your lab report. Discuss how your group came to a consensus on your final response.</p></div>
+        <div class="block"><p class="label">Question 2</p><p class="text">Add everyone’s individual sketches (identified by team member) as well as the team’s final plan.</p></div>
+      </div>
+    </div>
+    <div class="table-scroll"><table class="facts">
+      <tr><th>Text on the fill (light)</th><td>black 14.62:1; label in Rogue Wave 6.19:1</td></tr>
+      <tr><th>Block against the white page (light)</th><td>1.44:1: the fill is a soft edge; the rule and label carry it</td></tr>
+      <tr><th>Rule against the dark tint</th><td>9.07:1</td></tr>
+      <tr><th>Against the question box</th><td>a filled block beside a tinted one: told apart by fill, not hue alone</td></tr>
+    </table></div>
+  </section>
+
+  <section class="notes" aria-labelledby="n-title">
+    <h2 id="n-title">What holds for every option</h2>
+    <ul>
+      <li>The label word is what tells a checkpoint from a question; the colour only adds to it, so no meaning rests on colour alone.</li>
+      <li>Print: today's print rule draws every question with a black left rule and no fill. A checkpoint prints the same way, its label word distinguishing it, unless you want a printed difference.</li>
+      <li>Word: PR 2 draws questions and checkpoints as one-cell shaded tables in the same colours, for your check in Word and Google Docs.</li>
+      <li>Contrast is WCAG's formula on the hex values; 3:1 is the bar for a graphic such as a rule.</li>
+    </ul>
+  </section>
+</div>
