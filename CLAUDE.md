@@ -73,9 +73,9 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   list items (probe, 2026-10-01), so the question box is a one-cell table
   that `questions.lua` writes as raw OpenXML around Pandoc's paragraphs
   (D-0082), its colours `--accent` and `--tint` read from
-  `themes/modern.css` by `downloads.box_colours()`. To see what Word draws,
-  print a scratchpad copy to PDF through Word's automation
-  (`ExportAsFixedFormat`, 17) and render it with poppler's `pdftoppm`. The
+  `themes/modern.css` by `downloads.box_colours()`. To see what Word draws
+  or to compare downloads with production, read the reference's "Checking a
+  built page". The
   tests read the Word file's XML; only the owner, in Word and Google Docs,
   checks what it shows. The PDF
   needs `CHROME` (locally

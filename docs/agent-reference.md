@@ -82,6 +82,21 @@ is moved, not rewritten.
   the copy after.
 - A viewport size set on one tab does not apply to a tab opened after it;
   set the size on the tab you are about to measure.
+- To see what Word draws (the question and checkpoint boxes), print a
+  scratchpad copy to PDF through Word's automation in PowerShell 5.1
+  (`Documents.Open` with `[ref]` arguments, `ExportAsFixedFormat(path, 17)`,
+  `Close`/`Quit`, then stop only the WINWORD process ids that appeared after
+  `New-Object`) and render pages with poppler's `pdftoppm` beside
+  `PDFTOTEXT`; `-gray` gives a PGM whose rows measure box edges in pixels.
+- A fixture page (Pandoc `-s --embed-resources --css themes/modern.css`)
+  can be checked in the pane by copying it into the ignored `build/` and
+  serving that folder; the pane will not act on a `file://` tab. Delete the
+  copy after.
+- Comparing downloads with production: Pages answers `<file>.html` with a
+  308 to the extensionless path, so fetch with `curl -L`; a local Windows
+  build writes CRLF where CI writes LF, so strip `\r` before `cmp`. Compare
+  the Word file's `word/document.xml` and `styles.xml`, not the zip, and the
+  PDF by `pdftotext` output.
 
 ## Measuring and keeping the measured match
 
