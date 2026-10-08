@@ -555,6 +555,11 @@ body:where(.quarto-light) {
    point Bootstrap's margin, padding and rule back at the theme's grid
    (D-0130), measured equal to the HTML download at 375 and 1440 px. */
 .quarto-light table.table { margin: 0 0 var(--table-gap); }
+/* A block quote (a quoted example, D-0123) takes Bootstrap's and Quarto's
+   rule, padding, grey and type size; undone to the browser's, as the HTML
+   download draws it, measured at 375 and 1440 px. */
+:where(.quarto-light) blockquote { margin: revert; padding: revert; border-left: revert; }
+:where(.quarto-light) .blockquote { margin-bottom: revert; font-size: revert; padding-left: revert; padding-right: revert; color: revert; }
 .quarto-light .table > :not(caption) > * > * { padding: var(--cell-pad); border-bottom-width: 1px; }
 /* quarto-only: end */
 

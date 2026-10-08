@@ -86,6 +86,8 @@ th, td {
 }
 th { font-weight: 700; }
 
+blockquote > :last-child { margin-bottom: 0; }   /* the quote's own margin ends it */
+
 /* One cue, one meaning: graded questions are a labeled block, so bold is
    free to mean emphasis again (ledger 29). A checkpoint, a numbered item
    needing no answer, is the same block in the caution colours (D-0110,
