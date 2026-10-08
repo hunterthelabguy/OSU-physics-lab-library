@@ -30,8 +30,8 @@ leans"):
 - course names come from the handouts' course lines (a site PR, not made).
 
 Word's labels for all 19 read 2026-10-07 (`docs/word-labels.json`,
-survey section 3). PH 213 Lab 6 shows students "0)": S9 needs a start
-value. PH 213 Lab 5's symbol is Ω. Ruled the same day: the faithful page
+survey section 3). PH 213 Lab 6 shows students "0)", a required step
+(D-0109 below). PH 213 Lab 5's symbol is Ω. Ruled the same day: the faithful page
 is retired (D-0108, its own PR in 2a, public wording redrafted for the
 owner first), and a numbered item needing no answer is "Required step N"
 in a question-like block of another palette colour, picked on a board
