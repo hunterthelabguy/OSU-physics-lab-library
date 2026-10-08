@@ -169,11 +169,6 @@ class Filter(unittest.TestCase):
         self.assertEqual(out.count("<strong>"), 1, out)
         self.assertIn("<strong>Outside.</strong>", out)
 
-    def test_faithful_keeps_bold_and_prefix(self):
-        out = self.render("::: {.question #a}\n**Stem.**\n:::\n", "-t", "html",
-                          "-M", "theme-name=faithful").stdout
-        self.assertIn("<strong>1) </strong><strong>Stem.</strong>", out)
-
     def test_checkpoint_before_two_questions(self):
         # D-0109's and D-0110's test.
         body = q("c", cls="checkpoint") + q("a") + q("b")

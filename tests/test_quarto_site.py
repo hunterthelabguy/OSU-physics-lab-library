@@ -65,8 +65,7 @@ class Pages(unittest.TestCase):
         want += ["courses/{}/index.html".format(render.course_slug(c))
                  for c in render.courses_meta()["courses"]]
         for doc_id, _ in converted():
-            want += [f"labs/{doc_id}/modern/index.html",
-                     f"labs/{doc_id}/faithful/index.html"]
+            want += [f"labs/{doc_id}/modern/index.html"]
         for rel in want:
             with self.subTest(page=rel):
                 self.assertTrue((QSITE / rel).is_file())
@@ -146,7 +145,7 @@ class Documents(unittest.TestCase):
     def test_words_match_a_plain_pandoc_render(self):
         # The document's words, in order, appear unbroken inside Quarto's <main>.
         for doc_id, source in converted():
-            for theme in ("modern", "faithful"):
+            for theme in ("modern",):
                 with self.subTest(doc=doc_id, theme=theme):
                     page = (QSITE / "labs" / doc_id / theme / "index.html").read_text(encoding="utf-8")
                     main = re.search(r"<main\b.*?</main>", page, re.S).group(0)
@@ -159,11 +158,9 @@ class Documents(unittest.TestCase):
             self.assertGreater(n, 0)
             base = QSITE / "labs" / doc_id
             modern = (base / "modern" / "index.html").read_text(encoding="utf-8")
-            faithful = (base / "faithful" / "index.html").read_text(encoding="utf-8")
             with self.subTest(doc=doc_id):
                 for k in range(1, n + 1):
                     self.assertIn(f"Question {k}<", modern)
-                    self.assertIn(f"<strong>{k})", faithful)
                 self.assertNotIn(f"Question {n + 1}<", modern)
 
 
@@ -182,6 +179,18 @@ class SimsAndStubs(unittest.TestCase):
         text = (QSITE / "robots.txt").read_text(encoding="utf-8")
         self.assertIn("User-agent: *\nDisallow: /\n", text)
         self.assertNotIn("Sitemap", text)
+
+    def test_faithful_address_redirects_to_modern(self):
+        # D-0108: the faithful page is retired; its address lands on modern,
+        # and no lab page is built in its place.
+        for doc_id, _ in converted():
+            with self.subTest(doc=doc_id):
+                text = (QSITE / "labs" / doc_id / "faithful" / "index.html").read_text(encoding="utf-8")
+                self.assertTrue(is_redirect(text))
+                self.assertIn("url=../modern/", text)
+                self.assertNotIn("<main", text)
+        self.assertFalse((ROOT / "themes" / "faithful.css").exists())
+        self.assertFalse((QSITE / "themes" / "faithful.css").exists())
 
     def test_old_method_address_redirects(self):
         # D-0072: /how-this-was-made/ became /how-this-site-works/.

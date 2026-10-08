@@ -23,16 +23,14 @@ every reader: no accounts, and nothing loaded from other sites.
 Each handout is one Markdown file: plain text with light marks for
 headings, lists and bold, readable in any text editor. That file is the
 only copy anyone edits. Every version you can open here is built from it:
-the two web pages for each lab, "Rebuilt for reading" and "As it was
-written", and the four downloads, Word, PDF, HTML and the Markdown file
-itself. Nothing is copied by hand, so the versions cannot disagree.
+the web page for each lab and the four downloads, Word, PDF, HTML and the
+Markdown file itself. Nothing is copied by hand, so the versions cannot disagree.
 
 ## How a page is built
 
 Two free, open-source tools do the building. Pandoc converts Markdown into
 web pages and Word files. Quarto runs Pandoc across the whole site and lays
-out its pages. A web browser prints each lab's PDF from its "Rebuilt for
-reading" page. The OSU header, footer and colors come from the site's own
+out its pages. A web browser prints each lab's PDF from its web page. The OSU header, footer and colors come from the site's own
 templates; the handouts themselves carry no branding.
 
 ## How we know nothing changed
@@ -40,11 +38,14 @@ templates; the handouts themselves carry no branding.
 This phase converts format only: no wording, curriculum, objective or
 convention is changed. For every converted handout, a program reads the
 words of the original Word file and the words of the Markdown file and
-compares them in order, along with which words are bold. They must match
+compares them in order, along with which words are bold, every equation,
+and the description of every picture. A second program compares each
+question's number with the number Word shows. They must match
 exactly; PH 211's Lab 1, the first converted, matches on all 989 words. A
 difference that has not been recorded and ruled stops the change from
-being published. The original Word files are kept, unchanged, so anyone
-who prefers them loses nothing.
+being published. The original Word files are kept, their words unchanged, so anyone who
+prefers them loses nothing; the copies stored with the site have their
+author and company fields removed.
 
 ## How a change is published
 

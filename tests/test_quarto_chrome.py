@@ -113,7 +113,7 @@ class ChromePieces(unittest.TestCase):
     def pages(self):
         pages = list(chrome_pages())
         labs = [rel for rel, _ in pages if lab_theme(rel)]
-        self.assertEqual(len(labs), 2 * len(list(converted())), labs)
+        self.assertEqual(len(labs), len(list(converted())), labs)
         self.assertEqual(sorted(rel for rel, _ in pages if not lab_theme(rel)),
                          sorted(["courses/index.html", "how-this-site-works/index.html",
                                  "index.html", "sims/index.html"] + course_page_paths()))
@@ -145,9 +145,9 @@ class ChromePieces(unittest.TestCase):
                 links = [(html.unescape(a), one_line(html.unescape(t)))
                          for a, t in re.findall(r"<a ([^>]*)>(.*?)</a>", nav[0], re.S)]
                 for piece in (('href="{}"'.format(render.up(3)), home),
-                              ('href="{}"'.format(m["uphref"]), m["uplabel"]),
-                              ('class="switch" href="{}"'.format(m["switchhref"]), m["switchlabel"])):
+                              ('href="{}"'.format(m["uphref"]), m["uplabel"])):
                     self.assertEqual(links.count(piece), 1, (piece, links))
+                self.assertNotIn('class="switch"', nav[0])  # D-0108
 
     def test_no_document_nav_on_site_pages(self):
         for rel, text in self.pages():

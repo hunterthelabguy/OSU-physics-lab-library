@@ -85,11 +85,6 @@ class Links(unittest.TestCase):
                 self.assertNotIn("&middot;", row.group(0))
                 self.assertIn('<span class="download-label">Download:</span>', row.group(0))
 
-    def test_faithful_page_offers_none(self):
-        for doc_id, _ in converted():
-            with self.subTest(doc=doc_id):
-                self.assertNotIn(" download=", page(doc_id, "faithful"))
-
     def test_links_outside_main(self):
         for doc_id, _ in converted():
             main = re.search(r"<main>.*?</main>", page(doc_id, "modern"), re.S).group(0)
@@ -98,7 +93,7 @@ class Links(unittest.TestCase):
 
     def test_footer_sentence(self):
         for doc_id, _ in converted():
-            for theme in ("modern", "faithful"):
+            for theme in ("modern",):
                 text = flat(page(doc_id, theme))
                 with self.subTest(doc=doc_id, theme=theme):
                     self.assertIn(FOOTER_NEW, text)

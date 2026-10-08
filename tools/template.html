@@ -21,7 +21,6 @@ $if(homehref)$
 $if(uphref)$<a href="$uphref$">$uplabel$</a>$endif$
 <span class="spacer"></span>
 $if(downloadid)$<span class="download-row"><span class="download-label">Download:</span> <a class="download-button" href="../$downloadid$.docx" download="$downloadid$.docx">Word</a> <a class="download-button" href="../$downloadid$.html" download="$downloadid$.html">HTML</a> <a class="download-button" href="../$downloadid$.pdf" download="$downloadid$.pdf">PDF</a> <a class="download-button" href="../$downloadid$.md" download="$downloadid$.md">Markdown</a></span>$endif$
-$if(switchhref)$<a class="switch" href="$switchhref$">$switchlabel$</a>$endif$
 </nav>
 $endif$
 <main>
@@ -30,8 +29,8 @@ $body$
 <footer class="doc-footer">
 <p>$presentationnote$</p>
 $if(homehref)$
-<p>Both presentations are built from one Markdown file, so they cannot drift
-apart. Downloads carry the same draft notice as these pages.</p>
+<p>This page and its downloads are built from one Markdown file, so they
+cannot drift apart. Downloads carry the same draft notice as these pages.</p>
 $endif$
 </footer>
 $if(homehref)$

@@ -1,4 +1,4 @@
--- Numbers graded-question blocks and checkpoints and labels them, per theme.
+-- Numbers graded-question blocks and checkpoints and labels them.
 --
 -- Question ids are descriptors (ledger 14); the number a reader sees comes
 -- from document order at render time, so reordering a lab renumbers safely.
@@ -9,20 +9,19 @@
 -- open with a paragraph; anything else fails the render (D-0082).
 -- tools/check_numbers.py reads these labels against Word's (D-0102).
 --
--- theme=faithful: the original look. The question keeps its bold, prefixed
---   with "N)" exactly as the Word original numbered it.
--- theme=modern: the block becomes a labeled block ("Question N"), and all its
---   bold is removed so that bold means emphasis again (ledger 29; D-0101,
---   S4). In Word the block is a one-cell table with the page's rule down the
---   left and its tint behind (D-0082), so stem, parts, bullets and hints sit
---   in one box: Pandoc's custom-style never reaches list items (D-0057's
---   probe). The table is raw OpenXML around Pandoc's own paragraphs; its
---   colours come from themes/modern.css by way of tools/downloads.py
---   (`box-rule`, `box-fill`), and the label takes the Question Label style
---   of tools/reference.docx. Any other output would carry a style name into
---   the page as an attribute, so it is never set there.
+-- The block becomes a labeled block ("Question N"), and all its bold is
+-- removed so that bold means emphasis again (ledger 29; D-0101, S4). The
+-- faithful presentation, which kept the bold and printed "N)", is retired
+-- (D-0108). In Word the block is a one-cell table with the page's rule down
+-- the left and its tint behind (D-0082), so stem, parts, bullets and hints
+-- sit in one box: Pandoc's custom-style never reaches list items (D-0057's
+-- probe). The table is raw OpenXML around Pandoc's own paragraphs; its
+-- colours come from themes/modern.css by way of tools/downloads.py
+-- (`box-rule`, `box-fill`, `checkpoint-rule`, `checkpoint-fill`), and the
+-- label takes the Question Label style of tools/reference.docx. Any other
+-- output would carry a style name into the page as an attribute, so it is
+-- never set there.
 
-local theme = "modern"
 local questions, checkpoints = 0, 0
 local colours = {}
 
@@ -68,10 +67,6 @@ end
 return {
   {
     Meta = function(meta)
-      -- Quarto reserves `theme` for its page theme, so the presentation
-      -- travels as `theme-name` there; the Pandoc build still sends `theme`.
-      local v = meta["theme-name"] or meta.theme
-      if v then theme = pandoc.utils.stringify(v) end
       for _, key in ipairs({ "box-rule", "box-fill", "checkpoint-rule", "checkpoint-fill" }) do
         if meta[key] then colours[key] = pandoc.utils.stringify(meta[key]) end
       end
@@ -104,13 +99,7 @@ return {
         n = questions
       end
 
-      if theme == "faithful" and kind == "question" then
-        local prefix = pandoc.Strong({ pandoc.Str(n .. ")"), pandoc.Space() })
-        table.insert(first.content, 1, prefix)
-        return el
-      end
-
-      if theme ~= "faithful" then el = unbold(el) end
+      el = unbold(el)
       local text = (kind == "question" and "Question " or "Checkpoint ") .. n
       local label = pandoc.Div({ pandoc.Para({ pandoc.Str(text) }) },
         pandoc.Attr("", { kind .. "-label" }))
