@@ -360,10 +360,11 @@ class MarkdownAndWord(unittest.TestCase):
                     self.assertIn('w:lineRule="atLeast"', spacing, style_id)
 
     def test_word_headings_keep_with_next(self):
-        # A pin, not a change: Pandoc's default Heading 1 to 3 already keep
+        # A pin, not a change: Pandoc's default Heading 1 to 4 already keep
         # with the next paragraph; a Pandoc upgrade that dropped it fails here.
+        # Heading 4 is a box title where Word's outline has Heading 1 (D-0120).
         for doc_id, _ in converted():
-            for level in (1, 2, 3):
+            for level in (1, 2, 3, 4):
                 with self.subTest(doc=doc_id, level=level):
                     self.assertIn("<w:keepNext", self.style(doc_id, "Heading{}".format(level)))
 
@@ -605,7 +606,7 @@ class PrintKeeps(unittest.TestCase):
 
     OFFSETS = (100, 450, 575, 800, 950)
     RULES_OFF = ("<style>@media print { .question, .box { break-inside: auto !important; }"
-                 " h1, h2, h3 { break-after: auto !important; } }</style>")
+                 " h1, h2, h3, h4 { break-after: auto !important; } }</style>")
 
     def printed(self, doc_id, spacer, rules_off):
         folder = QSITE / "labs" / doc_id / "modern"
@@ -626,7 +627,7 @@ class PrintKeeps(unittest.TestCase):
         """Headings that end a page and question blocks broken over two."""
         built = page(doc_id, "modern")
         main = re.search(r"<main>(.*?)</main>", built, re.S).group(1)
-        headings = [flat(html.unescape(re.sub(r"<[^>]+>", "", h))) for h in re.findall(r"<h[123]\b[^>]*>(.*?)</h[123]>", main, re.S)]
+        headings = [flat(html.unescape(re.sub(r"<[^>]+>", "", h))) for h in re.findall(r"<h[1-4]\b[^>]*>(.*?)</h[1-4]>", main, re.S)]
         found = []
         pages = raw.split("\f")[:-1]
         for i, pg in enumerate(pages, 1):
