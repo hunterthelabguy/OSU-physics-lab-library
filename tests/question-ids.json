@@ -14,6 +14,17 @@
    ["question", "ph211-capstone:discuss-results"],
    ["question", "ph211-capstone:reflect-next-steps"]
   ],
+  "ph211-data-analysis-handout": [
+   ["question", "ph211-data-analysis:trendlines-tried"],
+   ["question", "ph211-data-analysis:plot-each-model"],
+   ["question", "ph211-data-analysis:linearize-position-time"],
+   ["question", "ph211-data-analysis:find-constant-a"],
+   ["question", "ph211-data-analysis:acceleration-vs-angle"],
+   ["question", "ph211-data-analysis:experimental-g"],
+   ["question", "ph211-data-analysis:multiple-data-sets-plot"],
+   ["question", "ph211-data-analysis:summarize-results"],
+   ["question", "ph211-data-analysis:individual-reflection"]
+  ],
   "ph211-describing-an-experiment-handout": [
    ["question", "ph211-describing-an-experiment:describe-experiment"],
    ["question", "ph211-describing-an-experiment:statistical-uncertainty"],
