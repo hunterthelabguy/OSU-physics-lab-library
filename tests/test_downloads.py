@@ -393,6 +393,7 @@ class MarkdownAndWord(unittest.TestCase):
 HTML_CAPS = {
     "ph211-describing-an-experiment-handout": 210_000,  # 189,015 bytes, pass 3
     "ph211-designing-an-experiment-handout": 370_000,  # 335,643 bytes, pass 3
+    "ph211-hypothesis-testing-handout": 330_000,  # 295,331 bytes, pass 3
     "ph211-team-building-handout": 190_000,
 }
 
