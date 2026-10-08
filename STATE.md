@@ -1,21 +1,26 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-07.
+Volatile handoff, capped at one screen. Updated 2026-10-08.
 
-**Pass 2a (2026-10-07), three PRs (D-0112, ruled).**
-- PR 1, checks: merged, #31 `d193461`. Word check counts equations, alt
-  text, SYMBOL; `tools/check_numbers.py`; ids pin; `tools/check_em_dash.py`;
-  `tools/strip_identity.py` (PH 211 Lab 1's original stripped, D-0114;
-  the instructor repo's two by its PR 4; app-field fix #32 `6bd16c2`).
-- Equation rule in the spec (D-0113, ruled): 315 of 322 round-trip; six
-  need corrected TeX; one is in PH 213 Lab 2's drawn figure (2b).
-- PR 2, Word box: merged, #33 `62c8bac`. Questions and checkpoints are
-  one-cell tables; checkpoint colour C, Candela and Luminance (D-0115);
-  the owner checked the question box in Word and Google Docs.
-- PR 3, faithful retired: merged, #34 `53dc71d`; old addresses redirect.
-  Wording 1 to 7 as ruled (D-0115); the one-source sentence lives only on
-  "How this site works" (D-0116). Pass 2a is done.
-- Next: pass 2b (downloads: images, MathML, the S13 SVG figures).
+**Pass 2b (2026-10-08): merged, #35 `25b6283`; 286 tests.**
+- LibreOffice measured, not faithful (no label survives); our own
+  `tools/figures.py` instead (D-0117, ruled). Within 0.11 pt of Word's
+  PDFs on every label of PH 213 Labs 2 and 4. LibreOffice 26.2.5.2 stays
+  installed locally; CI never installs it.
+- Pictures at Word's size and crop, `images:` front matter,
+  `tools/media.py list|extract` for conversion; figures inline on pages,
+  PNG in Word; `--resource-path`, `--mathml`; per-lab HTML caps; no new
+  CSS revert (measured). Pass 2b's own calls: D-0118, **proposed, awaiting
+  the owner's ruling**.
+- For pass 5's Word check: PH 213 Lab 4's "ℓ" is an l in Script MT Bold,
+  which CI's Linux PNG lacks.
+- Next: pass 3 (PH 212 Lab 3 and PH 213 Lab 2 first, D-0105). Its
+  figures' docPr ids: PH 213 Lab 2 `188406814`; PH 212 Lab 3 `484604076
+  2090172472 475339996 389621496`; PH 213 Lab 4 `24` (Text Box 2 `217` is a
+  box).
+
+**Pass 2a (2026-10-07), done:** checks #31, Word box #33, faithful retired
+#34 (D-0112 to D-0116, ruled).
 
 **Focus (2026-10-07):** the conversion of the remaining 18 PH 21X handouts,
 then a Word report template per lab, then a cross-reference against the
