@@ -1,9 +1,9 @@
 # Handout survey: pass 1
 
 Status: measured and read 2026-10-07 (pass 1, D-0082, D-0085). The table and
-counts are facts about the originals. The markup rules in section 5 are
-drafts for the owner's ruling, and nothing in them binds until a promoted
-entry puts them in `docs/conversion-spec.md`. Where this file and
+counts are facts about the originals. Ruled the same day ("I agree with all
+your leans"): the leans of sections 3, 6, 7, 9 and 10 stand as written, and
+the markup rules moved to `docs/conversion-spec.md` (D-0100 to D-0107). Where this file and
 `DECISIONS.md` differ, the ledger wins. The path is Claude's proposal; D-0085
 names no file.
 
@@ -226,33 +226,12 @@ section 5. Where they were found:
 | S16 | More than one deliverable or document | Weekly reports: PH 211 L7, PH 212 L3, L6. A procedure document passed between groups: PH 211 L6. A Week 3 presentation: PH 213 L6. A class whiteboard: PH 212 L5 |
 | S17 | Content a public repo must not carry | PH 212 L2 (a software activation code), PH 212 L6 (a link to a personal OneDrive document); section 7 |
 
-## 5. Draft markup rules, one per structure (for ruling)
+## 5. Markup rules
 
-Each rule says what the source holds and what the four outputs show (finding
-4). "Box" on the modern page and in Word means the question box; pass 2a
-redraws Word's as a one-cell shaded table (D-0082). "Template" is pass 6's
-report template (D-0075, D-0079).
-
-| | Source | Faithful page | Modern page | Word download | Template |
-|---|---|---|---|---|---|
-| S1 top level | `::: {.question .no-answer #id}`; counted by `questions.lua` | "N)" and its bold, as Word shows | The number alone as its label, never "Question N"; text unbolded; no box | As modern: the number, no box | Left out, its number a visible gap (D-0075) |
-| S1 part | A list item as written; no markup | As written | As written | As written | Inside its question's page |
-| S2 | One question block: the stem's paragraph, then its parts (S3) | "N)", stem, parts | "Question N" (the stem is question N), one box around stem and parts | One box | Stem and parts on one page; one box after the last part, or one per part if the outlines split parts (D-0075) |
-| S3 | An ordered list inside the block, nested and marked ("a.", "i.") as Word shows | Word's letters exactly | Word's letters; unbolded | Inside the box | As S2 |
-| S4 | Inside the block as written: round bullets `::: action`, arrows `::: hint`, others plain | As written, bold kept | Inside the box; lean: every paragraph and item in the block unbolded, where `questions.lua` today unbolds only the first | Inside the box | On the question's page, above the answer box |
-| S5 | Pandoc's TeX math from Word's equations, display kept display; italic-text symbols stay text | Rendered math | Rendered math | Word equations | As Word; the equation rule itself comes from pass 2a's probe (D-0082) |
-| S6 | Text as written, no link | As written | As written | As written | As written; the number check and the ids pin keep it true |
-| S7 | A plain paragraph, `**bold**` as written, never in a question block | Bold | Bold (bold is emphasis on modern) | Bold | Absent |
-| S8 | `::: action` or `::: hint` inside the block, where Word puts it | In place | In place, inside the box | Inside the box | On the question's page, in place |
-| S9 | `::: {.question .restart #id}` on the first question of a run Word restarts; `questions.lua` resets its count there. Lists that continue need nothing | Word's numbers | Word's numbers | Word's numbers | Word's numbers (rule 3.8). Waits on the owner's reading in section 3 |
-| S10 | No new markup: the parts are nested as S3 by Word's level, though Pandoc's draft makes them questions | As S3 | As S3 | As S3 | As S2. Caught by a number check that reads Word's numbering, never Pandoc's |
-| S11 | `::: report-item` around it; nothing numbers it | As written | As written, no box | As written | Lean: included with an answer box and no number; pass 6 rules. Marked at conversion so pass 6 can find it |
-| S12 | `![alt](file)` at Word's position, alt Word's `descr` verbatim, empty where Word's is | As placed | As placed | As placed | Included when inside a question's block |
-| S13 | An image rendered from the original by the build, its text-box words kept where Word places them (D-0092's Q12 call for PH 213 L2) | The figure | The figure | The figure | As S12. PH 213 L4 and PH 212 L3 are new cases of the same call, the owner's to confirm |
-| S14 | One-cell tables `::: box`; other tables as Pandoc tables, blank cells blank; a box between parts stays inside its question block; rubric tables converted as handout content | As written | As written | As written | Lean: a table a question asks students to fill in is copied under that question; pass 6 rules |
-| S15 | Not converted: page numbers and running headers (outside `document.xml`, so the word check loses nothing). The contents field becomes a list of links to the same headings, words unchanged. SEQ numbers stay text as stored. A content control's text stays plain text; empty controls vanish. The SYMBOL field gives what Word displays (section 6) | As listed | As listed | As listed | Absent |
-| S16 | No markup; recorded in the table | | | | Pass 6 rules each lab's scope on this evidence (D-0085) |
-| S17 | The owner's ruling before those conversions (section 7) | | | | |
+Ruled 2026-10-07 (D-0101) and moved to `docs/conversion-spec.md`,
+"Markup rules per structure", the one copy. S13 changed on ruling: drawn
+figures become SVG built from the original's shapes, with a PNG copy for
+Word, in pass 2b.
 
 ## 6. Em dash and the symbol field (D-0085)
 

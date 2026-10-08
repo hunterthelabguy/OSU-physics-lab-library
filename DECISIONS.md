@@ -1053,21 +1053,103 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0074 to D-0092")
 
 ### D-0099  PH 212 and PH 213 course lists quoted whole from their summaries' Activities tables, with two quoting calls; amends LEDGER 45
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Under D-0088, PR #30 (squashed as `35310ce`) quotes into `site/courses.md` the Activities table of "PH 212 Curriculum Summary" and of "PH 213 Curriculum Summary": every row, the unnumbered Lab Skills practical row included as PH 211's is, seven per course, each lab under "Not yet converted". Cells are read from the summaries' Word XML, so quote marks are Word's. A cell's paragraphs are joined by one space, so PH 212's Lab 3 and Lab 6 titles read "Designing Experiments (Two weeks)" and "Capstone (Two weeks)" as their Title cells do; runs of spaces become one; no word or character is changed. Each course gets a `source_note` naming its summary, both "none is in hand to list" notes are removed, and the comment cites ledger 45. Course names stay empty while four-items Q4 is open; Q4 now covers PH 212 as well as PH 213. Amends LEDGER 45's last sentence ("PH 212 and PH 213 have no material in hand").
 - rationale: D-0088 (ruled) directs the quoting and this entry. "(Two weeks)" sits in the Title cell, so word for word keeps it there. Whitespace is not a word, and HTML collapses it anyway. Found on the way: `render.pandoc_meta` returned strings already escaped by Pandoc's HTML writer, and every caller escaped them again, so "Sharing & Comparing" showed as "&amp;" in the PR's first build; fixed in the same PR. The data-driven page tests compared against the same escaped data, so the new test reads the raw HTML.
 - alternatives: titles without "(Two weeks)" (not word for word); the parenthetical moved to the description (rearranges the summary's columns); course names from each handout's course line now (Q4, open).
 - binds: LEDGER 45; D-0088; site/courses.md; tools/render.py (`pandoc_meta`); tests/test_quarto_chrome.py
 - test: `test_every_course_lists_its_summary`: every course lists labs and a source note, no "none is in hand", each title and description on its page, each title escaped once
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("I agree with all your leans")
+
 
 ### D-0100  Pass 1's survey is recorded in docs/handout-survey.md; nine handouts are not simple under D-0078, and a style-set part level counts as a fourth feature
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: The survey D-0085 orders lives in `docs/handout-survey.md`. Its one table has a row per handout (19): SHA-256, U+2014 count, D-0078's counts and verdict, objects, structures by anchor, deliverable, weeks, submissions, report items that are not answers. Around it: the new structures S9 to S17, draft markup rules for ruling (its section 5, not binding until ruled into `docs/conversion-spec.md`), the hardest two, and the recount. Counts come from the originals' Word XML; classifications from four Sonnet readers (D-0084), none of which met a student record. Findings that bind until the owner rules otherwise: (1) a part's level set by a style whose list is inherited from its base style is a fourth D-0078 feature, since Pandoc reads such parts as top-level questions (PH 212 Labs 1, 2, 3 and 5); (2) nine handouts are not simple (PH 211 Labs 6, 7; PH 212 Labs 1, 2, 3, 5, 6; PH 213 Labs 5, 6) and each comes to the owner before its conversion, with the look in Word the survey's section 3 lists; (3) for those nine, Pandoc's reading of the numbers is not a check.
 - rationale: D-0085 names no file. The table is public-safe (spec 9.7: nothing from notes, rubrics or the instructor guidance file; no names, link targets or absolute paths), so it lives beside the conversion spec it feeds. The fourth feature, PH 212 Lab 3: the "Subquestion" style sets `ilvl` 1 and is based on "Question", which carries the `numId`; `numbering.xml` links level 1 to "Subquestion"; Pandoc prints 42 top-level numbers where Word has 24. PH 212 Lab 1's own citations ("question 6", "question 11") resolve to the right items only under Word's levels.
 - alternatives: the table inside the spec (the spec does not need a dated appendix); a dated file name (the hashes are the record until an original changes, D-0087, so the file is updated, not superseded).
 - binds: D-0078, D-0082, D-0085, D-0092; docs/handout-survey.md; docs/conversion-spec.md (once its rules are ruled); spec section 5 (its PH 212 sample numbers are Pandoc's)
 - test: none in pass 1; pass 2a's number check
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("I agree with all your leans")
+
+### D-0101  One markup rule per structure, S1 to S17, is in docs/conversion-spec.md; drawn figures become SVG built in pass 2b
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-07
+- decision: The survey's draft rules (D-0085, finding 4) enter `docs/conversion-spec.md` as "Markup rules per structure", the one copy; the survey keeps a pointer. Among them: an item needing no answer is `.question .no-answer`, labelled by its number alone, never "Question N", and left out of the template; a stem is question N, its parts inside one block; the modern page unbolds the whole question block; a restart is `.question .restart`; an unnumbered report item is marked `::: report-item` at conversion; page headers and page numbers are not converted; the contents field becomes links. Amended on ruling, S13: a figure drawn from Word's shapes, groups and text boxes becomes an SVG the build makes from the original, its text kept as SVG text at Word's positions, with a PNG made from it for the Word download and the template. Pass 2b builds it, opening with LibreOffice installed (winget locally, apt in CI, version pinned) and its SVG of the three figures (PH 212 Lab 3, PH 213 Labs 2 and 4) measured against Word; a small converter of the shapes these figures use only if LibreOffice is not faithful. Pictures (S12) stay the original files: all 53 media files are raster (45 PNG, 8 JPEG).
+- rationale: The owner, 2026-10-07: "I agree with all your leans", then on SVG for images: "Yes, SVG for drawn figures in 2b", and on a converter of our own: "let's install LibreOffice". SVG keeps the labels as text (sharp, read aloud, readable by the word check) and is generated from the original, so it cannot drift; wrapping or tracing a raster would gain nothing or change the image. Google Docs' SVG import is not relied on, hence the PNG.
+- alternatives: a raster rendering of each drawn figure (labels become pixels); figures redrawn by hand (a second copy the check cannot see); SVG for every picture (no vector source exists).
+- binds: docs/conversion-spec.md; docs/handout-survey.md section 5; D-0092 (Q12, the labelled photograph); D-0082 (pass 2b); D-0079 (the template check covers the PNG); tools/filters/questions.lua (pass 2a: `.no-answer`, `.restart`, whole-block unbold)
+- test: pass 2a's for `questions.lua`; pass 2b's for the SVG and its text
+
+### D-0102  Word's own labels, read once per original by Word's automation, are what the number check compares; amends D-0078
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-07
+- decision: Claude reads Word's displayed list labels for every handout through Word's automation on this machine, on copies in the session scratchpad, read-only, closed without saving; the owner's look in Word is not needed. The labels are recorded per original, keyed to its SHA-256, and pass 2a's number check compares the converted lab's numbers (questions, no-answer items, parts) against that record in CI. A changed original fails the hash and is re-read (D-0087). No reader of Word's numbering XML is built, and Pandoc's reading is not used as the check. Amends D-0078's method.
+- rationale: Pandoc misreads four handouts (D-0100), and the five with overrides or a missing start value are exactly where an XML reader would have to guess Word's semantics. Word's own labels need no guess. The owner, 2026-10-07: "I agree with all your leans".
+- alternatives: an XML reader of `numPr` and `numbering.xml` (critique F1; guesses where it matters); the owner reading the nine in Word (about 15 minutes, by hand); Pandoc for the simple ten (two methods for one check).
+- binds: D-0078; D-0100; tools/check_unchanged.py or a sibling (pass 2a)
+- test: pass 2a: a fixture whose numbers differ from its recorded labels fails
+
+### D-0103  An original's em dash is kept; the em-dash scan skips converted files
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-07
+- decision: A converted file keeps every U+2014 its original holds (PH 212 Lab 2 has one). CI's em-dash scan skips files whose front matter names a `source_file`, whose words the word check already proves are the original's. Built in pass 2a.
+- rationale: Conversion is format only, and co-owned text keeps its authors' words (charter floor 9); a ruled change of dash would be a content change. The owner, 2026-10-07: "I agree with all your leans".
+- alternatives: a ruled change to another dash, declared in `ruled_additions` and `ruled_omissions`.
+- binds: D-0085; .github/workflows/verify.yml (pass 2a)
+- test: pass 2a: a converted fixture with its original's em dash passes the scan
+
+### D-0104  PH 212 Lab 2's activation code is a ruled omission; PH 212 Lab 6's personal OneDrive link loses its target
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-07
+- decision: When PH 212 Lab 2 is converted, the software activation code's text is declared in `ruled_omissions` citing this entry, and the code never enters this repo. When PH 212 Lab 6 is converted, the word "your" linked to a personal OneDrive document stays as plain text, its link target dropped. Neither the code nor the target is written in any file here.
+- rationale: The repo will become public and git history is permanent; an activation code is a secret, and a personal OneDrive path names a person. D-0086's strip does not reach link targets, and the word check does not read them. The owner, 2026-10-07: "I agree with all your leans".
+- alternatives: keep either as written; replace the code with a placeholder sentence (a content addition).
+- binds: D-0086; docs/handout-survey.md section 7; the PH 212 conversions
+- test: those conversions' word check, with the omission declared
+
+### D-0105  Pass 3 opens with PH 212 Lab 3 and PH 213 Lab 2; amends D-0082's likely pair
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-07
+- decision: The survey's hardest two, PH 212 Lab 3 (most numbering risk) and PH 213 Lab 2 (most equation and figure risk), open pass 3, then PH 211 Labs 2 to 7; PH 212 Lab 1 joins the rest of PH 212 in pass 4. The owner checks the Word download of these two (D-0090).
+- rationale: Between them they meet every structure but S1 at the top level, S6, S8 and S17; PH 212 Lab 1's numbering and equation hazards are smaller versions of Lab 3's (survey section 9). The owner, 2026-10-07: "I agree with all your leans".
+- alternatives: PH 213 Lab 2 and PH 212 Lab 1 (D-0082's likely pair); PH 213 Lab 4 for its drawn figure.
+- binds: D-0082; D-0090; D-0092
+- test: none; pass 3's own
+
+### D-0106  Eight passes in seven sessions: pass 7 runs in pass 6's session once 6 merges
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-07
+- decision: The work stays eight passes (1, 2a, 2b, 3, 4, 5, 6, 7) in seven sessions against a budget of six: pass 7, local and landing in the instructor repo (D-0083, D-0089), runs in pass 6's session after pass 6 merges. 2a and 2b stay separate sessions, and so do 4 and 5.
+- rationale: The survey grew 2a (Word's labels, the em-dash rule) and 2b (pictures in 15 handouts, equations in all 18, now the SVG figures); 4 and 5 are where S9 and S10 first meet volume (survey section 10). The owner, 2026-10-07: "I agree with all your leans".
+- alternatives: eight sessions; six, by also pairing 2a with 2b or 4 with 5.
+- binds: D-0082; STATE.md
+- test: none
+
+### D-0107  PH 212's and PH 213's course names come from their handouts' own course lines; settles four-items Q4
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-07
+- decision: As PH 211's name comes from its Lab 1 handout's course line (`name_source` in `site/courses.md`), PH 212's and PH 213's come from their handouts' course lines, quoted, each with its `name_source`. The edit is site content, so it lands by PR; not yet made.
+- rationale: The same rule for every course (four-items Q4's lean). The owner, 2026-10-07: "I agree with all your leans".
+- alternatives: names left empty until a summary gives one.
+- binds: site/courses.md; four-items Q4; D-0099
+- test: the course-page tests already compare the heading with `name`

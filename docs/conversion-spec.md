@@ -43,6 +43,36 @@ several styles for the same glyph (ledger 19).
 - `::: legend-question` is the legend's sample of question styling; it is
   not a question.
 
+## Markup rules per structure (D-0101)
+
+Ruled 2026-10-07 from pass 1's survey (`docs/handout-survey.md`, which
+lists where each structure occurs). S1 to S8 are the design spec's
+section 5; S9 to S17 the survey's. Each row gives what the source holds
+and what the four outputs show. "Box" is the question box, which pass 2a
+redraws in Word as a one-cell shaded table (D-0082); "Template" is pass
+6's report template (D-0075, D-0079).
+
+| | Source | Faithful page | Modern page | Word download | Template |
+|---|---|---|---|---|---|
+| S1 top level | `::: {.question .no-answer #id}`; counted by `questions.lua` | "N)" and its bold, as Word shows | The number alone as its label, never "Question N"; text unbolded; no box | As modern: the number, no box | Left out, its number a visible gap (D-0075) |
+| S1 part | A list item as written; no markup | As written | As written | As written | Inside its question's page |
+| S2 | One question block: the stem's paragraph, then its parts (S3) | "N)", stem, parts | "Question N" (the stem is question N), one box around stem and parts | One box | Stem and parts on one page; one box after the last part, or one per part if the outlines split parts (D-0075) |
+| S3 | An ordered list inside the block, nested and marked ("a.", "i.") as Word shows | Word's letters exactly | Word's letters; unbolded | Inside the box | As S2 |
+| S4 | Inside the block as written: round bullets `::: action`, arrows `::: hint`, others plain | As written, bold kept | Inside the box; lean: every paragraph and item in the block unbolded, where `questions.lua` today unbolds only the first | Inside the box | On the question's page, above the answer box |
+| S5 | Pandoc's TeX math from Word's equations, display kept display; italic-text symbols stay text | Rendered math | Rendered math | Word equations | As Word; the equation rule itself comes from pass 2a's probe (D-0082) |
+| S6 | Text as written, no link | As written | As written | As written | As written; the number check and the ids pin keep it true |
+| S7 | A plain paragraph, `**bold**` as written, never in a question block | Bold | Bold (bold is emphasis on modern) | Bold | Absent |
+| S8 | `::: action` or `::: hint` inside the block, where Word puts it | In place | In place, inside the box | Inside the box | On the question's page, in place |
+| S9 | `::: {.question .restart #id}` on the first question of a run Word restarts; `questions.lua` resets its count there. Lists that continue need nothing | Word's numbers | Word's numbers | Word's numbers | Word's numbers (rule 3.8). Waits on the owner's reading in section 3 |
+| S10 | No new markup: the parts are nested as S3 by Word's level, though Pandoc's draft makes them questions | As S3 | As S3 | As S3 | As S2. Caught by a number check that reads Word's numbering, never Pandoc's |
+| S11 | `::: report-item` around it; nothing numbers it | As written | As written, no box | As written | Lean: included with an answer box and no number; pass 6 rules. Marked at conversion so pass 6 can find it |
+| S12 | `![alt](file)` at Word's position, alt Word's `descr` verbatim, empty where Word's is | As placed | As placed | As placed | Included when inside a question's block |
+| S13 | An SVG the build makes from the original's shapes, groups and text boxes, its text kept as SVG text at Word's positions (so the word check can read it), with a PNG made from that SVG for Word. Pass 2b first measures LibreOffice's SVG of the three figures against Word; a small converter only if it is not faithful (D-0101) | The SVG | The SVG | The PNG | As S12, the PNG |
+| S14 | One-cell tables `::: box`; other tables as Pandoc tables, blank cells blank; a box between parts stays inside its question block; rubric tables converted as handout content | As written | As written | As written | Lean: a table a question asks students to fill in is copied under that question; pass 6 rules |
+| S15 | Not converted: page numbers and running headers (outside `document.xml`, so the word check loses nothing). The contents field becomes a list of links to the same headings, words unchanged. SEQ numbers stay text as stored. A content control's text stays plain text; empty controls vanish. The SYMBOL field gives what Word displays (section 6) | As listed | As listed | As listed | Absent |
+| S16 | No markup; recorded in the table | | | | Pass 6 rules each lab's scope on this evidence (D-0085) |
+| S17 | The owner's ruling before those conversions (section 7) | | | | |
+
 ## Rubrics (instructor repo)
 
 One file per lab, one `::: {.rubric-item question="<question id>"}` per
