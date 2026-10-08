@@ -7,7 +7,7 @@ logo, and is written beside the presentations as labs/<id>/<id>.<ext>, so
 a saved file is named after the lab. Markdown is the source, byte for
 byte (LEDGER 28). Word is Pandoc's, from the source, with the banner in
 its page header and the department in its page footer, both from
-tools/reference.docx with the page size and question styles (D-0057). HTML is
+tools/reference.docx with the page size and question label (D-0057). HTML is
 a plain Pandoc render of the source: the banner, the department line and
 the modern theme, everything embedded and no site chrome, so it opens
 from disk. A missing tool is an error, never a skip (LEDGER 53).
@@ -49,12 +49,25 @@ def markdown(doc, dest):
     shutil.copyfile(doc["path"], dest)
 
 
+def box_colours():
+    """The Word question box's rule and fill: the modern page's --accent and
+    --tint, from the light :root block of themes/modern.css (D-0057, D-0082),
+    as Pandoc metadata for tools/filters/questions.lua."""
+    with open(os.path.join(render.ROOT, "themes", THEME + ".css"), encoding="utf-8") as fh:
+        root = re.search(r":root\s*\{(.*?)\}", fh.read(), re.S).group(1)
+    tokens = dict(re.findall(r"(--[\w-]+):\s*#([0-9a-fA-F]{6})\b", root))
+    return ["-M", "box-rule=" + tokens["--accent"].upper(),
+            "-M", "box-fill=" + tokens["--tint"].upper()]
+
+
 def word(doc, dest):
     """The source alone in the body; tools/reference.docx supplies the draft
     notice as the page header, the department line and page count as the
-    page footer, the page, and the question styles (D-0057)."""
+    page footer, the page, and the question label's style (D-0057); the
+    filter draws each question as a one-cell table (D-0082)."""
     pandoc(doc, render.body_after_front_matter(doc["path"]),
-           ["-t", "docx", "--reference-doc", REFERENCE_DOCX, "-M", "lang=en", "-o", dest])
+           ["-t", "docx", "--reference-doc", REFERENCE_DOCX, "-M", "lang=en"]
+           + box_colours() + ["-o", dest])
 
 
 def html(doc, dest):

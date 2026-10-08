@@ -210,45 +210,86 @@ class MarkdownAndWord(unittest.TestCase):
                 for side in ("top", "right", "bottom", "left"):
                     self.assertRegex(sect, r'<w:pgMar\b[^>]*\bw:{}="{}"'.format(side, twips))
 
-    def test_word_questions_have_their_own_styles(self):
-        # D-0057: each question is a Question Label paragraph ("Question N")
-        # then its text in the Question style, in document order.
+    def boxes(self, doc_id):
+        """Each one-cell table in the body: (its XML, its paragraphs' styles, its text)."""
+        out = []
+        for tbl in re.findall(r"<w:tbl>.*?</w:tbl>", self.part(doc_id, "word/document.xml"), re.S):
+            paras = re.findall(r"<w:p\b.*?</w:p>", tbl, re.S)
+            styles = [(re.search(r'<w:pStyle w:val="([^"]+)"', p) or [None, None])[1] for p in paras]
+            texts = ["".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", p)) for p in paras]
+            out.append((tbl, styles, texts))
+        return out
+
+    def test_word_questions_are_one_cell_tables(self):
+        # D-0082 (amends D-0057): each question is one table of one cell,
+        # its Question Label paragraph ("Question N") first, in document
+        # order, so a list or a bullet between parts sits inside the box.
         for doc_id, source in converted():
             count = len(re.findall(r"^:::+ *\{\.question\b", source.read_text(encoding="utf-8"), re.M))
             with self.subTest(doc=doc_id, questions=count):
-                paras = re.findall(r"<w:p\b.*?</w:p>", self.part(doc_id, "word/document.xml"), re.S)
-                styled = [(re.search(r'<w:pStyle w:val="([^"]+)"', p) or [None, None])[1] for p in paras]
-                labels = [i for i, s in enumerate(styled) if s == "QuestionLabel"]
-                self.assertEqual(len(labels), count)
+                boxes = [b for b in self.boxes(doc_id) if "QuestionLabel" in b[1]]
+                self.assertEqual(len(boxes), count)
                 self.assertGreater(count, 0)
-                for n, i in enumerate(labels, 1):
-                    text = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", paras[i]))
-                    self.assertEqual(text, "Question {}".format(n))
-                    self.assertEqual(styled[i + 1], "Question")
+                for n, (tbl, styles, texts) in enumerate(boxes, 1):
+                    self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
+                    self.assertEqual(styles[0], "QuestionLabel")
+                    self.assertEqual(texts[0], "Question {}".format(n))
+                    self.assertTrue(any(texts[1:]), "the question's words are in the box")
+                self.assertNotIn('w:val="QuestionLabel"', re.sub(
+                    r"<w:tbl>.*?</w:tbl>", "", self.part(doc_id, "word/document.xml"), flags=re.S))
 
-    def test_word_question_styles_are_the_modern_box(self):
-        # D-0057, amended after the owner's Word check (2026-10-01): the
-        # modern page's question block, its accent rule down the left and
-        # its tint behind, from themes/modern.css. Both styles keep with the
-        # next paragraph and keep their lines, and share one border, indent
-        # and shading so Word draws one box; Enter after a question starts
-        # plain Body Text.
+    def test_word_box_is_the_modern_block(self):
+        # D-0057, D-0082: the modern page's question block, from
+        # themes/modern.css: its --accent rule down the left, [3] pt (sz 24),
+        # its --tint behind, kept on one page, across the text column of the
+        # Letter page; the label in capitals, kept with the question.
         accent, tint = (MODERN_ROOT[k].lstrip("#").upper() for k in ("--accent", "--tint"))
         for doc_id, _ in converted():
             with self.subTest(doc=doc_id):
-                label, question = self.style(doc_id, "QuestionLabel"), self.style(doc_id, "Question")
-                for s in (label, question):
-                    self.assertIn("<w:keepNext", s)
-                    self.assertIn("<w:keepLines", s)
-                for part in (r"<w:pBdr>.*?</w:pBdr>", r"<w:ind\b[^>]*/>", r"<w:shd\b[^>]*/>"):
-                    got = [re.search(part, s, re.S) for s in (label, question)]
-                    self.assertTrue(all(got), part)
-                    self.assertEqual(got[0].group(0), got[1].group(0))
-                self.assertRegex(question, r'<w:left\b(?=[^>]*\bw:color="{}")'.format(accent))
-                self.assertRegex(question, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(tint))
-                self.assertIn('<w:next w:val="BodyText"', question)
+                sect = re.search(r"<w:sectPr>.*?</w:sectPr>", self.part(doc_id, "word/document.xml"), re.S).group(0)
+                page = int(re.search(r'<w:pgSz\b[^>]*\bw:w="(\d+)"', sect).group(1))
+                left = int(re.search(r'<w:pgMar\b[^>]*\bw:left="(\d+)"', sect).group(1))
+                right = int(re.search(r'<w:pgMar\b[^>]*\bw:right="(\d+)"', sect).group(1))
+                for tbl, styles, _ in self.boxes(doc_id):
+                    if "QuestionLabel" not in styles:
+                        continue
+                    self.assertRegex(tbl, r'<w:left w:val="single" w:sz="24" w:space="0" w:color="{}"/>'.format(accent))
+                    self.assertRegex(tbl, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(tint))
+                    self.assertIn("<w:cantSplit/>", tbl)
+                    self.assertIn('<w:tblW w:w="{}" w:type="dxa"/>'.format(page - left - right), tbl)
+                label = self.style(doc_id, "QuestionLabel")
                 self.assertIn("<w:caps", label)
-                self.assertNotRegex(question, r"<w:b\s*/>")
+                self.assertIn("<w:keepNext", label)
+                self.assertNotIn("<w:pBdr>", label)
+                self.assertNotIn("<w:shd", label)
+
+    def test_word_box_holds_a_list_between_parts(self):
+        # D-0082 (finding 3, F14(b)): a stem, lettered parts and a round-bullet
+        # action between them draw as one box, which custom-style could not.
+        body = ("::: {.question #probe:parts}\n**Make a plot.**\n\na.  **Slope?**\nb.  **Units?**\n\n"
+                "::: action\n- An action between parts.\n:::\n\nc.  **Agree?**\n:::\n\nAfter.\n")
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "probe.docx"
+            subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
+                            "-M", "theme=modern", *downloads.box_colours(),
+                            "--reference-doc", downloads.REFERENCE_DOCX, "-o", str(out)],
+                           input=body, check=True, capture_output=True, encoding="utf-8")
+            with zipfile.ZipFile(out) as z:
+                doc = z.read("word/document.xml").decode("utf-8")
+        tables = re.findall(r"<w:tbl>.*?</w:tbl>", doc, re.S)
+        self.assertEqual(len(tables), 1)
+        inside = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", tables[0]))
+        for words in ("Make a plot.", "Slope?", "Units?", "An action between parts.", "Agree?"):
+            self.assertIn(words, inside)
+        self.assertNotIn("After.", inside)
+
+    def test_word_box_without_its_colours_fails(self):
+        # The filter never guesses a colour: a Word render without them stops.
+        r = subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
+                            "-o", os.devnull],
+                           input="::: {.question #a}\nText.\n:::\n", capture_output=True, encoding="utf-8")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("needs its colours", r.stderr)
 
     def test_word_spacing_follows_the_modern_page(self):
         # D-0057, amended after the owner's Word check: the body's line

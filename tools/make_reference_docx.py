@@ -17,10 +17,10 @@ Starts from Pandoc's own default reference document and adds:
   on the style, never on the runs: Word rebuilds a field's result and drops
   the formatting of the cached one;
 - the PDF's page: Letter with site/site.css's 0.75 in margins;
-- the Question Label and Question styles that tools/filters/questions.lua
-  names for Word: the modern page's question block, its accent rule down
-  the left and its tint behind, one box across both paragraphs, the label
-  in capitals, and both kept whole and with what follows;
+- the Question Label style that tools/filters/questions.lua names for a
+  question's label in Word: the modern page's label, in capitals and its
+  --quiet colour, kept with what follows. The box around the question is a
+  one-cell table the filter draws (D-0082), not a style;
 - the modern page's spacing in Pandoc's Body Text and Compact styles: lines
   at least 1.6 times the body size, and the paragraph and list item gaps in
   the page's proportions (the owner found the first build's spacing tighter
@@ -49,11 +49,10 @@ MARGIN = 0.75         # inches, site/site.css @page margin
 
 # The modern page's values (themes/modern.css), carried into Word's 12 pt
 # body: a length in rem is taken over the body's 1.0625rem, so it keeps its
-# proportion to the text. Colors are the light scheme's --accent and --tint.
+# proportion to the text.
 BODY_REM = 1.0625
 BODY_PT = 12
 LINE_HEIGHT = 1.6
-ACCENT, TINT = "D73F09", "F4F7F9"
 
 
 def pt(rem):
@@ -74,22 +73,6 @@ def spacing(after_rem):
 BODY_SPACING = spacing(1)      # p { margin: 0 0 1rem; }
 ITEM_SPACING = spacing(.5)     # li { margin: 0 0 .5rem; }
 
-# One border, shading and indent shared by both question styles, so Word
-# draws the label and the question as one box: the page's 4 px accent rule
-# (3 pt) on the left, its padding (.9rem, 1.1rem, 1rem) as the borders'
-# distance from the text, and top, right and bottom borders in the tint, so
-# they only hold the shading out to the padding. The indent keeps the rule
-# inside the text column, as on the page.
-LEFT = round(pt(1.1))
-BOX = ('<w:pBdr>'
-       '<w:top w:val="single" w:sz="4" w:space="{top}" w:color="{tint}" />'
-       '<w:left w:val="single" w:sz="24" w:space="{side}" w:color="{accent}" />'
-       '<w:bottom w:val="single" w:sz="4" w:space="{bottom}" w:color="{tint}" />'
-       '<w:right w:val="single" w:sz="4" w:space="{side}" w:color="{tint}" />'
-       '</w:pBdr><w:shd w:val="clear" w:color="auto" w:fill="{tint}" />').format(
-    top=round(pt(.9)), side=LEFT, bottom=round(pt(1)), tint=TINT, accent=ACCENT)
-INDENT = '<w:ind w:left="{}" w:right="{}" />'.format(twips(LEFT + 3), twips(LEFT))
-BLOCK_GAP = twips(pt(1.5))    # .question { margin: 1.5rem 0; }
 
 STYLES = (
     '<w:style w:type="paragraph" w:styleId="Header"><w:name w:val="header" />'
@@ -101,17 +84,12 @@ STYLES = (
     '<w:pPr><w:spacing w:after="0" /></w:pPr>'
     '<w:rPr><w:sz w:val="16" /><w:szCs w:val="16" /></w:rPr></w:style>'
     '<w:style w:type="paragraph" w:customStyle="1" w:styleId="QuestionLabel">'
-    '<w:name w:val="Question Label" /><w:basedOn w:val="BodyText" /><w:next w:val="Question" /><w:qFormat />'
-    '<w:pPr><w:keepNext /><w:keepLines />' + BOX
-    + '<w:spacing w:before="{}" w:after="{}" w:line="240" w:lineRule="auto" />'.format(BLOCK_GAP, twips(pt(.35)))
-    + INDENT + '</w:pPr>'
+    '<w:name w:val="Question Label" /><w:basedOn w:val="BodyText" /><w:next w:val="BodyText" /><w:qFormat />'
+    '<w:pPr><w:keepNext /><w:keepLines />'
+    + '<w:spacing w:before="0" w:after="{}" w:line="240" w:lineRule="auto" />'.format(twips(pt(.35)))
+    + '</w:pPr>'
     # .question-label p: .8rem (9 pt), letter-spacing .08em, --quiet.
     '<w:rPr><w:caps /><w:color w:val="0D5257" /><w:spacing w:val="14" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr>'
-    '</w:style>'
-    '<w:style w:type="paragraph" w:customStyle="1" w:styleId="Question">'
-    '<w:name w:val="Question" /><w:basedOn w:val="BodyText" /><w:next w:val="BodyText" /><w:qFormat />'
-    '<w:pPr><w:keepNext /><w:keepLines />' + BOX
-    + '<w:spacing w:before="0" w:after="{}" />'.format(BLOCK_GAP) + INDENT + '</w:pPr>'
     '</w:style>')
 
 
@@ -169,7 +147,7 @@ def edit(name, data):
         text = once(r"<w:sectPr>", text, "<w:sectPr>" + refs)
         text = once(r"</w:footnotePr>", text, "</w:footnotePr>" + PAGE)
     elif name == "word/styles.xml":
-        for style_id in ("Header", "Footer", "QuestionLabel", "Question"):
+        for style_id in ("Header", "Footer", "QuestionLabel"):
             if 'w:styleId="{}"'.format(style_id) in text:
                 raise SystemExit("Pandoc's default already has the {} style; review this tool".format(style_id))
         for style_id, new in (("BodyText", BODY_SPACING), ("Compact", ITEM_SPACING)):
