@@ -1218,3 +1218,4 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: keep Pandoc's TeX and declare each difference (the page would show the misreads); normalize the misreads away (the check would stop seeing them).
 - binds: docs/conversion-spec.md (S5, Equation rule); tools/check_unchanged.py (pass 2a PR 1); tests/test_downloads.py (pass 2b: equations compared apart from the plain-writer words); D-0082; D-0092
 - test: PR 1's equation fixtures: a dropped, swapped, changed or kind-changed equation fails; an empty `\sqrt{}` in place of a typed "√" fails
+- corrected: 2026-10-07, the rationale's count: under call 4.2 as written, 17 equations differ, 10 of them normalization only (the minus sign, a zero-width space), 6 Pandoc misreads, and 1 inside the drawn figure; not 13 and seven. The spec's 315 of 322 stands.
