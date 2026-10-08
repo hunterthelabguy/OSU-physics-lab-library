@@ -24,7 +24,10 @@ Quarto internals.
   `verify` (charter floor 4), squash merge. Ledger and spec-only commits may
   land direct on `main`, and every push to `main` deploys production: read
   that run once it reports (`gh run list --branch main`), since no PR tool
-  watches it (a failed alias check went unread for a session, 2026-10-01). Merging on GitHub stamps the account's primary email
+  watches it (a failed alias check went unread for a session, 2026-10-01).
+  Merge one PR at a time and read main's run before the next: two merges
+  four seconds apart raced their deploys, and the first run's alias check
+  read the second's files (2026-10-08). Merging on GitHub stamps the account's primary email
   as merge author, which the owner accepts (ledger 36). Nothing on GitHub
   enforces this rule: a private repo on the free plan has no rulesets or
   branch protection (API 403, 2026-10-02), so the gate is this file.

@@ -175,6 +175,49 @@ Moved from `CLAUDE.md` on 2026-10-08, verbatim.
   (null-guarded, silent). Quarto adds table classes inside `<main>` on
   how-this-was-made: the styles match, the markup is not byte-identical,
   and `test_bodies_unchanged` covers lab pages only.
+  Measured 2026-10-08 (pass 3) on converted labs' builds: `h4` (D-0120);
+  `table`, `th`, `td` (D-0130: Quarto adds Bootstrap's `table` class to a
+  Pandoc table and `html-table-processing: none` does not stop it, so the
+  quarto-only block points Bootstrap's margin, padding and rule width at
+  the theme's `--table-gap` and `--cell-pad`); `blockquote` (Bootstrap's
+  and Quarto's rule, padding, grey and size reverted); a table's
+  `table-scroll` box (media.lua, HTML only). Each equal to the download at
+  375 and 1440 px, except the table's width (100% on the page, Pandoc's 99%
+  in the download). `test_main_is_the_line_then_the_modern_pages` sets
+  aside the markup Quarto rewrites (table and row attributes, the
+  blockquote class, HTML5 void elements, entities).
+
+## Converting a handout (pass 3's recipe)
+
+Used for PH 211 Labs 2 to 7 by one Sonnet subagent per lab in its own
+worktree (D-0119); the main session kept the shared files and the review.
+
+- Copy the original from D-0084's in-scope list to the scratchpad, re-hash
+  it against the survey (D-0085), strip it into `originals/<COURSE>/` with
+  `tools/strip_identity.py`, and record both hashes in the PR's entry
+  (D-0086).
+- Draft with `$PANDOC -f docx -t markdown-smart --wrap=none` (`-s` once for
+  the Title). Read the structure from the Word XML: each body paragraph's
+  style, list (numId, level, format, glyph and font), anchored or inline
+  drawings with docPr ids, tables with their alt text. The script that
+  printed this lived in the scratchpad; rewrite it (about 150 lines of
+  standard-library Python) rather than trust Pandoc's lists.
+- Markup: the spec's rules, its "Pass 3 additions" (headings, box alt text,
+  math-font text, second lists, Symbol-font text, dead links,
+  indentation), round bullets as `::: action` and arrows as `::: hint` by
+  glyph, question styles' bold written as `**...**` until the word check
+  agrees, pictures only from `tools/media.py extract`.
+- Iterate `tools/check_unchanged.py` and `tools/check_numbers.py` to `ok`;
+  fix the Markdown, never the checks. A check or test a lab cannot pass
+  lands as its own PR first, with made-up fixtures (D-0119, call 4).
+- Shared files after rebasing on main: the lab's ids in
+  `tests/question-ids.json` and its cap in `HTML_CAPS`, each inserted in
+  sorted order (parallel PRs then touch different lines), the `document`
+  key on its course row; build, measure the HTML download, and set the cap
+  at 1.10 times, rounded up to 10,000.
+- Review (D-0090): screenshot the PR preview's page at 375 px (scroll width
+  equals client width, labels, pictures loaded) and look at the PDF pages
+  with tables, figures and boxes.
 
 ## Drawn figures (S13)
 

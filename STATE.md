@@ -2,6 +2,20 @@
 
 Volatile handoff, capped at one screen. Updated 2026-10-08.
 
+**Pass 3 (2026-10-08): PH 211 Labs 2 to 7 merged; the hardest two held.**
+- Merged: PH 211 Lab 6 #40, Lab 5 #42, Lab 4 #44, Lab 7 #41, Lab 3 #48,
+  Lab 2 #49 (subagent conversions, reviewed). Tool PRs first, each with
+  made-up fixtures (D-0119 call 4): tests #36, number check #38 (D-0122),
+  Symbol font and course zip #39 (D-0123), table grid #43 (D-0130), font
+  test #45, print test #46, block quotes #47, table scroll #50.
+- Held: #37, PH 212 Lab 3 and PH 213 Lab 2, for the owner's Word and
+  Google Docs check (D-0090, D-0119 call 1); rebased on main, green.
+- Ruled this pass: D-0119 (seven PRs), D-0120 (Heading 1 outline, math-font
+  text, box alt text, Q15 photo as is), D-0122, D-0123, D-0130. Proposed:
+  D-0121 and D-0124 to D-0129 (hash records).
+- Seen, not changed: PH 211 Lab 2's PDF ends page 10 on its table's label
+  "Distance (m)", the table on page 11 (a print rule could keep them).
+
 **Pass 2b (2026-10-08): merged, #35 `25b6283`; 286 tests.**
 - LibreOffice measured, not faithful (no label survives); our own
   `tools/figures.py` instead (D-0117, ruled). Within 0.11 pt of Word's
