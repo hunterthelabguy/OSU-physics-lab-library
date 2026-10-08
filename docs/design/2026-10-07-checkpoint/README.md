@@ -12,7 +12,7 @@ https://claude.ai/artifact/P99gGBPsZWzEPYmhKB2aJF (private).
 - C (lean): Candela fill and a Luminance rule; in dark, the dark tint and a
   Luminance rule.
 
-Decision: none yet. PR 2 of pass 2a (D-0112) builds the owner's pick in the
+Decision: C, ruled 2026-10-07 (D-0115). PR 2 of pass 2a (D-0112) builds it in the
 page and the Word download, and pins it in `tests/test_brand.py`.
 
 A mockup, never the source of truth for what the site does.

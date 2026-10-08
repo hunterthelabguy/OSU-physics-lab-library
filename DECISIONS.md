@@ -1210,8 +1210,9 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - test: PR 1's fixtures: a question number differing from Word's fails; a checkpoint where Word has one passes with no number compared; an unplaceable anchor fails; a content-parts hash with no match fails
 
 ### D-0113  Equation rule: Pandoc's TeX, corrected where its round trip to Word's equation differs; the comparison reads OMML's attribute characters
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: The probe D-0082 orders ran on all 19 handouts (322 equations) and its rule is in `docs/conversion-spec.md`, "Equation rule". The Word writer and the HTML writer with `--mathml` warn on none; only the plain writer warns (66 warnings in 15 handouts), and no build step uses it. A converted source keeps Pandoc's TeX except where its round trip to OMML differs from Word's equation; there the TeX is corrected to Word's characters and structure: a typed "√" and a typed "°" stay characters (Pandoc reads them as an empty `\sqrt{}` and a superscript `\circ`), and a delimiter stays `\left...\right`. Six equations in four handouts need it. The comparison is four-items call 4.2's, amended: OMML's attribute characters (delimiters, n-ary operator, accent, group character) are read into the text; normalization adds U+002D to U+2212 and drops U+200B; the structure signature counts 18 kinds and leaves out `m:func`. PH 213 Lab 2's one equation inside the photograph's labels is the figure's (S13, pass 2b), not `Math`.
 - rationale: Under call 4.2 as written, 13 equations differ; seven are normalization only (the minus sign, a zero-width space Pandoc's writer puts in empty limits), and six are Pandoc misreads that change what a student sees (an empty radical, a ring for a degree sign, lost bars). Correcting the TeX keeps the check strict and the page true to Word; loosening the compare to pass them would let the same misreads through silently. Each correction was round-tripped and equals Word's text and structure, with no warning from either writer.
@@ -1219,13 +1220,27 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - binds: docs/conversion-spec.md (S5, Equation rule); tools/check_unchanged.py (pass 2a PR 1); tests/test_downloads.py (pass 2b: equations compared apart from the plain-writer words); D-0082; D-0092
 - test: PR 1's equation fixtures: a dropped, swapped, changed or kind-changed equation fails; an empty `\sqrt{}` in place of a typed "√" fails
 - corrected: 2026-10-07, the rationale's count: under call 4.2 as written, 17 equations differ, 10 of them normalization only (the minus sign, a zero-width space), 6 Pandoc misreads, and 1 inside the drawn figure; not 13 and seven. The spec's 315 of 322 stands.
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("C, promote D-0113 and D-0114, wording 1-7 as drafted. Word and Google Docs appear clean--nice work.")
 
 ### D-0114  PH 211 Lab 1's committed original is stripped of its identity parts; both hashes recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-07
 - decision: Under D-0086 and D-0112's call 2, pass 2a's PR 1 replaces `originals/PH211/Lab 1 - Team Building - Handout.docx` with its stripped copy, made by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` removed from `docProps/core.xml`, `Company` and `Template` from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `49617ff874c0e2147a73bbfb39db38272e53be360ae10430a17e6a5358608091` (the survey's and `docs/word-labels.json`'s); stripped `aed082da8a25ecd8b5adc75dae1aa696c9d7d1503df4bb196cc8996c9e01fd00`, now the lab's `source_sha256`. The word check still reads 989 words identical and bold on 943; the number check finds Word's labels by the unchanged content parts. Its `customXml` parts hold Google Docs' round-trip data, which D-0086 does not list and which names no one. The file's history before this commit is D-0062's question. The instructor repo's originals are stripped by a PR there.
 - rationale: D-0086 (ruled) and D-0112 (ruled): "Three PRs, calls 1, 2, and 3 leans agreed."
 - alternatives: waiting for pass 3's first stripped original (D-0112, call 2).
 - binds: D-0086; D-0112; curriculum/ph211/ph211-team-building-handout.md; originals/PH211
 - test: CI's content check on PH 211 Lab 1 (hash, words, bold); tests/test_strip_identity.py
+- corrected: 2026-10-07, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("C, promote D-0113 and D-0114, wording 1-7 as drafted. Word and Google Docs appear clean--nice work.")
+
+### D-0115  The checkpoint block is Candela with a Luminance rule; the Word question box passes the owner's check in Word and Google Docs; the retirement wording is ruled as drafted
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-07
+- decision: (1) Checkpoint colour, option C of `docs/design/2026-10-07-checkpoint/`: on the light page a Candela (#FDD26E) fill and a Luminance (#FFB500) rule; on the dark page the dark tint with a Luminance rule; in print a black rule and no fill, as a question; in the Word download a one-cell table with the light page's fill and rule. Built in pass 2a's PR 2 and pinned in `tests/test_brand.py`. (2) The one-cell shaded table that PR 2 draws for each question in the Word download passes the owner's check in Word and in Google Docs, as D-0082 required, reopening D-0057's; recorded as D-0057's check was. (3) The public wording of `docs/superpowers/plans/2026-10-07-faithful-retirement-wording.md`, passages 1 to 7, is ruled as drafted and ships in PR 3 with the retirement (D-0108).
+- rationale: The owner, 2026-10-07: "C, promote D-0113 and D-0114, wording 1-7 as drafted. Word and Google Docs appear clean--nice work." Option C was the board's lean: yellow is the caution colour his "WARNING/PAY ATTENTION/DO THIS" (D-0109) asks for, and it is the one option that differs from the question box by fill, where A and B differed from its orange rule by hue alone (1.15:1, 1.05:1). Text on Candela: black 14.62:1, the Rogue Wave label 6.19:1; the Luminance rule on the dark tint 9.07:1.
+- alternatives: A, Pine Stand rule on the question's tint; B, High Tide rule on the question's tint.
+- binds: D-0057; D-0082; D-0108; D-0109; D-0110; themes/modern.css; tools/downloads.py; tools/filters/questions.lua; tests/test_brand.py; VISION.md; site/landing.md; site/how-this-site-works.md
+- test: PR 2: the checkpoint tokens equal the two palette values and meet their contrasts; a checkpoint renders in a Candela box in Word. PR 3: the ruled passages are on the built pages.
