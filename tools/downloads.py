@@ -50,14 +50,19 @@ def markdown(doc, dest):
 
 
 def box_colours():
-    """The Word question box's rule and fill: the modern page's --accent and
-    --tint, from the light :root block of themes/modern.css (D-0057, D-0082),
-    as Pandoc metadata for tools/filters/questions.lua."""
+    """The Word boxes' rules and fills, from the light :root block of
+    themes/modern.css, as Pandoc metadata for tools/filters/questions.lua: a
+    question's --accent and --tint (D-0057, D-0082), a checkpoint's
+    --checkpoint-rule and --checkpoint-fill (D-0115)."""
     with open(os.path.join(render.ROOT, "themes", THEME + ".css"), encoding="utf-8") as fh:
         root = re.search(r":root\s*\{(.*?)\}", fh.read(), re.S).group(1)
     tokens = dict(re.findall(r"(--[\w-]+):\s*#([0-9a-fA-F]{6})\b", root))
-    return ["-M", "box-rule=" + tokens["--accent"].upper(),
-            "-M", "box-fill=" + tokens["--tint"].upper()]
+    meta = {"box-rule": "--accent", "box-fill": "--tint",
+            "checkpoint-rule": "--checkpoint-rule", "checkpoint-fill": "--checkpoint-fill"}
+    args = []
+    for key, token in meta.items():
+        args += ["-M", key + "=" + tokens[token].upper()]
+    return args
 
 
 def word(doc, dest):

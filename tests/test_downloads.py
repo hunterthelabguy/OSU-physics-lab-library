@@ -283,6 +283,27 @@ class MarkdownAndWord(unittest.TestCase):
             self.assertIn(words, inside)
         self.assertNotIn("After.", inside)
 
+    def test_word_checkpoint_is_its_own_box(self):
+        # D-0110, D-0115: "Checkpoint 1" in a one-cell table with the light
+        # page's Candela fill and Luminance rule, then "Question 1" in the
+        # question's own colours.
+        body = "::: {.checkpoint #c}\nExchange contacts.\n:::\n\n::: {.question #a}\n**Why?**\n:::\n"
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "probe.docx"
+            subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
+                            "-M", "theme=modern", *downloads.box_colours(),
+                            "--reference-doc", downloads.REFERENCE_DOCX, "-o", str(out)],
+                           input=body, check=True, capture_output=True, encoding="utf-8")
+            with zipfile.ZipFile(out) as z:
+                doc = z.read("word/document.xml").decode("utf-8")
+        checkpoint, question = re.findall(r"<w:tbl>.*?</w:tbl>", doc, re.S)
+        fill, rule = (MODERN_ROOT[k].lstrip("#").upper() for k in ("--checkpoint-fill", "--checkpoint-rule"))
+        self.assertIn("Checkpoint 1", checkpoint)
+        self.assertRegex(checkpoint, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(fill))
+        self.assertRegex(checkpoint, r'<w:left\b(?=[^>]*\bw:color="{}")'.format(rule))
+        self.assertIn("Question 1", question)
+        self.assertRegex(question, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(MODERN_ROOT["--tint"].lstrip("#").upper()))
+
     def test_word_box_without_its_colours_fails(self):
         # The filter never guesses a colour: a Word render without them stops.
         r = subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
