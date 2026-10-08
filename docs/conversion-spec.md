@@ -58,6 +58,10 @@ column lapses; S1 at the top level is a checkpoint (D-0109, D-0110).
 Amended 2026-10-08 (pass 2b; D-0117, D-0118): S12 and S13 as built, below
 the table under "Pictures and drawn figures".
 
+Amended 2026-10-08 (pass 3; D-0120, D-0122): headings, box alt text and the
+number check's places for second lists, under "Pass 3 additions" below the
+table.
+
 | | Source | Faithful page | Modern page | Word download | Template |
 |---|---|---|---|---|---|
 | S1 top level | `::: {.checkpoint #id}` (D-0109, D-0110); counted apart from questions | (retired, D-0108) | "Checkpoint N" on its own count, in a question-like block of another palette colour (chosen on a board); questions keep Word's numbers | The same label and block | Left out |
@@ -78,6 +82,26 @@ the table under "Pictures and drawn figures".
 | S15 | Not converted: page numbers and running headers (outside `document.xml`, so the word check loses nothing). The contents field becomes a list of links to the same headings, words unchanged. SEQ numbers stay text as stored. A content control's text stays plain text; empty controls vanish. The SYMBOL field gives what Word displays (section 6) | As listed | As listed | As listed | Absent |
 | S16 | No markup; recorded in the table | | | | Pass 6 rules each lab's scope on this evidence (D-0085) |
 | S17 | The owner's ruling before those conversions (section 7) | | | | |
+
+## Pass 3 additions (D-0120, D-0122)
+
+- **Headings.** The Word Title is the page's one `#`. Where the Word file
+  uses no Heading 1, Heading 2 is `##` and Heading 3 `###`. Where it uses
+  Heading 1 (Week and Appendix headings: PH 212 Lab 3, PH 211 Labs 3 and 7),
+  Word's outline moves down one level whole: Heading 1 `##`, Heading 2
+  `###`, Heading 3 `####`, so a Part stays under its Week (WCAG 1.3.1).
+  Empty headings are dropped.
+- **Box alt text.** Pandoc writes a one-cell table's Word alt text as a
+  caption Word never shows; it repeats the box's words and is dropped.
+- **Math-font text.** Characters an original types as text in its math font
+  (Mathematical Alphanumeric Symbols, U+2206) stay as typed; the reader's
+  math font sets them (`tests/test_fonts.py`).
+- **Second lists (S11 and parts).** The number check matches an `xN`
+  anchor in document order by its label: a question's parts drawn from a
+  second list are written as its parts; a second list of report items is
+  an ordered list inside `::: report-item`. A list Word numbers from its
+  question list outside any question is wrapped in
+  `::: {.numbered anchors="oN.0.1 ..."}`, which shows nothing.
 
 ## Pictures and drawn figures (S12, S13; pass 2b, D-0117, D-0118)
 
