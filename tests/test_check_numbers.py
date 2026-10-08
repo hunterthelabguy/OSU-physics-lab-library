@@ -111,9 +111,63 @@ class NumberCheck(unittest.TestCase):
         problems = self.run_fixture(split, labels)
         self.assertTrue(any("part label differs" in p for p in problems), problems)
 
-    def test_anchor_outside_the_question_lists_fails(self):
+    def test_anchor_outside_the_question_lists_with_nothing_to_meet_fails(self):
         problems = self.run_fixture(q("a"), [["o1", "1)"], ["x1", "1."]])
+        self.assertTrue(problems)
         self.assertTrue(any("x1" in p for p in problems), problems)
+
+    def test_second_list_parts_compare_by_label(self):
+        # D-0122 (1): PH 211 Lab 3's x1 to x3, a question's parts drawn from
+        # a second list.
+        labels = [["o1", "1)"], ["x1", "a."], ["x2", "b."], ["o2", "2)"]]
+        self.assertEqual(self.run_fixture(q("a", "a.  one\nb.  two") + q("b"), labels), [])
+        wrong = [["o1", "1)"], ["x1", "a."], ["x2", "c."], ["o2", "2)"]]
+        problems = self.run_fixture(q("a", "a.  one\nb.  two") + q("b"), wrong)
+        self.assertTrue(any("x2" in p and "label differs" in p for p in problems), problems)
+
+    def test_report_item_list_compares_by_label(self):
+        # D-0122 (2): PH 211 Lab 6's x1 to x4, bold report items (S11).
+        labels = [["o1", "1)"], ["x1", "1."], ["x2", "2."], ["o2", "2)"]]
+        body = q("a") + "::: report-item\n1.  **First.**\n2.  **Second.**\n:::\n\n" + q("b")
+        self.assertEqual(self.run_fixture(body, labels), [])
+        # Unmarked, the list is not read and Word's x1, x2 meet question 2.
+        unmarked = q("a") + "1.  **First.**\n2.  **Second.**\n\n" + q("b")
+        self.assertTrue(self.run_fixture(unmarked, labels))
+        # A report item's list where Word's question list numbers fails.
+        wrong = [["o1", "1)"], ["o1.1", "a."], ["o2", "2)"]]
+        problems = self.run_fixture(q("a") + "::: report-item\na.  x\n:::\n\n" + q("b"), wrong)
+        self.assertTrue(any("report item" in p for p in problems), problems)
+
+    def test_numbered_list_names_its_anchors(self):
+        # D-0122 (3): PH 211 Lab 3's appendix contents, o14.0.1 and o14.0.2.
+        labels = [["o1", "1)"], ["o1.0.1", "1."], ["o1.0.2", "2."]]
+        good = q("a") + '::: {.numbered anchors="o1.0.1 o1.0.2"}\n1.  One\n2.  Two\n:::\n'
+        self.assertEqual(self.run_fixture(good, labels), [])
+        for body, said in (
+                (q("a") + '::: {.numbered anchors="o1.0.1 o1.0.2"}\nA.  One\nB.  Two\n:::\n', "label differs"),
+                (q("a") + '::: {.numbered anchors="o1.0.1 o1.0.2"}\n1.  One\n:::\n', "list ends first"),
+                (q("a") + '::: {.numbered anchors="o1.0.1"}\n1.  One\n2.  Two\n:::\n', "no anchor named"),
+                (q("a") + '::: {.numbered anchors="o1.0.1 o1.0.9"}\n1.  One\n2.  Two\n:::\n', "do not have"),
+                (q("a") + "1.  One\n2.  Two\n", "to place")):
+            with self.subTest(said=said):
+                problems = self.run_fixture(body, labels)
+                self.assertTrue(any(said in p for p in problems), problems)
+
+    def test_real_ph211_lab3_and_lab6_skeletons(self):
+        # Word's real labels against skeletons marked up as D-0122 says.
+        lab3 = (q("q1") + q("q2") + q("q3") + q("q4") + q("q5") + q("q6") + q("q7") + q("q8")
+                + q("q9", "a.  x") + q("q10", "a.  x\nb.  y") + q("q11", "a.  x\nb.  y") + q("q12")
+                + q("q13", "a.  x\nb.  y\nc.  z") + q("q14")
+                + '::: {.numbered anchors="o14.0.1 o14.0.2"}\n1.  Plots\n2.  Linearization\n:::\n')
+        lab6 = (q("q1", "a.  x\nb.  y") + q("q2") + q("q3") + q("q4")
+                + "::: report-item\n1.  **a**\n2.  **b**\n3.  **c**\n4.  **d**\n:::\n\n"
+                + q("q5") + q("q6", "a.  x\nb.  y\nc.  z") + q("q7", "a.  x\nb.  y"))
+        for key, body in (("PH211/Handouts/Lab 3", lab3), ("PH211/Handouts/Lab 6", lab6)):
+            with self.subTest(lab=key), tempfile.TemporaryDirectory() as d:
+                md = Path(d) / "lab.md"
+                md.write_text(body, encoding="utf-8", newline="\n")
+                items = check_numbers.rendered_items(str(md))
+                self.assertEqual(check_numbers.compare(record(key)["labels"], items), [])
 
     def test_no_record_for_the_original_fails(self):
         f = Fixture(q("a"), [["o1", "1)"]])
