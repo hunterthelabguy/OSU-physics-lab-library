@@ -86,13 +86,29 @@ def run(cmd, **kw):
 
 
 def pandoc_meta(md_path):
-    """Front matter as plain data, read by Pandoc so YAML needs no library."""
+    """Front matter as plain data, read by Pandoc so YAML needs no library.
+
+    The HTML writer escapes each value ("&" becomes "&amp;"), and every
+    caller escapes what it writes, so the values are unescaped here once:
+    a PH 212 title, "Sharing & Comparing", showed as "&amp;" (2026-10-07).
+    """
     out = subprocess.run(
         [PANDOC, md_path, "-f", "markdown-smart", "-t", "html",
          "--template", os.path.join(ROOT, "tools", "meta.template")],
         check=True, capture_output=True, text=True, encoding="utf-8",
     ).stdout
-    return json.loads(out)
+    return plain_text(json.loads(out))
+
+
+def plain_text(value):
+    """Every string in a JSON value, HTML character references resolved."""
+    if isinstance(value, str):
+        return html.unescape(value)
+    if isinstance(value, list):
+        return [plain_text(v) for v in value]
+    if isinstance(value, dict):
+        return {k: plain_text(v) for k, v in value.items()}
+    return value
 
 
 def body_after_front_matter(md_path):
