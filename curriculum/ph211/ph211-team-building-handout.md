@@ -7,7 +7,7 @@ audience: student
 visibility: public
 layer: curriculum
 source_file: "originals/PH211/Lab 1 - Team Building - Handout.docx"
-source_sha256: "49617ff874c0e2147a73bbfb39db38272e53be360ae10430a17e6a5358608091"
+source_sha256: "aed082da8a25ecd8b5adc75dae1aa696c9d7d1503df4bb196cc8996c9e01fd00"
 status: converted
 ---
 
