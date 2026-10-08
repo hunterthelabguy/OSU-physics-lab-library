@@ -16,6 +16,12 @@
 -- made from that SVG, at the SVG's size, its alt text Word's for the figure
 -- and for each picture in it.
 --
+-- A table (D-0130) is wrapped, in HTML only, in a `table-scroll` box the
+-- theme scrolls sideways, so a table wider than a phone (PH 211 Lab 2's
+-- eleven columns) scrolls in its box and the page itself never does (WCAG
+-- 1.4.10); the box takes the keyboard's focus so the scroll is reachable
+-- without a pointer (2.1.1). Word gets the table as Pandoc writes it.
+--
 -- Metadata: `media-dir`, the folder holding the lab's built media (needed
 -- for a figure), and `media-prefix`, put before a picture's path on a page
 -- that sits below the media folder's parent ("../" on labs/<id>/modern/).
@@ -105,6 +111,11 @@ return {
         return pandoc.RawInline("html", picture_html(el))
       elseif FORMAT == "docx" and drawn then
         return figure_docx(el)
+      end
+    end,
+    Table = function(el)
+      if FORMAT:match("html") then
+        return pandoc.Div({ el }, pandoc.Attr("", { "table-scroll" }, { tabindex = "0" }))
       end
     end,
   },

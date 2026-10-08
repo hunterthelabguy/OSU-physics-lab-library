@@ -85,6 +85,8 @@ th, td {
   vertical-align: top;
 }
 th { font-weight: 700; }
+.table-scroll { overflow-x: auto; }  /* a wide table scrolls, not the page */
+a { overflow-wrap: anywhere; }       /* a long address as link text wraps */
 
 blockquote > :last-child { margin-bottom: 0; }   /* the quote's own margin ends it */
 
@@ -190,4 +192,5 @@ main img, main svg.drawn-figure { max-width: 100%; height: auto; }
   .question, .checkpoint, .box, svg.drawn-figure, .picture-crop { break-inside: avoid; }
   h1, h2, h3, h4 { break-after: avoid; }
   th, td { border-color: #000; }
+  .table-scroll { overflow: visible; }
 }
