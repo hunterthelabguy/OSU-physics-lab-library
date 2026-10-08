@@ -29,6 +29,7 @@ courses:
       - number: "3"
         title: "Uncertainty"
         description: "Measure a ball rolling off a ramp to understand measurement and statistical uncertainties."
+        document: "ph211-uncertainty-handout"
       - number: "4"
         title: "Hypothesis Testing"
         description: "Measure distance of a ball off a ramp to test two supplied hypotheses"
