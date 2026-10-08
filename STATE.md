@@ -12,9 +12,23 @@ entered as D-0074 to D-0092 (ruled 2026-10-07) and D-0093 to D-0098 (declined,
 passes (D-0082): 1 survey, 2a checks, 2b downloads, 3 the hardest two then
 PH 211, 4 PH 212, 5 PH 213, 6 template, 7 cross-reference; recounted after
 the survey. Templates target Winter 2027 and slip if conversion does
-(D-0080). Next: pass 1, the survey (its gate, the promotion, is met);
-nothing is converted or built before pass 1's markup rules and counts. Probe parameters are in D-0079; the probe files stay in
+(D-0080). Probe parameters are in D-0079; the probe files stay in
 the ignored `build/probe-report-template/`.
+
+**Pass 1 done 2026-10-07, awaiting rulings.** The survey is
+`docs/handout-survey.md` (D-0100, proposed). Its findings:
+- nine of 19 handouts are not simple under D-0078;
+- a fourth numbering feature, Pandoc reading style-set parts as questions in
+  PH 212 Labs 1, 2, 3 and 5;
+- one em dash (PH 212 Lab 2);
+- two items a public repo must not carry (PH 212 Labs 2 and 6);
+- hardest two: PH 212 Lab 3 and PH 213 Lab 2;
+- a recount of eight passes in seven sessions (lean).
+
+PR #30 (`35310ce`, D-0099 proposed) put PH 212's and PH 213's lists on
+their course pages, ignored `.superpowers/`, and fixed `pandoc_meta`'s
+double escaping. Nothing is converted, stripped or built. Next: the owner's
+rulings (survey sections 3, 5 to 7, 9, 10), then 2a and 2b.
 
 **Focus (2026-10-01):** Phase 5 cutover done. Production is the Quarto build
 on Cloudflare Pages, `https://osu-physics-labs.pages.dev/` (project
@@ -104,6 +118,15 @@ course pages replaced item 1 and calls 2.1 and 2.2, and D-0071 built item
 (Q10) and a busy state (Q11) remain, as do items 4a and 4b.
 
 **Awaiting owner:**
+- From pass 1 (`docs/handout-survey.md`):
+  - the markup rules (section 5);
+  - the look in Word for the nine handouts that are not simple (section 3);
+  - how pass 2a reads Word's numbering;
+  - the em-dash rule and PH 213 Lab 5's symbol (section 6);
+  - PH 212 Lab 2's activation code and Lab 6's OneDrive link (section 7);
+  - the hardest two (section 9) and the recount (section 10);
+  - four-items Q4, now for PH 212 too;
+  - promote D-0099 and D-0100.
 - Line-edit and approve the "How this site works" draft (D-0072); say
   whether the landing page's stale download lines ride in the same PR.
 - How a CSV or a simulation attaches to a lab, and whether the sims catalog
