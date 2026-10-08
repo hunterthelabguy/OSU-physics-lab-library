@@ -198,5 +198,32 @@ class PaletteOnly(unittest.TestCase):
         self.assertEqual(sorted(found - PALETTE), [])
 
 
+class CheckpointColours(unittest.TestCase):
+    """D-0115: the checkpoint block is Candela with a Luminance rule on the
+    light page, the dark tint with a Luminance rule on the dark page."""
+
+    MODERN = re.sub(r"/\*.*?\*/", "", (ROOT / "themes" / "modern.css").read_text(encoding="utf-8"), flags=re.S)
+
+    def tokens(self, pattern):
+        block = re.search(pattern, self.MODERN, re.S).group(1)
+        return {k: norm_hex(v) for k, v in re.findall(r"(--[\w-]+)\s*:\s*(#[0-9a-fA-F]{3,6})\s*;", block)}
+
+    def test_light_is_candela_and_luminance(self):
+        light = self.tokens(r":root\s*\{(.*?)\}")
+        self.assertEqual(light["--checkpoint-rule"], LUMINANCE)
+        self.assertEqual(light["--checkpoint-fill"], "FDD26E")    # Candela
+        self.assertLessEqual({light["--checkpoint-rule"], light["--checkpoint-fill"]}, PALETTE)
+        # Text on the fill: the body's ink and the label's --quiet.
+        self.assertGreaterEqual(contrast(light["--ink"], light["--checkpoint-fill"]), AA_NORMAL)
+        self.assertGreaterEqual(contrast(light["--quiet"], light["--checkpoint-fill"]), AA_NORMAL)
+
+    def test_dark_rule_shows_on_the_dark_tint(self):
+        dark = self.tokens(r":root:not\(\[data-theme=\"light\"\]\)\s*\{(.*?)\}")
+        light = self.tokens(r":root\s*\{(.*?)\}")
+        self.assertEqual(dark["--checkpoint-fill"], dark["--tint"])
+        self.assertNotIn("--checkpoint-rule", dark, "the rule stays Luminance")
+        self.assertGreaterEqual(contrast(light["--checkpoint-rule"], dark["--checkpoint-fill"]), 3)
+
+
 if __name__ == "__main__":
     unittest.main()

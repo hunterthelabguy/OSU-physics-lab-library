@@ -12,6 +12,8 @@
   --rule: #d6dbe0;
   --quiet: #0d5257;          /* Rogue Wave, 8.9:1 on white */
   --tint: #f4f7f9;
+  --checkpoint-rule: #ffb500; /* Luminance (D-0115) */
+  --checkpoint-fill: #fdd26e; /* Candela: black 14.6:1, --quiet 6.2:1 */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,6 +24,7 @@
     --rule: #33393f;
     --quiet: #c6dae7;        /* Moondust */
     --tint: #1c2227;
+    --checkpoint-fill: #1c2227; /* the dark tint; Luminance rule 9.1:1 on it */
   }
 }
 
@@ -67,8 +70,10 @@ ul, ol { padding-left: 1.4rem; }
 li { margin: 0 0 .5rem; }
 
 /* One cue, one meaning: graded questions are a labeled block, so bold is
-   free to mean emphasis again (ledger 29). */
-.question {
+   free to mean emphasis again (ledger 29). A checkpoint, a numbered item
+   needing no answer, is the same block in the caution colours (D-0110,
+   D-0115); its label word, not its colour, tells it from a question. */
+.question, .checkpoint {
   border-left: 4px solid var(--accent);
   background: var(--tint);
   padding: .9rem 1.1rem .1rem;
@@ -76,7 +81,12 @@ li { margin: 0 0 .5rem; }
   border-radius: 0 6px 6px 0;
 }
 
-.question-label p {
+.checkpoint {
+  border-left-color: var(--checkpoint-rule);
+  background: var(--checkpoint-fill);
+}
+
+.question-label p, .checkpoint-label p {
   font-size: .8rem;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -84,7 +94,7 @@ li { margin: 0 0 .5rem; }
   margin: 0 0 .35rem;
 }
 
-.question > p { margin-bottom: .9rem; }
+.question > p, .checkpoint > p { margin-bottom: .9rem; }
 
 /* Actions and hints keep their meanings, marked by a label rather than a
    bullet glyph the reader has to decode. */
@@ -148,8 +158,8 @@ li { margin: 0 0 .5rem; }
 @media print {
   body { font-size: 11pt; }
   main { max-width: none; padding: 0; }
-  .question { background: none; border-left: 3px solid #000; }
+  .question, .checkpoint { background: none; border-left: 3px solid #000; }
   .doc-footer { display: none; }
-  .question, .box { break-inside: avoid; }
+  .question, .checkpoint, .box { break-inside: avoid; }
   h1, h2, h3 { break-after: avoid; }
 }

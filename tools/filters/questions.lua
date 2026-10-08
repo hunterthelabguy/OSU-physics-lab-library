@@ -13,16 +13,56 @@
 --   with "N)" exactly as the Word original numbered it.
 -- theme=modern: the block becomes a labeled block ("Question N"), and all its
 --   bold is removed so that bold means emphasis again (ledger 29; D-0101,
---   S4). For Word only, the question's label and paragraphs name the Question
---   Label and Question styles of tools/reference.docx (D-0057); any other
---   output would carry the name into the page as an attribute, so it is never
---   set there.
+--   S4). In Word the block is a one-cell table with the page's rule down the
+--   left and its tint behind (D-0082), so stem, parts, bullets and hints sit
+--   in one box: Pandoc's custom-style never reaches list items (D-0057's
+--   probe). The table is raw OpenXML around Pandoc's own paragraphs; its
+--   colours come from themes/modern.css by way of tools/downloads.py
+--   (`box-rule`, `box-fill`), and the label takes the Question Label style
+--   of tools/reference.docx. Any other output would carry a style name into
+--   the page as an attribute, so it is never set there.
 
 local theme = "modern"
 local questions, checkpoints = 0, 0
+local colours = {}
 
 local function unbold(el)
   return el:walk({ Strong = function(s) return s.content end })
+end
+
+-- themes/modern.css lengths in rem, as twips of Word's 12 pt body, the
+-- proportion tools/make_reference_docx.py keeps (body 1.0625rem = 12 pt).
+local function twips(rem) return math.floor(rem / 1.0625 * 12 * 20 + 0.5) end
+-- Letter less 0.75 in margins each side, tools/reference.docx's page.
+local TEXT_WIDTH = 10080
+
+-- .question { padding: .9rem 1.1rem .1rem; border-left: 4px; margin: 1.5rem 0 }:
+-- the padding as cell margins, the rule as a 3 pt left border on the text
+-- column's edge, and an empty paragraph after it for the bottom margin,
+-- which also keeps two boxes in a row from joining into one table.
+local function word_box(blocks, rule, fill, kind)
+  if not rule or not fill then
+    error("the Word " .. kind .. " box needs its colours; tools/downloads.py passes them")
+  end
+  local side = twips(1.1)
+  local open = '<w:tbl><w:tblPr><w:tblW w:w="' .. TEXT_WIDTH .. '" w:type="dxa"/>'
+    .. '<w:tblInd w:w="' .. side .. '" w:type="dxa"/><w:tblBorders>'
+    .. '<w:top w:val="nil"/><w:left w:val="single" w:sz="24" w:space="0" w:color="' .. rule .. '"/>'
+    .. '<w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/>'
+    .. '</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar>'
+    .. '<w:top w:w="' .. twips(.9) .. '" w:type="dxa"/><w:left w:w="' .. side .. '" w:type="dxa"/>'
+    .. '<w:bottom w:w="' .. twips(.1) .. '" w:type="dxa"/><w:right w:w="' .. side .. '" w:type="dxa"/>'
+    .. '</w:tblCellMar><w:tblLook w:val="0000"/></w:tblPr>'
+    .. '<w:tblGrid><w:gridCol w:w="' .. TEXT_WIDTH .. '"/></w:tblGrid>'
+    .. '<w:tr><w:trPr><w:cantSplit/></w:trPr><w:tc><w:tcPr><w:tcW w:w="' .. TEXT_WIDTH .. '" w:type="dxa"/>'
+    .. '<w:shd w:val="clear" w:color="auto" w:fill="' .. fill .. '"/></w:tcPr>'
+  local gap = '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="' .. twips(1.5)
+    .. '" w:lineRule="exact"/></w:pPr></w:p>'
+  local out = { pandoc.RawBlock("openxml", open) }
+  for _, b in ipairs(blocks) do table.insert(out, b) end
+  table.insert(out, pandoc.RawBlock("openxml", "</w:tc></w:tr></w:tbl>"))
+  table.insert(out, pandoc.RawBlock("openxml", gap))
+  return out
 end
 
 return {
@@ -32,6 +72,9 @@ return {
       -- travels as `theme-name` there; the Pandoc build still sends `theme`.
       local v = meta["theme-name"] or meta.theme
       if v then theme = pandoc.utils.stringify(v) end
+      for _, key in ipairs({ "box-rule", "box-fill", "checkpoint-rule", "checkpoint-fill" }) do
+        if meta[key] then colours[key] = pandoc.utils.stringify(meta[key]) end
+      end
     end,
   },
   {
@@ -71,11 +114,12 @@ return {
       local text = (kind == "question" and "Question " or "Checkpoint ") .. n
       local label = pandoc.Div({ pandoc.Para({ pandoc.Str(text) }) },
         pandoc.Attr("", { kind .. "-label" }))
-      if FORMAT == "docx" and kind == "question" then
-        label.attributes["custom-style"] = "Question Label"
-        el.attributes["custom-style"] = "Question"
-      end
       table.insert(el.content, 1, label)
+      if FORMAT == "docx" then
+        label.attributes["custom-style"] = "Question Label"
+        local prefix = kind == "question" and "box" or "checkpoint"
+        return word_box(el.content, colours[prefix .. "-rule"], colours[prefix .. "-fill"], kind)
+      end
       return el
     end,
   },
