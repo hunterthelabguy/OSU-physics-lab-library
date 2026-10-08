@@ -35,6 +35,7 @@ class Strip(unittest.TestCase):
         app = parts["docProps/app.xml"].decode("utf-8")
         app = app.replace("</Properties>",
                           "<Template>C:\\Users\\someone\\Normal.dotm</Template>"
+                          "<Manager>" + NAME + "</Manager>"
                           "<Company>" + NAME + "</Company></Properties>")
         parts["docProps/app.xml"] = app.encode("utf-8")
         self.parts = parts
@@ -55,7 +56,8 @@ class Strip(unittest.TestCase):
         removed = strip_identity.strip(self.original, out)
         self.assertEqual(sorted(removed), sorted([
             "docProps/core.xml dc:creator", "docProps/core.xml cp:lastModifiedBy",
-            "docProps/app.xml Company", "docProps/app.xml Template"]))
+            "docProps/app.xml Company", "docProps/app.xml Manager",
+            "docProps/app.xml Template"]))
         with zipfile.ZipFile(self.original) as a, zipfile.ZipFile(out) as b:
             self.assertEqual(a.namelist(), b.namelist())
             for name in a.namelist():
@@ -75,6 +77,16 @@ class Strip(unittest.TestCase):
                 with self.assertRaises(SystemExit) as stop:
                     strip_identity.strip(path, self.dir / "out.docx")
                 self.assertIn(name, str(stop.exception))
+
+    def test_custom_properties_repeating_app_fields_pass(self):
+        # The PH 211 rubric workbook's six, which name no one.
+        custom = (b'<Properties><property name="AppVersion"/><property name="DocSecurity"/>'
+                  b'<property name="ScaleCrop"/><property name="ShareDoc"/>'
+                  b'<property name="LinksUpToDate"/><property name="HyperlinksChanged"/></Properties>')
+        path = self.write("custom.docx", {**self.parts, "docProps/custom.xml": custom})
+        strip_identity.strip(path, self.dir / "out.docx")
+        with zipfile.ZipFile(self.dir / "out.docx") as z:
+            self.assertEqual(z.read("docProps/custom.xml"), custom)
 
     def test_revision_author_stops_it(self):
         doc = self.parts["word/document.xml"].replace(
