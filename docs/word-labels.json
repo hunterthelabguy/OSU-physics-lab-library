@@ -4,6 +4,11 @@
  "originals": {
   "PH211/Handouts/Lab 1 - Team Building - Handout.docx": {
    "sha256": "49617ff874c0e2147a73bbfb39db38272e53be360ae10430a17e6a5358608091",
+   "parts_sha256": {
+    "word/document.xml": "e0f4b6085bb83e90551c6b6f78e416d6eb3f812e49a88b98f9dba5c64608259b",
+    "word/numbering.xml": "40d43f029da610f914257cb5aebe950093717c0b36af9c19882225f784d289f4",
+    "word/styles.xml": "3141f4553310d18fb990f2d3374ee20c1ed5d365917a1352678c7e8aef42ae33"
+   },
    "labels": [
     [
      "o1",
@@ -29,6 +34,11 @@
   },
   "PH211/Handouts/Lab 2 - Data Analysis - Handout.docx": {
    "sha256": "112c2c0675829438c17b0a50c8a67615709b85f1c926cddca88ba96259a3a2ec",
+   "parts_sha256": {
+    "word/document.xml": "f21305b8dd99f2a32f825a06a49d9b2cf4e60eb77d161f9c2ea40184c1fb05b7",
+    "word/numbering.xml": "2119c25b879ded927e818b7eff32d9334d9dd756d21c9c9eaaf716c8ae026e09",
+    "word/styles.xml": "6a5a1dba49d9995064f194302adacc33a7abfe763ded3941e303cc4f661ebdf4"
+   },
    "labels": [
     [
      "o1",
@@ -134,6 +144,11 @@
   },
   "PH211/Handouts/Lab 3 - Uncertainty - Handout.docx": {
    "sha256": "421e2df388f532c4140f07c26815737393c4e6583ffb4e473a81c79d9ce1b960",
+   "parts_sha256": {
+    "word/document.xml": "c8f3adb40acb26a5aa03dbbbe67e3a072ea64008a6d72d473674b91e628c9cdc",
+    "word/numbering.xml": "20c520a2eefe1f3adaff521ad5fb69d024b04b696f516edcb614461f82e73a1a",
+    "word/styles.xml": "1573de0ffe5c9fe701ae5ab1477fdaf9fe2fec357a2067ebb5ac8ea46dc478fe"
+   },
    "labels": [
     [
      "o1",
@@ -235,6 +250,11 @@
   },
   "PH211/Handouts/Lab 4 - Hypothesis Testing - Handout.docx": {
    "sha256": "54daee77e5e4e0ea8cbbadced928c4f312c3e09418af73eb56c3c54e47b505f1",
+   "parts_sha256": {
+    "word/document.xml": "cb25006e785a2f69069a826c599cf18e3faa77d61295036710fca641a178f4fc",
+    "word/numbering.xml": "e7f54840c1685ee5808d9b401dd7b50a7b22903e200bbd601477e6ca338caf12",
+    "word/styles.xml": "d66c94bfde8e3533172c4296c3fd8d51cd710365875ea1314efc80a06a2fbd6a"
+   },
    "labels": [
     [
      "o1",
@@ -336,6 +356,11 @@
   },
   "PH211/Handouts/Lab 5 - Designing an Experiment - Handout.docx": {
    "sha256": "4330e4267d0cb2e4b80d28db091c3bbaae8792ae55ecc78b7a0960169ec273f0",
+   "parts_sha256": {
+    "word/document.xml": "14c1eb1e7688458ed4076568ef0bc4a149d267ab219130795f4fc24b89bc2b00",
+    "word/numbering.xml": "d8e6a44a99df50d11aa8ed830aaee5a94330f3b058295cab00c0e2fdaf244392",
+    "word/styles.xml": "de9e7769b6b97067de270dd1ea90ed4eeb65f6bdfefa12a23dba7390fb00e815"
+   },
    "labels": [
     [
      "o1",
@@ -449,6 +474,11 @@
   },
   "PH211/Handouts/Lab 6 - Describing an Experiment - Handout.docx": {
    "sha256": "27d2c3ed2b33ce873960c5be409a756f7fd23882e60247a7b90afe35383b5229",
+   "parts_sha256": {
+    "word/document.xml": "9301d4f8e51eadc74e80b61e492a9dcc6124fabe2bc8a67e779cd0ee57d1f993",
+    "word/numbering.xml": "a82a4277b18e81f6242cf47646c28f100b41ebf30f1093993039dc666ec46fef",
+    "word/styles.xml": "83728299ab4783f82c7fb0bf631dd2be335e4c87f21c6dabdbee5d75db5f59cf"
+   },
    "labels": [
     [
      "o1",
@@ -526,6 +556,11 @@
   },
   "PH211/Handouts/Lab 7 - Capstone - Handout.docx": {
    "sha256": "e9b900c8e35fccda8a9adb9495945f505fb8ecab3cd9a748e813095965bab466",
+   "parts_sha256": {
+    "word/document.xml": "f920fb192cc4cbf14ac0ff28d7689c7a8fed8c2e687e9179a8e809772732db6f",
+    "word/numbering.xml": "6cd543df3c2bef3dec0a5468694ff893c0d767d466c27d845035cab1f6480631",
+    "word/styles.xml": "ee0459c9b5a4c57357faf7d945a540852fe7fd6189ba3cd0ea4a2d51d69e9ad1"
+   },
    "labels": [
     [
      "o1",
@@ -651,6 +686,11 @@
   },
   "PH212/Handouts/Lab 1 - Data Analysis - Handout.docx": {
    "sha256": "0329f26a1b76de0de520bf3bb3395fa938132dad5730d1a6d2829b792f173261",
+   "parts_sha256": {
+    "word/document.xml": "cd715342e4505863051cdf7a122836e696f54c869cf0ea9e36dd8bcbd4b3f7a1",
+    "word/numbering.xml": "1836c8cbbe34f9cfcb14503593cd2e673e871c82d9ddb1bd1dc8294194d9d13b",
+    "word/styles.xml": "15e950307b3fd18f798997b8d302710abab8dd573d4c70f94dc36ac71a94a8f4"
+   },
    "labels": [
     [
      "o1",
@@ -764,6 +804,11 @@
   },
   "PH212/Handouts/Lab 2 - Extending a Model - Handout.docx": {
    "sha256": "ae4d80de932b2bb5f0cc4fe3e306d4ac7301e8a49ebb37d54e37364de109e82d",
+   "parts_sha256": {
+    "word/document.xml": "450384d7a083afbdd1a4339b0c592ea7d8e0158384a7918383c2d857683b7003",
+    "word/numbering.xml": "203f8eb5e74ca8b94adfb0a8ce5103562a8d7a6b49fed8802f03cc0aa9e8837f",
+    "word/styles.xml": "4115217f2cb7280192d1d4488088372f7f1c503f21c5a0fe6f8a74e04d5089e7"
+   },
    "labels": [
     [
      "o1",
@@ -837,6 +882,11 @@
   },
   "PH212/Handouts/Lab 3 - Designing Experiments - Handout.docx": {
    "sha256": "62d6708bf2b2cd6bea3f0170dab8ce92b09eb5a20ffd9f27fdb23486879fda6f",
+   "parts_sha256": {
+    "word/document.xml": "9b401ad991f20df52d9bf4a39e6c9d284e19b4e48759c97dc0c1d2143cc1cead",
+    "word/numbering.xml": "ef5efcc800e8825cc79ea597dd7ae53ef072173ed614daeac1330cefe0c89ecf",
+    "word/styles.xml": "fd21c697d9808973433068dcec023e081dd1136684f02ed42953c779e36afcc3"
+   },
    "labels": [
     [
      "o1",
@@ -1014,6 +1064,11 @@
   },
   "PH212/Handouts/Lab 4 - Hypothesis Testing - Handout.docx": {
    "sha256": "048b10bf3cab6a7f88e381658489df3ff5bf59b4230398cf27934b5df2d8da2c",
+   "parts_sha256": {
+    "word/document.xml": "c22890ddeeb83bde9af34b75418846918ec9f8e727e4d00b318d34be1fca7089",
+    "word/numbering.xml": "e27cddddc25e6b7740ee41e8b206b0b48e96573fd0618c0f866ed2b63bfef212",
+    "word/styles.xml": "ab485d677db3b504c585e3b54d0e93c5aff2c5bb6c404b3dd0a1321a0dd116ee"
+   },
    "labels": [
     [
      "o1",
@@ -1075,6 +1130,11 @@
   },
   "PH212/Handouts/Lab 5 - Sharing & Comparing - Handout.docx": {
    "sha256": "1757716444fe6517ae53d8cfa0c9ab1fb86e506fb2b22ddbd4006b05c1fb33ea",
+   "parts_sha256": {
+    "word/document.xml": "f82736fc9e2da231736855668bcdc4c5732bbfa7dddd29ad8c81ea80f89a57b9",
+    "word/numbering.xml": "130fb748a2e212045e2ab9b0500c8177cccae1b1aea2a42fdd7d9b0dbebebbbb",
+    "word/styles.xml": "f47f4826f849a26bcbb031a35ba1bcda004a083157c0e094bbf9e639df30e81f"
+   },
    "labels": [
     [
      "o1",
@@ -1128,6 +1188,11 @@
   },
   "PH212/Handouts/Lab 6 - Capstone - Handout.docx": {
    "sha256": "68d4f8dfcda02ae7f10a005ce37ba2c5485259d0d17e30c7719256af9e0984ca",
+   "parts_sha256": {
+    "word/document.xml": "21a4129baa335a0ead010b5e79450763f2004351033adf36a627650e6dd8146c",
+    "word/numbering.xml": "815765c6f5f03dcab2c2de3db00094c1a8363875e7ddffc7ca4f691c66ce14fb",
+    "word/styles.xml": "c6b0db0e5a54334298065d57ae64f299dbfb8ccaf2267ef92d9373f30eb9adb0"
+   },
    "labels": [
     [
      "o1",
@@ -1269,6 +1334,11 @@
   },
   "PH213/Handouts/Lab 1 - Data Analysis- Handout.docx": {
    "sha256": "0ef396eb1ed513d3d60c0725b0df5e6044febd6097c5fc5fd9039293a4c8a3f5",
+   "parts_sha256": {
+    "word/document.xml": "ac26ea682cbc597fb9cee7d6e188b6cccb9a0fab238b23849833d39879dcc800",
+    "word/numbering.xml": "4691e14355a6d948be7919c9f511dbff3dc9e3da797468a0b61407a858a5a2e2",
+    "word/styles.xml": "3281cdc1ea1b7866264d08c9602f9489b65f7c7686fc0a978d1a3f140bad6159"
+   },
    "labels": [
     [
      "o1",
@@ -1298,6 +1368,11 @@
   },
   "PH213/Handouts/Lab 2 - Hypothesis Testing - Handout.docx": {
    "sha256": "36f41045875ea1bb0c1699a1ed50c7b18ae2d8e6397a0da37d05546aa069ab68",
+   "parts_sha256": {
+    "word/document.xml": "43a09a9a141fdacceb5004992a11243784d4a4d4caebee06a54266dd36098c7a",
+    "word/numbering.xml": "8290ca0ea12d240c78eaa8e0ea82542f6cbb3531cd28d506229961e2dc3fc2ef",
+    "word/styles.xml": "ef59e54f0038dc50b5d7134f073abbd11e8243a61ecbb3bcd34a75f33456e3ef"
+   },
    "labels": [
     [
      "o1",
@@ -1371,6 +1446,11 @@
   },
   "PH213/Handouts/Lab 3 - Data Taking - Handout.docx": {
    "sha256": "124a763be1fb64991954c769f6c99eba1c8b67d43fe63aa1e810799855934bf2",
+   "parts_sha256": {
+    "word/document.xml": "c3d00b24430603bb542ab3d42d448c18139f6185a1bdef94834f056850a7b738",
+    "word/numbering.xml": "64feeb343a0148d9cd3e450eb1990a2ec6d219efc1449b81d1d2891b2dbab9d2",
+    "word/styles.xml": "0e13bf896c92daf8d695c518811657accffec1ae7e45f32b969591a5df265d43"
+   },
    "labels": [
     [
      "o1",
@@ -1412,6 +1492,11 @@
   },
   "PH213/Handouts/Lab 4 - Model Building - Handout.docx": {
    "sha256": "09259a1b6297816d388b4743f64ac69b80e440afd83eaee9a2c726fb40d67f74",
+   "parts_sha256": {
+    "word/document.xml": "2712745206984211ae9949a75fdffc409e5a916b5c24dd2bccfa27b4896abf49",
+    "word/numbering.xml": "36c801255355a1b16b9439918394ec6b14a30b3f75018658295eec4e9f89f5c6",
+    "word/styles.xml": "d1e11ef7088c057673b31d445d70caf3493c9dc322d9d545564db4e78a614edc"
+   },
    "labels": [
     [
      "o1",
@@ -1485,6 +1570,11 @@
   },
   "PH213/Handouts/Lab 5 - Analysis and Testing - Handout.docx": {
    "sha256": "bdffcaa9b7b5716ae8fd87621465952ba9bf976ee80d126418b78ea8cc778138",
+   "parts_sha256": {
+    "word/document.xml": "d04beda20dfbe7c1ab47aef31c770100d556b7e16e16506ecdd0f0f7033f7c4c",
+    "word/numbering.xml": "a080ed69bf3aa1f07021d1305f37446ea368f379141833839d2af572e53cc820",
+    "word/styles.xml": "71217136791c842d1a41696521bcc9aa37f3dbf2b0e2eb2994511191f1a1b510"
+   },
    "labels": [
     [
      "o1",
@@ -1530,6 +1620,11 @@
   },
   "PH213/Handouts/Lab 6 - Capstone - Handout.docx": {
    "sha256": "d78901da6ec06fc2f1c184d6cabff469e715db68ccbb2042ff9302290998a000",
+   "parts_sha256": {
+    "word/document.xml": "bee5a9177df5f70df65300bf02f87b6dd87f4791dbc12daa992178fc9a376552",
+    "word/numbering.xml": "294bac44837352255bd00033c3f8e52c60d9c98c34e8c99751d886ffbb51294a",
+    "word/styles.xml": "ba59fd44f05dd6e8ab64b19f8f12798c644a3fe6bc24532ea1b48e392a395017"
+   },
    "labels": [
     [
      "o1",
@@ -1581,5 +1676,6 @@
     ]
    ]
   }
- }
+ },
+ "parts": "parts_sha256: SHA-256 of each part the labels depend on; D-0086's strip leaves them unchanged (D-0112)"
 }
