@@ -29,7 +29,8 @@ import figure_fixture as fx               # noqa: E402
 import media                              # noqa: E402
 import render                             # noqa: E402
 from render import BANNER_MAIN, BANNER_DETAIL  # noqa: E402
-from test_quarto_site import converted    # noqa: E402
+from test_quarto_site import converted, question_numbers, split_figures  # noqa: E402
+import test_quarto_site                   # noqa: E402
 
 LABELS = {"docx": "Word", "html": "HTML", "pdf": "PDF", "md": "Markdown"}
 
@@ -250,12 +251,13 @@ class MarkdownAndWord(unittest.TestCase):
         # its Question Label paragraph ("Question N") first, in document
         # order, so a list or a bullet between parts sits inside the box.
         for doc_id, source in converted():
-            count = len(re.findall(r"^:::+ *\{\.question\b", source.read_text(encoding="utf-8"), re.M))
+            numbers = question_numbers(source.read_text(encoding="utf-8"))
+            count = len(numbers)
             with self.subTest(doc=doc_id, questions=count):
                 boxes = [b for b in self.boxes(doc_id) if "QuestionLabel" in b[1]]
                 self.assertEqual(len(boxes), count)
                 self.assertGreater(count, 0)
-                for n, (tbl, styles, texts) in enumerate(boxes, 1):
+                for n, (tbl, styles, texts) in zip(numbers, boxes):
                     self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
                     self.assertEqual(styles[0], "QuestionLabel")
                     self.assertEqual(texts[0], "Question {}".format(n))
@@ -413,13 +415,22 @@ class Html(unittest.TestCase):
 
     def test_main_is_the_line_then_the_modern_pages(self):
         # A picture's address differs: the page's is the published file,
-        # the download's the file itself, embedded.
-        src = lambda text: re.sub(r'\bsrc="[^"]*"', 'src=""', text)
+        # the download's the file itself, embedded, where Pandoc also
+        # writes role="img" and an aria-label repeating the alt text. Quarto
+        # writes a drawn figure's inline SVG again (attribute case, empty
+        # elements, xml:space), so figures are compared by their words.
+        def src(text):
+            text = re.sub(r'<img role="img" aria-label="[^"]*" ', "<img ", text)
+            return re.sub(r'\bsrc="[^"]*"', 'src=""', text)
         for doc_id, _ in converted():
-            want = re.search(r"<main>\n(.*?)</main>", page(doc_id, "modern"), re.S).group(1)
-            got = re.search(r"<main>\n(.*?)</main>", self.download(doc_id), re.S).group(1)
+            want, want_figures = split_figures(
+                re.search(r"<main>\n(.*?)</main>", page(doc_id, "modern"), re.S).group(1))
+            got, got_figures = split_figures(
+                re.search(r"<main>\n(.*?)</main>", self.download(doc_id), re.S).group(1))
             with self.subTest(doc=doc_id):
                 self.assertEqual(src(got), src("<p>{}</p>\n{}".format(PHYSICS, want)))
+                self.assertEqual([test_quarto_site.words(f) for f in got_figures],
+                                 [test_quarto_site.words(f) for f in want_figures])
 
     def test_size_capped(self):
         for doc_id, _ in converted():
@@ -477,6 +488,7 @@ class MediaDownloads(unittest.TestCase):
     def test_published_media(self):
         # The picture and the figure's SVG; the PNG is for Word only.
         self.assertEqual(self.published, ["square.png", "panel.svg"])
+        self.assertEqual(media.published(self.doc), self.published)
         folder = Path(downloads.media_dir(self.doc))
         self.assertTrue((folder / "panel.png").is_file())
 
@@ -623,15 +635,39 @@ class PrintKeeps(unittest.TestCase):
             if body and any(h.endswith(body[-1]) for h in headings):
                 found.append("page {} ends with a heading: {}".format(i, body[-1]))
         text = "\f".join(" ".join(words(p)) for p in pages)
+        start = -1
         for n, rest in re.findall(r'<div class="question-label">\s*<p>Question (\d+)</p>\s*</div>(.*?)</div>', main, re.S):
-            end = " ".join(words(re.sub(r"<[^>]+>", " ", rest))[-3:])
-            start = text.find("QUESTION " + n)
+            end = " ".join(self.last_words(rest))
+            # In order: after a restart (S9), "Question 1" comes again.
+            start = text.find("QUESTION " + n, start + 1)
             stop = text.find(end, start)
             if start < 0 or stop < 0:
                 found.append("question {} not found in the print".format(n))
             elif "\f" in text[start:stop]:
                 found.append("question {} broken over a page".format(n))
         return found
+
+    @staticmethod
+    def last_words(block):
+        """Up to three words that end a question block as pdftotext prints
+        them: after its last equation if words follow it, else before it,
+        since MathML's text and its TeX annotation print otherwise or not at
+        all; a drawn figure's labels are left out (their order in the PDF is
+        the figure's)."""
+        block, _ = split_figures(block)
+        parts = re.split(r"<math\b.*?</math>", block, flags=re.S)
+        tail = words(re.sub(r"<[^>]+>", " ", parts[-1]))
+        if not tail and len(parts) > 1:
+            tail = words(re.sub(r"<[^>]+>", " ", parts[-2]))
+        return tail[-3:]
+
+    def test_last_words_skip_math_and_figures(self):
+        last = self.last_words
+        self.assertEqual(last("<p>in the <math><mi>A</mi><annotation>A</annotation></math> format.</p>"),
+                         ["format"])
+        self.assertEqual(last("<p>one two three four <math><mi>x</mi></math></p>"), ["two", "three", "four"])
+        self.assertEqual(last('<p>the words end here</p><svg class="drawn-figure"><text>Label</text></svg>'),
+                         ["words", "end", "here"])
 
     def test_offsets_still_cross_a_break(self):
         for doc_id, _ in converted():
