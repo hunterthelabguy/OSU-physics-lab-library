@@ -359,6 +359,22 @@ class MarkdownAndWord(unittest.TestCase):
                         self.assertRegex(spacing, r'\bw:{}="{}"'.format(attr, want), style_id)
                     self.assertIn('w:lineRule="atLeast"', spacing, style_id)
 
+    def test_tables_draw_a_thin_grid(self):
+        # D-0130: the theme's cells and Word's Table style draw the same thin
+        # full grid in --quiet; the question and checkpoint boxes name their
+        # own borders, so the style does not reach them.
+        cells = re.search(r"\nth, td \{(.*?)\}", _MODERN, re.S).group(1)
+        self.assertIn("border: 1px solid var(--quiet);", cells)
+        quiet = MODERN_ROOT["--quiet"].lstrip("#").upper()
+        for doc_id, _ in converted():
+            table = self.style(doc_id, "Table")
+            with self.subTest(doc=doc_id):
+                for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+                    rule = re.search(r'<w:{} ([^>]*)/>'.format(edge), table.split("<w:tblBorders>")[1])
+                    self.assertIsNotNone(rule, edge)
+                    self.assertEqual(dict(re.findall(r'w:(\w+)="([^"]*)"', rule.group(1))),
+                                     {"val": "single", "sz": "4", "space": "0", "color": quiet}, edge)
+
     def test_word_headings_keep_with_next(self):
         # A pin, not a change: Pandoc's default Heading 1 to 4 already keep
         # with the next paragraph; a Pandoc upgrade that dropped it fails here.
@@ -424,6 +440,13 @@ class Html(unittest.TestCase):
         # elements, xml:space), so figures are compared by their words.
         def src(text):
             text = re.sub(r'<img role="img" aria-label="[^"]*" ', "<img ", text)
+            # Quarto rewrites a table's own attributes (Bootstrap's `table`
+            # class for Pandoc's width) and gives rows odd/even classes; the
+            # theme draws both alike (D-0130, measured). Quarto also writes
+            # void elements as HTML5 does (<br>, <col ...>).
+            text = re.sub(r"<table\b[^>]*>", "<table>", text)
+            text = re.sub(r"<tr\b[^>]*>", "<tr>", text)
+            text = re.sub(r"\s*/>", ">", text)
             return re.sub(r'\bsrc="[^"]*"', 'src=""', text)
         for doc_id, _ in converted():
             want, want_figures = split_figures(
