@@ -1392,3 +1392,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: none; the entry records what D-0086 orders.
 - binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-hypothesis-testing-handout.md
 - test: CI's content check and number check on the lab
+
+### D-0130  A lab table draws a thin full grid in --quiet, on the page, the HTML and PDF downloads and in Word
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-08
+- decision: A table an original draws as a grid (not a one-cell box, which stays `::: box`) had no rules on a lab page or in any download, since no stylesheet styled one; PH 211 Lab 7's lookup table was the first converted, and Labs 2 and 3 and passes 4 and 5 bring more. `themes/modern.css` gives `table` a collapsed border and a gap under it, and `th, td` a 1 px rule in `--quiet` (Rogue Wave, 8.9:1 on white; Moondust in the dark scheme), padding, left and top alignment, bold `th`; print draws the rules black. Two tokens, `--table-gap` and `--cell-pad`, hold the values once. On a lab page Quarto adds Bootstrap's `table` class, which out-specifies the theme; the quarto-only block in `site/site.css` points Bootstrap's margin, cell padding and rule width back at those tokens. Measured in the browser pane on PH 211 Lab 7's build at 375 and 1440 px against the HTML download: every computed style of the table, header cells, cells and rows equal; the page's table is 100% wide where the download's is 99%, Pandoc's width that Quarto drops from the markup. `tools/make_reference_docx.py` adds the same grid to Pandoc's default Table style (six single 0.5 pt rules in --quiet, 0D5257); the question and checkpoint boxes name their own borders, so they keep theirs. The test comparing a page's main with the HTML download now also sets aside Quarto's table and row attributes and its HTML5 void elements.
+- rationale: Word's originals draw their tables as full grids, and a fill-in table's blanks need cell edges. `--rule` (#d6dbe0, 1.36:1 on white) is below WCAG 1.4.11's 3:1 for lines a reader needs; `--quiet` clears it. Quarto's `html-table-processing: none` does not stop the class on a Pandoc table (probed 2026-10-08), so the reverts are written against Bootstrap's own selectors, as the quarto-only block does for other elements. The owner, 2026-10-08: "Thin full grid".
+- alternatives: rules under rows only (the site's course table); a board first; `--rule` as the grid colour (under 3:1).
+- binds: themes/modern.css; site/site.css (quarto-only); tools/make_reference_docx.py; tools/reference.docx; tests/test_downloads.py; D-0057
+- test: test_tables_draw_a_thin_grid (theme rule and Word's Table style); test_main_is_the_line_then_the_modern_pages on every lab with a table
