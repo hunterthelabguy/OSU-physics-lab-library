@@ -10,8 +10,7 @@ Volatile handoff, capped at one screen. Updated 2026-10-08.
 - Pictures at Word's size and crop, `images:` front matter,
   `tools/media.py list|extract` for conversion; figures inline on pages,
   PNG in Word; `--resource-path`, `--mathml`; per-lab HTML caps; no new
-  CSS revert (measured). Pass 2b's own calls: D-0118, **proposed, awaiting
-  the owner's ruling**.
+  CSS revert (measured). Pass 2b's own calls: D-0118, ruled 2026-10-08.
 - For pass 5's Word check: PH 213 Lab 4's "ℓ" is an l in Script MT Bold,
   which CI's Linux PNG lacks.
 - Next: pass 3 (PH 212 Lab 3 and PH 213 Lab 2 first, D-0105). Its
