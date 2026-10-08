@@ -133,6 +133,10 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   `tools/subset_fonts.py`.
 - One Markdown source feeds both presentations, `themes/faithful.css` and
   `themes/modern.css` (ledger 28); never copy content into a second file.
+  D-0108 retires the faithful page (its own PR in pass 2a, old addresses
+  redirecting, public wording redrafted for the owner first); until it
+  merges, both still build. `render.pandoc_meta` returns plain text, so
+  every caller escapes what it writes, once (D-0099).
   Question numbers come from `tools/filters/questions.lua` at render time;
   none is stored in the source. The "How this site works" page is
   `site/how-this-site-works.md` (D-0072; its old address redirects); the banner wording is `BANNER_MAIN` and `BANNER_DETAIL` in
@@ -164,6 +168,15 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   it, while the converted side reads `Math` LaTeX and `Image` alt as words.
   Do not convert a document with either until the check counts them
   (pass 2a, D-0082; spec section 11.2).
+- Never trust Pandoc's list numbers from an original: it drops a level set
+  by a style that inherits its list (PH 212 Labs 1, 2, 3, 5) and misreads
+  week restarts. Word's own labels for all 19 handouts are in
+  `docs/word-labels.json`, keyed to SHA-256 (D-0102); the survey and its
+  anchors are `docs/handout-survey.md`, the markup rules
+  `docs/conversion-spec.md` (D-0101, D-0109, D-0110). To read Word again:
+  PowerShell 5.1 COM on copies in the scratchpad, `Documents.Open` and
+  `Close`/`Quit` take `[ref]` arguments, read-only, never save. The owner
+  may have Word open: stop only your own instance, by its process id.
 - In `site/site.css`, `body.site-page a` sets the link color and outranks the
   single-class chrome rules, so a chrome color must be scoped to its parent
   (`.osu-banner .osu-sitename`). D-0032 is one bug this caused in production.
