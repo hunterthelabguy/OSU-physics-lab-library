@@ -53,6 +53,22 @@
    ["question", "ph211-team-building:build-process"],
    ["question", "ph211-team-building:contributions"],
    ["question", "ph211-team-building:rebuild-changes"]
+  ],
+  "ph211-uncertainty-handout": [
+   ["question", "ph211-uncertainty:determine-height"],
+   ["question", "ph211-uncertainty:height-determined"],
+   ["question", "ph211-uncertainty:lowest-highest-probable"],
+   ["question", "ph211-uncertainty:flat-surface-humid-air"],
+   ["question", "ph211-uncertainty:centimeter-markings"],
+   ["question", "ph211-uncertainty:fill-in-blanks-rule"],
+   ["question", "ph211-uncertainty:other-factors"],
+   ["question", "ph211-uncertainty:reaction-time"],
+   ["question", "ph211-uncertainty:record-trials"],
+   ["question", "ph211-uncertainty:average-statistical-uncertainty"],
+   ["question", "ph211-uncertainty:three-estimates"],
+   ["question", "ph211-uncertainty:plot-time-vs-height"],
+   ["question", "ph211-uncertainty:analyze-class-results"],
+   ["question", "ph211-uncertainty:individual-reflection"]
   ]
  }
 }

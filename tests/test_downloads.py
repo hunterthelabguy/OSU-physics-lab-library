@@ -396,6 +396,7 @@ HTML_CAPS = {
     "ph211-designing-an-experiment-handout": 370_000,  # 335,643 bytes, pass 3
     "ph211-hypothesis-testing-handout": 330_000,  # 295,331 bytes, pass 3
     "ph211-team-building-handout": 190_000,
+    "ph211-uncertainty-handout": 320_000,  # 284,044 bytes, pass 3
 }
 
 
