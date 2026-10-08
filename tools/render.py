@@ -7,9 +7,10 @@ presentation notes and footnotes, the document nav's metadata, the course
 index and the course pages, the "How this site works" page's footnote,
 the sims and their bar, and the redirect stubs.
 
-Both themes render the same Markdown source (ledger 28): one keeps the
-original Word page settings, the other drops them and follows
-docs/presentation-evidence.md. Nothing is ever copied into a second file.
+One presentation, modern, renders the Markdown source (D-0108, amending
+ledger 28): it drops the original Word page settings and follows
+docs/presentation-evidence.md. The faithful presentation was retired, its
+address redirecting. Nothing is ever copied into a second file.
 Output is plain static files with relative links, so any host serves them
 (ledger 39). Every page carries the draft banner and asks search engines not
 to index the site (ledger 37).
@@ -27,7 +28,7 @@ import subprocess
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PANDOC = os.environ.get("PANDOC", "pandoc")
-THEMES = ("faithful", "modern")
+THEMES = ("modern",)
 
 # Official logo files, committed byte for byte (DECISIONS D-0014, D-0020).
 BRAND = os.path.join(ROOT, "site", "brand")
@@ -53,17 +54,7 @@ BANNER_DETAIL = (
     "settled, so please do not pass these pages on or share the link."
 )
 
-THEME_LABEL = {
-    "faithful": "As it was written",
-    "modern": "Rebuilt for reading",
-}
-
 THEME_NOTE = {
-    "faithful": (
-        "This page reproduces the original Word page settings, including the "
-        "ones the presentation review calls into question. The words and the "
-        "bold are the original authors', unchanged."
-    ),
     "modern": (
         "This page drops the Word page settings and sets typography from the "
         "reading research and WCAG 2.2 SC 1.4.8. The words are the original "
@@ -127,13 +118,10 @@ def up(depth):
 
 
 def document_extras(theme, depth=3):
-    """The document nav's metadata: the course index link and the switch."""
-    other = THEMES[0] if theme == THEMES[1] else THEMES[1]
+    """The document nav's metadata: the course index link."""
     return [
         "-M", "uphref=" + up(depth) + "courses/",
         "-M", "uplabel=Course index",
-        "-M", "switchhref=" + up(1) + other + "/",
-        "-M", "switchlabel=Read it " + THEME_LABEL[other].lower(),
     ]
 
 

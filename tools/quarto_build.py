@@ -224,6 +224,10 @@ def post():
     for doc_id in render.converted_documents():
         render.redirect_page(os.path.join(OUT, "labs", doc_id, "index.html"),
                              "modern/")
+    # The retired faithful page's address (D-0108).
+    for doc_id in render.converted_documents():
+        render.redirect_page(os.path.join(OUT, "labs", doc_id, "faithful", "index.html"),
+                             "../modern/")
     # The page's old address (D-0072).
     render.redirect_page(os.path.join(OUT, "how-this-was-made", "index.html"),
                          "../" + render.METHOD_PATH, "Continue to How this site works")

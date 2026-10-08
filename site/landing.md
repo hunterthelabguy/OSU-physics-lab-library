@@ -14,8 +14,8 @@ to read on a phone or laptop.
 [Open Lab 1](labs/ph211-team-building-handout/modern/){.button}
 :::::
 
-Coming later: download any handout for offline use as Markdown, Word, PDF,
-or HTML.
+Each converted handout downloads from its page as Markdown, Word, PDF or
+HTML.
 
 This is the first example, not the finished library. One lab is converted so
 far. Everything else is listed as not yet converted rather than left out.
@@ -35,22 +35,14 @@ far. Everything else is listed as not yet converted rather than left out.
   did the work.
 :::
 
-## Why one lab is shown two ways
+## How a lab page reads
 
-Each document is one Markdown file, and every page is built from that one
-copy we edit. Lab 1 is built from it twice:
-
-- **[As it was written](labs/ph211-team-building-handout/faithful/)**: the
-  original Word page settings reproduced on screen, down to the typeface,
-  the spacing, and the bold numbered questions.
-- **[Rebuilt for reading](labs/ph211-team-building-handout/modern/)**: the
-  same words, with the Word page settings dropped and the typography set
-  from the reading research and the accessibility guidelines. Graded
-  questions get their own labeled block instead of leaning on bold.
-
-Either page switches to the other at the top. Neither page holds the text,
-so the two cannot drift apart. The point is to look at both and agree on
-one, not to keep both.
+Each document is one Markdown file, and every page and download is built
+from that one copy we edit. A lab page keeps the original's words and
+drops the Word page settings: the typography follows the reading research
+and the accessibility guidelines, and graded questions get their own
+labeled block instead of leaning on bold. A second page that reproduced
+the Word layout was shown beside it until colleagues agreed on this one.
 
 ## What has not changed
 
@@ -60,11 +52,11 @@ original Word file and which of them are bold are compared against the
 converted version; a difference that has not been recorded and ruled fails
 the check, and the change does not land. The original Word files are kept
 and are still available, so anyone who would rather teach from them loses
-nothing.
+nothing. The copy kept with this site has its author and company fields
+removed; its words are untouched.
 
 ## What is deliberately missing
 
-- Downloads (Markdown, Word, PDF, HTML) are planned and not built yet.
 - Instructor notes and rubrics are kept separately and privately. Whether
   they ever become public is an open question for the department.
 - The license is not settled. Until it is, this site is a draft to look at,

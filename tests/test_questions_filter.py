@@ -1,4 +1,4 @@
-"""questions.lua picks the presentation from theme-name, then theme (D-0033)."""
+"""questions.lua has one presentation, modern (D-0108, retiring the faithful one)."""
 
 import os
 import subprocess
@@ -22,17 +22,13 @@ def render(*meta):
 
 class Presentation(unittest.TestCase):
 
-    def test_theme_name_faithful(self):
-        self.assertIn("<strong>1)", render("theme-name=faithful"))
-
-    def test_theme_still_works(self):
-        self.assertIn("<strong>1)", render("theme=faithful"))
-
-    def test_theme_name_wins_over_quarto_theme(self):
-        # Under Quarto, theme is the page theme ("default"), never a presentation.
-        out = render("theme=default", "theme-name=faithful")
-        self.assertIn("<strong>1)", out)
-        self.assertNotIn("Question 1", out)
+    def test_a_faithful_request_renders_modern(self):
+        # D-0108: no "N)" prefix and no kept bold, whatever theme is asked for.
+        for meta in ("theme-name=faithful", "theme=faithful"):
+            with self.subTest(meta=meta):
+                out = render(meta)
+                self.assertIn("Question 1", out)
+                self.assertNotIn("<strong>1)", out)
 
     def test_default_is_modern(self):
         self.assertIn("Question 1", render())

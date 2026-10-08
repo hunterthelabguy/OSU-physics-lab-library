@@ -61,10 +61,10 @@ anyone who wants a copy or a printed page. Students read on screen today, so
 the site is the way in, but print is first class: paper may become the
 graded artifact in the lab.
 
-During the pilot each document also renders two ways from that one source
+During the pilot each document also rendered two ways from that one source
 (ledger 28): one faithful to the original page settings, one following the
-evidence review. The point is to show the difference and agree on it, not to
-keep both forever.
+evidence review. Colleagues agreed on the second, and since 2026-10-07 it is
+the one presentation (D-0108).
 
 ## Out of scope for now
 

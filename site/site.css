@@ -5,7 +5,7 @@
 
 /* Site chrome: the draft banner, navigation, landing page, and course index.
    Document pages load this on top of their presentation theme
-   (themes/faithful.css or themes/modern.css), which owns the document body;
+   (themes/modern.css), which owns the document body;
    nothing here restyles document content.
 
    Colors from the OSU palette (OSU-branding/OSU-style-guide.md in the sandbox, not
@@ -56,16 +56,6 @@
     --chrome-rule: #8e9089; /* Crater */
     --chrome-quiet: #c6dae7;   /* Moondust */
   }
-}
-
-/* The faithful presentation reproduces a printed page, so it stays on paper
-   in either system setting. */
-body.theme-faithful {
-  --chrome-ink: #000;
-  --chrome-paper: #fff;
-  --chrome-heading: #003b5c;
-  --chrome-rule: #a7aca2;
-  --chrome-quiet: #0d5257;
 }
 
 /* Draft banner: every page, top of every page (ledger 37). */
@@ -119,17 +109,6 @@ body.theme-faithful {
 }
 
 .site-nav a, .site-foot a, .site-page a { color: var(--chrome-heading); }
-
-/* The presentation switch: a plain link, so it works without scripting. */
-.switch {
-  display: inline-block;
-  border: 1px solid var(--chrome-heading);
-  border-radius: 999px;
-  padding: .2rem .8rem;
-  text-decoration: none;
-}
-
-.switch:hover, .switch:focus { text-decoration: underline; }
 
 /* Site pages: landing, course index, course pages, how this was made, sims.
    Their shell is 96rem (D-0070, amending LEDGER 56's 72rem); the header and
@@ -500,9 +479,9 @@ body:where(.quarto-light) {
 }
 
 /* Quarto's `#quarto-content > *` sets padding-top (14px, 0 below 992px)
-   and outranks every `main` rule in site.css and the themes, so the old
-   values are restated: 0 for the faithful theme and for every page in
-   print, the site pages' `main` rule and themes/modern.css's on screen. */
+   and outranks every `main` rule in site.css and the theme, so the old
+   values are restated: 0 for every page in print, the site pages' `main`
+   rule and themes/modern.css's on screen. */
 #quarto-content > main { padding-top: 0; }
 @media screen {
   body.site-page #quarto-content > main { padding-top: var(--space-3); }

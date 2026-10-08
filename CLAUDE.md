@@ -140,11 +140,11 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   embeds a logo. Never pass a data: URI as a Pandoc `-M` value (past the
   Windows command-line limit). Open Sans in `site/fonts/` is rebuilt only by
   `tools/subset_fonts.py`.
-- One Markdown source feeds both presentations, `themes/faithful.css` and
-  `themes/modern.css` (ledger 28); never copy content into a second file.
-  D-0108 retires the faithful page (its own PR in pass 2a, old addresses
-  redirecting, public wording redrafted for the owner first); until it
-  merges, both still build. `render.pandoc_meta` returns plain text, so
+- One Markdown source feeds one presentation, `themes/modern.css`, and the
+  downloads; never copy content into a second file. D-0108 retired the
+  faithful page (amending ledger 28): each `labs/<id>/faithful/` address is
+  a redirect stub to `../modern/`, and `render.THEMES` is `("modern",)`.
+  `render.pandoc_meta` returns plain text, so
   every caller escapes what it writes, once (D-0099).
   Question numbers come from `tools/filters/questions.lua` at render time;
   none is stored in the source. The "How this site works" page is

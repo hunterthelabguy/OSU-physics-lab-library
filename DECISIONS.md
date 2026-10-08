@@ -1244,3 +1244,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: A, Pine Stand rule on the question's tint; B, High Tide rule on the question's tint.
 - binds: D-0057; D-0082; D-0108; D-0109; D-0110; themes/modern.css; tools/downloads.py; tools/filters/questions.lua; tests/test_brand.py; VISION.md; site/landing.md; site/how-this-site-works.md
 - test: PR 2: the checkpoint tokens equal the two palette values and meet their contrasts; a checkpoint renders in a Candela box in Word. PR 3: the ruled passages are on the built pages.
+
+### D-0116  The one-source sentence is not on student-facing pages; it stays only in "How this site works"
+- status: ruled
+- proposed-by: owner
+- ruled-by: owner
+- date: 2026-10-07
+- decision: The lab page footer drops its sentence about the page and its downloads being built from one Markdown file (it read "Both presentations are built from one Markdown file, so they cannot drift apart." before D-0108); the footer keeps "Downloads carry the same draft notice as these pages." The point is made only on "How this site works" ("Nothing is copied by hand, so the versions cannot disagree."). Built in pass 2a's PR 3.
+- rationale: The owner, 2026-10-07: "That sentence is not needed in student-facing materials. Leave it in \"How this site works\" and nowhere else." Claude had proposed "This page and its downloads are built from one Markdown file" in its place.
+- alternatives: the proposed rewording on every lab page.
+- binds: D-0108; D-0115; tools/template.html; site/how-this-site-works.md
+- test: the lab page's footer holds the draft-notice sentence (tests/test_downloads.py, FOOTER_NEW) and no "drift apart"
