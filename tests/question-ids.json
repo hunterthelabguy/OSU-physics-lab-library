@@ -1,6 +1,15 @@
 {
  "about": "D-0077: each converted lab's question and checkpoint ids, in order. Change only in the PR that moves them, with an entry naming the numbers that moved.",
  "labs": {
+  "ph211-describing-an-experiment-handout": [
+   ["question", "ph211-describing-an-experiment:describe-experiment"],
+   ["question", "ph211-describing-an-experiment:statistical-uncertainty"],
+   ["question", "ph211-describing-an-experiment:analysis-plan"],
+   ["question", "ph211-describing-an-experiment:our-data"],
+   ["question", "ph211-describing-an-experiment:other-groups-report"],
+   ["question", "ph211-describing-an-experiment:our-analysis"],
+   ["question", "ph211-describing-an-experiment:better-explanation"]
+  ],
   "ph211-team-building-handout": [
    ["question", "ph211-team-building:good-lab-partner"],
    ["question", "ph211-team-building:sketches"],
