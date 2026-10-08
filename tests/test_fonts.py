@@ -16,11 +16,12 @@ from subset_fonts import STYLES, covers   # noqa: E402
 import render                             # noqa: E402
 
 # Typed as text in an original's math font, Cambria Math, not as an
-# equation: PH 213 Lab 2's "∆𝑦" and "𝛥𝑉A". Open Sans has no Mathematical
-# Alphanumeric Symbols, so the reader's own math font sets them, as Word
-# sets them in Cambria Math (D-0120). An equation's characters are MathML,
-# set by the math font, and are not read here.
-MATH_FONT = ((0x1D400, 0x1D7FF), (0x2206, 0x2206))
+# equation: PH 213 Lab 2's "∆𝑦" and "𝛥𝑉A", PH 211 Lab 4's "d ∝ h". Open
+# Sans's Latin and Greek subset holds neither Mathematical Alphanumeric
+# Symbols nor Mathematical Operators, so the reader's own math font sets
+# them, as Word sets them in Cambria Math (D-0120). An equation's characters are MathML, set by the math font,
+# and are not read here.
+MATH_FONT = ((0x1D400, 0x1D7FF), (0x2200, 0x22FF))
 
 
 def set_in_math_font(ch):
@@ -70,7 +71,7 @@ class FontFiles(unittest.TestCase):
         self.assertEqual([f"U+{ord(c):04X}" for c in missing], [])
 
     def test_equations_and_math_font_text_are_not_read_as_open_sans(self):
-        self.assertTrue(set_in_math_font("𝑦") and set_in_math_font("∆"))
+        self.assertTrue(set_in_math_font("𝑦") and set_in_math_font("∆") and set_in_math_font("∝"))
         self.assertFalse(set_in_math_font("Δ"))  # Greek, in the subset
         self.assertFalse(set_in_math_font("ж"))
 
