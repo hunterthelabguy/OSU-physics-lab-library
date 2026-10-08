@@ -102,6 +102,11 @@ table.
   an ordered list inside `::: report-item`. A list Word numbers from its
   question list outside any question is wrapped in
   `::: {.numbered anchors="oN.0.1 ..."}`, which shows nothing.
+- **Symbol font, links, indentation (D-0123).** A Symbol-font text run is
+  read as the characters Word draws (`SYMBOL_FONT`). An internal link to a
+  Word bookmark that does not exist keeps its target, and the heading it
+  names takes that id. A paragraph Word only indents is plain; a quoted
+  example in quote marks is a block quote.
 
 ## Pictures and drawn figures (S12, S13; pass 2b, D-0117, D-0118)
 

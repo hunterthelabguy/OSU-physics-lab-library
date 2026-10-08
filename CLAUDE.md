@@ -172,8 +172,8 @@ Quarto internals.
   text and structure through Pandoc's own OMML writer, a picture's alt text
   against Word's `descr`. Pandoc misreads a typed "√" or "°" and a
   delimiter's bars; the source's TeX is corrected, never the comparison.
-  It reads a SYMBOL field as Word displays it (`SYMBOL_FONT`) and stops on
-  a slot it does not know. A drawn figure (S13) is read from the SVG
+  It reads a SYMBOL field and a Symbol-font run as Word displays them
+  (`SYMBOL_FONT`, D-0123) and stops on a slot it does not know. A drawn figure (S13) is read from the SVG
   `tools/figures.py` makes of its drawings; a drawing anchored to a
   paragraph is read after that paragraph's words; a picture is also its
   file, Word's size and Word's crop (D-0118).

@@ -1321,3 +1321,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: an `oN.0.K` anchor allowed anywhere after question N with no markup; the anchors re-read as `oN` (a second reading of Word's labels).
 - binds: D-0102; D-0112 (call 3); D-0101 (S11); tools/check_numbers.py; tests/test_check_numbers.py; docs/conversion-spec.md (S11)
 - test: the PR's fixtures: x-anchors as parts and as a report-item list pass, a wrong label fails; a `.numbered` list passes and fails on a wrong marker or a missing anchor
+
+### D-0123  PH 211's calls: Symbol-font text read as Word draws it; dead internal links given their target's id; indentation alone is not a quote
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-08
+- decision: Three calls met converting PH 211 Labs 2 to 7, which no rule covered. (1) A text run set in the Symbol font counts, in the word check, as the characters Word draws, as a SYMBOL field already does (survey section 6): PH 211 Lab 3 types "®" (0xAE) in the Symbol font three times in its appendix's steps, Word's own PDF prints "→" there (read 2026-10-08 on a scratchpad copy), Pandoc reads "→", and the converted text holds "→". `SYMBOL_FONT` gains 0xAE; a slot not listed still stops the check. A check-only PR with a made-up fixture lands first (D-0119, call 4). (2) An internal link whose Word bookmark does not exist (PH 211 Lab 4's `#_Linearization`; Lab 5's `#_Linearization` and `#_What_is_Uncertainty?`; dead in Word too) keeps its words and target, and the heading it names takes that id (`{#_Linearization}`), an attribute, not a word, so the link works as written (WCAG 2.4.4). (3) A paragraph Word only indents is a plain paragraph, not a block quote, though Pandoc reads one; a quoted example in quote marks (PH 211 Lab 3's "From my data ...") stays a block quote (WCAG 1.3.1).
+- rationale: The page shows what students see in Word; the check reads it the same way and stays strict on any other slot. A dead link a reader can see is a defect the authors did not intend; giving the heading its id changes no word. Indentation is layout; a block quote says the text is quoted. The owner, 2026-10-08: "Leans agreed".
+- alternatives: (1) "®" written as stored (passes as is; readers see ® where Word shows an arrow). (2) The links kept dead, or their words kept and the target dropped. (3) Every indented paragraph a block quote, as Pandoc reads it.
+- binds: D-0102; D-0112; survey section 6; tools/check_unchanged.py (SYMBOL_FONT); tests/test_check_unchanged.py; docs/conversion-spec.md (Pass 3 additions); curriculum/ph211 (Labs 3, 4, 5)
+- test: test_symbol_font_run_reads_as_words_display, test_unknown_symbol_font_character_stops
