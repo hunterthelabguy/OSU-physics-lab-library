@@ -7,12 +7,15 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
 
 ## Shipping contract (read by /handoff)
 
-- **Verify:** `python tools/check_unchanged.py <converted .md files>` with
+- **Verify:** `python tools/check_unchanged.py <converted .md files>`, then
+  `python tools/check_numbers.py` on the same files, with
   `PANDOC` set to the Pandoc bundled with Quarto (locally
   `C:\Program Files\Quarto\bin\tools\pandoc.exe`; D-0044). CI job
-  `verify` runs it on every push to main and every PR, plus a no-em-dash
-  scan of the published sources only, then the builds and the tests. It checks words
-  only, not structure; review structure by parse-tree block counts. Manual
+  `verify` runs both on every push to main and every PR, plus
+  `tools/check_em_dash.py` (published sources only; converted files keep
+  their original's, D-0103), then the builds and the tests. The word check
+  reads words, bold, equations and alt text, not structure; the number check
+  reads labels; review the rest by parse-tree block counts. Manual
   before any commit: no student-identifiable data. Which Pandoc each step
   uses, and the variables to export locally, are under Build, "Which
   Pandoc".
@@ -163,15 +166,22 @@ Cloudflare and Vercel projects, sims, and Quarto internals.
   of `docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md`.
   D-0084: the owner's word clears its handouts, summaries and course-wide
   files; nothing outside that in-scope list is opened; notes only in pass 7.
-- `tools/check_unchanged.py` reads the original's `w:t` only: Word
-  equations (`m:t`) and image alt text (`wp:docPr descr`) are invisible to
-  it, while the converted side reads `Math` LaTeX and `Image` alt as words.
-  Do not convert a document with either until the check counts them
-  (pass 2a, D-0082; spec section 11.2).
+- `tools/check_unchanged.py` counts equations and pictures in place and
+  compares each apart (D-0113, the spec's "Equation rule"): an equation's
+  text and structure through Pandoc's own OMML writer, a picture's alt text
+  against Word's `descr`. Pandoc misreads a typed "√" or "°" and a
+  delimiter's bars; the source's TeX is corrected, never the comparison.
+  It reads a SYMBOL field as Word displays it (`SYMBOL_FONT`) and stops on
+  a slot it does not know. A drawn figure (S13) is not a picture: its words
+  and equations wait for pass 2b's SVG, so such a lab fails until then.
+  Strip an original with `tools/strip_identity.py` before committing it
+  (D-0086); it stops on comments, revisions, people or EXIF it does not
+  strip. Questions and checkpoints are pinned in order in
+  `tests/question-ids.json` (D-0077).
 - Never trust Pandoc's list numbers from an original: it drops a level set
   by a style that inherits its list (PH 212 Labs 1, 2, 3, 5) and misreads
   week restarts. Word's own labels for all 19 handouts are in
-  `docs/word-labels.json`, keyed to SHA-256 (D-0102); the survey and its
+  `docs/word-labels.json`, found by the SHA-256 of three content parts the strip leaves alone (D-0102, D-0112; `tools/check_numbers.py`); the survey and its
   anchors are `docs/handout-survey.md`, the markup rules
   `docs/conversion-spec.md` (D-0101, D-0109, D-0110). To read Word again:
   PowerShell 5.1 COM on copies in the scratchpad, `Documents.Open` and

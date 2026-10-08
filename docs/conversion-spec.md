@@ -66,7 +66,7 @@ column lapses; S1 at the top level is a checkpoint (D-0109, D-0110).
 | S6 | Text as written, no link | As written | As written | As written | As written; the number check and the ids pin keep it true |
 | S7 | A plain paragraph, `**bold**` as written, never in a question block | Bold | Bold (bold is emphasis on modern) | Bold | Absent |
 | S8 | `::: action` or `::: hint` inside the block, where Word puts it | In place | In place, inside the box | Inside the box | On the question's page, in place |
-| S9 | `::: {.question .restart #id}` on the first question of a run Word restarts; `questions.lua` resets its count there. Lists that continue need nothing | Word's numbers | Word's numbers | Word's numbers | Word's numbers (rule 3.8). Waits on the owner's reading in section 3 |
+| S9 | `::: {.question .restart #id}` on the first question of a run Word restarts; `questions.lua` resets its count there. Lists that continue need nothing | Word's numbers | Word's numbers | Word's numbers | Word's numbers (rule 3.8). Word's labels are read (D-0102); `.restart` needs no start value once PH 213 Lab 6's "0)" is a checkpoint (D-0112) |
 | S10 | No new markup: the parts are nested as S3 by Word's level, though Pandoc's draft makes them questions | As S3 | As S3 | As S3 | As S2. Caught by a number check that reads Word's numbering, never Pandoc's |
 | S11 | `::: report-item` around it; nothing numbers it | As written | As written, no box | As written | Lean: included with an answer box and no number; pass 6 rules. Marked at conversion so pass 6 can find it |
 | S12 | `![alt](file)` at Word's position, alt Word's `descr` verbatim, empty where Word's is | As placed | As placed | As placed | Included when inside a question's block |

@@ -1219,3 +1219,13 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - binds: docs/conversion-spec.md (S5, Equation rule); tools/check_unchanged.py (pass 2a PR 1); tests/test_downloads.py (pass 2b: equations compared apart from the plain-writer words); D-0082; D-0092
 - test: PR 1's equation fixtures: a dropped, swapped, changed or kind-changed equation fails; an empty `\sqrt{}` in place of a typed "√" fails
 - corrected: 2026-10-07, the rationale's count: under call 4.2 as written, 17 equations differ, 10 of them normalization only (the minus sign, a zero-width space), 6 Pandoc misreads, and 1 inside the drawn figure; not 13 and seven. The spec's 315 of 322 stands.
+
+### D-0114  PH 211 Lab 1's committed original is stripped of its identity parts; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-07
+- decision: Under D-0086 and D-0112's call 2, pass 2a's PR 1 replaces `originals/PH211/Lab 1 - Team Building - Handout.docx` with its stripped copy, made by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` removed from `docProps/core.xml`, `Company` and `Template` from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `49617ff874c0e2147a73bbfb39db38272e53be360ae10430a17e6a5358608091` (the survey's and `docs/word-labels.json`'s); stripped `aed082da8a25ecd8b5adc75dae1aa696c9d7d1503df4bb196cc8996c9e01fd00`, now the lab's `source_sha256`. The word check still reads 989 words identical and bold on 943; the number check finds Word's labels by the unchanged content parts. Its `customXml` parts hold Google Docs' round-trip data, which D-0086 does not list and which names no one. The file's history before this commit is D-0062's question. The instructor repo's originals are stripped by a PR there.
+- rationale: D-0086 (ruled) and D-0112 (ruled): "Three PRs, calls 1, 2, and 3 leans agreed."
+- alternatives: waiting for pass 3's first stripped original (D-0112, call 2).
+- binds: D-0086; D-0112; curriculum/ph211/ph211-team-building-handout.md; originals/PH211
+- test: CI's content check on PH 211 Lab 1 (hash, words, bold); tests/test_strip_identity.py

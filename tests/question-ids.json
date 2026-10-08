@@ -1,0 +1,12 @@
+{
+ "about": "D-0077: each converted lab's question and checkpoint ids, in order. Change only in the PR that moves them, with an entry naming the numbers that moved.",
+ "labs": {
+  "ph211-team-building-handout": [
+   ["question", "ph211-team-building:good-lab-partner"],
+   ["question", "ph211-team-building:sketches"],
+   ["question", "ph211-team-building:build-process"],
+   ["question", "ph211-team-building:contributions"],
+   ["question", "ph211-team-building:rebuild-changes"]
+  ]
+ }
+}
