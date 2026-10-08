@@ -1,6 +1,19 @@
 {
  "about": "D-0077: each converted lab's question and checkpoint ids, in order. Change only in the PR that moves them, with an entry naming the numbers that moved.",
  "labs": {
+  "ph211-capstone-handout": [
+   ["question", "ph211-capstone:foundation-lab"],
+   ["question", "ph211-capstone:hypothesis"],
+   ["question", "ph211-capstone:model-summary"],
+   ["question", "ph211-capstone:measurable-prediction"],
+   ["question", "ph211-capstone:design-experiment"],
+   ["question", "ph211-capstone:describe-experiment"],
+   ["question", "ph211-capstone:plan-analysis"],
+   ["question", "ph211-capstone:data-table"],
+   ["question", "ph211-capstone:carry-out-analysis"],
+   ["question", "ph211-capstone:discuss-results"],
+   ["question", "ph211-capstone:reflect-next-steps"]
+  ],
   "ph211-describing-an-experiment-handout": [
    ["question", "ph211-describing-an-experiment:describe-experiment"],
    ["question", "ph211-describing-an-experiment:statistical-uncertainty"],

@@ -44,6 +44,7 @@ courses:
       - number: "7"
         title: "Capstone"
         description: "Two-week activity to revisit one of the previous experiments, addressing issues to improve the way the lab was done"
+        document: "ph211-capstone-handout"
       - number: ""
         title: "Lab Skills practical (not implemented)"
         description: "Written assessment of major skills students should have mastered throughout the curriculum"
