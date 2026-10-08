@@ -5,15 +5,16 @@ Usage: python tools/strip_identity.py ORIGINAL STRIPPED
 D-0086: every original is committed with its identity-bearing parts
 stripped, in both repos; `source_sha256` names the stripped file, and an
 entry records both hashes. This removes `dc:creator` and `cp:lastModifiedBy`
-from docProps/core.xml and `Company` and `Template` from docProps/app.xml,
-which every handout has (survey section 8). Every other part is copied byte
-for byte, so no `w:t` changes and the parts docs/word-labels.json is keyed to
+from docProps/core.xml and `Company`, `Manager` and `Template` from
+docProps/app.xml (survey section 8). Every other part is copied byte for
+byte, so no `w:t` changes and the parts docs/word-labels.json is keyed to
 stay as they were (D-0112).
 
 The rest of D-0086's list (comments and their authors, revision authors,
 people.xml, custom properties, photo EXIF) is in none of the 19 handouts, so
 this tool removes none of it: it stops, naming the part, so a new original
-that has one is looked at before anything is committed. Prints both hashes.
+that has one is looked at before anything is committed. Custom properties
+that only repeat app.xml's fields pass (`APP_FIELDS`). Prints both hashes.
 """
 
 import hashlib
@@ -23,7 +24,7 @@ import zipfile
 
 REMOVE = {
     "docProps/core.xml": ("dc:creator", "cp:lastModifiedBy"),
-    "docProps/app.xml": ("Company", "Template"),
+    "docProps/app.xml": ("Company", "Manager", "Template"),
 }
 # A part D-0086 lists, and what in it would carry a person: Pandoc writes an
 # empty comments.xml and custom.xml into every docx, which hold nobody.
@@ -31,8 +32,13 @@ STOP_PART = (
     (re.compile(r"(^|/)comments\w*\.xml$", re.I), re.compile(rb"<w:comment\b")),
     (re.compile(r"(^|/)(people|persons)\.xml$", re.I), re.compile(rb"<\w*:?person\b", re.I)),
     (re.compile(r"(^|/)threadedComments\d*\.xml$", re.I), re.compile(rb"<\w*:?threadedComment\b")),
-    (re.compile(r"^docProps/custom\.xml$"), re.compile(rb"<property\b")),
 )
+# Custom properties that only repeat app.xml's own fields, as the PH 211
+# rubric workbook's do; any other custom property stops the strip.
+CUSTOM = "docProps/custom.xml"
+APP_FIELDS = {"AppVersion", "DocSecurity", "HyperlinksChanged", "LinksUpToDate",
+              "ScaleCrop", "ShareDoc"}
+PROPERTY_NAME = re.compile(rb'<property\b[^>]*\bname="([^"]*)"')
 AUTHOR = re.compile(rb'\sw:author="')
 EXIF = b"Exif\x00\x00"
 
@@ -47,6 +53,11 @@ def refusals(z):
     for name in z.namelist():
         if any(part.search(name) and body.search(z.read(name)) for part, body in STOP_PART):
             found.append(f"{name}: a part D-0086 lists, which this tool does not strip")
+        elif name == CUSTOM:
+            other = sorted({n.decode("utf-8") for n in PROPERTY_NAME.findall(z.read(name))}
+                           - APP_FIELDS)
+            if other:
+                found.append(f"{name}: custom properties {', '.join(other)}")
         elif name.startswith("word/") and name.endswith(".xml") and AUTHOR.search(z.read(name)):
             found.append(f"{name}: a revision or comment author (w:author)")
         elif name.lower().endswith((".jpg", ".jpeg")) and EXIF in z.read(name)[:65536]:
