@@ -141,8 +141,9 @@ class ZipReadBack(unittest.TestCase):
             with zipfile.ZipFile(out) as z:
                 self.assertIsNone(z.testzip(), "a CRC-32 does not match")
                 infos = z.infolist()
+                # A lab's folder, its media inside it (D-0118 call 6).
                 self.assertEqual([i.filename for i in infos],
-                                 ["/".join(p.split("/")[-2:]) for p in paths])
+                                 [p.split("/labs/", 1)[1] for p in paths])
                 for info, path in zip(infos, paths):
                     want = (base / path).resolve().read_bytes()
                     with self.subTest(entry=info.filename):
@@ -153,8 +154,13 @@ class ZipReadBack(unittest.TestCase):
     def test_every_format_of_ph211(self):
         self.assertTrue(self.ids(), "PH 211 has no converted lab")
         paths = [p for _, files in self.course_files() for p in files]
-        self.assertEqual(paths, [p for ext, _ in render.DOWNLOAD_FORMATS for p in published(self.ids(), ext)])
-        self.assertEqual(len(paths), len(downloads.EXTENSIONS) * len(self.ids()))
+        docs = render.converted_documents()
+        media_files = ["../../labs/{0}/{0}-media/{1}".format(i, f)
+                       for i in self.ids() for f in media.published(docs[i])]
+        want = [p for ext, _ in render.DOWNLOAD_FORMATS for p in published(self.ids(), ext)
+                + (media_files if ext == "md" else [])]
+        self.assertEqual(paths, want)
+        self.assertEqual(len(paths), len(downloads.EXTENSIONS) * len(self.ids()) + len(media_files))
         self.check_zip(paths)
 
     def test_one_format_only(self):
