@@ -494,27 +494,39 @@ def math_runs(nodes):
 
 
 def words(pieces):
-    """Pieces split at spaces into words, each a list of segments; an
-    equation is one word of its own, as Word sets it here."""
-    out, cur = [], []
+    """Pieces split at spaces into words: (segments, the props of the run
+    holding the space before it, or None). An equation is a word of its own,
+    as Word sets it here."""
+    out, cur, space = [], [], None
     for piece in pieces:
         if piece[0] == "math":
             if cur:
-                out.append(cur)
-                cur = []
-            out.append([piece])
+                out.append((cur, space))
+                cur, space = [], None
+            out.append(([piece], space))
+            space = None
             continue
         _, props, text = piece
         for i, chunk in enumerate(text.split(" ")):
             if i:
                 if cur:
-                    out.append(cur)
-                cur = []
+                    out.append((cur, space))
+                    cur, space = [], None
+                space = props
             if chunk:
                 cur.append(("text", props, chunk))
     if cur:
-        out.append(cur)
+        out.append((cur, space))
     return out
+
+
+def space_width(fonts, props):
+    if props is None:
+        return 0.0
+    w = fonts.width(props["font"], props["b"], props["i"], " ")
+    if w is None:
+        stop("a space in the face {!r}, which has no widths".format(props["font"]))
+    return w * props["size"]
 
 
 def seg_width(fonts, seg):
@@ -535,17 +547,14 @@ def seg_width(fonts, seg):
     return total, False
 
 
-def lines_of(fonts, para_words, space_props, avail):
+def lines_of(fonts, para_words, avail):
     """Greedy breaks, as Word makes them for a left-to-right label."""
     if len(para_words) <= 1:
         return [para_words]
-    space = fonts.width(space_props["font"], space_props["b"], space_props["i"], " ")
-    if space is None:
-        stop("a label of more than one word in the face {!r}, which has no widths".format(space_props["font"]))
-    space *= space_props["size"]
     lines, cur = [], []
     cur_w = cur_glyphs = cur_rough = 0.0
-    for word in para_words:
+    for word, space_props in para_words:
+        space = space_width(fonts, space_props)
         widths = [seg_width(fonts, s) for s in word]
         if any(w is None for w, _ in widths):
             stop("a label of more than one word in the face {!r}, which has no widths".format(
@@ -563,9 +572,9 @@ def lines_of(fonts, para_words, space_props, avail):
                     trial, avail, doubt))
         if cur and trial > avail:
             lines.append(cur)
-            cur, cur_w, cur_glyphs, cur_rough = [word], ww, glyphs, rough
+            cur, cur_w, cur_glyphs, cur_rough = [(word, None)], ww, glyphs, rough
         else:
-            cur.append(word)
+            cur.append((word, space_props if cur else None))
             cur_w, cur_glyphs, cur_rough = trial, cur_glyphs + (1 if cur_glyphs else 0) + glyphs, cur_rough + rough
     lines.append(cur)
     return lines
@@ -909,9 +918,9 @@ class Figure:
             if (para["line"], para["lineRule"]) != (240, "auto"):
                 stop("line spacing other than single in a label")
             laid = []
-            for line in lines_of(self.fonts, words(pieces), base, avail):
+            for line in lines_of(self.fonts, words(pieces), avail):
                 above = below = 0.0
-                for word in line:
+                for word, _ in line:
                     for seg in word:
                         segs = [(seg[1], ())] if seg[0] == "text" else [(pp, d) for pp, _, d in math_runs(seg[1])]
                         for props, depth in segs:
@@ -945,8 +954,8 @@ class Figure:
             for line, above, below in laid:
                 cursor += below_prev + above
                 jc = para["jc"]
-                space = self.fonts.width(base["font"], base["b"], base["i"], " ")
-                width = sum(seg_width(self.fonts, s)[0] for word in line for s in word) +                     (len(line) - 1) * space * base["size"]
+                width = sum(seg_width(self.fonts, s)[0] for word, _ in line for s in word) + \
+                    sum(space_width(self.fonts, sp) for _, sp in line)
                 if width > avail:
                     # Word starts a word too wide for its box at the left
                     # inset (PH 213 Lab 4's "T", Word's PDF).
@@ -962,9 +971,9 @@ class Figure:
                 self.ink = [min(self.ink[0], cursor - above), max(self.ink[1], cursor + below)]
                 out.append('<tspan class="figure-line" x="{}" y="{}"{}>'.format(
                     num(lx), num(cursor), ' text-anchor="{}"'.format(anchor_) if anchor_ else ""))
-                for k, word in enumerate(line):
-                    if k:
-                        out.append(" ")
+                for word, sp in line:
+                    if sp is not None:
+                        out.append(run_tspan(sp, base, " "))
                     for seg in word:
                         out.append(self.segment(seg, base))
                 out.append("</tspan>")
@@ -999,6 +1008,8 @@ class Figure:
 
 
 def family(name):
+    if not name:
+        return "serif"
     return FALLBACKS.get(name, "'{}'".format(name))
 
 
@@ -1032,10 +1043,17 @@ def shade_face(paint, kind):
 
 # ---------------------------------------------------------------- the whole
 
-def svg(original, ids, title=""):
+def svg(original, ids):
     """The SVG of the drawings with these docPr ids, and Word's descr of
     each drawing that is not a picture."""
     pkg = Package(original)
+    try:
+        return _svg(pkg, ids)
+    finally:
+        pkg.zip.close()
+
+
+def _svg(pkg, ids):
     found = drawings(pkg, [str(i) for i in ids])
     fig = Figure(pkg)
     frames, descrs, frame_of = [], [], {}

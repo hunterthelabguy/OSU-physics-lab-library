@@ -10,7 +10,10 @@ its page header and the department in its page footer, both from
 tools/reference.docx with the page size and question label (D-0057). HTML is
 a plain Pandoc render of the source: the banner, the department line and
 the modern theme, everything embedded and no site chrome, so it opens
-from disk. A missing tool is an error, never a skip (LEDGER 53).
+from disk; its equations are MathML (D-0040). Pictures and drawn figures
+come from the lab's media folder, which tools/quarto_build.py fills
+(tools/media.py) and tools/filters/media.lua places (four-items call 4.3;
+D-0117, D-0118). A missing tool is an error, never a skip (LEDGER 53).
 """
 
 import os
@@ -18,7 +21,9 @@ import pathlib
 import re
 import shutil
 import subprocess
+import zipfile
 
+import media
 import render
 
 THEME = "modern"
@@ -28,6 +33,16 @@ EXTENSIONS = ("md", "docx", "html", "pdf")
 PHYSICS = "Department of Physics, Oregon State University"
 REFERENCE_DOCX = os.path.join(render.ROOT, "tools", "reference.docx")
 FILTER = os.path.join(render.ROOT, "tools", "filters", "questions.lua")
+MEDIA_FILTER = os.path.join(render.ROOT, "tools", "filters", "media.lua")
+
+
+def lab_dir(doc):
+    """The generated labs/<id>/ folder; its <id>-media/ holds the built media."""
+    return os.path.join(render.ROOT, "labs", doc["meta"]["id"])
+
+
+def media_dir(doc):
+    return os.path.join(lab_dir(doc), media.folder_name(doc["meta"]["id"]))
 
 
 def is_relative(url):
@@ -36,10 +51,12 @@ def is_relative(url):
 
 
 def pandoc(doc, text, args):
-    """Pandoc on the source text, modern question labels; a warning fails."""
+    """Pandoc on the source text, modern question labels, pictures and
+    figures from the lab's media folder; a warning fails."""
     proc = subprocess.run(
-        [render.PANDOC, "-f", "markdown-smart", "--lua-filter", FILTER,
-         "-M", "theme=" + THEME] + args,
+        [render.PANDOC, "-f", render.FROM, "--lua-filter", MEDIA_FILTER, "--lua-filter", FILTER,
+         "-M", "theme=" + THEME, "--resource-path", lab_dir(doc),
+         "-M", "media-dir=" + media_dir(doc).replace(os.sep, "/")] + args,
         input=text, capture_output=True, text=True, encoding="utf-8")
     if proc.returncode != 0 or "[WARNING]" in proc.stderr:
         raise SystemExit("Pandoc failed on {}:\n{}".format(doc["path"], proc.stderr))
@@ -73,6 +90,30 @@ def word(doc, dest):
     pandoc(doc, render.body_after_front_matter(doc["path"]),
            ["-t", "docx", "--reference-doc", REFERENCE_DOCX, "-M", "lang=en"]
            + box_colours() + ["-o", dest])
+    crop_pictures(dest, media.lab_media(doc)["crops"])
+
+
+def crop_pictures(path, crops):
+    """Word's crop (srcRect) on each cropped picture, in document order;
+    Pandoc's Word writer has no crop of its own (D-0118)."""
+    if not any(crops):
+        return
+    with zipfile.ZipFile(path) as z:
+        infos = z.infolist()
+        parts = {i.filename: z.read(i.filename) for i in infos}
+    doc = parts["word/document.xml"].decode("utf-8")
+    fills = list(re.finditer(r"(<pic:blipFill>\s*<a:blip\b[^>]*?(?:/>|>.*?</a:blip>))", doc, re.S))
+    if len(fills) != len(crops):
+        raise SystemExit("{}: {} pictures in Word, {} in the source".format(path, len(fills), len(crops)))
+    for m, crop in reversed(list(zip(fills, crops))):
+        if crop:
+            l, t, r, b = crop.split()
+            rect = '<a:srcRect l="{}" t="{}" r="{}" b="{}"/>'.format(l, t, r, b)
+            doc = doc[:m.end()] + rect + doc[m.end():]
+    parts["word/document.xml"] = doc.encode("utf-8")
+    with zipfile.ZipFile(path, "w") as z:
+        for i in infos:
+            z.writestr(i, parts[i.filename])
 
 
 def html(doc, dest):
@@ -80,7 +121,7 @@ def html(doc, dest):
     or footer chrome, so nothing in it links into the site."""
     css = lambda *p: os.path.join(render.ROOT, *p).replace(os.sep, "/")
     pandoc(doc, PHYSICS + "\n\n" + render.body_after_front_matter(doc["path"]),
-           ["-t", "html5", "--standalone", "--embed-resources",
+           ["-t", "html5", "--standalone", "--embed-resources", "--mathml",
             "--template", os.path.join(render.ROOT, "tools", "template.html"),
             "-M", "title=" + doc["meta"]["title"],
             "-M", "css=" + css("themes", THEME + ".css"),

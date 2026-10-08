@@ -230,10 +230,11 @@ def docx_content(path):
     Each picture is {"descr", "part", "extent", "crop", "in_figure"}; each
     drawing that is not a picture is {"id", "descr", "lone_text_box"}.
     """
-    z = zipfile.ZipFile(path)
-    styles = ET.fromstring(z.read("word/styles.xml"))
-    rels = {r.get("Id"): r.get("Target")
-            for r in ET.fromstring(z.read("word/_rels/document.xml.rels"))}
+    with zipfile.ZipFile(path) as z:
+        styles = ET.fromstring(z.read("word/styles.xml"))
+        rels = {r.get("Id"): r.get("Target")
+                for r in ET.fromstring(z.read("word/_rels/document.xml.rels"))}
+        document = z.read("word/document.xml")
     info, default_para = {}, None
     for s in styles.iter(W + "style"):
         sid = s.get(W + "styleId")
@@ -257,7 +258,7 @@ def docx_content(path):
             sid = info[sid]["based"]
         return None
 
-    root = without_fallbacks(z.read("word/document.xml"))
+    root = without_fallbacks(document)
     # The sinks text, equations and pictures go to; an anchored drawing is
     # read into sinks of its own and laid after its paragraph's words.
     sink = {"out": [], "equations": [], "pictures": []}

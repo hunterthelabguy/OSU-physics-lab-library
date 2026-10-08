@@ -22,6 +22,7 @@ import sys
 import render
 import quarto_chrome
 import downloads
+import media
 
 ROOT = render.ROOT
 QUARTO = os.environ.get("QUARTO", "quarto")
@@ -110,15 +111,30 @@ def generate():
 
     for doc_id, doc in docs.items():
         source = os.path.relpath(doc["path"], ROOT).replace(os.sep, "/")
+        # The lab's pictures and drawn figures (four-items call 4.3), in the
+        # generated labs/<id>/<id>-media/, published beside the downloads.
+        folder = media.folder_name(doc_id)
+        built = os.path.join(ROOT, "labs", doc_id, folder)
+        published = media.build(doc, built, downloads.CHROME)
         for theme in render.THEMES:
             page = "labs/{}/{}/index.qmd".format(doc_id, theme)
             up = rel_to_root(page)
-            write(page, {
+            front = {
                 "title": doc["meta"]["title"],
                 "theme-name": theme,
-                "filters": [up + "/tools/filters/questions.lua"],
+                # media.lua runs before Quarto's own figures (pre-ast), so
+                # a lone picture never gets its alt text as a caption.
+                "filters": [{"path": up + "/tools/filters/media.lua", "at": "pre-ast"},
+                            up + "/tools/filters/questions.lua"],
                 "css": [up + "/themes/" + theme + ".css"],
-            }, include(page, source))
+            }
+            if published:
+                # The page sits one folder below the media; Quarto copies
+                # what `resources` lists, and nothing it is not told of.
+                front.update({"media-prefix": "../",
+                              "media-dir": built.replace(os.sep, "/"),
+                              "resources": ["../{}/{}".format(folder, f) for f in published]})
+            write(page, front, include(page, source))
             pages.append({"html": "labs/{}/{}/index.html".format(doc_id, theme),
                           "kind": "doc", "depth": 3, "theme": theme, "footnote": "",
                           # D-0053: downloads come from modern only.
