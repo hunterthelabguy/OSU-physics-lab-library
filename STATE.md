@@ -31,8 +31,12 @@ leans"):
 
 Word's labels for all 19 read 2026-10-07 (`docs/word-labels.json`,
 survey section 3). PH 213 Lab 6 shows students "0)": S9 needs a start
-value, the owner's to rule. PH 213 Lab 5's symbol is Ω. Next: passes 2a
-and 2b; 2b's gate is pass 1 alone.
+value. PH 213 Lab 5's symbol is Ω. Ruled the same day: the faithful page
+is retired (D-0108, its own PR in 2a, public wording redrafted for the
+owner first), and a numbered item needing no answer is "Required step N"
+in a question-like block of another palette colour, picked on a board
+(D-0109), so "0)" is never shown. Next: passes 2a and 2b; 2b's gate is
+pass 1 alone.
 
 **Focus (2026-10-01):** Phase 5 cutover done. Production is the Quarto build
 on Cloudflare Pages, `https://osu-physics-labs.pages.dev/` (project

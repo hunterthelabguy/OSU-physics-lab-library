@@ -1153,3 +1153,25 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: names left empty until a summary gives one.
 - binds: site/courses.md; four-items Q4; D-0099
 - test: the course-page tests already compare the heading with `name`
+
+### D-0108  The faithful page is retired; the modern page is the one presentation; amends LEDGER 28
+- status: ruled
+- proposed-by: owner
+- ruled-by: owner
+- date: 2026-10-07
+- decision: Colleagues have approved the modern format, so the faithful presentation (the original's look, "N)" numbering, bold questions) is retired. One Markdown source now feeds one presentation, modern, plus the downloads, which already come from modern (D-0053). To retire: `themes/faithful.css`; `questions.lua`'s faithful branch; the faithful pages and the switch link between the two presentations; and their tests and CSS. Each faithful address redirects to its modern page, as the old "How this was made" address does (D-0072). The public words that describe two presentations (VISION.md's method section, `site/landing.md`, "How this site works") are redrafted for the owner's line edits before the PR merges. Built as its own PR in pass 2a, which changes `questions.lua` anyway. Unchanged: conversion stays format only, and the template's and the handout's numbers still equal the original's (rule 3.8, D-0077), so Word's labels (D-0102) and the number check keep their job. The Faithful column of `docs/conversion-spec.md`'s markup rules (D-0101) lapses. Amends LEDGER 28; D-0090's faithful screenshot drops.
+- rationale: The owner, 2026-10-07: "the modern format was greenlit by colleagues; 'read it as it was written' is no longer needed anyway", then "Retire the faithful page." LEDGER 28's pilot existed to let readers compare the two; the comparison is done.
+- alternatives: keep the faithful page as an archive view (a second presentation to maintain, test and screenshot per lab, with no reader).
+- binds: LEDGER 28; D-0053; D-0072; D-0090; D-0101; themes/faithful.css; tools/filters/questions.lua; tools/render.py; tools/quarto_build.py; site/site.css; tests; VISION.md; site/landing.md; site/how-this-site-works.md; CLAUDE.md (Build); docs/conversion-spec.md
+- test: pass 2a's PR: no faithful page is built, each old faithful address redirects to its modern page, and the downloads are unchanged
+
+### D-0109  A numbered item needing no answer is a required step, labelled "Required step N" on its own count, in a question-like block of another palette colour; amends D-0101's S1
+- status: ruled
+- proposed-by: owner
+- ruled-by: owner
+- date: 2026-10-07
+- decision: A top-level numbered item that asks for no answer (S1; in the survey, PH 213 Lab 6's "0)", exchange contact information, and its Week 3 "1)", submit the slides) is marked `::: {.required-step #id}` in the source. The page shows it in the same kind of block as a question, in a different colour taken from the ruled palette and chosen by the owner on a design board. It is labelled "Required step 1", "Required step 2" and so on, counted per lab apart from the questions. Questions keep Word's numbers, so after PH 213 Lab 6's "0)" its questions read Question 1 and 2, and no "0" is shown. The Word download carries the same label and block. The template leaves required steps out, since they need no answer. S1 parts (options, case labels, actions inside a question) stay list items as written.
+- rationale: The owner, 2026-10-07: "Question 0 is not really a question, but a WARNING/PAY ATTENTION/DO THIS", proposing the question's block in another colour, then "Callout 1, 2, 3, etc." so that a TA can point to it "when a student says 'I didn't know I was supposed to do that.'" Claude leaned "Required step N", plain terms (LEDGER 17) that say what to do; the owner, the same day: "Required step is better, I agree."
+- alternatives: the number alone and no block (D-0101 as ruled); "Callout N" (a design word students may not know); keeping "0".
+- binds: D-0101 (S1); docs/conversion-spec.md; tools/filters/questions.lua; tools/reference.docx (a required-step style); site/site.css and themes/modern.css (the colour, after the board); tests/test_brand.py (the palette)
+- test: pass 2a: a fixture with a required step before two questions renders "Required step 1", then "Question 1" and "Question 2"; the template has none
