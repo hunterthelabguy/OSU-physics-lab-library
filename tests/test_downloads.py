@@ -98,6 +98,8 @@ class Links(unittest.TestCase):
                 with self.subTest(doc=doc_id, theme=theme):
                     self.assertIn(FOOTER_NEW, text)
                     self.assertNotIn(FOOTER_OLD, text)
+                    # D-0116: the one-source point lives on "How this site works" only.
+                    self.assertNotIn("drift apart", text)
 
 
 def words(text):
