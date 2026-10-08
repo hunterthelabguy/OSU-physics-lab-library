@@ -3,24 +3,19 @@
 Volatile handoff, capped at one screen. Updated 2026-10-07.
 
 **Pass 2a (2026-10-07), three PRs (D-0112, ruled).**
-- PR 1, checks: merged, #31 `d193461`, main green. Word check counts
-  equations, alt text, SYMBOL; `tools/check_numbers.py`; ids pin;
-  `tools/check_em_dash.py`; `tools/strip_identity.py` (PH 211 Lab 1's
-  original stripped, D-0114; instructor repo's two by its PR 4, its
-  entries 9 and 10; the tool's app-field fix #32 `6bd16c2`). 250 tests.
-- Equation rule in the spec (D-0113, proposed): 315 of 322 round-trip;
-  six need corrected TeX; one is in PH 213 Lab 2's drawn figure (2b).
-- PR 2, Word box: draft #33. Question box is a one-cell table; waits on
-  the owner's checkpoint colour (board
-  `docs/design/2026-10-07-checkpoint/`, artifact
-  https://claude.ai/artifact/P99gGBPsZWzEPYmhKB2aJF, lean C) and his look
-  in Word and Google Docs (preview
-  https://eb8985e2.osu-physics-labs.pages.dev/labs/ph211-team-building-handout/ph211-team-building-handout.docx).
-- PR 3, faithful retirement: not built; wording draft for his line edits,
-  `docs/superpowers/plans/2026-10-07-faithful-retirement-wording.md`
-  (passages 1 to 4 D-0108's; 5 to 7 found: stripped originals, stale
-  download lines, the check's reach).
-- Proposed, for promotion: D-0113, D-0114.
+- PR 1, checks: merged, #31 `d193461`. Word check counts equations, alt
+  text, SYMBOL; `tools/check_numbers.py`; ids pin; `tools/check_em_dash.py`;
+  `tools/strip_identity.py` (PH 211 Lab 1's original stripped, D-0114;
+  the instructor repo's two by its PR 4; app-field fix #32 `6bd16c2`).
+- Equation rule in the spec (D-0113, ruled): 315 of 322 round-trip; six
+  need corrected TeX; one is in PH 213 Lab 2's drawn figure (2b).
+- PR 2, Word box: merged, #33 `62c8bac`. Questions and checkpoints are
+  one-cell tables; checkpoint colour C, Candela and Luminance (D-0115);
+  the owner checked the question box in Word and Google Docs.
+- PR 3, faithful retired: #34, CI green, wording 1 to 7 as ruled
+  (D-0115). Waits on one unruled line, the lab footer's "This page and
+  its downloads are built from one Markdown file".
+- Next: pass 2b (downloads: images, MathML, the S13 SVG figures).
 
 **Focus (2026-10-07):** the conversion of the remaining 18 PH 21X handouts,
 then a Word report template per lab, then a cross-reference against the
