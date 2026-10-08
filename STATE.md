@@ -30,11 +30,11 @@ leans"):
 - course names come from the handouts' course lines (a site PR, not made).
 
 Word's labels for all 19 read 2026-10-07 (`docs/word-labels.json`,
-survey section 3). PH 213 Lab 6 shows students "0)", a required step
-(D-0109 below). PH 213 Lab 5's symbol is Ω. Ruled the same day: the faithful page
+survey section 3). PH 213 Lab 6 shows students "0)", a checkpoint
+(D-0109, D-0110 below). PH 213 Lab 5's symbol is Ω. Ruled the same day: the faithful page
 is retired (D-0108, its own PR in 2a, public wording redrafted for the
-owner first), and a numbered item needing no answer is "Required step N"
-in a question-like block of another palette colour, picked on a board
+owner first), and a numbered item needing no answer is "Checkpoint N"
+(D-0110; pace markers earmarked, D-0111) in a question-like block of another palette colour, picked on a board
 (D-0109), so "0)" is never shown. Next: passes 2a and 2b; 2b's gate is
 pass 1 alone.
 

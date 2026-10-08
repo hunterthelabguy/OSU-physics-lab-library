@@ -1175,3 +1175,25 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: the number alone and no block (D-0101 as ruled); "Callout N" (a design word students may not know); keeping "0".
 - binds: D-0101 (S1); docs/conversion-spec.md; tools/filters/questions.lua; tools/reference.docx (a required-step style); site/site.css and themes/modern.css (the colour, after the board); tests/test_brand.py (the palette)
 - test: pass 2a: a fixture with a required step before two questions renders "Required step 1", then "Question 1" and "Question 2"; the template has none
+
+### D-0110  The no-answer block is labelled "Checkpoint N", a general label for what students do or show; corrects D-0109
+- status: ruled
+- proposed-by: owner
+- ruled-by: owner
+- date: 2026-10-07
+- decision: D-0109's label "Required step N" becomes "Checkpoint N" and its source mark `::: {.checkpoint #id}`. Everything else in D-0109 stands: a question-like block in another palette colour picked on a board, its own count per lab, questions keeping Word's numbers, the same in the Word download, left out of the template. "Checkpoint" is meant to generalize. When content changes begin, the same block can carry other things a group must do or show, for example a talk with a TA and a conceptual question at the end of every lab. Adding those is a content change, not part of the conversion.
+- rationale: The owner, 2026-10-07: "required step" "implies that some steps are not required, which is not the message we want to send to students", then "I like checkpoint because it generalizes". Claude had leaned "Task N"; it had noted that "checkpoint" can suggest a TA signs off, which the owner's future use embraces.
+- alternatives: "Required step N" (D-0109; implies optional steps); "Task N"; "Step N" (every round-bullet action is a step); "Action N" (collides with the legend's "action items").
+- binds: D-0109; D-0101 (S1); docs/conversion-spec.md; tools/filters/questions.lua; tools/reference.docx
+- test: as D-0109's, with "Checkpoint 1"
+
+### D-0111  Pace markers ("by this time, be done with Part N") are earmarked as their own label, not built and not a gate
+- status: ruled
+- proposed-by: owner
+- ruled-by: owner
+- date: 2026-10-07
+- decision: The owner wants consistent time markers through each lab, so that a group can see it is moving too slowly. These would be a separate label from "Checkpoint". Nothing is built and nothing waits on them, because the times are not known; they need measured times per part first. Adding them is a content change, for the content phase.
+- rationale: The owner, 2026-10-07: "consistent timestamps to indicate the progression through the lab and give a signal if a group is moving too slowly. This does, however, require knowing what those times are, so I would earmark that rather than set it as a gate." Whether a time marker is a checkpoint he left open, "maybe that's a separate label"; it is recorded as separate until he rules otherwise.
+- alternatives: pace markers as a kind of checkpoint; set now from estimates (times not known).
+- binds: D-0110; the content phase
+- test: none

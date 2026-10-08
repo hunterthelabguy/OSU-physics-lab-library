@@ -53,11 +53,11 @@ redraws in Word as a one-cell shaded table (D-0082); "Template" is pass
 6's report template (D-0075, D-0079).
 
 Amended 2026-10-07: the faithful page is retired (D-0108), so the Faithful
-column lapses; S1 at the top level is a required step (D-0109).
+column lapses; S1 at the top level is a checkpoint (D-0109, D-0110).
 
 | | Source | Faithful page | Modern page | Word download | Template |
 |---|---|---|---|---|---|
-| S1 top level | `::: {.required-step #id}` (D-0109); counted apart from questions | (retired, D-0108) | "Required step N" on its own count, in a question-like block of another palette colour (chosen on a board); questions keep Word's numbers | The same label and block | Left out |
+| S1 top level | `::: {.checkpoint #id}` (D-0109, D-0110); counted apart from questions | (retired, D-0108) | "Checkpoint N" on its own count, in a question-like block of another palette colour (chosen on a board); questions keep Word's numbers | The same label and block | Left out |
 | S1 part | A list item as written; no markup | As written | As written | As written | Inside its question's page |
 | S2 | One question block: the stem's paragraph, then its parts (S3) | "N)", stem, parts | "Question N" (the stem is question N), one box around stem and parts | One box | Stem and parts on one page; one box after the last part, or one per part if the outlines split parts (D-0075) |
 | S3 | An ordered list inside the block, nested and marked ("a.", "i.") as Word shows | Word's letters exactly | Word's letters; unbolded | Inside the box | As S2 |
