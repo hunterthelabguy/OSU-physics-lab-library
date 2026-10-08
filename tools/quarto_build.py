@@ -79,6 +79,10 @@ def generate():
           include("404.qmd", "site/404.md"))
 
     docs = render.converted_documents()
+    # Each lab's pictures and drawn figures (four-items call 4.3), made into
+    # the generated labs/<id>/<id>-media/ before any page names them.
+    for doc_id, doc in docs.items():
+        doc["published"] = media.build(doc, downloads.media_dir(doc), downloads.CHROME)
     meta = render.courses_meta()
     # The course index and each course's page (D-0069, D-0070) take the
     # left-aligned grid in site/site.css by their body class. Quarto would
@@ -111,11 +115,9 @@ def generate():
 
     for doc_id, doc in docs.items():
         source = os.path.relpath(doc["path"], ROOT).replace(os.sep, "/")
-        # The lab's pictures and drawn figures (four-items call 4.3), in the
-        # generated labs/<id>/<id>-media/, published beside the downloads.
         folder = media.folder_name(doc_id)
-        built = os.path.join(ROOT, "labs", doc_id, folder)
-        published = media.build(doc, built, downloads.CHROME)
+        built = downloads.media_dir(doc)
+        published = doc["published"]
         for theme in render.THEMES:
             page = "labs/{}/{}/index.qmd".format(doc_id, theme)
             up = rel_to_root(page)

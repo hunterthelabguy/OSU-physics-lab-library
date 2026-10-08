@@ -37,8 +37,9 @@ MEDIA_FILTER = os.path.join(render.ROOT, "tools", "filters", "media.lua")
 
 
 def lab_dir(doc):
-    """The generated labs/<id>/ folder; its <id>-media/ holds the built media."""
-    return os.path.join(render.ROOT, "labs", doc["meta"]["id"])
+    """The generated labs/<id>/ folder, whose <id>-media/ holds the built
+    media; a test's made-up lab names its own ("lab_dir")."""
+    return doc.get("lab_dir") or os.path.join(render.ROOT, "labs", doc["meta"]["id"])
 
 
 def media_dir(doc):

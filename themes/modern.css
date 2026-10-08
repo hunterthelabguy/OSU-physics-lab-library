@@ -137,6 +137,14 @@ li { margin: 0 0 .5rem; }
 
 .legend-question p { font-weight: 700; }
 
+/* Pictures and drawn figures at Word's size (four-items call 4.3; D-0117,
+   D-0118), never wider than the column; the attributes keep the shape. A
+   cropped picture shows only Word's part of it: tools/filters/media.lua
+   sizes the image inside the span by Word's crop. */
+main img, main svg.drawn-figure { max-width: 100%; height: auto; }
+.picture-crop { display: inline-block; position: relative; max-width: 100%; overflow: hidden; }
+.picture-crop img { position: absolute; max-width: none; }
+
 .doc-footer {
   max-width: 68ch;
   margin: 3rem auto 0;
@@ -160,6 +168,6 @@ li { margin: 0 0 .5rem; }
   main { max-width: none; padding: 0; }
   .question, .checkpoint { background: none; border-left: 3px solid #000; }
   .doc-footer { display: none; }
-  .question, .checkpoint, .box { break-inside: avoid; }
+  .question, .checkpoint, .box, svg.drawn-figure, .picture-crop { break-inside: avoid; }
   h1, h2, h3 { break-after: avoid; }
 }

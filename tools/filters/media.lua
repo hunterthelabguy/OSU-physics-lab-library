@@ -57,19 +57,21 @@ local function picture_html(el)
   local w = inches(el.attributes.width, "width") * 96
   local h = inches(el.attributes.height, "height") * 96
   local crop = el.attributes.crop
+  -- Word's shape, even where it differs from the file's (aspect-ratio).
   if not crop then
-    return string.format('<img src="%s" alt="%s" width="%d" height="%d">', src, alt,
-      math.floor(w + 0.5), math.floor(h + 0.5))
+    return string.format('<img src="%s" alt="%s" width="%d" height="%d" style="aspect-ratio:%.2f/%.2f">',
+      src, alt, math.floor(w + 0.5), math.floor(h + 0.5), w, h)
   end
   local l, t, r, b = crop:match("^(%d+) (%d+) (%d+) (%d+)$")
   if not l then error("media.lua: crop is Word's srcRect, four integers: " .. crop) end
   l, t, r, b = l / 100000, t / 100000, r / 100000, b / 100000
   local sx, sy = 1 - l - r, 1 - t - b
-  -- Percentages of the span's width, so the crop holds as the column narrows.
+  -- Word stretches the part it keeps to its size; percentages of the span,
+  -- so the crop holds as the column narrows.
   return string.format(
     '<span class="picture-crop" style="width:%.2fpx;aspect-ratio:%.2f/%.2f">'
-      .. '<img src="%s" alt="%s" style="width:%.4f%%;margin-left:-%.4f%%;margin-top:-%.4f%%"></span>',
-    w, w, h, src, alt, 100 / sx, 100 * l / sx, 100 * t / sy * h / w)
+      .. '<img src="%s" alt="%s" style="width:%.4f%%;height:%.4f%%;left:-%.4f%%;top:-%.4f%%"></span>',
+    w, w, h, src, alt, 100 / sx, 100 / sy, 100 * l / sx, 100 * t / sy)
 end
 
 local function figure_docx(el)

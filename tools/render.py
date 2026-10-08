@@ -324,8 +324,13 @@ def download_all(course, docs, depth):
     e = html.escape
     boxes = []
     for ext, name in DOWNLOAD_FORMATS:
-        files = " ".join(up(depth) + "labs/{0}/{0}.{1}".format(doc_id, ext)
-                         for doc_id in ids)
+        paths = ["labs/{0}/{0}.{1}".format(doc_id, ext) for doc_id in ids]
+        if ext == "md":
+            # A Markdown file names its pictures and figures by relative
+            # path, so they travel with it (four-items call 4.3).
+            paths += ["labs/{0}/{0}-media/{1}".format(doc_id, f)
+                      for doc_id in ids for f in docs[doc_id].get("published", [])]
+        files = " ".join(up(depth) + p for p in paths)
         boxes.append('<label><input type="checkbox" value="{}" data-files="{}">'
                      ' {}</label>'.format(ext, e(files), e(name)))
     return (

@@ -55,6 +55,9 @@ redraws in Word as a one-cell shaded table (D-0082); "Template" is pass
 Amended 2026-10-07: the faithful page is retired (D-0108), so the Faithful
 column lapses; S1 at the top level is a checkpoint (D-0109, D-0110).
 
+Amended 2026-10-08 (pass 2b; D-0117, D-0118): S12 and S13 as built, below
+the table under "Pictures and drawn figures".
+
 | | Source | Faithful page | Modern page | Word download | Template |
 |---|---|---|---|---|---|
 | S1 top level | `::: {.checkpoint #id}` (D-0109, D-0110); counted apart from questions | (retired, D-0108) | "Checkpoint N" on its own count, in a question-like block of another palette colour (chosen on a board); questions keep Word's numbers | The same label and block | Left out |
@@ -69,12 +72,49 @@ column lapses; S1 at the top level is a checkpoint (D-0109, D-0110).
 | S9 | `::: {.question .restart #id}` on the first question of a run Word restarts; `questions.lua` resets its count there. Lists that continue need nothing | Word's numbers | Word's numbers | Word's numbers | Word's numbers (rule 3.8). Word's labels are read (D-0102); `.restart` needs no start value once PH 213 Lab 6's "0)" is a checkpoint (D-0112) |
 | S10 | No new markup: the parts are nested as S3 by Word's level, though Pandoc's draft makes them questions | As S3 | As S3 | As S3 | As S2. Caught by a number check that reads Word's numbering, never Pandoc's |
 | S11 | `::: report-item` around it; nothing numbers it | As written | As written, no box | As written | Lean: included with an answer box and no number; pass 6 rules. Marked at conversion so pass 6 can find it |
-| S12 | `![alt](file)` at Word's position, alt Word's `descr` verbatim, empty where Word's is | As placed | As placed | As placed | Included when inside a question's block |
-| S13 | An SVG the build makes from the original's shapes, groups and text boxes, its text kept as SVG text at Word's positions (so the word check can read it), with a PNG made from that SVG for Word. Pass 2b first measures LibreOffice's SVG of the three figures against Word; a small converter only if it is not faithful (D-0101) | The SVG | The SVG | The PNG | As S12, the PNG |
+| S12 | `![alt](<id>-media/<name>){width="Win" height="Hin" crop="l t r b"}` at Word's position (after its paragraph's words when Word anchors it), alt Word's `descr` verbatim, empty where Word's is; size and crop Word's; the file in front matter `images:` (D-0118) | As placed | As placed, at Word's size and crop | As placed, at Word's size and crop | Included when inside a question's block |
+| S13 | `![alt](<id>-media/<name>.svg){.drawn drawings="<docPr ids>"}` after its paragraph's words; the build makes the SVG from the original's drawings with tools/figures.py, its labels and equation SVG text at Word's positions, and a PNG from that SVG for Word (D-0101, D-0117). A lone text box is `::: box` (S14) | The SVG | The SVG, inline | The PNG | As S12, the PNG |
 | S14 | One-cell tables `::: box`; other tables as Pandoc tables, blank cells blank; a box between parts stays inside its question block; rubric tables converted as handout content | As written | As written | As written | Lean: a table a question asks students to fill in is copied under that question; pass 6 rules |
 | S15 | Not converted: page numbers and running headers (outside `document.xml`, so the word check loses nothing). The contents field becomes a list of links to the same headings, words unchanged. SEQ numbers stay text as stored. A content control's text stays plain text; empty controls vanish. The SYMBOL field gives what Word displays (section 6) | As listed | As listed | As listed | Absent |
 | S16 | No markup; recorded in the table | | | | Pass 6 rules each lab's scope on this evidence (D-0085) |
 | S17 | The owner's ruling before those conversions (section 7) | | | | |
+
+## Pictures and drawn figures (S12, S13; pass 2b, D-0117, D-0118)
+
+- **Reading.** Every step reads a source as `markdown-smart-implicit_figures`
+  (`render.FROM`): a lone picture is a picture, not a figure with its alt
+  text as a visible caption Word does not have. The lab page runs
+  `tools/filters/media.lua` at Quarto's `pre-ast`, before Quarto's own
+  figures, which ignore the reader setting and also drop the `alt`
+  attribute (probed 2026-10-08).
+- **Where.** Word anchors all 23 floating drawings in the 19 handouts at the
+  start of a paragraph and shows them below its first lines, so the
+  Markdown places each after that paragraph's words, and the word check
+  reads it there. An inline picture stays where Word has it.
+- **A picture (S12)** is the original's file, byte for byte, beside the
+  source as `curriculum/<course>/<id>-media/<name>`, the name the
+  converter's descriptor (ledger 14). Front matter `images:` names it
+  (`file`, `source_part`, `sha256`). Its `width` and `height` are Word's
+  extent in inches to four places, and `crop` is Word's `srcRect` (left,
+  top, right, bottom, thousandths of a percent): Word crops 14 of the 49
+  pictures and shows every screenshot smaller than its pixels.
+  `python tools/media.py list ORIGINAL` prints each picture's part, size,
+  crop and alt text in reading order; `extract ORIGINAL FOLDER NAME ...`
+  copies them under the names given and prints the front matter and each
+  image's Markdown.
+- **A drawn figure (S13)** names the drawings it draws by their `wp:docPr`
+  ids; PH 212 Lab 3's is two screenshots and the two arrows over them
+  (D-0117, call 4). Its alt text is Word's `descr` of each drawing that is
+  not a picture; a picture inside keeps its own. Its file is made at build,
+  never committed; every drawing that is not a picture must be in one
+  figure, unless it is a lone text box, which is `::: box`.
+- **Outputs.** The page writes a figure's SVG inline (its labels reach a
+  screen reader and find-in-page) and a picture as an `<img>` at Word's
+  size, a cropped one in a span that shows Word's part. The Word download
+  embeds the figure's PNG at the SVG's size, alt text the figure's and its
+  pictures', and writes Word's crop back into each picture. The HTML
+  download embeds both; its equations are MathML. The course download's
+  Markdown carries each lab's media in the lab's folder.
 
 ## Equation rule (S5; pass 2a's probe, D-0113)
 
@@ -156,9 +196,9 @@ reference; a declared passage that does not occur also fails. CI runs it on
 every file with a `source_file` (ledger 20).
 
 What it does not check: structure (headings, list nesting, which block a
-line sits in), italics, underline, and images. Structure is reviewed by counting blocks
-in the parse tree against the original. Equations and image counts are to be
-added when the first document that has them is converted.
+line sits in), italics and underline. Structure is reviewed by counting
+blocks in the parse tree against the original. Equations (D-0113), pictures
+and drawn figures (D-0117, D-0118) are checked as above.
 
 ## Known hard cases
 

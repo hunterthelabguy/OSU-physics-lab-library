@@ -523,7 +523,8 @@ def tex_equations(math, api_version):
         subprocess.run([PANDOC, "-f", "json", "-t", "docx", "-o", out],
                        input=json.dumps(doc), check=True, capture_output=True,
                        encoding="utf-8")
-        back = omml_equations(zipfile.ZipFile(out).read("word/document.xml"))
+        with zipfile.ZipFile(out) as z:
+            back = omml_equations(z.read("word/document.xml"))
     for eq, (kind, tex) in zip(back, math):
         eq["kind"], eq["tex"] = kind, tex
     return back

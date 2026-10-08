@@ -33,9 +33,12 @@ function isRelative(path) {
   return !/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(path);
 }
 
-// labs/<id>/<id>.<ext> becomes <id>/<id>.<ext>: the lab's folder, the file's name.
+// labs/<id>/<id>.<ext> becomes <id>/<id>.<ext>, the lab's folder and the
+// file's name; a lab's picture, labs/<id>/<id>-media/<name>, keeps its media
+// folder inside the lab's, so the Markdown's relative paths still resolve.
 function entryName(path) {
-  return path.split("/").filter(Boolean).slice(-2).join("/");
+  const parts = path.split("/").filter(Boolean);
+  return parts.slice(parts.lastIndexOf("labs") + 1).join("/");
 }
 
 // Zip stores MS-DOS local time: seconds in steps of two, years from 1980.

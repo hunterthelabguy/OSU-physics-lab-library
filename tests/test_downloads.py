@@ -4,7 +4,9 @@ A missing build or tool is an error, never a skip (LEDGER 53). Reads
 build/quarto-site/; run tools/quarto_build.py first.
 """
 
+import hashlib
 import html
+import json
 import os
 import re
 import subprocess
@@ -21,7 +23,11 @@ PDFTOTEXT = os.environ.get("PDFTOTEXT", "pdftotext")
 FILTER = ROOT / "tools" / "filters" / "questions.lua"
 sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "tests"))
+import check_unchanged                    # noqa: E402
 import downloads                          # noqa: E402
+import figure_fixture as fx               # noqa: E402
+import media                              # noqa: E402
+import render                             # noqa: E402
 from render import BANNER_MAIN, BANNER_DETAIL  # noqa: E402
 from test_quarto_site import converted    # noqa: E402
 
@@ -107,9 +113,29 @@ def words(text):
     return re.findall(r"[\w’']+", text)
 
 
-def plain(*args, input=None):
-    return subprocess.run([PANDOC, *args, "-t", "plain"], input=input, check=True,
-                          capture_output=True, text=True, encoding="utf-8").stdout
+def read_words(*args):
+    """Words and equations of a document, read through Pandoc's syntax tree
+    as the word check reads them: an equation is left out of the words and
+    compared apart (D-0113), since Pandoc's plain writer warns on TeX math.
+    Returns (words, [(kind, tex)])."""
+    doc = json.loads(subprocess.run([PANDOC, *args, "-t", "json"], check=True,
+                                    capture_output=True, encoding="utf-8").stdout)
+    buf, found = [], {"math": [], "images": [], "figures": [], "figure": lambda ids: []}
+    check_unchanged.ast_chars(doc["blocks"], buf, found=found)
+    return words("".join(c for c, _ in buf)), found["math"], doc["pandoc-api-version"]
+
+
+def word_equations(path):
+    """The Word file's equations as the word check reads Word's (D-0113)."""
+    with zipfile.ZipFile(path) as z:
+        return check_unchanged.omml_equations(z.read("word/document.xml"))
+
+
+def same_equations(test, source_math, api, docx):
+    want = check_unchanged.tex_equations(source_math, api)
+    got = word_equations(docx)
+    test.assertEqual([(e["kind"], e["norm"], e["shape"]) for e in got],
+                     [(e["kind"], e["norm"], e["shape"]) for e in want])
 
 
 class MarkdownAndWord(unittest.TestCase):
@@ -143,14 +169,16 @@ class MarkdownAndWord(unittest.TestCase):
     def test_word_body_is_the_modern_words(self):
         # D-0057: the draft notice moved to the page header, so the body is
         # the modern words alone (the body's banner paragraphs are gone).
+        # Equations are compared apart (D-0113).
         for doc_id, source in converted():
             with self.subTest(doc=doc_id):
-                got = words(plain(str(self.docx(doc_id))))
-                want = words(plain(str(source), "-f", "markdown-smart",
-                                   "--lua-filter", str(FILTER), "-M", "theme=modern"))
+                got, _, _ = read_words(str(self.docx(doc_id)))
+                want, math, api = read_words(str(source), "-f", render.FROM,
+                                             "--lua-filter", str(FILTER), "-M", "theme=modern")
                 self.assertEqual(got, want)
                 self.assertIn("Question", got)
                 self.assertNotIn(flat(BANNER_DETAIL), flat(" ".join(got)))
+                same_equations(self, math, api, self.docx(doc_id))
 
     def test_word_header_is_the_draft_notice(self):
         # D-0057: BANNER_MAIN, the approved words, on every page, [9] pt
@@ -338,9 +366,14 @@ class MarkdownAndWord(unittest.TestCase):
                     self.assertIn("<w:keepNext", self.style(doc_id, "Heading{}".format(level)))
 
 
-# Measured 2026-10-01: 161,024 bytes (Lab 1), times 1.10, rounded up to the
-# next 10,000. Never a guess; remeasure when a lab is added.
-HTML_CAP_BYTES = 180_000
+# Each lab's HTML download, measured, times 1.10, rounded up to the next
+# 10,000; never a guess. A lab without its own cap fails, so a lab is
+# measured when it is added: its pictures and figures are embedded in it
+# (four-items call 4.3). PH 211 Lab 1: 161,024 bytes (2026-10-01), 168,938
+# remeasured in pass 2b (2026-10-08).
+HTML_CAPS = {
+    "ph211-team-building-handout": 190_000,
+}
 
 
 class Html(unittest.TestCase):
@@ -379,18 +412,133 @@ class Html(unittest.TestCase):
                 self.assertIn('<meta name="robots" content="noindex', text)
 
     def test_main_is_the_line_then_the_modern_pages(self):
+        # A picture's address differs: the page's is the published file,
+        # the download's the file itself, embedded.
+        src = lambda text: re.sub(r'\bsrc="[^"]*"', 'src=""', text)
         for doc_id, _ in converted():
             want = re.search(r"<main>\n(.*?)</main>", page(doc_id, "modern"), re.S).group(1)
             got = re.search(r"<main>\n(.*?)</main>", self.download(doc_id), re.S).group(1)
             with self.subTest(doc=doc_id):
-                self.assertEqual(got, "<p>{}</p>\n{}".format(PHYSICS, want))
+                self.assertEqual(src(got), src("<p>{}</p>\n{}".format(PHYSICS, want)))
 
     def test_size_capped(self):
-        self.assertIsNotNone(HTML_CAP_BYTES, "set HTML_CAP_BYTES from the measurement")
         for doc_id, _ in converted():
             size = self.path(doc_id).stat().st_size
             with self.subTest(doc=doc_id, size=size):
-                self.assertLessEqual(size, HTML_CAP_BYTES)
+                self.assertIn(doc_id, HTML_CAPS, "measure this lab's HTML download and add its cap")
+                self.assertLessEqual(size, HTML_CAPS[doc_id])
+
+
+class MediaDownloads(unittest.TestCase):
+    """A made-up lab with a cropped picture, a drawn figure and an equation
+    (tests/figure_fixture.py) through the Word and HTML downloads
+    (four-items call 4.3; D-0117, D-0118)."""
+
+    ID = "fixture-lab"
+    SOURCE = ('---\nid: "fixture-lab"\ntitle: "Fixture"\nsource_file: "{original}"\n'
+              'source_sha256: "{digest}"\nimages:\n  - file: "fixture-lab-media/square.png"\n'
+              '    source_part: "word/media/fixture.png"\n    sha256: "{sha}"\n---\n\n'
+              "# Fixture\n\nBefore $v_{{0}} = \\frac{{d}}{{t}}$.\n\nWords.\n\n"
+              '![{figure}](fixture-lab-media/panel.svg){{.drawn drawings="501"}}\n\n'
+              "Caption words.\n\n"
+              '![{picture}](fixture-lab-media/square.png){{width="1.0000in" height="0.5000in"'
+              ' crop="10000 20000 5000 0"}}\n')
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        root = Path(cls.tmp.name)
+        xml = fx.paragraph("Words.", fx.figure()) + fx.paragraph("Caption words.", fx.anchored_picture())
+        digest, image = fx.original(root, PANDOC, "# Fixture\n\nBefore $v_{0} = \\frac{d}{t}$.\n", xml)
+        (root / "fixture-lab-media").mkdir()
+        (root / "fixture-lab-media" / "square.png").write_bytes(image)
+        source = root / "fixture-lab.md"
+        source.write_text(cls.SOURCE.format(
+            original=(root / "original.docx").as_posix(), digest=digest,
+            sha=hashlib.sha256(image).hexdigest(), figure=fx.FIGURE_ALT, picture=fx.PICTURE_ALT),
+            encoding="utf-8", newline="\n")
+        cls.source = source
+        cls.doc = {"path": str(source), "meta": render.pandoc_meta(str(source)),
+                   "lab_dir": str(root / "labs" / cls.ID)}
+        cls.published = media.build(cls.doc, downloads.media_dir(cls.doc), downloads.CHROME)
+        cls.docx = root / "fixture-lab.docx"
+        cls.html = root / "fixture-lab.html"
+        downloads.word(cls.doc, str(cls.docx))
+        downloads.html(cls.doc, str(cls.html))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_the_fixture_passes_the_word_check(self):
+        _, problems = check_unchanged.check(str(self.source), str(ROOT))
+        self.assertEqual(problems, [])
+
+    def test_published_media(self):
+        # The picture and the figure's SVG; the PNG is for Word only.
+        self.assertEqual(self.published, ["square.png", "panel.svg"])
+        folder = Path(downloads.media_dir(self.doc))
+        self.assertTrue((folder / "panel.png").is_file())
+
+    def word_pictures(self):
+        with zipfile.ZipFile(self.docx) as z:
+            doc = z.read("word/document.xml").decode("utf-8")
+        return re.findall(r"<w:drawing>.*?</w:drawing>", doc, re.S)
+
+    def test_word_has_the_figure_as_png_at_its_size(self):
+        figure, picture = self.word_pictures()
+        self.assertRegex(figure, r'descr="{}'.format(re.escape(fx.FIGURE_ALT)))
+        cx = int(re.search(r'<wp:extent cx="(\d+)"', figure).group(1))
+        self.assertAlmostEqual(cx, fx.WIDTH, delta=9525)
+        with zipfile.ZipFile(self.docx) as z:
+            pngs = [n for n in z.namelist() if n.startswith("word/media/")]
+            self.assertTrue(any(z.read(n)[:8] == b"\x89PNG\r\n\x1a\n" and len(z.read(n)) > 1000 for n in pngs))
+
+    def test_word_picture_has_words_size_and_crop(self):
+        _, picture = self.word_pictures()
+        self.assertIn('descr="{}"'.format(fx.PICTURE_ALT), picture)
+        self.assertRegex(picture, r'<wp:extent cx="914400" cy="457200"')
+        self.assertIn('<a:srcRect l="10000" t="20000" r="5000" b="0"/>', picture)
+
+    def test_word_equations_and_words(self):
+        got, _, _ = read_words(str(self.docx))
+        want, math, api = read_words(str(self.source), "-f", render.FROM, "--lua-filter", str(FILTER),
+                                     "-M", "theme=modern")
+        self.assertEqual(got, want)
+        self.assertEqual(len(math), 1)
+        same_equations(self, math, api, self.docx)
+
+    def test_html_figure_is_inline_svg_text(self):
+        text = self.html.read_text(encoding="utf-8")
+        self.assertIn('<svg xmlns="http://www.w3.org/2000/svg" class="drawn-figure"', text)
+        self.assertRegex(text, r'<text class="figure-label"[^>]*>.*?Accelerating')
+        self.assertNotIn("<figure", text)
+        self.assertNotIn("<figcaption", text)
+
+    def test_html_equation_is_mathml(self):
+        text = self.html.read_text(encoding="utf-8")
+        self.assertIn("<math", text)
+        self.assertIn("<mfrac>", text)
+
+    def test_html_picture_embedded_at_words_size_and_crop(self):
+        text = self.html.read_text(encoding="utf-8")
+        span = re.search(r'<span class="picture-crop" style="([^"]*)">(<img [^>]*>)</span>', text)
+        self.assertIsNotNone(span)
+        self.assertIn("width:96.00px", span.group(1))
+        img = dict(re.findall(r'(\w[\w-]*)="([^"]*)"', span.group(2)))
+        self.assertTrue(img["src"].startswith("data:image/png;base64,"))
+        self.assertEqual(img["alt"], fx.PICTURE_ALT)
+        # Word shows 85 % of the width from 10 % in, 80 % of the height
+        # from 20 % down.
+        self.assertEqual(img["style"], "width:117.6471%;height:125.0000%;left:-11.7647%;top:-25.0000%")
+
+    def test_page_picture_prefix(self):
+        # The lab page sits one folder below the media (labs/<id>/modern/).
+        out = subprocess.run([PANDOC, str(self.source), "-f", render.FROM, "-t", "html",
+                              "--lua-filter", str(downloads.MEDIA_FILTER), "-M", "media-prefix=../",
+                              "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/")],
+                             check=True, capture_output=True, encoding="utf-8").stdout
+        self.assertIn('src="../fixture-lab-media/square.png"', out)
 
 
 def pdf_text(path):

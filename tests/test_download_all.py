@@ -223,6 +223,15 @@ class Control(unittest.TestCase):
         for value, files, _, _ in listed:
             self.assertEqual(files, published(["lab-one", "lab-two"], value))
 
+    def test_markdown_carries_its_labs_media(self):
+        # Four-items call 4.3: a zipped .md opens with its pictures, each in
+        # its lab's media folder.
+        docs = {"lab-one": {"published": ["a.png", "panel.svg"]}, "lab-two": {}}
+        listed = {v: files for v, files, _, _ in boxes(controls(render.download_all(TWO, docs, 2))[0])}
+        self.assertEqual(listed["md"], published(["lab-one", "lab-two"], "md")
+                         + ["../../labs/lab-one/lab-one-media/a.png", "../../labs/lab-one/lab-one-media/panel.svg"])
+        self.assertEqual(listed["docx"], published(["lab-one", "lab-two"], "docx"))
+
     def test_zip_named_by_course_code(self):
         self.assertIn('data-zip="ph211.zip"', self.control())
 
