@@ -38,6 +38,7 @@ courses:
       - number: "6"
         title: "Describing an Experiment"
         description: "Perform one of two experiments to measure static friction, trade your procedure with a group using a different method, perform their procedure and comment on the description"
+        document: "ph211-describing-an-experiment-handout"
       - number: "7"
         title: "Capstone"
         description: "Two-week activity to revisit one of the previous experiments, addressing issues to improve the way the lab was done"
