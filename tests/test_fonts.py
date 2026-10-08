@@ -19,8 +19,8 @@ import render                             # noqa: E402
 # equation: PH 213 Lab 2's "∆𝑦" and "𝛥𝑉A", PH 211 Lab 4's "d ∝ h". Open
 # Sans's Latin and Greek subset holds neither Mathematical Alphanumeric
 # Symbols nor Mathematical Operators, so the reader's own math font sets
-# them, as Word sets them in Cambria Math (D-0120). An equation's characters are MathML, set by the math font,
-# and are not read here.
+# them, as Word sets them in Cambria Math (D-0120). An equation's
+# characters are MathML, set by the math font, and are not read here.
 MATH_FONT = ((0x1D400, 0x1D7FF), (0x2200, 0x22FF))
 
 
