@@ -58,6 +58,12 @@ def symbol_field(code):
             + '<w:r><w:t>) = 1 V/A</w:t></w:r></w:p>')
 
 
+def symbol_run(text):
+    return ('<w:p ' + W_NS + '><w:r><w:t xml:space="preserve">Select “A” </w:t></w:r>'
+            '<w:r><w:rPr><w:rFonts w:ascii="Symbol" w:hAnsi="Symbol"/></w:rPr><w:t>' + text
+            + '</w:t></w:r><w:r><w:t xml:space="preserve"> “B”.</w:t></w:r></w:p>')
+
+
 def png():
     def chunk(kind, data):
         return (struct.pack(">I", len(data)) + kind + data
@@ -171,6 +177,18 @@ class WordCheck(unittest.TestCase):
     def test_unknown_symbol_character_stops(self):
         with self.assertRaises(SystemExit):
             self.check("Units.", "Units.\n\nOhm (?) = 1 V/A\n", symbol_field("88"))
+
+    def test_symbol_font_run_reads_as_words_display(self):
+        # D-0123: PH 211 Lab 3 types "®" in the Symbol font; Word draws →.
+        for stored in ("\u00ae", "\uf0ae"):
+            with self.subTest(stored=hex(ord(stored))):
+                _, problems = self.check("Steps.", "Steps.\n\nSelect “A” → “B”.\n", symbol_run(stored))
+                self.assertEqual(problems, [])
+                self.assertFails("Steps.", "Steps.\n\nSelect “A” ® “B”.\n", "replace", symbol_run(stored))
+
+    def test_unknown_symbol_font_character_stops(self):
+        with self.assertRaises(SystemExit):
+            self.check("Steps.", "Steps.\n\nSelect “A” ? “B”.\n", symbol_run("\u00a5"))
 
 
 class FiguresAndFiles(unittest.TestCase):
