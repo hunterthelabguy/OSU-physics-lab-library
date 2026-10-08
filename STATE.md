@@ -12,9 +12,9 @@ Volatile handoff, capped at one screen. Updated 2026-10-07.
 - PR 2, Word box: merged, #33 `62c8bac`. Questions and checkpoints are
   one-cell tables; checkpoint colour C, Candela and Luminance (D-0115);
   the owner checked the question box in Word and Google Docs.
-- PR 3, faithful retired: #34, CI green, wording 1 to 7 as ruled
-  (D-0115). Waits on one unruled line, the lab footer's "This page and
-  its downloads are built from one Markdown file".
+- PR 3, faithful retired: merged, #34 `53dc71d`; old addresses redirect.
+  Wording 1 to 7 as ruled (D-0115); the one-source sentence lives only on
+  "How this site works" (D-0116). Pass 2a is done.
 - Next: pass 2b (downloads: images, MathML, the S13 SVG figures).
 
 **Focus (2026-10-07):** the conversion of the remaining 18 PH 21X handouts,
