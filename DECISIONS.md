@@ -1332,3 +1332,63 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: (1) "®" written as stored (passes as is; readers see ® where Word shows an arrow). (2) The links kept dead, or their words kept and the target dropped. (3) Every indented paragraph a block quote, as Pandoc reads it.
 - binds: D-0102; D-0112; survey section 6; tools/check_unchanged.py (SYMBOL_FONT); tests/test_check_unchanged.py; docs/conversion-spec.md (Pass 3 additions); curriculum/ph211 (Labs 3, 4, 5)
 - test: test_symbol_font_run_reads_as_words_display, test_unknown_symbol_font_character_stops
+
+### D-0124  PH 211 Lab 6's original is committed stripped; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-08
+- decision: Under D-0086 and D-0119 call 5, PH 211 Lab 6's PR commits `originals/PH211/Lab 6 - Describing an Experiment - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `27d2c3ed2b33ce873960c5be409a756f7fd23882e60247a7b90afe35383b5229` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `cf18da95fc358c0c1006d8a9a42e2d027a27889363bc44a3fcdc8f5487754c19`, the `source_sha256` of `curriculum/ph211/ph211-describing-an-experiment-handout.md`.
+- rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-describing-an-experiment-handout.md
+- test: CI's content check and number check on the lab
+
+### D-0125  PH 211 Lab 7's original is committed stripped; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-08
+- decision: Under D-0086 and D-0119 call 5, PH 211 Lab 7's PR commits `originals/PH211/Lab 7 - Capstone - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `e9b900c8e35fccda8a9adb9495945f505fb8ecab3cd9a748e813095965bab466` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `b8f38b5a04e1a01304f7ec7b71e7e54c2e13e46af80f5fe91f58cf76c8722ea6`, the `source_sha256` of `curriculum/ph211/ph211-capstone-handout.md`.
+- rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-capstone-handout.md
+- test: CI's content check and number check on the lab
+
+### D-0126  PH 211 Lab 3's original is committed stripped; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-08
+- decision: Under D-0086 and D-0119 call 5, PH 211 Lab 3's PR commits `originals/PH211/Lab 3 - Uncertainty - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `421e2df388f532c4140f07c26815737393c4e6583ffb4e473a81c79d9ce1b960` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `bfc0d03a8df8b718c7fafa075ec9740a3bb0e3001465df7c27d2da983d0078c5`, the `source_sha256` of `curriculum/ph211/ph211-uncertainty-handout.md`.
+- rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-uncertainty-handout.md
+- test: CI's content check and number check on the lab
+
+### D-0127  PH 211 Lab 2's original is committed stripped; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-08
+- decision: Under D-0086 and D-0119 call 5, PH 211 Lab 2's PR commits `originals/PH211/Lab 2 - Data Analysis - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `112c2c0675829438c17b0a50c8a67615709b85f1c926cddca88ba96259a3a2ec` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `3891e5de553bd94a641881ef64671a73949e8e68445b6150614558fc0e99fd40`, the `source_sha256` of `curriculum/ph211/ph211-data-analysis-handout.md`. Its three external links (two OSU technology pages and one rb.gy short link) are kept as written; none names a person (survey section 7).
+- rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-data-analysis-handout.md
+- test: CI's content check and number check on the lab
+
+### D-0128  PH 211 Lab 5's original is committed stripped; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-08
+- decision: Under D-0086 and D-0119 call 5, PH 211 Lab 5's PR commits `originals/PH211/Lab 5 - Designing an Experiment - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `4330e4267d0cb2e4b80d28db091c3bbaae8792ae55ecc78b7a0960169ec273f0` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `35a53b8948816cfc710ae22690f260b76228423bf5984792d2ccab4789a98e76`, the `source_sha256` of `curriculum/ph211/ph211-designing-an-experiment-handout.md`.
+- rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-designing-an-experiment-handout.md
+- test: CI's content check and number check on the lab
+
+### D-0129  PH 211 Lab 4's original is committed stripped; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-08
+- decision: Under D-0086 and D-0119 call 5, PH 211 Lab 4's PR commits `originals/PH211/Lab 4 - Hypothesis Testing - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `54daee77e5e4e0ea8cbbadced928c4f312c3e09418af73eb56c3c54e47b505f1` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `ced38c004f3745e17a4850ab223519960a67b79659e95783b44d0f14d5b61d18`, the `source_sha256` of `curriculum/ph211/ph211-hypothesis-testing-handout.md`.
+- rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-hypothesis-testing-handout.md
+- test: CI's content check and number check on the lab
