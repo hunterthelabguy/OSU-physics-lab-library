@@ -14,6 +14,8 @@
   --tint: #f4f7f9;
   --checkpoint-rule: #ffb500; /* Luminance (D-0115) */
   --checkpoint-fill: #fdd26e; /* Candela: black 14.6:1, --quiet 6.2:1 */
+  --table-gap: 1rem;          /* under a table (D-0130) */
+  --cell-pad: .35rem .6rem;   /* inside a table cell (D-0130) */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -71,6 +73,18 @@ p { margin: 0 0 1rem; }                 /* paragraph gap > 1.5x line spacing */
 
 ul, ol { padding-left: 1.4rem; }
 li { margin: 0 0 .5rem; }
+
+/* A table the original draws as a grid (not a one-cell box): a thin full
+   grid, as Word's, in --quiet, 3:1 or better against the page in both
+   schemes (WCAG 1.4.11), so a fill-in table's cells read as cells (D-0130). */
+table { border-collapse: collapse; margin: 0 0 var(--table-gap); }
+th, td {
+  border: 1px solid var(--quiet);
+  padding: var(--cell-pad);
+  text-align: left;
+  vertical-align: top;
+}
+th { font-weight: 700; }
 
 /* One cue, one meaning: graded questions are a labeled block, so bold is
    free to mean emphasis again (ledger 29). A checkpoint, a numbered item
@@ -173,4 +187,5 @@ main img, main svg.drawn-figure { max-width: 100%; height: auto; }
   .doc-footer { display: none; }
   .question, .checkpoint, .box, svg.drawn-figure, .picture-crop { break-inside: avoid; }
   h1, h2, h3, h4 { break-after: avoid; }
+  th, td { border-color: #000; }
 }

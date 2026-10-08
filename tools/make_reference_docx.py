@@ -21,6 +21,9 @@ Starts from Pandoc's own default reference document and adds:
   question's label in Word: the modern page's label, in capitals and its
   --quiet colour, kept with what follows. The box around the question is a
   one-cell table the filter draws (D-0082), not a style;
+- a thin full grid on Pandoc's default Table style, as the modern page
+  draws a table (D-0130): single 0.5 pt rules in --quiet. The question and
+  checkpoint boxes name their own borders, so they keep theirs;
 - the modern page's spacing in Pandoc's Body Text and Compact styles: lines
   at least 1.6 times the body size, and the paragraph and list item gaps in
   the page's proportions (the owner found the first build's spacing tighter
@@ -123,6 +126,25 @@ def once(pattern, text, repl):
     return new
 
 
+# The Table style's grid (D-0130): every edge and inside rule, 0.5 pt (sz 4,
+# eighths of a point), in themes/modern.css's light --quiet.
+TABLE_BORDERS = ('<w:tblBorders>' + ''.join(
+    '<w:{} w:val="single" w:sz="4" w:space="0" w:color="0D5257" />'.format(edge)
+    for edge in ("top", "left", "bottom", "right", "insideH", "insideV")) + '</w:tblBorders>')
+
+
+def grid(text):
+    """Pandoc's default Table style, with TABLE_BORDERS after its indent."""
+    pattern = r'<w:style\b[^>]*\bw:styleId="Table".*?</w:style>'
+    block = re.findall(pattern, text, re.S)
+    if len(block) != 1 or "<w:tblBorders" in block[0]:
+        raise SystemExit("reference.docx: expected one Table style without borders")
+    changed, n = re.subn(r'(<w:tblInd\b[^>]*/>)', lambda m: m.group(1) + TABLE_BORDERS, block[0])
+    if n != 1:
+        raise SystemExit("reference.docx: expected one tblInd in the Table style")
+    return text.replace(block[0], changed)
+
+
 def respace(text, style_id, new):
     """Replace the one spacing element of one of Pandoc's default styles."""
     pattern = r'<w:style\b[^>]*\bw:styleId="{}".*?</w:style>'.format(style_id)
@@ -152,6 +174,7 @@ def edit(name, data):
                 raise SystemExit("Pandoc's default already has the {} style; review this tool".format(style_id))
         for style_id, new in (("BodyText", BODY_SPACING), ("Compact", ITEM_SPACING)):
             text = respace(text, style_id, new)
+        text = grid(text)
         text = once(r"</w:styles>", text, STYLES + "</w:styles>")
     elif name == "word/_rels/document.xml.rels":
         rels = ''.join('<Relationship Type="http://schemas.openxmlformats.org/officeDocument/'
