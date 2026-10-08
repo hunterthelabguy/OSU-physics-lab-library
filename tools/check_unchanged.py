@@ -35,8 +35,8 @@ from Pandoc's syntax tree, and compares:
    bold compare, as headings are.
 
 A SYMBOL field counts as the character Word displays, not its stored result
-(survey section 6). A text box's words are read once. A drawing anchored to
-a paragraph (`wp:anchor`) is read after that paragraph's words, where Word
+(survey section 6), and so does a text run set in the Symbol font (D-0123).
+A text box's words are read once. A drawing anchored to a paragraph (`wp:anchor`) is read after that paragraph's words, where Word
 shows it: all 23 in the 19 handouts sit at their paragraph's start and are
 placed below its first lines (D-0118); an inline one is read in place.
 Markdown is read as the build reads it, with implicit figures off, so a
@@ -96,11 +96,13 @@ HEADING_STYLE = re.compile(r"^(heading\s*\d|title|subtitle)$", re.I)
 EQUATION, PICTURE = "\ue000", "\ue001"
 SHOWN = {EQUATION: "[equation]", PICTURE: "[picture]"}
 
-# The Symbol font's slots that a SYMBOL field in the originals uses, and the
-# character Word displays for each. 87 (0x57, "W") draws as capital omega:
-# Word's PDF of PH 213 Lab 5 prints it as Ω (survey sections 3 and 6). A slot
-# not listed here fails the check until someone reads what Word displays.
-SYMBOL_FONT = {0x57: "\u03a9"}
+# The Symbol font's slots that a SYMBOL field or a Symbol-font text run in the
+# originals uses, and the character Word displays for each. 87 (0x57, "W")
+# draws as capital omega: Word's PDF of PH 213 Lab 5 prints it as Ω (survey
+# sections 3 and 6). 174 (0xAE, typed as "®") draws as a right arrow: Word's
+# PDF of PH 211 Lab 3 prints → in its appendix's steps (D-0123). A slot not
+# listed here fails the check until someone reads what Word displays.
+SYMBOL_FONT = {0x57: "\u03a9", 0xAE: "\u2192"}
 SYMBOL_FIELD = re.compile(r'^\s*symbol\s+(0x[0-9a-f]+|\d+)\s+\\f\s+"?symbol"?(\s|$)', re.I)
 
 # The equation comparison (D-0113): structure kinds counted, and the default
@@ -339,8 +341,27 @@ def docx_content(path):
                 bold = bool(doc_default)
             return bold
 
+        def symbol_text(text):
+            """A Symbol-font run's characters as Word draws them; a slot may be
+            stored as the byte or in the private-use page U+F0xx."""
+            out = []
+            for c in text:
+                code = ord(c) - 0xF000 if 0xF000 <= ord(c) <= 0xF0FF else ord(c)
+                if c.isspace():
+                    out.append(c)
+                elif code in SYMBOL_FONT:
+                    out.append(SYMBOL_FONT[code])
+                else:
+                    raise SystemExit(
+                        f"{path}: Symbol-font character {code} is not in SYMBOL_FONT;"
+                        " read what Word displays (D-0123)")
+            return "".join(out)
+
         def run(r):
             bold = run_bold(r)
+            rf = r.find(f"{W}rPr/{W}rFonts")
+            symbol = rf is not None and "symbol" in (
+                (rf.get(W + "ascii") or "").lower(), (rf.get(W + "hAnsi") or "").lower())
             for el in r:
                 if el.tag == W + "fldChar":
                     kind = el.get(W + "fldCharType")
@@ -362,7 +383,10 @@ def docx_content(path):
                     fields[-1]["instr"] += el.text or ""
                 elif el.tag == W + "t":
                     if not any(f["shown"] for f in fields):
-                        sink["out"].extend((c, bold) for c in (el.text or ""))
+                        text = el.text or ""
+                        if symbol:
+                            text = symbol_text(text)
+                        sink["out"].extend((c, bold) for c in text)
                 elif el.tag in (W + "tab", W + "br", W + "cr"):
                     sink["out"].append((" ", bold))
                 elif el.tag == W + "drawing":
