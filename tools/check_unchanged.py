@@ -34,6 +34,14 @@ from Pandoc's syntax tree, and compares:
    read as words (D-0117, call 4). A figure's words are exempt from the
    bold compare, as headings are.
 
+6. table column widths (pass 4): each table of more than one column, in
+   order, against the Markdown's tables of more than one column; each
+   column's share of the table's width (Word's `w:gridCol`, Pandoc's
+   column widths, which a pipe, multiline or grid table takes from its
+   dashes) must be within `TABLE_SHARE_POINTS` percentage points. A table
+   with Pandoc's default widths fails: its columns would be sized by their
+   words (PH 212 Lab 6's rubric drew its labels a letter per line).
+
 A SYMBOL field counts as the character Word displays, not its stored result
 (survey section 6), and so does a text run set in the Symbol font (D-0123).
 A text box's words are read once. A drawing anchored to a paragraph (`wp:anchor`) is read after that paragraph's words, where Word
@@ -95,6 +103,10 @@ HEADING_STYLE = re.compile(r"^(heading\s*\d|title|subtitle)$", re.I)
 # One word each in the sequence; private-use characters, so no text has them.
 EQUATION, PICTURE = "\ue000", "\ue001"
 SHOWN = {EQUATION: "[equation]", PICTURE: "[picture]"}
+# How far a column's share of its table may stray from Word's, in
+# percentage points: dashes are whole characters, so a share is drawn to
+# about a point; five leaves room and still fails 4 against Word's 10.
+TABLE_SHARE_POINTS = 5
 
 # The Symbol font's slots that a SYMBOL field or a Symbol-font text run in the
 # originals uses, and the character Word displays for each. 87 (0x57, "W")
@@ -719,6 +731,59 @@ def compare_figures(drawings, figures, descrs):
     return problems
 
 
+def word_table_shares(path):
+    """Word's tables of more than one column, in document order, each as
+    its columns' shares (percent) of the grid's width."""
+    with zipfile.ZipFile(path) as z:
+        root = ET.fromstring(z.read("word/document.xml"))
+    out = []
+    for tbl in root.iter(W + "tbl"):
+        grid = tbl.find(W + "tblGrid")
+        cols = [int(g.get(W + "w", "0")) for g in grid.findall(W + "gridCol")] if grid is not None else []
+        if len(cols) > 1 and sum(cols):
+            out.append([100 * c / sum(cols) for c in cols])
+    return out
+
+
+def markdown_table_shares(blocks):
+    """The Markdown's tables of more than one column, in document order,
+    each as its columns' shares (percent), or None where Pandoc gives a
+    column its default width."""
+    out = []
+
+    def walk(node):
+        if isinstance(node, dict):
+            if node.get("t") == "Table" and len(node["c"][2]) > 1:
+                widths = [spec[1].get("c") if spec[1]["t"] == "ColWidth" else None
+                          for spec in node["c"][2]]
+                out.append(None if None in widths else [100 * w / sum(widths) for w in widths])
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+    walk(blocks)
+    return out
+
+
+def compare_table_shares(original, converted):
+    problems = []
+    if len(original) != len(converted):
+        return [f"tables of more than one column: original {len(original)},"
+                f" converted {len(converted)}"]
+    for i, (o, c) in enumerate(zip(original, converted), 1):
+        want = "/".join(str(round(s)) for s in o)
+        if c is None:
+            problems.append(f"table {i}: default column widths; Word's shares are {want}"
+                            " (draw the dashes in that ratio, in a line past 72 characters)")
+        elif len(c) != len(o):
+            problems.append(f"table {i}: {len(c)} columns, Word's {len(o)}")
+        elif max(abs(a - b) for a, b in zip(o, c)) > TABLE_SHARE_POINTS:
+            got = "/".join(str(round(s)) for s in c)
+            problems.append(f"table {i}: column shares {got}, Word's {want}")
+    return problems
+
+
 def check(md_path, repo_root):
     doc = json.loads(subprocess.run(
         [PANDOC, "-f", FROM, "-t", "json", md_path],
@@ -806,6 +871,7 @@ def check(md_path, repo_root):
                                          os.path.dirname(os.path.abspath(md_path)), package,
                                          found["figures"])
         problems += compare_figures(o_drawings, found["figures"], descrs)
+        problems += compare_table_shares(word_table_shares(src), markdown_table_shares(doc["blocks"]))
     words = sum(1 for w in a if w not in SHOWN)
     return {"words": words, "bold": compared, "equations": len(o_eqs),
             "pictures": len(o_pics), "figures": len(found["figures"])}, problems

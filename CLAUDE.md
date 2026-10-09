@@ -15,7 +15,7 @@ Quarto internals.
   `verify` runs both on every push to main and every PR, plus
   `tools/check_em_dash.py` (published sources only; converted files keep
   their original's, D-0103), then the builds and the tests. The word check
-  reads words, bold, equations and alt text, not structure; the number check
+  reads words, bold, equations, alt text and table column widths, not structure; the number check
   reads labels; review the rest by parse-tree block counts. Manual
   before any commit: no student-identifiable data. Which Pandoc each step
   uses, and the variables to export locally, are under Build, "Which

@@ -76,17 +76,12 @@ Brainstorm with your group.
 - Use the table below to identify what question you will be trying to answer in this activity based on the lab you selected.
 :::
 
-  ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  **[Lab]{.underline}**               **[Question]{.underline}**
-  ----------------------------------- ------------------------------------------------------------------------------------------------------------------------------
-  Lab 03 - Uncertainty                What is the relationship between the “time of flight” of a projectile and its initial starting height on a ramp?
-
-  Lab 04 – Hypothesis Testing         What is the relationship between the horizontal distance traveled by a projectile and its initial starting height on a ramp?
-
-  Lab 05 – Designing an Experiment    What is the relationship between the angle of a ramp and the acceleration of an object moving down it?
-
-  Lab 06 – Describing an Experiment   What is the coefficient of static friction between wood and carpet?
-  ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| **[Lab]{.underline}** | **[Question]{.underline}** |
+|:-----------------------------------------------------------|:-----------------------------------------------------------|
+| Lab 03 - Uncertainty | What is the relationship between the “time of flight” of a projectile and its initial starting height on a ramp? |
+| Lab 04 – Hypothesis Testing | What is the relationship between the horizontal distance traveled by a projectile and its initial starting height on a ramp? |
+| Lab 05 – Designing an Experiment | What is the relationship between the angle of a ramp and the acceleration of an object moving down it? |
+| Lab 06 – Describing an Experiment | What is the coefficient of static friction between wood and carpet? |
 
 #### Note on Lab 6 (Measuring the coefficient of friction).
 

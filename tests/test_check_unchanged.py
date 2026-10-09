@@ -191,6 +191,46 @@ class WordCheck(unittest.TestCase):
             self.check("Steps.", "Steps.\n\nSelect “A” ? “B”.\n", symbol_run("\u00a5"))
 
 
+LONG = "words " * 16
+
+
+def table(dashes, row=LONG):
+    """A made-up pipe table whose dash counts set its column shares."""
+    return ("| Task | One | Two |\n|" + "|".join("-" * d for d in dashes) + "|\n"
+            "| Describe the model | " + row + "| Short |\n")
+
+
+class TableWidths(unittest.TestCase):
+    """Pass 4: a table's column shares are Word's (PH 212 Lab 6's rubric)."""
+
+    setUp, tearDown = WordCheck.setUp, WordCheck.tearDown
+    original, check, assertFails = WordCheck.original, WordCheck.check, WordCheck.assertFails
+
+    def test_shares_as_word_pass(self):
+        _, problems = self.check(table([10, 45, 45]), table([10, 45, 45]))
+        self.assertEqual(problems, [])
+
+    def test_shares_within_tolerance_pass(self):
+        _, problems = self.check(table([10, 45, 45]), table([12, 44, 44]))
+        self.assertEqual(problems, [])
+
+    def test_narrow_first_column_fails(self):
+        self.assertFails(table([10, 45, 45]), table([4, 48, 48]), "table 1: column shares 4/48/48")
+
+    def test_default_widths_fail(self):
+        # No line, the dashes included, past 72 characters: Pandoc ignores the dashes.
+        self.assertFails(table([10, 45, 45], row="Short "), table([3, 3, 3], row="Short "),
+                         "table 1: default column widths")
+
+    def test_a_table_left_out_fails(self):
+        self.assertFails(table([10, 45, 45]), "Describe the model " + LONG + "Short",
+                         "tables of more than one column: original 1, converted 0")
+
+    def test_one_cell_boxes_are_not_counted(self):
+        self.assertEqual(check_unchanged.markdown_table_shares(
+            [{"t": "Table", "c": [None, None, [[{"t": "AlignDefault"}, {"t": "ColWidthDefault"}]]]}]), [])
+
+
 class FiguresAndFiles(unittest.TestCase):
     """D-0117 and D-0118 on a made-up original (tests/figure_fixture.py):
     a drawn figure read from its SVG, a picture's file, size and crop, an
