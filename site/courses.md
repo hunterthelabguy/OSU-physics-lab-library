@@ -62,6 +62,7 @@ courses:
       - number: "2"
         title: "Extending a Model"
         description: "Check the small-angle model for the period of a pendulum at large oscillations. Requires a robust experiment and careful measurements."
+        document: "ph212-extending-a-model-handout"
       - number: "3"
         title: "Designing Experiments (Two weeks)"
         description: "Determine the moment of inertia for a flywheel by measuring connected linear and rotational motion. Compare automated to manual data taking; assess validity of assumptions."
