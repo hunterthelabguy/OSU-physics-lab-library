@@ -81,6 +81,24 @@
    ["question", "ph211-uncertainty:analyze-class-results"],
    ["question", "ph211-uncertainty:individual-reflection"]
   ],
+  "ph212-data-analysis-handout": [
+   ["question", "ph212-data-analysis:group-member-qualities"],
+   ["question", "ph212-data-analysis:experimental-setup"],
+   ["question", "ph212-data-analysis:procedure"],
+   ["question", "ph212-data-analysis:uncertainty-sources"],
+   ["question", "ph212-data-analysis:data-table"],
+   ["question", "ph212-data-analysis:period-and-uncertainty"],
+   ["question", "ph212-data-analysis:class-data-table"],
+   ["question", "ph212-data-analysis:plot-with-error-bars"],
+   ["question", "ph212-data-analysis:two-data-sets"],
+   ["question", "ph212-data-analysis:trendline-plot"],
+   ["question", "ph212-data-analysis:trendline-chosen"],
+   ["question", "ph212-data-analysis:linearized-plot"],
+   ["question", "ph212-data-analysis:y-intercepts"],
+   ["question", "ph212-data-analysis:compare-r-squared"],
+   ["question", "ph212-data-analysis:best-fit-conclusion"],
+   ["question", "ph212-data-analysis:individual-reflection"]
+  ],
   "ph212-designing-experiments-handout": [
    ["question", "ph212-designing-experiments:model-variables"],
    ["question", "ph212-designing-experiments:dependent-variables-relation"],
