@@ -238,7 +238,11 @@ reference; a declared passage that does not occur also fails. CI runs it on
 every file with a `source_file` (ledger 20).
 
 What it does not check: structure (headings, list nesting, which block a
-line sits in), italics and underline. Structure is reviewed by counting
+line sits in), italics and underline. Since pass 4 it does check each
+table's column shares against Word's grid, within 5 points: a pipe table's
+separator dashes set them when some line passes 72 characters, a grid or
+multiline table's dashes always (PH 212 Lab 6's rubric drew its first
+column at 4%, Word's 10%). Structure is reviewed by counting
 blocks in the parse tree against the original. Equations (D-0113), pictures
 and drawn figures (D-0117, D-0118) are checked as above.
 
