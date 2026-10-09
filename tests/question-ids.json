@@ -107,6 +107,17 @@
    ["question", "ph212-designing-experiments:prediction-test"],
    ["question", "ph212-designing-experiments:experimental-value"]
   ],
+  "ph212-extending-a-model-handout": [
+   ["question", "ph212-extending-a-model:experimental-setup"],
+   ["question", "ph212-extending-a-model:assumptions"],
+   ["question", "ph212-extending-a-model:procedure"],
+   ["question", "ph212-extending-a-model:analysis-plan"],
+   ["question", "ph212-extending-a-model:report-data"],
+   ["question", "ph212-extending-a-model:perform-analysis"],
+   ["question", "ph212-extending-a-model:conclusions"],
+   ["question", "ph212-extending-a-model:range-and-precision"],
+   ["question", "ph212-extending-a-model:recommendation"]
+  ],
   "ph212-sharing-and-comparing-handout": [
    ["question", "ph212-sharing-and-comparing:combine-wave-equations"],
    ["question", "ph212-sharing-and-comparing:identify-variables"],
