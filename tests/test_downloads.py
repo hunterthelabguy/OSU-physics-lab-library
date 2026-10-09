@@ -663,7 +663,10 @@ class PrintKeeps(unittest.TestCase):
     # Chrome breaks it (break-inside: avoid yields). Each entry is proved
     # taller by test_taller_than_a_page_is_true; a lab's PR adds its own
     # as it adds its HTML cap: (doc id, the question's label number).
-    TALLER_THAN_A_PAGE = set()
+    TALLER_THAN_A_PAGE = {
+        # The "What is Uncertainty?" box sits inside it, between stem and parts (S14).
+        ("ph212-data-analysis-handout", "4"),
+    }
     HEADER = words("DRAFT: license pending")
     RULES_OFF = ("<style>@media print { .question, .box { break-inside: auto !important; }"
                  " h1, h2, h3, h4 { break-after: auto !important; } }</style>")
