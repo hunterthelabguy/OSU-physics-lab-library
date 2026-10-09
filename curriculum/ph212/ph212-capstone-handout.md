@@ -177,6 +177,7 @@ $$\mathbf{x}\left( \mathbf{t} \right)\mathbf{= A}\mathbf{e}^{\mathbf{- Bt}}\math
 
 3)  Finally, describe the effect on the damping and frequency, if any, due to changing either the mass or the initial amplitude of the system. Once again, be quantitative.
 
+:::: landscape
 ::: box
 #### Remember, an experiment always:
 
@@ -202,6 +203,7 @@ $$\mathbf{x}\left( \mathbf{t} \right)\mathbf{= A}\mathbf{e}^{\mathbf{- Bt}}\math
 | Do the experiment / collect data | Reports data, including parameters that were changed/measured and those that were held constant, but many parameters may be missing. | Reports data, including parameters that were changed / measured and those that were held constant, but some parameters may be missing. Includes a brief statement of challenges or uncertainties. | Reports data in a clearly communicated layout with appropriate units. Data includes parameters that were changed/measured and those that were held constant, but some parameters may be missing. Include a statement of challenges or uncertainties. | Reports data in a clearly communicated layout with appropriate units. Data includes parameters that were changed/measured and those that were held constant. Includes statements of challenges and uncertainties. |
 | Analyze data | A small amount of evidence / description of the analysis is present. | Shows some pieces of the analysis. Plots may be missing important elements, and/or not all of the pieces necessary to support conclusions are present. | Shows some relevant pieces of the analysis. Any changes to the analysis are noted but not fully justified. | Shows the relevant pieces of analysis, including all relevant plots and curve fits and sample calculations. Any changes to the analysis are noted and explained. |
 | Report and interpret conclusions | At least one of the following is discussed: Conclusions, comparison with predictions / expectations, what was learned and is left to learn. | At least some of the following are adequately discussed: Conclusions, comparison with predictions / expectations, what was learned and is left to learn. | Conclusions are stated. Comparison is made with predictions / expectations. There is a clear statement of what was learned and is left to learn. | Conclusions are supported by the analysis. Comparison is made with predictions / expectations. With attention to uncertainty, the ability to answer the question is discussed. There is a clear statement of what was learned and is left to learn. |
+::::
 
 ## Week 1
 
