@@ -209,6 +209,18 @@ class RealRecords(unittest.TestCase):
         items = self.labels_of(body)
         self.assertEqual(check_numbers.compare(record("PH212/Handouts/Lab 6")["labels"], items), [])
 
+    def test_a_redacted_record_carries_its_originals_labels(self):
+        # D-0133: redaction changes document.xml, so a redacted original gets
+        # its own record, keyed to its parts, naming the record Word read.
+        by_sha = {r["sha256"]: r for r in RECORDS["originals"].values()}
+        for key, r in RECORDS["originals"].items():
+            if "redacted_from" in r:
+                with self.subTest(key=key):
+                    self.assertIn(r["redacted_from"], by_sha)
+                    self.assertEqual(r["labels"], by_sha[r["redacted_from"]]["labels"])
+                    self.assertNotEqual(r["parts_sha256"],
+                                        by_sha[r["redacted_from"]]["parts_sha256"])
+
 
 class Filter(unittest.TestCase):
 

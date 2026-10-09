@@ -212,6 +212,19 @@ EXIF); `source_sha256` names the stripped file, and an entry records both
 hashes. No `w:t` changes. A Word original stays live until sections switch
 to the library's version (D-0087).
 
+2026-10-09, D-0133 (amends D-0086 and D-0104): an original holding a passage
+the repo may never carry (PH 212 Lab 2's activation code, Lab 6's
+OneDrive and code-bearing link targets) is stripped with `--redact LIST`, the
+list kept in the scratchpad, never committed. Each passage becomes
+`[removed under D-0104]` in every XML part, text and attributes alike; an
+external link target holding one becomes `https://removed.invalid/`.
+`source_sha256` names the stripped and redacted file. The converted file
+declares each marker it omits in `ruled_omissions`, citing D-0133. A
+redacted `document.xml` has a new hash, so `docs/word-labels.json` gains a
+record for the redacted file, with `redacted_from` naming the original's
+SHA-256 and the same labels (`tests/test_check_numbers.py`). The strip stops
+on a link target on a personal file store that is not redacted.
+
 ## Content-unchanged check
 
 `tools/check_unchanged.py FILE.md ...` verifies the original's hash, reads

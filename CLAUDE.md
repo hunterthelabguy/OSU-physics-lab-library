@@ -182,7 +182,9 @@ Quarto internals.
   file, Word's size and Word's crop (D-0118).
   Strip an original with `tools/strip_identity.py` before committing it
   (D-0086); it stops on comments, revisions, people or EXIF it does not
-  strip. Questions and checkpoints are pinned in order in
+  strip, and on a personal file store's link target. A passage the repo may
+  never carry goes with `--redact LIST`, the list kept in the scratchpad
+  (D-0133; spec "Originals"). Questions and checkpoints are pinned in order in
   `tests/question-ids.json` (D-0077).
 - Never trust Pandoc's list numbers from an original: it drops a level set
   by a style that inherits its list (PH 212 Labs 1, 2, 3, 5) and misreads
