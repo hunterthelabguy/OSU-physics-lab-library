@@ -574,6 +574,10 @@ body:where(.quarto-light) {
   @bottom-left { content: "Department of Physics, Oregon State University"; font: 8pt ui-sans-serif, system-ui, sans-serif; }
   @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 8pt ui-sans-serif, system-ui, sans-serif; }
 }
+/* A `::: landscape` block (a rubric Word prints landscape, pass 4) gets
+   pages of this name from the theme's print rules; the margin boxes above
+   apply to them too (measured in Chrome, 2026-10-09). */
+@page landscape { size: letter landscape; }
 
 @media print {
   .site-nav, .site-foot .print-hide { display: none; }

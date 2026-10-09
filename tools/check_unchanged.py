@@ -40,7 +40,9 @@ from Pandoc's syntax tree, and compares:
    column widths, which a pipe, multiline or grid table takes from its
    dashes) must be within `TABLE_SHARE_POINTS` percentage points. A table
    with Pandoc's default widths fails: its columns would be sized by their
-   words (PH 212 Lab 6's rubric drew its labels a letter per line).
+   words (PH 212 Lab 6's rubric drew its labels a letter per line). A
+   table Word prints on a landscape page must sit in a `::: landscape`
+   block, and a table in one must be landscape in Word.
 
 A SYMBOL field counts as the character Word displays, not its stored result
 (survey section 6), and so does a text run set in the Symbol font (D-0123).
@@ -731,39 +733,80 @@ def compare_figures(drawings, figures, descrs):
     return problems
 
 
+def grid_shares(tbl):
+    """A Word table's columns' shares (percent) of its grid, or None for a
+    table of one column."""
+    grid = tbl.find(W + "tblGrid")
+    cols = [int(g.get(W + "w", "0")) for g in grid.findall(W + "gridCol")] if grid is not None else []
+    return [100 * c / sum(cols) for c in cols] if len(cols) > 1 and sum(cols) else None
+
+
+def word_tables(path):
+    """Word's tables of more than one column, in document order, each as
+    (column shares, printed landscape). A table's section ends at the next
+    w:sectPr after it, a paragraph's or the body's own."""
+    with zipfile.ZipFile(path) as z:
+        root = ET.fromstring(z.read("word/document.xml"))
+    out, pending = [], []
+    for el in root.iter():
+        if el.tag == W + "tbl":
+            shares = grid_shares(el)
+            if shares:
+                pending.append(shares)
+        elif el.tag == W + "sectPr":
+            size = el.find(W + "pgSz")
+            wide = size is not None and (size.get(W + "orient") == "landscape"
+                                         or int(size.get(W + "w", "0")) > int(size.get(W + "h", "0")))
+            out += [(s, wide) for s in pending]
+            pending = []
+    return out + [(s, False) for s in pending]
+
+
 def word_table_shares(path):
     """Word's tables of more than one column, in document order, each as
     its columns' shares (percent) of the grid's width."""
-    with zipfile.ZipFile(path) as z:
-        root = ET.fromstring(z.read("word/document.xml"))
-    out = []
-    for tbl in root.iter(W + "tbl"):
-        grid = tbl.find(W + "tblGrid")
-        cols = [int(g.get(W + "w", "0")) for g in grid.findall(W + "gridCol")] if grid is not None else []
-        if len(cols) > 1 and sum(cols):
-            out.append([100 * c / sum(cols) for c in cols])
-    return out
+    return [s for s, _ in word_tables(path)]
 
 
-def markdown_table_shares(blocks):
+def markdown_tables(blocks):
     """The Markdown's tables of more than one column, in document order,
-    each as its columns' shares (percent), or None where Pandoc gives a
-    column its default width."""
+    each as (column shares in percent, or None where Pandoc gives a column
+    its default width; inside a `::: landscape` block)."""
     out = []
 
-    def walk(node):
+    def walk(node, wide):
         if isinstance(node, dict):
             if node.get("t") == "Table" and len(node["c"][2]) > 1:
                 widths = [spec[1].get("c") if spec[1]["t"] == "ColWidth" else None
                           for spec in node["c"][2]]
-                out.append(None if None in widths else [100 * w / sum(widths) for w in widths])
+                out.append((None if None in widths else [100 * w / sum(widths) for w in widths], wide))
+            if node.get("t") == "Div" and "landscape" in node["c"][0][1]:
+                wide = True
             for v in node.values():
-                walk(v)
+                walk(v, wide)
         elif isinstance(node, list):
             for v in node:
-                walk(v)
-    walk(blocks)
+                walk(v, wide)
+    walk(blocks, False)
     return out
+
+
+def markdown_table_shares(blocks):
+    return [s for s, _ in markdown_tables(blocks)]
+
+
+def compare_table_pages(original, converted):
+    """Word's landscape tables against the Markdown's `::: landscape` ones,
+    in order (counts are compare_table_shares's)."""
+    problems = []
+    if len(original) != len(converted):
+        return problems
+    for i, (o, c) in enumerate(zip(original, converted), 1):
+        if o and not c:
+            problems.append(f"table {i}: Word prints it on a landscape page; put it in a ::: landscape block")
+        elif c and not o:
+            problems.append(f"table {i}: in a ::: landscape block, but Word prints it portrait")
+    return problems
 
 
 def compare_table_shares(original, converted):
@@ -871,7 +914,9 @@ def check(md_path, repo_root):
                                          os.path.dirname(os.path.abspath(md_path)), package,
                                          found["figures"])
         problems += compare_figures(o_drawings, found["figures"], descrs)
-        problems += compare_table_shares(word_table_shares(src), markdown_table_shares(doc["blocks"]))
+        o_tables, c_tables = word_tables(src), markdown_tables(doc["blocks"])
+        problems += compare_table_shares([s for s, _ in o_tables], [s for s, _ in c_tables])
+        problems += compare_table_pages([w for _, w in o_tables], [w for _, w in c_tables])
     words = sum(1 for w in a if w not in SHOWN)
     return {"words": words, "bold": compared, "equations": len(o_eqs),
             "pictures": len(o_pics), "figures": len(found["figures"])}, problems
