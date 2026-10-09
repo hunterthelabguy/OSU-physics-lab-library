@@ -3,9 +3,12 @@
 Volatile handoff, capped at one screen. Updated 2026-10-09.
 
 **Pass 4 (2026-10-09): the rest of PH 212, split ruled (D-0132, D-0133).**
-- Six PRs: the redaction tool first, then Labs 6, 1, 2, 5, 4. Labs 1, 5, 4
-  start while the tool is built; 2 and 6 after it. Lab 6 is held for the
-  owner's Word and Google Docs check.
+- Merged: redaction tool #51, Lab 5 #54, print-keep and download fixes #57
+  and #58 (D-0138), Lab 1 #52, Lab 2 #56, Lab 4 #53. Hash records D-0134 to
+  D-0137 (proposed).
+- Held: Lab 6 #55, green, for the owner's Word and Google Docs check
+  (D-0132 call 3); preview `pass4-ph212-lab6.osu-physics-labs.pages.dev`.
+  Its hash entry is written when it merges.
 - Labs 2 and 6 carry the activation code (Lab 6 in a link target, missed by
   the survey) and Lab 6 the OneDrive target: committed stripped and
   redacted, marker `[removed under D-0104]`. Only the main session opens

@@ -13,11 +13,12 @@ point there (a content change, ruled then).
 
 - [ ] PH 212 Lab 2, the box giving the software activation code: the code and
   its link (whose text was the link's own address) are removed (D-0104,
-  D-0133).
+  D-0133). Two sentences now end short: "The activation code for Pro is"
+  and "... on your own computer, go to" (D-0136).
 - [ ] PH 212 Lab 6, Model 1, task 3: the word "your" linked to a document in
   a personal OneDrive; the word stays, the link is gone (D-0104).
-- [ ] PH 212 Lab 6: four words linked to the same software activation link
-  as Lab 2; the words stay, the link is gone (D-0133).
+- [ ] PH 212 Lab 6: "Pro version of GA" was linked to the same software
+  activation link as Lab 2; the words stay, the link is gone (D-0133).
 
 ## Pictures that need alt text
 
