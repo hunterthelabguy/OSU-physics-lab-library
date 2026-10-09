@@ -880,6 +880,85 @@
     ]
    ]
   },
+  "PH212/Handouts/Lab 2 - Extending a Model - Handout.docx (redacted, D-0133)": {
+   "sha256": "11bfff3e11b12fc77bbe359c06d94e21e4f6a63aec9ea151cf67101dde738170",
+   "parts_sha256": {
+    "word/document.xml": "986074bf3eab5ff555897da587374f1efacedec6718b68e7500ab49d9fd39a62",
+    "word/numbering.xml": "203f8eb5e74ca8b94adfb0a8ce5103562a8d7a6b49fed8802f03cc0aa9e8837f",
+    "word/styles.xml": "4115217f2cb7280192d1d4488088372f7f1c503f21c5a0fe6f8a74e04d5089e7"
+   },
+   "redacted_from": "ae4d80de932b2bb5f0cc4fe3e306d4ac7301e8a49ebb37d54e37364de109e82d",
+   "labels": [
+    [
+     "o1",
+     "1)"
+    ],
+    [
+     "o2",
+     "2)"
+    ],
+    [
+     "o2.1",
+     "a."
+    ],
+    [
+     "o2.2",
+     "b."
+    ],
+    [
+     "o3",
+     "3)"
+    ],
+    [
+     "o3.1",
+     "a."
+    ],
+    [
+     "o3.2",
+     "b."
+    ],
+    [
+     "o4",
+     "4)"
+    ],
+    [
+     "o5",
+     "5)"
+    ],
+    [
+     "o5.1",
+     "a."
+    ],
+    [
+     "o5.2",
+     "b."
+    ],
+    [
+     "o6",
+     "6)"
+    ],
+    [
+     "o7",
+     "7)"
+    ],
+    [
+     "o7.1",
+     "a."
+    ],
+    [
+     "o7.2",
+     "b."
+    ],
+    [
+     "o8",
+     "8)"
+    ],
+    [
+     "o9",
+     "9)"
+    ]
+   ]
+  },
   "PH212/Handouts/Lab 3 - Designing Experiments - Handout.docx": {
    "sha256": "62d6708bf2b2cd6bea3f0170dab8ce92b09eb5a20ffd9f27fdb23486879fda6f",
    "parts_sha256": {
