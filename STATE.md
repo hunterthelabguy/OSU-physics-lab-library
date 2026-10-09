@@ -1,6 +1,17 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-08.
+Volatile handoff, capped at one screen. Updated 2026-10-09.
+
+**Pass 4 (2026-10-09): the rest of PH 212, split ruled (D-0132, D-0133).**
+- Six PRs: the redaction tool first, then Labs 6, 1, 2, 5, 4. Labs 1, 5, 4
+  start while the tool is built; 2 and 6 after it. Lab 6 is held for the
+  owner's Word and Google Docs check.
+- Labs 2 and 6 carry the activation code (Lab 6 in a link target, missed by
+  the survey) and Lab 6 the OneDrive target: committed stripped and
+  redacted, marker `[removed under D-0104]`. Only the main session opens
+  the unredacted copies.
+- The owner's task list is `docs/owner-tasks.md` (removed links, missing
+  alt text); add to it as passes 4 and 5 go.
 
 **Pass 3 (2026-10-08): PH 211 Labs 2 to 7 merged; the hardest two held.**
 - Merged: PH 211 Lab 6 #40, Lab 5 #42, Lab 4 #44, Lab 7 #41, Lab 3 #48,

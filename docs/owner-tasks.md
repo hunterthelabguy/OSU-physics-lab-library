@@ -1,0 +1,29 @@
+# Owner tasks from the conversion
+
+For the owner. Started 2026-10-09 under D-0132 call 7; Claude adds to it as
+passes 4 and 5 convert, and it is complete once every handout is converted.
+Each item is something only the owner can supply. Nothing here names a removed
+code or link target: those stay out of this repo (D-0104, D-0133).
+
+## Resources whose links were removed
+
+Students reading the library's version cannot reach these. Put each resource
+somewhere students can see it, then tell Claude where, so the handout can
+point there (a content change, ruled then).
+
+- [ ] PH 212 Lab 2, the box giving the software activation code: the code and
+  its link (whose text was the link's own address) are removed (D-0104,
+  D-0133).
+- [ ] PH 212 Lab 6, Model 1, task 3: the word "your" linked to a document in
+  a personal OneDrive; the word stays, the link is gone (D-0104).
+- [ ] PH 212 Lab 6: four words linked to the same software activation link
+  as Lab 2; the words stay, the link is gone (D-0133).
+
+## Pictures that need alt text
+
+Shipped with Word's empty alt text, which marks a picture decorative (WCAG
+1.1.1 fails if it carries meaning). Write the alt text; adding it needs a
+change to the picture check, which compares alt text with Word's.
+
+- [ ] PH 212 Lab 2, one icon (D-0132 call 6).
+- [ ] PH 212 Lab 4, one icon (D-0132 call 6).
