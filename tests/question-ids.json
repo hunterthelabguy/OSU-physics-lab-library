@@ -136,6 +136,19 @@
    ["question", "ph212-extending-a-model:range-and-precision"],
    ["question", "ph212-extending-a-model:recommendation"]
   ],
+  "ph212-hypothesis-testing-handout": [
+   ["question", "ph212-hypothesis-testing:spring-constant-method"],
+   ["question", "ph212-hypothesis-testing:spring-constant-value"],
+   ["question", "ph212-hypothesis-testing:ideal-spring"],
+   ["question", "ph212-hypothesis-testing:sketch-and-hypothesis"],
+   ["question", "ph212-hypothesis-testing:describe-experiment"],
+   ["question", "ph212-hypothesis-testing:analysis-plan"],
+   ["question", "ph212-hypothesis-testing:record-observations"],
+   ["question", "ph212-hypothesis-testing:statistical-uncertainty"],
+   ["question", "ph212-hypothesis-testing:analyze-results"],
+   ["question", "ph212-hypothesis-testing:conclusion"],
+   ["question", "ph212-hypothesis-testing:applies-universally"]
+  ],
   "ph212-sharing-and-comparing-handout": [
    ["question", "ph212-sharing-and-comparing:combine-wave-equations"],
    ["question", "ph212-sharing-and-comparing:identify-variables"],
