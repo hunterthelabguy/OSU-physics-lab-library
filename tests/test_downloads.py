@@ -687,14 +687,8 @@ class PrintKeeps(unittest.TestCase):
         built = page(doc_id, "modern")
         main = re.search(r"<main>(.*?)</main>", built, re.S).group(1)
         headings = [flat(html.unescape(re.sub(r"<[^>]+>", "", h))) for h in re.findall(r"<h[1-4]\b[^>]*>(.*?)</h[1-4]>", main, re.S)]
-        found = []
         pages = raw.split("\f")[:-1]
-        for i, pg in enumerate(pages, 1):
-            lines = [flat(l) for l in pg.split("\n") if l.strip()]
-            body = [l for l in lines if not l.startswith(PHYSICS) and l != "DRAFT: license pending"]
-            ending = self.ends_with_heading("\n".join(body), headings)
-            if ending:
-                found.append("page {} ends with a heading: {}".format(i, ending))
+        found = self.page_endings(pages, headings, main)
         text = "\f".join(" ".join(words(p)) for p in pages)
         start = -1
         tall = {n for d, n in self.TALLER_THAN_A_PAGE if d == doc_id}
@@ -707,6 +701,31 @@ class PrintKeeps(unittest.TestCase):
                 found.append("question {} not found in the print".format(n))
             elif "\f" in text[start:stop] and n not in tall:
                 found.append("question {} broken over a page".format(n))
+        return found
+
+    @classmethod
+    def page_endings(cls, pages, headings, main):
+        """Pages whose last lines are a heading. Where a paragraph or list
+        item has the same words as a heading (PH 212 Lab 6's "Week 1"
+        label above its list, and its Week 1 heading), the print's whole
+        lines with those words are matched in order to the page's blocks
+        with them, and only a heading's counts."""
+        blocks = [(tag.startswith("h"), flat(html.unescape(re.sub(r"<[^>]+>", "", body))))
+                  for tag, body in re.findall(r"<(h[1-4]|p|li)\b[^>]*>(.*?)</\1>", main, re.S)]
+        found, seen = [], {}
+        for i, pg in enumerate(pages, 1):
+            lines = [flat(l) for l in pg.split("\n") if l.strip()]
+            body = [l for l in lines if not l.startswith(PHYSICS) and l != "DRAFT: license pending"]
+            for l in body:
+                seen[l] = seen.get(l, 0) + 1
+            ending = cls.ends_with_heading("\n".join(body), headings)
+            if ending and body and body[-1] == ending:
+                kinds = [is_h for is_h, t in blocks if t == ending]
+                n = seen[ending]
+                if n <= len(kinds) and not kinds[n - 1]:
+                    ending = None
+            if ending:
+                found.append("page {} ends with a heading: {}".format(i, ending))
         return found
 
     def starts_a_page_and_breaks(self, raw, n):
@@ -755,6 +774,15 @@ class PrintKeeps(unittest.TestCase):
         self.assertIsNone(self.ends_with_heading(contents, ["Linearization"]))
         self.assertEqual(self.ends_with_heading("Text\nLinearization\n", ["Linearization"]),
                          "Linearization")
+
+    def test_a_paragraph_with_a_headings_words_is_not_a_heading(self):
+        main = ("<p>The project:</p><p>Week 1</p><ol><li>Choose</li></ol>"
+                "<h2>Week 1</h2><p>Text.</p>")
+        label_ends = ["DRAFT: license pending\nThe project:\nWeek 1\n", "1. Choose\nWeek 1\nText.\n"]
+        heading_ends = ["DRAFT: license pending\nThe project:\nWeek 1\n1. Choose\nWeek 1\n", "Text.\n"]
+        self.assertEqual(self.page_endings(label_ends, ["Week 1"], main), [])
+        self.assertEqual(self.page_endings(heading_ends, ["Week 1"], main),
+                         ["page 1 ends with a heading: Week 1"])
 
     def test_a_question_starting_a_page_and_breaking_is_taller(self):
         top = "DRAFT: license pending\nQUESTION 4\nRead the box.\n\f"
