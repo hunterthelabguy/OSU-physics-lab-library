@@ -8,8 +8,9 @@ Volatile handoff, capped at one screen. Updated 2026-10-08.
   made-up fixtures (D-0119 call 4): tests #36, number check #38 (D-0122),
   Symbol font and course zip #39 (D-0123), table grid #43 (D-0130), font
   test #45, print test #46, block quotes #47, table scroll #50.
-- Held: #37, PH 212 Lab 3 and PH 213 Lab 2, for the owner's Word and
-  Google Docs check (D-0090, D-0119 call 1); rebased on main, green.
+- #37, PH 212 Lab 3 and PH 213 Lab 2, merged 2026-10-09 (`706dcdf`) after
+  the owner's Word and Google Docs check (D-0131). Pass 3 complete. Next:
+  pass 4, the rest of PH 212; propose its PR split first.
 - Ruled this pass: D-0119 (seven PRs), D-0120 (Heading 1 outline, math-font
   text, box alt text, Q15 photo as is), D-0122, D-0123, D-0130. Proposed:
   D-0121 and D-0124 to D-0129 (hash records).

@@ -1403,3 +1403,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: rules under rows only (the site's course table); a board first; `--rule` as the grid colour (under 3:1).
 - binds: themes/modern.css; site/site.css (quarto-only); tools/make_reference_docx.py; tools/reference.docx; tests/test_downloads.py; D-0057
 - test: test_tables_draw_a_thin_grid (theme rule and Word's Table style); test_main_is_the_line_then_the_modern_pages on every lab with a table
+
+### D-0131  The hardest two pass the owner's Word and Google Docs check; pass 3 is complete
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-09
+- decision: The Word downloads of PH 212 Lab 3 and PH 213 Lab 2 (#37) pass the owner's check in Word and in Google Docs, as D-0090 and D-0119 call 1 require, and #37 is merged (squashed as `706dcdf`). With PH 211 Labs 2 to 7 merged earlier, pass 3 (D-0082, D-0105) is complete: eight handouts converted, nine labs on the site with PH 211 Lab 1.
+- rationale: The owner, 2026-10-09: "Word and Google Docs look clean, merge #37".
+- alternatives: none; the check was the gate.
+- binds: D-0090; D-0119; STATE.md
+- test: main's run for 706dcdf (verify and deploy green)
