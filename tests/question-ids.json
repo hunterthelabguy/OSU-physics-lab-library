@@ -107,6 +107,16 @@
    ["question", "ph212-designing-experiments:prediction-test"],
    ["question", "ph212-designing-experiments:experimental-value"]
   ],
+  "ph212-sharing-and-comparing-handout": [
+   ["question", "ph212-sharing-and-comparing:combine-wave-equations"],
+   ["question", "ph212-sharing-and-comparing:identify-variables"],
+   ["question", "ph212-sharing-and-comparing:rearranged-equation"],
+   ["question", "ph212-sharing-and-comparing:perform-experiment"],
+   ["question", "ph212-sharing-and-comparing:measurement-uncertainty"],
+   ["question", "ph212-sharing-and-comparing:mass-density-analysis"],
+   ["question", "ph212-sharing-and-comparing:uncertainty-expression"],
+   ["question", "ph212-sharing-and-comparing:groups-agree"]
+  ],
   "ph213-hypothesis-testing-handout": [
    ["question", "ph213-hypothesis-testing:sense-making"],
    ["question", "ph213-hypothesis-testing:predictive-graphs"],
