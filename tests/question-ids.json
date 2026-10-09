@@ -80,6 +80,47 @@
    ["question", "ph211-uncertainty:plot-time-vs-height"],
    ["question", "ph211-uncertainty:analyze-class-results"],
    ["question", "ph211-uncertainty:individual-reflection"]
+  ],
+  "ph212-designing-experiments-handout": [
+   ["question", "ph212-designing-experiments:model-variables"],
+   ["question", "ph212-designing-experiments:dependent-variables-relation"],
+   ["question", "ph212-designing-experiments:implicit-assumption"],
+   ["question", "ph212-designing-experiments:linear-by-hand"],
+   ["question", "ph212-designing-experiments:linear-motion-detector"],
+   ["question", "ph212-designing-experiments:compare-linear"],
+   ["question", "ph212-designing-experiments:rotational-by-hand"],
+   ["question", "ph212-designing-experiments:rotational-photogate"],
+   ["question", "ph212-designing-experiments:compare-rotational"],
+   ["question", "ph212-designing-experiments:rearranged-model"],
+   ["question", "ph212-designing-experiments:procedure"],
+   ["question", "ph212-designing-experiments:simplified-model"],
+   ["question", "ph212-designing-experiments:inertia-method"],
+   ["question", "ph212-designing-experiments:friction-check"],
+   ["question", "ph212-designing-experiments:other-assumption"],
+   ["question", "ph212-designing-experiments:mass-range"],
+   ["question", "ph212-designing-experiments:data-table"],
+   ["question", "ph212-designing-experiments:procedure-review"],
+   ["question", "ph212-designing-experiments:plot"],
+   ["question", "ph212-designing-experiments:graph-description"],
+   ["question", "ph212-designing-experiments:moment-of-inertia"],
+   ["question", "ph212-designing-experiments:prediction"],
+   ["question", "ph212-designing-experiments:prediction-test"],
+   ["question", "ph212-designing-experiments:experimental-value"]
+  ],
+  "ph213-hypothesis-testing-handout": [
+   ["question", "ph213-hypothesis-testing:sense-making"],
+   ["question", "ph213-hypothesis-testing:predictive-graphs"],
+   ["question", "ph213-hypothesis-testing:measurement-plan"],
+   ["question", "ph213-hypothesis-testing:testing-predictions"],
+   ["question", "ph213-hypothesis-testing:nearby-devices"],
+   ["question", "ph213-hypothesis-testing:reversed-wires"],
+   ["question", "ph213-hypothesis-testing:data-and-uncertainty"],
+   ["question", "ph213-hypothesis-testing:graphs-and-fits"],
+   ["question", "ph213-hypothesis-testing:compare-predictions"],
+   ["question", "ph213-hypothesis-testing:psi-values"],
+   ["question", "ph213-hypothesis-testing:y-intercepts"],
+   ["question", "ph213-hypothesis-testing:model-verdict"],
+   ["question", "ph213-hypothesis-testing:difficulties"]
   ]
  }
 }

@@ -398,6 +398,8 @@ HTML_CAPS = {
     "ph211-hypothesis-testing-handout": 330_000,  # 295,331 bytes, pass 3
     "ph211-team-building-handout": 190_000,
     "ph211-uncertainty-handout": 320_000,  # 284,044 bytes, pass 3
+    "ph212-designing-experiments-handout": 380_000,  # 343,116 bytes, pass 3
+    "ph213-hypothesis-testing-handout": 1_820_000,  # 1,650,026 bytes, its photograph embedded (D-0092)
 }
 
 
