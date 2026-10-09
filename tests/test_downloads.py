@@ -446,6 +446,7 @@ class Html(unittest.TestCase):
         # elements, xml:space), so figures are compared by their words.
         def src(text):
             text = re.sub(r'<img role="img" aria-label="[^"]*" ', "<img ", text)
+            text = re.sub(r'(<img\b[^>]*\salt)(?=[\s>])', r'\1=""', text)
             # Quarto rewrites a table's own attributes (Bootstrap's `table`
             # class for Pandoc's width) and gives rows odd/even classes; the
             # theme draws both alike (D-0130, measured). Quarto also writes
@@ -625,6 +626,22 @@ class Pdf(unittest.TestCase):
                                  "the department beside the page count on every page")
 
 
+class DecorativePictures(unittest.TestCase):
+    """D-0132 call 6: a picture with Word's empty alt text stays decorative
+    in the HTML download (made-up markup, D-0119 call 4)."""
+
+    def test_empty_alt_loses_role_and_label(self):
+        got = downloads.without_empty_image_role(
+            '<p><img role="img" aria-label src="data:x" alt width="31"></p>')
+        self.assertEqual(got, '<p><img src="data:x" alt="" width="31"></p>')
+        got = downloads.without_empty_image_role('<img role="img" aria-label="" src="a" alt="">')
+        self.assertEqual(got, '<img src="a" alt="">')
+
+    def test_named_picture_unchanged(self):
+        tag = '<img role="img" aria-label="A cart on a ramp" src="a" alt="A cart on a ramp">'
+        self.assertEqual(downloads.without_empty_image_role(tag), tag)
+
+
 class PrintKeeps(unittest.TestCase):
     """D-0058: in print, a question block stays whole and a heading never
     ends a page. The rules are the theme's (themes/modern.css, @media print)
@@ -640,6 +657,12 @@ class PrintKeeps(unittest.TestCase):
     offsets from 0 to 975 px; with them on, none."""
 
     OFFSETS = (100, 450, 575, 800, 950)
+    # A question block taller than a printed page cannot stay whole, and
+    # Chrome breaks it (break-inside: avoid yields). Each entry is proved
+    # taller by test_taller_than_a_page_is_true; a lab's PR adds its own
+    # as it adds its HTML cap: (doc id, the question's label number).
+    TALLER_THAN_A_PAGE = set()
+    HEADER = words("DRAFT: license pending")
     RULES_OFF = ("<style>@media print { .question, .box { break-inside: auto !important; }"
                  " h1, h2, h3, h4 { break-after: auto !important; } }</style>")
 
@@ -673,6 +696,7 @@ class PrintKeeps(unittest.TestCase):
                 found.append("page {} ends with a heading: {}".format(i, ending))
         text = "\f".join(" ".join(words(p)) for p in pages)
         start = -1
+        tall = {n for d, n in self.TALLER_THAN_A_PAGE if d == doc_id}
         for n, rest in re.findall(r'<div class="question-label">\s*<p>Question (\d+)</p>\s*</div>(.*?)</div>', main, re.S):
             end = " ".join(self.last_words(rest))
             # In order: after a restart (S9), "Question 1" comes again.
@@ -680,20 +704,31 @@ class PrintKeeps(unittest.TestCase):
             stop = text.find(end, start)
             if start < 0 or stop < 0:
                 found.append("question {} not found in the print".format(n))
-            elif "\f" in text[start:stop]:
+            elif "\f" in text[start:stop] and n not in tall:
                 found.append("question {} broken over a page".format(n))
         return found
+
+    def starts_a_page_and_breaks(self, raw, n):
+        """Question n prints first on its page, under the running header,
+        and still crosses a page break: it is taller than a page."""
+        pages = raw.split("\f")[:-1]
+        for i, pg in enumerate(pages):
+            got = words(pg)
+            if got[:len(self.HEADER) + 2] == self.HEADER + ["QUESTION", n]:
+                rest = " ".join(words(" ".join(pages[i + 1:i + 2])))
+                return bool(rest) and not rest.startswith(" ".join(self.HEADER) + " QUESTION")
+        return False
 
     @staticmethod
     def ends_with_heading(page_text, headings):
         """The heading a printed page ends with, or None. A heading may wrap,
-        so the page's last one to three lines, joined, must end with a whole
-        heading; a lone last word that merely ends one (a table cell's
+        so the page's last one to three lines, joined, must be a whole
+        heading; lines that merely end with one are not (a table cell's
         "Experiment" against "Week 2 – Perform the Experiment", PH 211
-        Lab 7) is not a heading."""
+        Lab 7; a contents item "4. Linearization", PH 212 Lab 4)."""
         body = [flat(l) for l in page_text.split("\n") if l.strip()]
         tails = [" ".join(body[-k:]) for k in (1, 2, 3) if len(body) >= k]
-        return next((h for h in headings if any(tail.endswith(h) for tail in tails)), None)
+        return next((h for h in headings if h in tails), None)
 
     @staticmethod
     def last_words(block):
@@ -715,6 +750,27 @@ class PrintKeeps(unittest.TestCase):
         cell = "Title\nLab 06 – Describing an\nExperiment\n"
         self.assertEqual(self.ends_with_heading(page, heads), "Week 2 – Perform the Experiment")
         self.assertIsNone(self.ends_with_heading(cell, heads))
+        contents = "Appendix\n1. Required Plot Elements\n4. Linearization\n"
+        self.assertIsNone(self.ends_with_heading(contents, ["Linearization"]))
+        self.assertEqual(self.ends_with_heading("Text\nLinearization\n", ["Linearization"]),
+                         "Linearization")
+
+    def test_a_question_starting_a_page_and_breaking_is_taller(self):
+        top = "DRAFT: license pending\nQUESTION 4\nRead the box.\n\f"
+        mid = "DRAFT: license pending\nSome words.\nQUESTION 4\nRead the box.\n\f"
+        rest = "DRAFT: license pending\na. List the sources.\n\f"
+        after = "DRAFT: license pending\nQUESTION 5\nNext.\n\f"
+        self.assertTrue(self.starts_a_page_and_breaks(top + rest, "4"))
+        self.assertFalse(self.starts_a_page_and_breaks(mid + rest, "4"))
+        self.assertFalse(self.starts_a_page_and_breaks(top + after, "4"))
+
+    def test_taller_than_a_page_is_true(self):
+        ids = {d for d, _ in converted()}
+        for doc_id, n in sorted(self.TALLER_THAN_A_PAGE):
+            with self.subTest(doc=doc_id, question=n):
+                self.assertIn(doc_id, ids)
+                self.assertTrue(self.starts_a_page_and_breaks(self.printed(doc_id, 0, False), n),
+                                "fits on a page now: remove it from TALLER_THAN_A_PAGE")
 
     def test_last_words_skip_math_and_figures(self):
         last = self.last_words
