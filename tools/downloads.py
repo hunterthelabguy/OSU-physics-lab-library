@@ -132,9 +132,31 @@ def html(doc, dest):
             "-M", "bannerdetail=" + render.BANNER_DETAIL,
             "-o", dest])
     with open(dest, encoding="utf-8") as fh:
-        left = [u for u in re.findall(r'\b(?:src|href)="([^"]*)"', fh.read()) if is_relative(u)]
+        text = fh.read()
+    decorative = without_empty_image_role(text)
+    if decorative != text:
+        text = decorative
+        with open(dest, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(text)
+    left = [u for u in re.findall(r'\b(?:src|href)="([^"]*)"', text) if is_relative(u)]
     if left:
         raise SystemExit("{} links into the site, which a download cannot: {}".format(dest, left[:5]))
+
+
+def without_empty_image_role(text):
+    """Pandoc's --embed-resources gives every picture role="img" and an
+    aria-label of its alt text. Where Word's alt text is empty (D-0132
+    call 6) that names the picture with nothing, and role="img" undoes the
+    empty alt that marks it decorative (WCAG 1.1.1). Such a picture keeps
+    only alt="", as the modern page writes it."""
+    def one(m):
+        tag = m.group(0)
+        if not re.search(r'\saria-label(?:="")?[\s>]', tag):
+            return tag
+        tag = re.sub(r'\srole="img"', "", tag)
+        tag = re.sub(r'\saria-label(?:="")?(?=[\s>])', "", tag)
+        return re.sub(r'\salt(?=[\s>])', ' alt=""', tag)
+    return re.sub(r"<img\b[^>]*>", one, text)
 
 
 def pdf(page_path, dest):
