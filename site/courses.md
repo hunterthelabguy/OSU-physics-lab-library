@@ -70,6 +70,7 @@ courses:
       - number: "4"
         title: "Hypothesis Testing"
         description: "Measure oscillations for a cart and spring on a ramp. Check angle dependence on frequency."
+        document: "ph212-hypothesis-testing-handout"
       - number: "5"
         title: "Sharing & Comparing"
         description: "Determine the mass density of a string using standing waves. Class compares results for two different strings."
