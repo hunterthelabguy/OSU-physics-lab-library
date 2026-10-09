@@ -71,6 +71,7 @@ courses:
       - number: "5"
         title: "Sharing & Comparing"
         description: "Determine the mass density of a string using standing waves. Class compares results for two different strings."
+        document: "ph212-sharing-and-comparing-handout"
       - number: "6"
         title: "Capstone (Two weeks)"
         description: "Develop a hypothesis on either drag or damped oscillations and develop an experiment to test it."
