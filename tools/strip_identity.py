@@ -1,6 +1,6 @@
 """Strip the identity-bearing parts of an Office original before it is committed.
 
-Usage: python tools/strip_identity.py ORIGINAL STRIPPED
+Usage: python tools/strip_identity.py ORIGINAL STRIPPED [--redact LIST]
 
 D-0086: every original is committed with its identity-bearing parts
 stripped, in both repos; `source_sha256` names the stripped file, and an
@@ -15,10 +15,19 @@ people.xml, custom properties, photo EXIF) is in none of the 19 handouts, so
 this tool removes none of it: it stops, naming the part, so a new original
 that has one is looked at before anything is committed. Custom properties
 that only repeat app.xml's fields pass (`APP_FIELDS`). Prints both hashes.
+
+D-0133: `--redact LIST` names a UTF-8 file, kept outside the repo, of
+passages that must never be committed (one per line). In every XML part
+each passage, raw or XML-escaped, becomes `MARKER`; in a .rels part, an
+external target holding one becomes `REMOVED_TARGET`. The tool then stops if
+any passage is left in any part, and never prints one: only counts. An
+external target on a personal file store (`PERSONAL_STORE`) stops the strip
+unless it is redacted, since no original may carry one (D-0104).
 """
 
 import hashlib
 import re
+from xml.sax.saxutils import escape
 import sys
 import zipfile
 
@@ -41,6 +50,11 @@ APP_FIELDS = {"AppVersion", "DocSecurity", "HyperlinksChanged", "LinksUpToDate",
 PROPERTY_NAME = re.compile(rb'<property\b[^>]*\bname="([^"]*)"')
 AUTHOR = re.compile(rb'\sw:author="')
 EXIF = b"Exif\x00\x00"
+MARKER = "[removed under D-0104]"
+REMOVED_TARGET = "https://removed.invalid/"
+PERSONAL_STORE = re.compile(rb'Target="[^"]*(sharepoint\.com|onedrive\.|1drv\.ms)[^"]*"', re.I)
+EXTERNAL = re.compile(r'<Relationship\b[^>]*TargetMode="External"[^>]*>')
+TARGET = re.compile(r'Target="([^"]*)"')
 
 
 def element(tag):
@@ -62,12 +76,35 @@ def refusals(z):
             found.append(f"{name}: a revision or comment author (w:author)")
         elif name.lower().endswith((".jpg", ".jpeg")) and EXIF in z.read(name)[:65536]:
             found.append(f"{name}: EXIF data in a photo")
+        elif name.endswith(".rels") and PERSONAL_STORE.search(z.read(name)):
+            found.append(f"{name}: a link target on a personal file store (D-0104);"
+                         " redact it with --redact")
     return found
 
 
-def strip(src, dst):
+def redact(name, text, passages):
+    """Return the part's text with every passage removed, and the count."""
+    count = 0
+    if name.endswith(".rels"):
+        def target(m):
+            nonlocal count
+            rel = m.group(0)
+            if any(p in rel or escape(p) in rel for p in passages):
+                count += 1
+                return TARGET.sub('Target="' + REMOVED_TARGET + '"', rel)
+            return rel
+        return EXTERNAL.sub(target, text), count
+    for p in passages:  # longest first, so a passage inside another goes with it
+        for form in dict.fromkeys((escape(p), p)):
+            count += text.count(form)
+            text = text.replace(form, MARKER)
+    return text, count
+
+
+def strip(src, dst, passages=()):
+    passages = sorted(set(passages), key=len, reverse=True)
     with zipfile.ZipFile(src) as z:
-        stop = refusals(z)
+        stop = refusals(redacted_view(z, passages)) if passages else refusals(z)
         if stop:
             raise SystemExit(f"{src}: not stripped:\n  " + "\n  ".join(stop))
         removed = []
@@ -79,8 +116,36 @@ def strip(src, dst):
                     if n:
                         removed.append(f"{info.filename} {tag}")
                         data = text.encode("utf-8")
+                if passages and xml_part(info.filename):
+                    text, n = redact(info.filename, data.decode("utf-8"), passages)
+                    if n:
+                        removed.append(f"{info.filename} redacted x{n}")
+                        data = text.encode("utf-8")
+                if any(p.encode("utf-8") in data or escape(p).encode("utf-8") in data
+                       for p in passages):
+                    raise SystemExit(f"{src}: a redacted passage is left in {info.filename}")
                 out.writestr(info, data, compress_type=info.compress_type)
     return removed
+
+
+def xml_part(name):
+    return name.endswith((".xml", ".rels"))
+
+
+class redacted_view:
+    """The archive as `refusals` sees it once the passages are redacted."""
+
+    def __init__(self, z, passages):
+        self.z, self.passages = z, passages
+
+    def namelist(self):
+        return self.z.namelist()
+
+    def read(self, name):
+        data = self.z.read(name)
+        if xml_part(name):
+            data = redact(name, data.decode("utf-8"), self.passages)[0].encode("utf-8")
+        return data
 
 
 def sha256(path):
@@ -89,10 +154,17 @@ def sha256(path):
 
 
 def main(argv):
+    passages = []
+    if len(argv) == 4 and argv[2] == "--redact":
+        with open(argv[3], encoding="utf-8") as fh:
+            passages = [line.strip() for line in fh if line.strip()]
+        if not passages:
+            raise SystemExit(f"{argv[3]}: no passages")
+        argv = argv[:2]
     if len(argv) != 2:
         raise SystemExit(__doc__.split("\n\n")[1])
     src, dst = argv
-    removed = strip(src, dst)
+    removed = strip(src, dst, passages)
     print("removed: " + (", ".join(removed) or "nothing"))
     print(f"original sha256: {sha256(src)}")
     print(f"stripped sha256: {sha256(dst)}")

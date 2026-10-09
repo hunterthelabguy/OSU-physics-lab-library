@@ -7,6 +7,7 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from xml.sax.saxutils import escape
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
@@ -94,6 +95,108 @@ class Strip(unittest.TestCase):
         path = self.write("tracked.docx", {**self.parts, "word/document.xml": doc})
         with self.assertRaises(SystemExit):
             strip_identity.strip(path, self.dir / "out.docx")
+
+
+# Made up for the test (D-0119 call 4): no real code or address.
+CODE = "QZ7XK2PLM9"
+URL = "https://vendor.example/app/?key=" + CODE + "&lang=en"
+PERSONAL = "https://someone-my.sharepoint.com/personal/someone/doc.docx"
+
+
+class Redact(unittest.TestCase):
+    """D-0133: named passages and the link targets holding them never leave."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.dir = Path(self.tmp.name)
+        src = self.dir / "src.md"
+        src.write_text(
+            "Install from <" + URL + ">.\n\n"
+            "The activation code is **" + CODE + "**.\n\n"
+            "Copy [your](" + PERSONAL + ") document and [the app page](" + URL + ").\n",
+            encoding="utf-8")
+        self.original = self.dir / "original.docx"
+        subprocess.run([PANDOC, str(src), "-o", str(self.original)], check=True)
+        with zipfile.ZipFile(self.original) as z:
+            doc = z.read("word/document.xml").decode("utf-8")
+        # The address is also the link's own text, as in PH 212 Lab 2.
+        self.assertIn(escape(URL), doc)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def everything(self, path):
+        with zipfile.ZipFile(path) as z:
+            return {n: z.read(n) for n in z.namelist()}
+
+    def test_passages_and_their_targets_are_removed(self):
+        out = self.dir / "out.docx"
+        removed = strip_identity.strip(self.original, out, [CODE, URL, PERSONAL])
+        self.assertTrue(any("redacted" in r for r in removed))
+        parts = self.everything(out)
+        for name, data in parts.items():
+            for p in (CODE, URL, PERSONAL, escape(URL)):
+                self.assertNotIn(p.encode("utf-8"), data, name)
+        doc = parts["word/document.xml"].decode("utf-8")
+        self.assertIn("The activation code is<", doc)
+        self.assertIn(strip_identity.MARKER, doc)
+        rels = parts["word/_rels/document.xml.rels"].decode("utf-8")
+        self.assertEqual(rels.count(strip_identity.REMOVED_TARGET), 2)  # one per address
+        self.assertIn(">your<", doc)  # the linked word stays
+        before = self.everything(self.original)
+        for name in before:
+            if not name.startswith(("docProps/", "word/document.xml", "word/_rels/")):
+                self.assertEqual(before[name], parts[name], name)
+
+    def test_redacted_file_reads_as_words_with_the_marker(self):
+        out = self.dir / "out.docx"
+        strip_identity.strip(self.original, out, [CODE, URL, PERSONAL])
+        text = subprocess.run([PANDOC, str(out), "-t", "plain"], check=True,
+                              capture_output=True, encoding="utf-8").stdout
+        self.assertIn("The activation code is " + strip_identity.MARKER, text)
+        self.assertNotIn(CODE, text)
+
+    def test_personal_store_target_stops_an_unredacted_strip(self):
+        with self.assertRaises(SystemExit) as stop:
+            strip_identity.strip(self.original, self.dir / "out.docx")
+        self.assertIn("personal file store", str(stop.exception))
+        strip_identity.strip(self.original, self.dir / "out.docx", [PERSONAL])
+
+    def test_a_passage_left_in_a_part_stops_it(self):
+        parts = self.everything(self.original)
+        parts["word/media/blob.bin"] = CODE.encode("utf-8")
+        path = self.dir / "blob.docx"
+        with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
+            for n, data in parts.items():
+                z.writestr(n, data)
+        with self.assertRaises(SystemExit) as stop:
+            strip_identity.strip(path, self.dir / "out.docx", [CODE, URL, PERSONAL])
+        self.assertIn("word/media/blob.bin", str(stop.exception))
+        self.assertNotIn(CODE, str(stop.exception))
+
+    def test_command_line_prints_no_passage(self):
+        listing = self.dir / "passages.txt"
+        listing.write_text(CODE + "\n" + URL + "\n" + PERSONAL + "\n", encoding="utf-8")
+        run = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "strip_identity.py"), str(self.original),
+             str(self.dir / "out.docx"), "--redact", str(listing)],
+            check=True, capture_output=True, encoding="utf-8")
+        for p in (CODE, URL, PERSONAL):
+            self.assertNotIn(p, run.stdout + run.stderr)
+
+
+class CommittedOriginals(unittest.TestCase):
+    """No committed original links to a personal file store (D-0104, D-0133)."""
+
+    def test_no_personal_store_targets(self):
+        found = sorted(ROOT.glob("originals/**/*.docx"))
+        self.assertTrue(found)
+        for path in found:
+            with zipfile.ZipFile(path) as z:
+                for name in z.namelist():
+                    if name.endswith(".rels"):
+                        self.assertIsNone(strip_identity.PERSONAL_STORE.search(z.read(name)),
+                                          f"{path.name} {name}")
 
 
 if __name__ == "__main__":
