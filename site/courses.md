@@ -58,6 +58,7 @@ courses:
       - number: "1"
         title: "Data Analysis"
         description: "Fit the period of a pendulum for small-angle oscillations; test a square-root dependence by linearizing data."
+        document: "ph212-data-analysis-handout"
       - number: "2"
         title: "Extending a Model"
         description: "Check the small-angle model for the period of a pendulum at large oscillations. Requires a robust experiment and careful measurements."

@@ -398,6 +398,7 @@ HTML_CAPS = {
     "ph211-hypothesis-testing-handout": 330_000,  # 295,331 bytes, pass 3
     "ph211-team-building-handout": 190_000,
     "ph211-uncertainty-handout": 320_000,  # 284,044 bytes, pass 3
+    "ph212-data-analysis-handout": 210_000,  # 188,615 bytes, pass 4
     "ph212-designing-experiments-handout": 380_000,  # 343,116 bytes, pass 3
     "ph212-sharing-and-comparing-handout": 360_000,  # 324,578 bytes, pass 4
     "ph213-hypothesis-testing-handout": 1_820_000,  # 1,650,026 bytes, its photograph embedded (D-0092)
@@ -662,7 +663,10 @@ class PrintKeeps(unittest.TestCase):
     # Chrome breaks it (break-inside: avoid yields). Each entry is proved
     # taller by test_taller_than_a_page_is_true; a lab's PR adds its own
     # as it adds its HTML cap: (doc id, the question's label number).
-    TALLER_THAN_A_PAGE = set()
+    TALLER_THAN_A_PAGE = {
+        # The "What is Uncertainty?" box sits inside it, between stem and parts (S14).
+        ("ph212-data-analysis-handout", "4"),
+    }
     HEADER = words("DRAFT: license pending")
     RULES_OFF = ("<style>@media print { .question, .box { break-inside: auto !important; }"
                  " h1, h2, h3, h4 { break-after: auto !important; } }</style>")
