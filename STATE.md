@@ -1,15 +1,14 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-09.
+Volatile handoff, capped at one screen. Updated 2026-10-10.
 
-**Pass 4 (2026-10-09): the rest of PH 212, split ruled (D-0132, D-0133).**
+**Pass 4 (2026-10-09): the rest of PH 212; complete (D-0142).**
 - Merged: redaction tool #51, Lab 5 #54, print-keep and download fixes #57
   and #58 (D-0138), Lab 1 #52, Lab 2 #56, Lab 4 #53. Hash records D-0134 to
   D-0137 (proposed).
-- Held: Lab 6 #55, green, for the owner's Word and Google Docs check
-  (D-0132 call 3); preview `pass4-ph212-lab6.osu-physics-labs.pages.dev`.
-  Its hash entry is written when it merges. Its rubric is at Word's
-  column shares (#59, D-0139) on Word's landscape page (#60, D-0140).
+- Lab 6 #55 merged after the owner's Word check (D-0142); its rubric at
+  Word's column shares (#59, D-0139) on Word's landscape page (#60,
+  D-0140). Next: pass 5, the rest of PH 213; propose its PR split first.
 - Earmarked, a pass after all other pending work (D-0141): capstone
   restructure, web-only rubric, page table of contents.
 - Open: measure. 68ch measured a median 80 characters a line (321 lines,

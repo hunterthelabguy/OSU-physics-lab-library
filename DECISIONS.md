@@ -1519,3 +1519,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: each built now, piecemeal.
 - binds: D-0074 to D-0080 (pass 6's template); D-0082 (passes); STATE.md
 - test: none until specced
+
+### D-0142  PH 212 Lab 6 passes the owner's Word and Google Docs check; its original is committed stripped and redacted; pass 4 is complete
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-10
+- decision: The Word download of PH 212 Lab 6 (#55) passes the owner's check (D-0090, D-0132 call 3), with its rubric at Word's column shares (D-0139) on Word's landscape page (D-0140), and #55 is merged (squashed as `6a7fa5e`). It commits `originals/PH212/Lab 6 - Capstone - Handout.docx` stripped and redacted (D-0133; only the link list changed, two targets removed): original SHA-256 `68d4f8dfcda02ae7f10a005ce37ba2c5485259d0d17e30c7719256af9e0984ca` (the survey's), stripped and redacted `4820b23be0a293afd06790af560260f0290beb5c90b9d2ff67ba319de35597fb`, the `source_sha256` of `curriculum/ph212/ph212-capstone-handout.md`. With Labs 1, 2, 4 and 5 merged earlier, pass 4 (D-0082, D-0132) is complete: PH 212's six labs are on the site.
+- rationale: The owner, 2026-10-09: "Word check passed, merge #55". D-0086: an entry records both hashes.
+- alternatives: none; the check was the gate.
+- binds: D-0086; D-0090; D-0132; D-0133; D-0139; D-0140; STATE.md
+- test: main's run for 6a7fa5e (verify and deploy green); the word and number checks on the lab
