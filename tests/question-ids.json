@@ -81,6 +81,18 @@
    ["question", "ph211-uncertainty:analyze-class-results"],
    ["question", "ph211-uncertainty:individual-reflection"]
   ],
+  "ph212-capstone-handout": [
+   ["question", "ph212-capstone:brainstorm-model"],
+   ["question", "ph212-capstone:outline-experiments"],
+   ["question", "ph212-capstone:write-up-experiments"],
+   ["question", "ph212-capstone:analysis-plan"],
+   ["question", "ph212-capstone:model-and-predictions"],
+   ["question", "ph212-capstone:procedure"],
+   ["question", "ph212-capstone:collect-data"],
+   ["question", "ph212-capstone:analyze-data"],
+   ["question", "ph212-capstone:discuss-results"],
+   ["question", "ph212-capstone:takeaway"]
+  ],
   "ph212-data-analysis-handout": [
    ["question", "ph212-data-analysis:group-member-qualities"],
    ["question", "ph212-data-analysis:experimental-setup"],

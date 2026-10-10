@@ -78,6 +78,7 @@ courses:
       - number: "6"
         title: "Capstone (Two weeks)"
         description: "Develop a hypothesis on either drag or damped oscillations and develop an experiment to test it."
+        document: "ph212-capstone-handout"
       - number: ""
         title: "Lab Skills practical (not implemented)"
         description: "Written assessment of major skills students should have mastered throughout the curriculum"
