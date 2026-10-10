@@ -108,6 +108,23 @@ table.
   names takes that id. A paragraph Word only indents is plain; a quoted
   example in quote marks is a block quote.
 
+## Pass 4 additions (tables)
+
+- **Column widths.** A table of more than one column takes Word's column
+  shares (`w:gridCol`), within 5 points, and the word check compares them.
+  A pipe table where every cell is one paragraph (its separator's dashes
+  set the shares once a line passes 72 characters); a grid table where a
+  cell holds paragraphs, a list or a picture, its `+---+` edges drawn in
+  the shares.
+- **Landscape pages.** A table Word prints in a landscape section (the two
+  capstone rubrics, PH 212 Lab 6 and PH 213 Lab 6) is wrapped in
+  `::: landscape`. Word's download puts it in a landscape section of its
+  own with the draft header and footer (`tools/filters/landscape.lua`,
+  `downloads.landscape_sections`); the PDF prints it on a landscape page
+  (`@page landscape`); the web page is unchanged, the table scrolling in
+  its own box. The word check fails a landscape table outside the block
+  and a portrait one inside it.
+
 ## Pictures and drawn figures (S12, S13; pass 2b, D-0117, D-0118)
 
 - **Reading.** Every step reads a source as `markdown-smart-implicit_figures`

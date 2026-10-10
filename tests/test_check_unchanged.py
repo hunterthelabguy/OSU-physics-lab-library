@@ -192,6 +192,10 @@ class WordCheck(unittest.TestCase):
 
 
 LONG = "words " * 16
+# A paragraph ending a landscape section, after the fixture's table; the
+# body's own section, after it, stays portrait.
+LANDSCAPE_BREAK = ('<w:p><w:pPr><w:sectPr><w:pgSz w:w="15840" w:h="12240" w:orient="landscape"/>'
+                   '</w:sectPr></w:pPr></w:p>')
 
 
 def table(dashes, row=LONG):
@@ -225,6 +229,19 @@ class TableWidths(unittest.TestCase):
     def test_a_table_left_out_fails(self):
         self.assertFails(table([10, 45, 45]), "Describe the model " + LONG + "Short",
                          "tables of more than one column: original 1, converted 0")
+
+    def test_landscape_table_in_a_landscape_block_passes(self):
+        _, problems = self.check(table([10, 45, 45]), "::: landscape\n" + table([10, 45, 45]) + ":::\n",
+                                 extra_xml=LANDSCAPE_BREAK)
+        self.assertEqual(problems, [])
+
+    def test_landscape_table_left_portrait_fails(self):
+        self.assertFails(table([10, 45, 45]), table([10, 45, 45]),
+                         "table 1: Word prints it on a landscape page", extra_xml=LANDSCAPE_BREAK)
+
+    def test_portrait_table_in_a_landscape_block_fails(self):
+        self.assertFails(table([10, 45, 45]), "::: landscape\n" + table([10, 45, 45]) + ":::\n",
+                         "table 1: in a ::: landscape block, but Word prints it portrait")
 
     def test_one_cell_boxes_are_not_counted(self):
         self.assertEqual(check_unchanged.markdown_table_shares(

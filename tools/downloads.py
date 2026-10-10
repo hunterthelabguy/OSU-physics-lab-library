@@ -13,7 +13,9 @@ the modern theme, everything embedded and no site chrome, so it opens
 from disk; its equations are MathML (D-0040). Pictures and drawn figures
 come from the lab's media folder, which tools/quarto_build.py fills
 (tools/media.py) and tools/filters/media.lua places (four-items call 4.3;
-D-0117, D-0118). A missing tool is an error, never a skip (LEDGER 53).
+D-0117, D-0118). A `::: landscape` block is a landscape page in Word and
+in print, as the original has it (tools/filters/landscape.lua; pass 4).
+A missing tool is an error, never a skip (LEDGER 53).
 """
 
 import os
@@ -34,6 +36,9 @@ PHYSICS = "Department of Physics, Oregon State University"
 REFERENCE_DOCX = os.path.join(render.ROOT, "tools", "reference.docx")
 FILTER = os.path.join(render.ROOT, "tools", "filters", "questions.lua")
 MEDIA_FILTER = os.path.join(render.ROOT, "tools", "filters", "media.lua")
+LANDSCAPE_FILTER = os.path.join(render.ROOT, "tools", "filters", "landscape.lua")
+# The section-break markers tools/filters/landscape.lua writes in Word.
+SECTION_MARKER = re.compile(r"<w:sectPr><!--section:(portrait|landscape)--></w:sectPr>")
 
 
 def lab_dir(doc):
@@ -56,6 +61,7 @@ def pandoc(doc, text, args):
     figures from the lab's media folder; a warning fails."""
     proc = subprocess.run(
         [render.PANDOC, "-f", render.FROM, "--lua-filter", MEDIA_FILTER, "--lua-filter", FILTER,
+         "--lua-filter", LANDSCAPE_FILTER,
          "-M", "theme=" + THEME, "--resource-path", lab_dir(doc),
          "-M", "media-dir=" + media_dir(doc).replace(os.sep, "/")] + args,
         input=text, capture_output=True, text=True, encoding="utf-8")
@@ -92,6 +98,32 @@ def word(doc, dest):
            ["-t", "docx", "--reference-doc", REFERENCE_DOCX, "-M", "lang=en"]
            + box_colours() + ["-o", dest])
     crop_pictures(dest, media.lab_media(doc)["crops"])
+    landscape_sections(dest)
+
+
+def landscape_sections(path):
+    """Fill tools/filters/landscape.lua's section-break markers from the
+    document's own last section (page, margins, the draft header and
+    footer): a portrait marker as it is, a landscape one with its page
+    turned. A section with no header reference would print none, so each
+    carries the references itself."""
+    with zipfile.ZipFile(path) as z:
+        infos = z.infolist()
+        parts = {i.filename: z.read(i.filename) for i in infos}
+    doc = parts["word/document.xml"].decode("utf-8")
+    if not SECTION_MARKER.search(doc):
+        return
+    own = [s for s in re.findall(r"<w:sectPr\b.*?</w:sectPr>", doc, re.S) if "<!--section:" not in s][-1]
+    size = re.search(r'<w:pgSz\b[^>]*?w:h="(\d+)"[^>]*?w:w="(\d+)"[^>]*/>', own)
+    if not size:
+        raise SystemExit("{}: no page size in the section to copy".format(path))
+    turned = own.replace(size.group(0), '<w:pgSz w:w="{}" w:h="{}" w:orient="landscape" />'.format(
+        size.group(1), size.group(2)))
+    doc = SECTION_MARKER.sub(lambda m: own if m.group(1) == "portrait" else turned, doc)
+    parts["word/document.xml"] = doc.encode("utf-8")
+    with zipfile.ZipFile(path, "w") as z:
+        for i in infos:
+            z.writestr(i, parts[i.filename])
 
 
 def crop_pictures(path, crops):

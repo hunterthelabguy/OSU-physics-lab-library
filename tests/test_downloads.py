@@ -599,6 +599,73 @@ def pdf_text(path):
                           capture_output=True, text=True, encoding="utf-8").stdout
 
 
+class LandscapePages(unittest.TestCase):
+    """Pass 4: a `::: landscape` block is a landscape page of its own in
+    Word and in print, the draft header and the footer on it (a made-up
+    lab and page, D-0119 call 4)."""
+
+    SOURCE = ('---\nid: "landscape-lab"\ntitle: "Landscape"\n---\n\n# Landscape\n\n'
+              "Portrait words before.\n\n::: landscape\n| Task | One |\n|---|------------|\n"
+              "| Describe the model | " + "words " * 16 + "|\n:::\n\nPortrait words after.\n")
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        root = Path(cls.tmp.name)
+        source = root / "landscape-lab.md"
+        source.write_text(cls.SOURCE, encoding="utf-8", newline="\n")
+        doc = {"path": str(source), "meta": render.pandoc_meta(str(source)),
+               "lab_dir": str(root / "labs" / "landscape-lab")}
+        cls.docx = root / "landscape-lab.docx"
+        downloads.word(doc, str(cls.docx))
+        with zipfile.ZipFile(cls.docx) as z:
+            cls.xml = z.read("word/document.xml").decode("utf-8")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_word_turns_the_block_and_only_it(self):
+        sections = re.findall(r"<w:sectPr\b.*?</w:sectPr>", self.xml, re.S)
+        self.assertEqual(len(sections), 3)
+        self.assertNotIn("<!--section:", self.xml)
+        before, block, own = sections
+        self.assertEqual(before, own)
+        self.assertIn('<w:pgSz w:w="15840" w:h="12240" w:orient="landscape" />', block)
+        self.assertNotIn("landscape", own)
+        for s in sections:
+            self.assertIn("<w:headerReference", s)
+            self.assertIn("<w:footerReference", s)
+        # The table, and only it, lies in the landscape section.
+        at = [m.start() for m in re.finditer(r"<w:sectPr\b", self.xml)]
+        table = self.xml.index("<w:tbl>")
+        self.assertTrue(at[0] < table < at[1])
+        self.assertLess(self.xml.index("Portrait words before"), at[0])
+        self.assertGreater(self.xml.index("Portrait words after"), at[1])
+
+    def test_print_turns_the_block_and_keeps_the_page_furniture(self):
+        css = [(ROOT / "site" / "site.css").as_uri(), (ROOT / "themes" / "modern.css").as_uri()]
+        page = ("<!doctype html><html><head><meta charset=\"utf-8\">"
+                + "".join('<link rel="stylesheet" href="{}">'.format(c) for c in css)
+                + "</head><body><main><p>Portrait words before.</p><div class=\"landscape\"><table>"
+                "<tr><td>Task</td><td>Wide words</td></tr></table></div><p>Portrait words after.</p>"
+                "</main></body></html>")
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "page.html"
+            src.write_text(page, encoding="utf-8")
+            pdf = Path(tmp) / "page.pdf"
+            subprocess.run([downloads.CHROME, "--headless", "--disable-gpu", "--no-pdf-header-footer",
+                            "--print-to-pdf=" + str(pdf), src.as_uri()], check=True, capture_output=True)
+            boxes = re.findall(rb"/MediaBox\s*\[([^\]]*)\]", pdf.read_bytes())
+            pages = pdf_text(pdf).split("\f")[:-1]
+        self.assertEqual([b.split()[2:] for b in boxes], [[b"612", b"792"], [b"792", b"612"], [b"612", b"792"]])
+        self.assertIn("Wide words", pages[1])
+        for i, pg in enumerate(pages, 1):
+            self.assertIn(PHYSICS, flat(pg))
+            self.assertIn("Page {} of 3".format(i), flat(pg))
+            self.assertIn("DRAFT: license pending", flat(pg))
+
+
 class Pdf(unittest.TestCase):
     """The modern page printed with the site's print rules (D-0053)."""
 
