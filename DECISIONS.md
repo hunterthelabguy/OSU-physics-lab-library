@@ -1486,3 +1486,36 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: per-lab exemptions in the test; leaving `role="img"` in the download (an unnamed image to screen readers).
 - binds: D-0058; D-0119; D-0132; tests/test_downloads.py; tools/downloads.py
 - test: the fixtures in tests/test_downloads.py (PrintKeeps, DecorativePictures)
+
+### D-0139  A table takes Word's column shares and the word check compares them; three PH 211 tables redrawn
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-09
+- decision: The owner found PH 212 Lab 6's rubric drawn with its first column a letter per line in Word. Its Markdown dashes gave the columns 4/16/23/28/28 percent where Word's grid is 10/22/22/22/22: Pandoc's draft drew a table's dashes from its text, and no check read widths. #59 makes the word check compare each table of more than one column with Word's `w:gridCol` shares within 5 points, and fail a table at Pandoc's default widths. A pipe table serves where every cell is one paragraph (its separator's dashes set the shares once a line, the dashes included, passes 72 characters); a grid table where a cell holds paragraphs or pictures. The check failed three merged tables, redrawn in #59, format only: PH 211 Lab 7 (22/78 to 50/50), Lab 2 (16/8 to 11/9), Lab 3 (67/33 to 51/49, its grid edges widened in place).
+- rationale: The owner, 2026-10-09: "1. Yes, check first." and, on the form, "Pipe table might be better" (checked: true for the rubric and PH 211 Lab 7; not for PH 211 Lab 3, whose cells hold paragraphs and pictures).
+- alternatives: a build step reading Word's widths from the original (the Markdown would not say what the page draws); per-table fixes without a check.
+- binds: tools/check_unchanged.py; docs/conversion-spec.md ("Pass 4 additions"); curriculum/ph211 (Labs 2, 3, 7)
+- test: tests/test_check_unchanged.py::TableWidths; the word check on every lab
+
+### D-0140  A table Word prints on a landscape page is a `::: landscape` block: a landscape section in Word, a landscape page in print
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-09
+- decision: PH 212 Lab 6's rubric is 9.06 in wide because the original prints it in a landscape section; in a portrait page its first column still broke its words at Word's shares. #60: `tools/filters/landscape.lua` and `downloads.landscape_sections` give a `::: landscape` block its own landscape section in Word, copied from the document's own section (page, margins, draft header and footer); `@page landscape` and the theme's print rules give it a landscape page in the PDF; the web page is unchanged. The word check fails a table Word prints landscape outside the block, and a portrait one inside it. Only the two capstone rubrics are in landscape sections (all 19 handouts scanned). PH 212 Lab 6 (#55) wraps Word's whole landscape span, the "Remember, an experiment always:" box through the rubric.
+- rationale: The owner, 2026-10-09: "Landscape page, tool PR first"; on the Word file, "keep the Word file as is. Earmark it" (D-0141), and of #60: "I'm merging PR 60 anyway because it does make it slightly more readable".
+- alternatives: a wider first column in portrait, against Word's shares (an exception to D-0139); the rubric web-only, linked from Word (D-0141).
+- binds: D-0139; tools/filters/landscape.lua; tools/downloads.py; site/site.css; themes/modern.css; tools/check_unchanged.py
+- test: tests/test_downloads.py::LandscapePages; tests/test_check_unchanged.py::TableWidths
+
+### D-0141  The capstone restructure, a web-only rubric and a page table of contents are one pass, after all other pending work
+- status: ruled
+- proposed-by: owner
+- ruled-by: owner
+- date: 2026-10-09
+- decision: Earmarked, not built: (1) the capstone labs restructured toward the worksheet model, each downloadable template a stripped version of the lab's Markdown, with students pointed at the website for instructions; (2) a rubric shown on the web page only, the Word download carrying a sentence and a link to it in its place (a ruled addition when built); (3) a clickable table of contents on each lab page built from its headings, highlighting the section in view, with stable deep links a handout can point at. One design, specced and critiqued together, run as a pass after all other pending work. Until then the Word rubric stays as D-0140 leaves it.
+- rationale: The owner, 2026-10-09: "Earmark the capstone restructure, web-only rubric, and table of contents as a pass after all other pending work"; "I suspect that I will be restructuring the Capstone Labs anyway".
+- alternatives: each built now, piecemeal.
+- binds: D-0074 to D-0080 (pass 6's template); D-0082 (passes); STATE.md
+- test: none until specced

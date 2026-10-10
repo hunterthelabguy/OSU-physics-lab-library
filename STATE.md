@@ -8,7 +8,13 @@ Volatile handoff, capped at one screen. Updated 2026-10-09.
   D-0137 (proposed).
 - Held: Lab 6 #55, green, for the owner's Word and Google Docs check
   (D-0132 call 3); preview `pass4-ph212-lab6.osu-physics-labs.pages.dev`.
-  Its hash entry is written when it merges.
+  Its hash entry is written when it merges. Its rubric is at Word's
+  column shares (#59, D-0139) on Word's landscape page (#60, D-0140).
+- Earmarked, a pass after all other pending work (D-0141): capstone
+  restructure, web-only rubric, page table of contents.
+- Open: measure. 68ch measured a median 80 characters a line (321 lines,
+  six labs, 1440 px), so "true 80" is today's; a table break-out for
+  the web rubric's side-scroll awaits the owner.
 - Labs 2 and 6 carry the activation code (Lab 6 in a link target, missed by
   the survey) and Lab 6 the OneDrive target: committed stripped and
   redacted, marker `[removed under D-0104]`. Only the main session opens
