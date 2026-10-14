@@ -1,11 +1,11 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-10.
+Volatile handoff, capped at one screen. Updated 2026-10-14.
 
 **Pass 4 (2026-10-09): the rest of PH 212; complete (D-0142).**
 - Merged: redaction tool #51, Lab 5 #54, print-keep and download fixes #57
   and #58 (D-0138), Lab 1 #52, Lab 2 #56, Lab 4 #53. Hash records D-0134 to
-  D-0137 (proposed).
+  D-0137 and the fixes' D-0138, ruled 2026-10-14.
 - Lab 6 #55 merged after the owner's Word check (D-0142); its rubric at
   Word's column shares (#59, D-0139) on Word's landscape page (#60,
   D-0140). Next: pass 5, the rest of PH 213; propose its PR split first.
@@ -31,8 +31,8 @@ Volatile handoff, capped at one screen. Updated 2026-10-10.
   the owner's Word and Google Docs check (D-0131). Pass 3 complete. Next:
   pass 4, the rest of PH 212; propose its PR split first.
 - Ruled this pass: D-0119 (seven PRs), D-0120 (Heading 1 outline, math-font
-  text, box alt text, Q15 photo as is), D-0122, D-0123, D-0130. Proposed:
-  D-0121 and D-0124 to D-0129 (hash records).
+  text, box alt text, Q15 photo as is), D-0122, D-0123, D-0130; hash records
+  D-0121 and D-0124 to D-0129, ruled 2026-10-14.
 - Seen, not changed: PH 211 Lab 2's PDF ends page 10 on its table's label
   "Distance (m)", the table on page 11 (a print rule could keep them).
 

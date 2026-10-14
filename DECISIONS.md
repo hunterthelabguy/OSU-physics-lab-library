@@ -1302,14 +1302,16 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - test: test_fonts (math-font characters, text outside equations); PrintKeeps and the Word keep test read h4; Helpers (restart, figures)
 
 ### D-0121  PH 212 Lab 3's and PH 213 Lab 2's originals are committed stripped; both hashes of each recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-08
 - decision: Under D-0086 and D-0119 call 5, pass 3's first PR commits each original stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` removed from `docProps/core.xml`, and from `docProps/app.xml` `Company` (empty in both), `Manager` (empty, PH 213 Lab 2 only) and `Template`; every other part byte for byte, so no `w:t` changes and Word's labels match by the content parts (D-0112). PH 212 Lab 3, `originals/PH212/Lab 3 - Designing Experiments - Handout.docx`: original SHA-256 `62d6708bf2b2cd6bea3f0170dab8ce92b09eb5a20ffd9f27fdb23486879fda6f` (the survey's), stripped `4713cbfe3ebb4e3cdb2fe2ef80534268122710295b65c9b56ae18a87418ac76f`, its `source_sha256`. PH 213 Lab 2, `originals/PH213/Lab 2 - Hypothesis Testing - Handout.docx`: original `36f41045875ea1bb0c1699a1ed50c7b18ae2d8e6397a0da37d05546aa069ab68` (the survey's), stripped `52bb40c81369f95310ee1de828b3f83d5f787e1c4c6b64dab4e05f43156130fc`. Each original was re-hashed from the owner's folder on 2026-10-08 and equals the survey's (D-0085). Neither has an external link; each `customXml` part is an empty bibliography and names no one.
 - rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
 - alternatives: none; the entry records what D-0086 orders.
 - binds: D-0086; D-0119; originals/PH212; originals/PH213; curriculum/ph212/ph212-designing-experiments-handout.md; curriculum/ph213/ph213-hypothesis-testing-handout.md
 - test: CI's content check (hash, words, bold, equations, pictures, figures) and number check on both labs
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0122  The number check places anchors outside the question lists: x-anchors in order by label, report-item lists, and a `.numbered` list for an appendix entry; amends D-0112 call 3
 - status: ruled
@@ -1334,64 +1336,76 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - test: test_symbol_font_run_reads_as_words_display, test_unknown_symbol_font_character_stops
 
 ### D-0124  PH 211 Lab 6's original is committed stripped; both hashes recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-08
 - decision: Under D-0086 and D-0119 call 5, PH 211 Lab 6's PR commits `originals/PH211/Lab 6 - Describing an Experiment - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `27d2c3ed2b33ce873960c5be409a756f7fd23882e60247a7b90afe35383b5229` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `cf18da95fc358c0c1006d8a9a42e2d027a27889363bc44a3fcdc8f5487754c19`, the `source_sha256` of `curriculum/ph211/ph211-describing-an-experiment-handout.md`.
 - rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
 - alternatives: none; the entry records what D-0086 orders.
 - binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-describing-an-experiment-handout.md
 - test: CI's content check and number check on the lab
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0125  PH 211 Lab 7's original is committed stripped; both hashes recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-08
 - decision: Under D-0086 and D-0119 call 5, PH 211 Lab 7's PR commits `originals/PH211/Lab 7 - Capstone - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `e9b900c8e35fccda8a9adb9495945f505fb8ecab3cd9a748e813095965bab466` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `b8f38b5a04e1a01304f7ec7b71e7e54c2e13e46af80f5fe91f58cf76c8722ea6`, the `source_sha256` of `curriculum/ph211/ph211-capstone-handout.md`.
 - rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
 - alternatives: none; the entry records what D-0086 orders.
 - binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-capstone-handout.md
 - test: CI's content check and number check on the lab
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0126  PH 211 Lab 3's original is committed stripped; both hashes recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-08
 - decision: Under D-0086 and D-0119 call 5, PH 211 Lab 3's PR commits `originals/PH211/Lab 3 - Uncertainty - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `421e2df388f532c4140f07c26815737393c4e6583ffb4e473a81c79d9ce1b960` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `bfc0d03a8df8b718c7fafa075ec9740a3bb0e3001465df7c27d2da983d0078c5`, the `source_sha256` of `curriculum/ph211/ph211-uncertainty-handout.md`.
 - rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
 - alternatives: none; the entry records what D-0086 orders.
 - binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-uncertainty-handout.md
 - test: CI's content check and number check on the lab
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0127  PH 211 Lab 2's original is committed stripped; both hashes recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-08
 - decision: Under D-0086 and D-0119 call 5, PH 211 Lab 2's PR commits `originals/PH211/Lab 2 - Data Analysis - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `112c2c0675829438c17b0a50c8a67615709b85f1c926cddca88ba96259a3a2ec` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `3891e5de553bd94a641881ef64671a73949e8e68445b6150614558fc0e99fd40`, the `source_sha256` of `curriculum/ph211/ph211-data-analysis-handout.md`. Its three external links (two OSU technology pages and one rb.gy short link) are kept as written; none names a person (survey section 7).
 - rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
 - alternatives: none; the entry records what D-0086 orders.
 - binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-data-analysis-handout.md
 - test: CI's content check and number check on the lab
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0128  PH 211 Lab 5's original is committed stripped; both hashes recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-08
 - decision: Under D-0086 and D-0119 call 5, PH 211 Lab 5's PR commits `originals/PH211/Lab 5 - Designing an Experiment - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `4330e4267d0cb2e4b80d28db091c3bbaae8792ae55ecc78b7a0960169ec273f0` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `35a53b8948816cfc710ae22690f260b76228423bf5984792d2ccab4789a98e76`, the `source_sha256` of `curriculum/ph211/ph211-designing-an-experiment-handout.md`.
 - rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
 - alternatives: none; the entry records what D-0086 orders.
 - binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-designing-an-experiment-handout.md
 - test: CI's content check and number check on the lab
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0129  PH 211 Lab 4's original is committed stripped; both hashes recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-08
 - decision: Under D-0086 and D-0119 call 5, PH 211 Lab 4's PR commits `originals/PH211/Lab 4 - Hypothesis Testing - Handout.docx` stripped by `tools/strip_identity.py`: `dc:creator` and `cp:lastModifiedBy` from `docProps/core.xml`, and `Template` with Company, Manager from `docProps/app.xml`; every other part byte for byte. Original SHA-256 `54daee77e5e4e0ea8cbbadced928c4f312c3e09418af73eb56c3c54e47b505f1` (the survey's; re-hashed from the owner's folder 2026-10-08), stripped `ced38c004f3745e17a4850ab223519960a67b79659e95783b44d0f14d5b61d18`, the `source_sha256` of `curriculum/ph211/ph211-hypothesis-testing-handout.md`.
 - rationale: D-0086 (ruled): an entry records both hashes, so anyone holding the original can tie the two.
 - alternatives: none; the entry records what D-0086 orders.
 - binds: D-0086; D-0119; originals/PH211; curriculum/ph211/ph211-hypothesis-testing-handout.md
 - test: CI's content check and number check on the lab
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0130  A lab table draws a thin full grid in --quiet, on the page, the HTML and PDF downloads and in Word
 - status: ruled
@@ -1438,54 +1452,64 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - test: the tool PR's fixtures; Labs 2 and 6's word and number checks; a scan of each committed original for the code and for personal-store targets
 
 ### D-0134  PH 212 Lab 5's original is committed stripped; both hashes recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-09
 - decision: Under D-0086 and D-0132 call 5, #54 commits `originals/PH212/Lab 5 - Sharing & Comparing - Handout.docx` stripped by `tools/strip_identity.py` (`dc:creator`, `cp:lastModifiedBy`; app.xml Company and Template). Original SHA-256 `1757716444fe6517ae53d8cfa0c9ab1fb86e506fb2b22ddbd4006b05c1fb33ea` (the survey's), stripped `2d9802178887e6ea3f89062cf750e105e725872ab35dfd790f2b025951862cd7`, the `source_sha256` of `curriculum/ph212/ph212-sharing-and-comparing-handout.md`.
 - rationale: D-0086 (ruled): an entry records both hashes.
 - alternatives: none; the entry records what D-0086 orders.
 - binds: D-0086; D-0132; originals/PH212; curriculum/ph212/ph212-sharing-and-comparing-handout.md
 - test: CI's content check and number check on the lab
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0135  PH 212 Lab 1's original is committed stripped; both hashes recorded; its question 4 is taller than a printed page
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-09
 - decision: Under D-0086 and D-0132 call 5, #52 commits `originals/PH212/Lab 1 - Data Analysis - Handout.docx` stripped. Original SHA-256 `0329f26a1b76de0de520bf3bb3395fa938132dad5730d1a6d2829b792f173261` (the survey's), stripped `2d28c22db05827a39bcf703ac8643750423a800ec99d8af7bc59f93f14b5f032`, the `source_sha256` of `curriculum/ph212/ph212-data-analysis-handout.md`. Its question 4 holds the "What is Uncertainty?" box between stem and parts, inside the block as S14 rules, and prints longer than a page, so D-0058's keep cannot hold it whole; it is listed in `TALLER_THAN_A_PAGE` (#57), and `test_taller_than_a_page_is_true` fails if it ever fits.
 - rationale: D-0086 (ruled). The box's place is Word's; moving it out of the question to keep the block whole would change the structure the spec rules.
 - alternatives: the box outside question 4's block (against S14); no keep test for this question at all.
 - binds: D-0058; D-0086; D-0132; tests/test_downloads.py (TALLER_THAN_A_PAGE); curriculum/ph212/ph212-data-analysis-handout.md
 - test: PrintKeeps on the lab
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0136  PH 212 Lab 2's original is committed stripped and redacted; both hashes recorded; the removed link takes its sentence's period
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-09
 - decision: Under D-0133, #56 commits `originals/PH212/Lab 2 - Extending a Model - Handout.docx` stripped and redacted (`document.xml` three passages, the link list one). Original SHA-256 `ae4d80de932b2bb5f0cc4fe3e306d4ac7301e8a49ebb37d54e37364de109e82d` (the survey's), stripped and redacted `11bfff3e11b12fc77bbe359c06d94e21e4f6a63aec9ea151cf67101dde738170`, the `source_sha256` of `curriculum/ph212/ph212-extending-a-model-handout.md`; `docs/word-labels.json` holds that file's record with `redacted_from`. Two markers are omitted in `ruled_omissions`. The removed link ended a sentence and the period is its own run after it, which the word check joins to the marker's last word, so the second declared passage is "[removed under D-0104]." and the sentence ("... go to") ends without its period, until the owner supplies the resource (`docs/owner-tasks.md`). A scan of the branch found the code in no file.
 - rationale: D-0133 (ruled). Keeping the period alone would be a lone token the word check fails; teaching the check to split punctuation from a marker would be a tool change for one character in a sentence already broken by the ruled omission.
 - alternatives: a check change splitting trailing punctuation from a declared passage.
 - binds: D-0086; D-0104; D-0133; docs/word-labels.json; curriculum/ph212/ph212-extending-a-model-handout.md; docs/owner-tasks.md
 - test: CI's content check and number check on the lab; test_a_redacted_record_carries_its_originals_labels
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0137  PH 212 Lab 4's original is committed stripped; both hashes recorded
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-09
 - decision: Under D-0086 and D-0132 call 5, #53 commits `originals/PH212/Lab 4 - Hypothesis Testing - Handout.docx` stripped (`dc:creator`, `cp:lastModifiedBy`; app.xml Company and Template). Original SHA-256 `048b10bf3cab6a7f88e381658489df3ff5bf59b4230398cf27934b5df2d8da2c` (the survey's), stripped `8bdb32d3f8eb751bdd6f8d795bcce11247addb395a283e0c34447c1d7f9fc42a`, the `source_sha256` of `curriculum/ph212/ph212-hypothesis-testing-handout.md`.
 - rationale: D-0086 (ruled): an entry records both hashes.
 - alternatives: none; the entry records what D-0086 orders.
 - binds: D-0086; D-0132; originals/PH212; curriculum/ph212/ph212-hypothesis-testing-handout.md
 - test: CI's content check and number check on the lab
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0138  Pass 4's test and download fixes: a heading ends a page only as its own whole lines and in its own place; a question taller than a page is listed; an empty-alt picture stays decorative in the HTML download
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-10-09
 - decision: Three faults pass 4's labs met in CI, each fixed in its own tool PR first with made-up fixtures (D-0119 call 4). (1) #57: the print-keep test read a contents item "4. Linearization" ending a page as that heading (PH 212 Lab 4); a heading must be the page's last whole lines. #58: a "Week 1" label paragraph read as the "Week 1" heading (PH 212 Lab 6); whole lines with a heading's words are matched in order to the page's blocks with them, and only a heading's counts. (2) #57: `TALLER_THAN_A_PAGE` lists question blocks longer than a printed page, each added by its lab's PR and proved by `test_taller_than_a_page_is_true` (D-0135). (3) #57: Pandoc's `--embed-resources` gives a picture with Word's empty alt text `role="img"` and an empty `aria-label`, an image with no name; the HTML download now keeps only `alt=""`, as the modern page writes it (WCAG 1.1.1; PH 212 Labs 2 and 4).
 - rationale: Each failure was the test or the download, not the conversion, and was found by reading the printed pages (scratchpad, 2026-10-09). A test that reads a false heading would block every later lab with a contents list or a label matching a heading.
 - alternatives: per-lab exemptions in the test; leaving `role="img"` in the download (an unnamed image to screen readers).
 - binds: D-0058; D-0119; D-0132; tests/test_downloads.py; tools/downloads.py
 - test: the fixtures in tests/test_downloads.py (PrintKeeps, DecorativePictures)
+- corrected: 2026-10-14, status promoted from proposed to ruled and ruled-by added on the owner's explicit statement in chat ("Promote D-0134 to D-0138, D-0121 and D-0124 to D-0129.")
 
 ### D-0139  A table takes Word's column shares and the word check compares them; three PH 211 tables redrawn
 - status: ruled
