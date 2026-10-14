@@ -219,6 +219,46 @@ worktree (D-0119); the main session kept the shared files and the review.
   equals client width, labels, pictures loaded) and look at the PDF pages
   with tables, figures and boxes.
 
+Pass 4's additions to the recipe (PH 212 Labs 1, 2, 4, 5, 6; D-0132 to D-0142):
+
+- **An original holding a secret** (an activation code, a personal link
+  target): the main session alone opens it, writes the passages to a list
+  in the scratchpad, and runs `strip_identity.py ORIGINAL STRIPPED
+  --redact LIST`; subagents get only the redacted copy and its hash, and
+  copy it byte for byte (no strip step). Rescan the result for each
+  passage before anything is committed. Word's labels for a redacted
+  `document.xml` need their own record in `docs/word-labels.json`
+  (`redacted_from`; a link-list-only redaction needs none).
+- **A declared omission that ends a sentence:** the word check joins the
+  sentence's period to the marker, so the declared passage carries the
+  period (D-0136).
+- **Run the whole PR set through CI before merging any.** Three of five
+  labs failed in CI for reasons outside the conversion (a print test, an
+  empty-alt download, a column width, a landscape page), each fixed by its
+  own tool PR first. After a tool PR merges, rebase every open lab; the
+  shared files (`tests/question-ids.json`, `HTML_CAPS`, `site/courses.md`)
+  then conflict, and the cheap resolution is to take main's version and
+  re-insert the lab's entries by script, in sorted order.
+- **Table widths and landscape sections** are in the spec's "Pass 4
+  additions": the word check reads both. A pipe table's separator sets
+  its shares only when some line, the dashes included, passes 72
+  characters; Pandoc rewrites a pipe table's dashes to fit the text
+  unless the ratio is drawn by hand.
+- **Print tests read the printed pages.** To see why one fails, print the
+  page as `PrintKeeps.printed` does and read each page's last lines; the
+  failures were a contents item ending a page, a label paragraph with a
+  heading's words, and a question taller than a page.
+- **Word's own rendering:** `Documents.Open` on a downloaded file can hang
+  behind a hidden dialog; stop only your own WINWORD id. The owner's
+  Word may be open on a copy of the same lab.
+- **Before committing the ledger or STATE, run `pwd` and `git branch
+  --show-current`:** a shell left in a worktree put a ledger commit on a
+  lab's branch (caught before the push, 2026-10-09).
+- **Merging in sequence:** `gh pr checks N --watch`, then merge, then
+  `gh run watch` on main's newest run before the next merge. A subagent
+  that restates its report on every stop can be stopped with TaskStop once
+  its commit is read.
+
 ## Drawn figures (S13)
 
 - `tools/figures.py`'s layout rules come from Word's own PDFs of the
