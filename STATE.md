@@ -1,6 +1,14 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-14.
+Volatile handoff, capped at one screen. Updated 2026-10-15.
+
+**Stretch sandbox (2026-10-15): designed, not built.**
+- Spec: `docs/superpowers/specs/2026-10-15-stretch-sandbox-design.md`, with
+  the survey beside it.
+- Ledger: D-0143 to D-0145 ruled; D-0146 to D-0148 declined.
+- Next: the Symplecticator
+  steps: writing-plans, an executing critique, `/build`.
+- Pass 5 (PH 213) is still next for the conversion.
 
 **Pass 4 (2026-10-09): the rest of PH 212; complete (D-0142).**
 - Merged: redaction tool #51, Lab 5 #54, print-keep and download fixes #57

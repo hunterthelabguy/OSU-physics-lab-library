@@ -94,3 +94,33 @@ expire; re-proposing one requires stated new evidence.
 - rationale: Declined by the owner, 2026-10-07, who moved it to a separate pass after the rest of the work (D-0083), taking F12's point that in a format-only phase its findings change nothing, without F12's deletion: "F12 but instead of deleting it and waiting until content changes, we do it in a separate pass once the rest of the work is done."
 - alternatives: deleted until content changes begin (F12); pass 7 with a named job (D-0083, chosen).
 - binds: spec sections 6 and 7
+
+### D-0146  A skim-only dry run by a TA before a stretch ships
+- status: declined
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-15
+- decision: Before students see a page with collapsible sections, a TA runs the lab from it with every section closed and none opened; valid data, or it does not ship.
+- rationale: Declined by the owner, 2026-10-15: "Skip the dry run gate." As proposed, it was the check behind the rule that the always-visible text alone must produce valid data. Context (Claude): sandbox labs are not a course's graded handouts, and D-0143's rule R5 keeps stretches out of converted labs, so the question returns when a stretch is first proposed for one.
+- alternatives: none built; R5 (D-0143).
+- binds: D-0143
+
+### D-0147  PH211H, 212H and 213H as the sandbox course codes
+- status: declined
+- proposed-by: owner
+- ruled-by: owner
+- date: 2026-10-15
+- decision: The sandbox courses are coded PH211H, PH212H and PH213H.
+- rationale: Superseded at the owner's word, 2026-10-15, by PH 211 Sandbox, PH 212 Sandbox and PH 213 Sandbox ("That works."; "Sandbox."). OSU's Ecampus schedule lists "PH 211 or PH 211H" as the PH 212 prerequisite, so on a public page PH 211H reads as the Honors course.
+- alternatives: the Sandbox names (D-0144, chosen).
+- binds: D-0144
+
+### D-0148  Sandbox courses unlisted, reached by address only
+- status: declined
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-15
+- decision: The sandbox courses are reachable by address and a small `/sandbox/` page, and absent from the course tiles, tabs and navigation.
+- rationale: Declined by the owner, 2026-10-15: "Listed within the site is fine, but to be clear I want it part of the existing osu-physics-labs.pages.dev site, not a separate site." As proposed, it kept students and colleagues from meeting edited copies of co-owned labs presented like courses.
+- alternatives: listed in their own group on the course index (D-0144, chosen).
+- binds: D-0144

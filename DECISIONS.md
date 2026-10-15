@@ -30,6 +30,9 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - D-0096 No target term until the gates settle (declined: Winter 2027, D-0080) -> DECLINED.md
 - D-0097 Build the template after pass 3 (declined: rule 3.10 holds, D-0080) -> DECLINED.md
 - D-0098 Cross-reference during the conversion passes (declined: pass 7, D-0083) -> DECLINED.md
+- D-0146 A skim-only dry run by a TA before a stretch ships (declined: owner, "Skip the dry run gate.") -> DECLINED.md
+- D-0147 PH211H, 212H and 213H as the sandbox course codes (declined: PH 211H is an OSU course number; Sandbox names, D-0144) -> DECLINED.md
+- D-0148 Sandbox courses unlisted, reached by address only (declined: owner, listed within the site, D-0144) -> DECLINED.md
 
 ## Entries
 
@@ -1554,3 +1557,37 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: none; the check was the gate.
 - binds: D-0086; D-0090; D-0132; D-0133; D-0139; D-0140; STATE.md
 - test: main's run for 6a7fa5e (verify and deploy green); the word and number checks on the lab
+
+### D-0143  Collapsible sections ("stretches") are built as a proof of the mechanism, in sandbox labs only
+- status: ruled
+- proposed-by: owner
+- ruled-by: owner
+- date: 2026-10-15
+- decision: A `::: stretch` block keeps its first block (a heading or a paragraph) visible and puts the rest in a native `<details>` behind a "Show more" / "Show less" control that is obvious to click, at least 44 px tall, and needs no script. Existing sentences only. The build fails on the five rules of the design's section 6.4 (lead and tail; no heading after the lead; no question, checkpoint or hint inside; no link target after the lead; no stretch in a converted lab). Word, HTML and Markdown downloads are not changed by it; the PDF prints every section open. Its purpose is the mechanism (markup, filter, accessibility, the PDF), not whether shorter handouts get read. Readers are at the bench on lab computers and their own laptops; phones are not the intended medium. Design: `docs/superpowers/specs/2026-10-15-stretch-sandbox-design.md`.
+- rationale: The owner, 2026-10-15, answering the critique of an outside recommendation to adopt stretchtext (after the `pro-vi/cc-stretch` plugin) for lab handouts: "At the bench on a screen."; "Existing sentences for now."; "`<details>` blocks for now."; "Testing the mechanism."; to the words "Show more" and "Show less": "Yes."; to the PDF printing from a copy with every section open: "yes"; "so long as it is obvious where to click to expand."; "Lab computers, student's personal devices. Phone is not the intended medium." Context (Claude): with existing sentences only, the survey (`docs/superpowers/specs/2026-10-15-stretch-survey.md`) finds 4 to 24% of a main path collapsible and 76 to 94% of an appendix, so the reading question waits for the wording-change phase (LEDGER 11).
+- alternatives: stretches inside a sentence (script and focus handling; earmarked); newly written short versions (need LEDGER 11; earmarked); Quarto's collapsible callouts (script); the cc-stretch plugin itself (it runs only in Claude Code).
+- binds: tools/filters/stretch.lua (new); tools/quarto_build.py; tools/downloads.py (pdf); the theme or site stylesheet; docs/conversion-spec.md; tests
+- test: none until built (the design's section 10 names them)
+
+### D-0144  Three sandbox courses on the production site; their labs are deliberate forks of converted labs
+- status: ruled
+- proposed-by: owner
+- ruled-by: owner
+- date: 2026-10-15
+- decision: PH 211 Sandbox, PH 212 Sandbox and PH 213 Sandbox are courses on the existing site, listed on the course index in their own group, with pages at `/courses/ph211sandbox/` and so on. Each holds copies of converted labs under `sandbox/<slug>/`, made by `tools/sandbox.py`, whose front matter names the converted lab (`sandbox_of`) and the hash it was copied from, and carries no `source_file`. Their course data is `site/sandbox-courses.md`. Amends VISION principle 2 and CLAUDE.md's rule against copying content into a second file, for `sandbox/` only: nothing flows between a copy and its converted lab automatically, and a sandbox change reaches a course's handout only through the wording-change phase. The word check, the number check and the question-id pins skip sandbox labs; the em-dash check, the warning gate, the HTML caps, the stretch rules and the PDF test cover them.
+- rationale: The owner, 2026-10-15: "It'll be added to the website under separate courses (more than one to prep for scaling): call them PH211H, 212H, 213H. [...] That'll give me a clean sandbox to make changes."; to the names PH 211 Sandbox, PH 212 Sandbox and PH 213 Sandbox: "That works." and "Sandbox."; "Listed within the site is fine, but to be clear I want it part of the existing osu-physics-labs.pages.dev site, not a separate site."; to the list of checks on and off: "Yes." Context (Claude): `site/courses.md` is quoted from the course summaries (ledger 45), so the sandbox gets its own data file; the names avoid PH 211H (D-0147).
+- alternatives: an overlay of collapse maps on the converted sources (no content changes possible); a separate site (the owner: one site); unlisted courses (D-0148).
+- binds: VISION.md principle 2; CLAUDE.md (Build); LEDGER 14 (ids); tools/render.py; tools/quarto_build.py; tools/media.py; tools/downloads.py; tools/check_em_dash.py; tools/sandbox.py (new); site/sandbox-courses.md (new); tests
+- test: none until built
+
+### D-0145  The sandbox labs: PH 211 Data Analysis, the PH 212 Capstone with its rubric collapsed, and PH 213 Hypothesis Testing
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-15
+- decision: PH 211 Sandbox copies `ph211-data-analysis-handout` (5 stretches, about 482 words), PH 212 Sandbox copies `ph212-capstone-handout` (14 stretches, about 1,843 words, its grading rubric among them), and PH 213 Sandbox copies `ph213-hypothesis-testing-handout` (5 stretches, about 685 words), with the collapse maps of the design's section 7. Together they exercise every case the survey found except a drawn figure, which no lab can collapse. `ph211-capstone-handout` is earmarked as the later test of whether shorter pages get read.
+- rationale: The owner asked for a survey of every handout with a recommendation (2026-10-15: "Spawn a subagent (Opus, medium) to review every lab handout and estimate how much can be collapsed in each one and provide a recommendation for the proof-of-concept.") and ruled on its picks and on collapsing the rubric: "Yes, and that's fine, so long as it is obvious where to click to expand." Context (Claude): the design adds a rule the survey did not have (no heading after a lead), so two of its ranges became stretches inside boxes.
+- alternatives: PH 211 Lab 3, as first proposed (4% of its main path collapsible); `ph212-designing-experiments-handout` for PH 212 (no table, pictures or landscape); `ph211-capstone-handout` for PH 211 (its box case needs a less natural lead).
+- binds: D-0143; D-0144; D-0141 (the earmarked capstone restructure and web-only rubric, which the sandbox copy can host)
+- test: none until built
+- corrected: 2026-10-15, D-0143, D-0144 and D-0145 promoted from proposed to ruled, ruled-by added, on the owner's explicit statement in chat ("Promote D-0143 to D-0145"); the sandbox line's words in the design's section 5.2 approved the same day ("wording approved").
