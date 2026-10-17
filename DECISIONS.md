@@ -1602,3 +1602,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: tool PRs built ahead of a need; subagents started in stages; Lab 4 as the Word-check lab; the rubric table alone in the landscape block; two columns in the Word download by a new filter; the Drive link's target dropped and the folder added to `docs/owner-tasks.md`.
 - binds: D-0082; D-0090; D-0101; D-0104; D-0112; D-0119; D-0132; D-0140; D-0141; tests/question-ids.json; tests/test_downloads.py (HTML_CAPS); site/courses.md; STATE.md
 - test: none; each PR's own
+
+### D-0150  PH 213 Lab 4's figure ships as built: the Word download's PNG draws the script "l" in a fallback font
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-17
+- decision: Under D-0149 call 3, Claude read the PNG that #65's CI run embeds in the Word download of `ph213-model-building-handout` (docPr 24, `tools/figures.py`). The length label, an "l" in Script MT Bold in the original, is drawn in a plain serif fallback, since CI's Linux runner has no Script MT Bold; the page's inline SVG shows the script glyph where the reader has the font and a generic cursive otherwise. The figure ships as built, recorded here as observed. The label's text stays "l", as Word stores it, in the SVG and the alt text.
+- rationale: The owner, 2026-10-17: "Lab 4: ship the figure as is (A); record the plain l in the Word download as observed." Context (Claude): the arrows and Word's alt text ("Length marked as the distance between strips") carry the label's meaning; nothing changes for WCAG 1.1.1, since the text alternative and the label text are Word's.
+- alternatives: a free script font installed in CI and added to the figure's font list after Script MT Bold (a CI dependency for one glyph, in a font not the original's, placed by Script MT Bold's metrics); the label drawn as U+2113 (a change to the stored character, a content change).
+- binds: D-0117; D-0149; tools/figures.py; curriculum/ph213/ph213-model-building-handout.md
+- test: none; an observation
