@@ -2,11 +2,17 @@
 
 Volatile handoff, capped at one screen. Updated 2026-10-17.
 
-**Pass 5 (2026-10-17): the rest of PH 213; in progress (D-0149).**
-- Five lab PRs, Lab 6 first, held for the owner's Word check; no tool PR
-  up front (a probe of the originals found every hazard covered).
-- Sonnet subagents in `.superpowers/sdd/pass5-lab{1,3,4,5,6}`; the main
-  session keeps the shared files and the ledger.
+**Pass 5 (2026-10-17): the rest of PH 213; Lab 6 awaits the owner (D-0149).**
+- Merged: Lab 5 #62, Lab 3 #63, test fix #66 (D-0155), Lab 4 #65 (its
+  figure's script "l" a serif fallback in Word, D-0150), Lab 1 #64. Hash
+  records D-0151 to D-0154, proposed. 18 labs on the site.
+- #61, Lab 6, green; merges only after the owner's Word and Google Docs
+  check (preview `pass5-ph213-lab6.osu-physics-labs.pages.dev`). After
+  his word: rebase it, re-insert its shared entries, merge, its hash entry.
+- Found in review: Lab 4's figure draws black on the page, so in dark
+  mode it is about 1.2:1 (WCAG 1.4.3, 1.4.11); a fix awaits the owner.
+  Both capstone rubrics print their landscape heading page near empty
+  (`table { break-inside: avoid }`), seen, not changed.
 
 **Stretch sandbox (2026-10-15): designed, not built.**
 - Spec: `docs/superpowers/specs/2026-10-15-stretch-sandbox-design.md`, with

@@ -1613,3 +1613,53 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: a free script font installed in CI and added to the figure's font list after Script MT Bold (a CI dependency for one glyph, in a font not the original's, placed by Script MT Bold's metrics); the label drawn as U+2113 (a change to the stored character, a content change).
 - binds: D-0117; D-0149; tools/figures.py; curriculum/ph213/ph213-model-building-handout.md
 - test: none; an observation
+
+### D-0151  PH 213 Lab 5's original is committed stripped; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-17
+- decision: Under D-0086 and D-0149, #62 (squashed as `86b2444`) commits `originals/PH213/Lab 5 - Analysis and Testing - Handout.docx` stripped. Original SHA-256 `bdffcaa9b7b5716ae8fd87621465952ba9bf976ee80d126418b78ea8cc778138` (the survey's), stripped `bfb7ea415becb8a754a6d714a78b93c5ff1f63e52976a6c746dc519d043a511f`, the `source_sha256` of `curriculum/ph213/ph213-analysis-and-testing-handout.md`.
+- rationale: D-0086 (ruled): an entry records both hashes.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0149; originals/PH213; curriculum/ph213/ph213-analysis-and-testing-handout.md
+- test: CI's content check and number check on the lab
+
+### D-0152  PH 213 Lab 3's original is committed stripped; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-17
+- decision: Under D-0086 and D-0149, #63 (squashed as `6c5ab5c`) commits `originals/PH213/Lab 3 - Data Taking - Handout.docx` stripped. Original SHA-256 `124a763be1fb64991954c769f6c99eba1c8b67d43fe63aa1e810799855934bf2` (the survey's), stripped `d1b09d299bcc9fc9fdbc48c06cb7949eb5b82dc9f230fd382adfd4f5588ac6d2`, the `source_sha256` of `curriculum/ph213/ph213-data-taking-handout.md`.
+- rationale: D-0086 (ruled): an entry records both hashes.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0149; originals/PH213; curriculum/ph213/ph213-data-taking-handout.md
+- test: CI's content check and number check on the lab
+
+### D-0153  PH 213 Lab 4's original is committed stripped; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-17
+- decision: Under D-0086 and D-0149, #65 (squashed as `3b961b8`) commits `originals/PH213/Lab 4 - Model Building - Handout.docx` stripped. Original SHA-256 `09259a1b6297816d388b4743f64ac69b80e440afd83eaee9a2c726fb40d67f74` (the survey's), stripped `41751d161c90744186adef447ccf198b58cf2d4d5dfe52763126907ebc60a078`, the `source_sha256` of `curriculum/ph213/ph213-model-building-handout.md`.
+- rationale: D-0086 (ruled): an entry records both hashes.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0149; D-0150; originals/PH213; curriculum/ph213/ph213-model-building-handout.md
+- test: CI's content check and number check on the lab
+
+### D-0154  PH 213 Lab 1's original is committed stripped; both hashes recorded
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-17
+- decision: Under D-0086 and D-0149, #64 (squashed as `294195f`) commits `originals/PH213/Lab 1 - Data Analysis- Handout.docx` stripped. Original SHA-256 `0ef396eb1ed513d3d60c0725b0df5e6044febd6097c5fc5fd9039293a4c8a3f5` (the survey's), stripped `d634444391c35b3afc8bfe7808e19a5b73f69261c1d139779a240dd6c4ec3356`, the `source_sha256` of `curriculum/ph213/ph213-data-analysis-handout.md`.
+- rationale: D-0086 (ruled): an entry records both hashes.
+- alternatives: none; the entry records what D-0086 orders.
+- binds: D-0086; D-0149; originals/PH213; curriculum/ph213/ph213-data-analysis-handout.md
+- test: CI's content check and number check on the lab
+
+### D-0155  Pass 5's test fix: a checkpoint box is told apart from a question box, and a nested list item keeps its own words
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-17
+- decision: PH 213 Lab 6 (#61), the first converted lab with a top-level checkpoint and a nested contents list, failed three tests in CI while its Word download and PDF were right. #66 (squashed as `c67c0ad`), a tests-only tool PR under D-0149 call 1: the two Word-box tests tell a checkpoint box from a question box by its label, count checkpoints against the source's `.checkpoint` blocks, and check a checkpoint's own palette (D-0115); `PrintKeeps.page_endings` reads each heading, paragraph and list item's own words (`OwnText`), so the contents item "Before Lab" ending page 1 is not taken for that heading. A made-up fixture fails on the old reader with CI's message and passes on the new.
+- rationale: As D-0138: each failure was the test, not the conversion, found by reading the Word XML and the printed page (pdftotext of the lab's PDF, 2026-10-17).
+- alternatives: per-lab exemptions in the tests.
+- binds: D-0112; D-0115; D-0138; D-0149; tests/test_downloads.py
+- test: tests/test_downloads.py::PrintKeeps::test_a_nested_contents_item_with_a_headings_words_is_not_a_heading; the Word-box tests on PH 213 Lab 6
