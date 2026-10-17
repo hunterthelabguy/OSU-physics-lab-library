@@ -101,6 +101,7 @@ courses:
       - number: "4"
         title: "Model building"
         description: "Measure resistivity of pieces of conductive paper to determine the geometric dependence of resistance; discover models for series and parallel"
+        document: "ph213-model-building-handout"
       - number: "5"
         title: "Analysis and Testing"
         description: "Compare resistors and bulbs, determine R as a function of V from V vs. I curves."
