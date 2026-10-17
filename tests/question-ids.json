@@ -182,6 +182,17 @@
    ["question", "ph213-analysis-and-testing:bulb-resistance"],
    ["question", "ph213-analysis-and-testing:resistance-behavior"]
   ],
+  "ph213-capstone-handout": [
+   ["checkpoint", "ph213-capstone:exchange-contact-information"],
+   ["question", "ph213-capstone:research-question-lists"],
+   ["question", "ph213-capstone:describe-your-experiment"],
+   ["question", "ph213-capstone:restate-hypothesis-and-procedure"],
+   ["question", "ph213-capstone:record-your-data"],
+   ["question", "ph213-capstone:add-analysis-results"],
+   ["question", "ph213-capstone:make-your-conclusions"],
+   ["question", "ph213-capstone:best-practices"],
+   ["checkpoint", "ph213-capstone:submit-your-presentation"]
+  ],
   "ph213-data-taking-handout": [
    ["question", "ph213-data-taking:probe-sweep"],
    ["question", "ph213-data-taking:compare-prediction"],
