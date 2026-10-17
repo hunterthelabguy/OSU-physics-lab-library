@@ -90,6 +90,7 @@ courses:
       - number: "1"
         title: "Data Analysis"
         description: "Use “Force calculator” to explore new form of Coulomb’s law"
+        document: "ph213-data-analysis-handout"
       - number: "2"
         title: "Hypothesis Testing"
         description: "Determine relationship between electric force and applied potential in a CRT"

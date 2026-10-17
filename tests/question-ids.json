@@ -182,6 +182,14 @@
    ["question", "ph213-analysis-and-testing:bulb-resistance"],
    ["question", "ph213-analysis-and-testing:resistance-behavior"]
   ],
+  "ph213-data-analysis-handout": [
+   ["question", "ph213-data-analysis:group-member-qualities"],
+   ["question", "ph213-data-analysis:experiments-to-run"],
+   ["question", "ph213-data-analysis:data-tables"],
+   ["question", "ph213-data-analysis:analysis-plots"],
+   ["question", "ph213-data-analysis:force-conclusions"],
+   ["question", "ph213-data-analysis:individual-reflection"]
+  ],
   "ph213-data-taking-handout": [
    ["question", "ph213-data-taking:probe-sweep"],
    ["question", "ph213-data-taking:compare-prediction"],
