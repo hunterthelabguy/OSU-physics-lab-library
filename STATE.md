@@ -1,6 +1,12 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-15.
+Volatile handoff, capped at one screen. Updated 2026-10-17.
+
+**Pass 5 (2026-10-17): the rest of PH 213; in progress (D-0149).**
+- Five lab PRs, Lab 6 first, held for the owner's Word check; no tool PR
+  up front (a probe of the originals found every hazard covered).
+- Sonnet subagents in `.superpowers/sdd/pass5-lab{1,3,4,5,6}`; the main
+  session keeps the shared files and the ledger.
 
 **Stretch sandbox (2026-10-15): designed, not built.**
 - Spec: `docs/superpowers/specs/2026-10-15-stretch-sandbox-design.md`, with
@@ -8,7 +14,7 @@ Volatile handoff, capped at one screen. Updated 2026-10-15.
 - Ledger: D-0143 to D-0145 ruled; D-0146 to D-0148 declined.
 - Next: the Symplecticator
   steps: writing-plans, an executing critique, `/build`.
-- Pass 5 (PH 213) is still next for the conversion.
+- Waits until pass 5 is done (owner, 2026-10-17).
 
 **Pass 4 (2026-10-09): the rest of PH 212; complete (D-0142).**
 - Merged: redaction tool #51, Lab 5 #54, print-keep and download fixes #57
