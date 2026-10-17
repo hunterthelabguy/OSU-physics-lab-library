@@ -182,6 +182,17 @@
    ["question", "ph213-analysis-and-testing:bulb-resistance"],
    ["question", "ph213-analysis-and-testing:resistance-behavior"]
   ],
+  "ph213-data-taking-handout": [
+   ["question", "ph213-data-taking:probe-sweep"],
+   ["question", "ph213-data-taking:compare-prediction"],
+   ["question", "ph213-data-taking:field-direction-method"],
+   ["question", "ph213-data-taking:vector-map"],
+   ["question", "ph213-data-taking:measurement-uncertainties"],
+   ["question", "ph213-data-taking:field-uncertainty"],
+   ["question", "ph213-data-taking:equipotential-lines"],
+   ["question", "ph213-data-taking:geometric-relationship"],
+   ["question", "ph213-data-taking:individual-responses"]
+  ],
   "ph213-hypothesis-testing-handout": [
    ["question", "ph213-hypothesis-testing:sense-making"],
    ["question", "ph213-hypothesis-testing:predictive-graphs"],
