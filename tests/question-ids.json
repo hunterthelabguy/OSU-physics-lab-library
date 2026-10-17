@@ -171,6 +171,17 @@
    ["question", "ph212-sharing-and-comparing:uncertainty-expression"],
    ["question", "ph212-sharing-and-comparing:groups-agree"]
   ],
+  "ph213-analysis-and-testing-handout": [
+   ["question", "ph213-analysis-and-testing:circuit-diagram"],
+   ["question", "ph213-analysis-and-testing:data-table"],
+   ["question", "ph213-analysis-and-testing:voltage-current-relationship"],
+   ["question", "ph213-analysis-and-testing:resistor-resistance"],
+   ["question", "ph213-analysis-and-testing:second-resistor"],
+   ["question", "ph213-analysis-and-testing:turn-up-voltage"],
+   ["question", "ph213-analysis-and-testing:bulb-versus-resistor"],
+   ["question", "ph213-analysis-and-testing:bulb-resistance"],
+   ["question", "ph213-analysis-and-testing:resistance-behavior"]
+  ],
   "ph213-hypothesis-testing-handout": [
    ["question", "ph213-hypothesis-testing:sense-making"],
    ["question", "ph213-hypothesis-testing:predictive-graphs"],

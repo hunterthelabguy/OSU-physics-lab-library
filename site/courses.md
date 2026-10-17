@@ -103,6 +103,7 @@ courses:
       - number: "5"
         title: "Analysis and Testing"
         description: "Compare resistors and bulbs, determine R as a function of V from V vs. I curves."
+        document: "ph213-analysis-and-testing-handout"
       - number: "6"
         title: "Capstone"
         description: "Three-week project to design, perform, and report on a physics experiment of group’s choice"
