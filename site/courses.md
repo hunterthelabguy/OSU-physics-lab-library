@@ -108,6 +108,7 @@ courses:
       - number: "6"
         title: "Capstone"
         description: "Three-week project to design, perform, and report on a physics experiment of group’s choice"
+        document: "ph213-capstone-handout"
       - number: ""
         title: "Lab Skills practical (to be done)"
         description: "Written assessment of major skills students should have mastered throughout the curriculum"
