@@ -97,6 +97,7 @@ courses:
       - number: "3"
         title: "Data Taking"
         description: "Measure potential and use it to determine electric field"
+        document: "ph213-data-taking-handout"
       - number: "4"
         title: "Model building"
         description: "Measure resistivity of pieces of conductive paper to determine the geometric dependence of resistance; discover models for series and parallel"

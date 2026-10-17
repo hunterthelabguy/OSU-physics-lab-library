@@ -405,6 +405,7 @@ HTML_CAPS = {
     "ph212-hypothesis-testing-handout": 200_000,  # 179,126 bytes, pass 4
     "ph212-sharing-and-comparing-handout": 360_000,  # 324,578 bytes, pass 4
     "ph213-analysis-and-testing-handout": 490_000,  # 438,893 bytes, pass 5
+    "ph213-data-taking-handout": 240_000,  # 211,252 bytes, pass 5
     "ph213-hypothesis-testing-handout": 1_820_000,  # 1,650,026 bytes, its photograph embedded (D-0092)
 }
 
