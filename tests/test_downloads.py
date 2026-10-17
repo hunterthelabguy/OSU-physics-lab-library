@@ -456,6 +456,7 @@ HTML_CAPS = {
     "ph213-analysis-and-testing-handout": 490_000,  # 438,893 bytes, pass 5
     "ph213-data-taking-handout": 240_000,  # 211,252 bytes, pass 5
     "ph213-hypothesis-testing-handout": 1_820_000,  # 1,650,026 bytes, its photograph embedded (D-0092)
+    "ph213-model-building-handout": 420_000,  # 380,830 bytes, pass 5
 }
 
 

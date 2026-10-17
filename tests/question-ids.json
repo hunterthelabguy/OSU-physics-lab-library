@@ -207,6 +207,21 @@
    ["question", "ph213-hypothesis-testing:y-intercepts"],
    ["question", "ph213-hypothesis-testing:model-verdict"],
    ["question", "ph213-hypothesis-testing:difficulties"]
+  ],
+  "ph213-model-building-handout": [
+   ["question", "ph213-model-building:predict-dimension-dependence"],
+   ["question", "ph213-model-building:design-experiments"],
+   ["question", "ph213-model-building:record-data"],
+   ["question", "ph213-model-building:describe-observations"],
+   ["question", "ph213-model-building:graph-each-variable"],
+   ["question", "ph213-model-building:relationship-from-graphs"],
+   ["question", "ph213-model-building:resistivity-from-graphs"],
+   ["question", "ph213-model-building:resistivity-uncertainty"],
+   ["question", "ph213-model-building:compare-conclusions-predictions"],
+   ["question", "ph213-model-building:experimental-shortcomings"],
+   ["question", "ph213-model-building:predict-combinations"],
+   ["question", "ph213-model-building:check-predictions"],
+   ["question", "ph213-model-building:compare-results-predictions"]
   ]
  }
 }
