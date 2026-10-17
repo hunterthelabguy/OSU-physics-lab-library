@@ -14,6 +14,7 @@ import sys
 import tempfile
 import unittest
 import zipfile
+from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -61,6 +62,40 @@ def page(doc_id, theme):
 
 def flat(text):
     return " ".join(text.split())
+
+
+def checkpoint_count(source_text):
+    """How many `.checkpoint` blocks a source holds (D-0109, D-0110)."""
+    return sum("checkpoint" in re.findall(r"\.([\w-]+)", classes)
+               for classes in re.findall(r"^:::+ *\{([^}]*)\}", source_text, re.M))
+
+
+class OwnText(HTMLParser):
+    """Each heading, paragraph and list item in order, with its own words
+    only: a nested list's items are blocks of their own (PH 213 Lab 6's
+    contents list), never words of the item that holds them."""
+
+    KINDS = ("h1", "h2", "h3", "h4", "p", "li")
+
+    def __init__(self, markup):
+        super().__init__(convert_charrefs=True)
+        self.blocks, self.open = [], []
+        self.feed(markup)
+        self.close()
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.KINDS:
+            self.blocks.append([tag.startswith("h"), ""])
+            self.open.append((tag, len(self.blocks) - 1))
+
+    def handle_endtag(self, tag):
+        if tag in self.KINDS:
+            while self.open and self.open.pop()[0] != tag:
+                pass
+
+    def handle_data(self, data):
+        if self.open:
+            self.blocks[self.open[-1][1]][1] += data
 
 
 class Links(unittest.TestCase):
@@ -251,10 +286,21 @@ class MarkdownAndWord(unittest.TestCase):
         # its Question Label paragraph ("Question N") first, in document
         # order, so a list or a bullet between parts sits inside the box.
         for doc_id, source in converted():
-            numbers = question_numbers(source.read_text(encoding="utf-8"))
+            text = source.read_text(encoding="utf-8")
+            numbers = question_numbers(text)
             count = len(numbers)
             with self.subTest(doc=doc_id, questions=count):
-                boxes = [b for b in self.boxes(doc_id) if "QuestionLabel" in b[1]]
+                labelled = [b for b in self.boxes(doc_id) if "QuestionLabel" in b[1]]
+                # A checkpoint is its own box, labelled on its own count
+                # (D-0112, D-0115); the questions keep Word's numbers.
+                boxes = [b for b in labelled if b[2][0].startswith("Question ")]
+                checkpoints = [b for b in labelled if b[2][0].startswith("Checkpoint ")]
+                self.assertEqual(len(boxes) + len(checkpoints), len(labelled))
+                self.assertEqual([b[2][0] for b in checkpoints],
+                                 ["Checkpoint {}".format(k) for k in range(1, checkpoint_count(text) + 1)])
+                for tbl, _, texts in checkpoints:
+                    self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
+                    self.assertTrue(any(texts[1:]), "the checkpoint's words are in the box")
                 self.assertEqual(len(boxes), count)
                 self.assertGreater(count, 0)
                 for n, (tbl, styles, texts) in zip(numbers, boxes):
@@ -271,17 +317,20 @@ class MarkdownAndWord(unittest.TestCase):
         # its --tint behind, kept on one page, across the text column of the
         # Letter page; the label in capitals, kept with the question.
         accent, tint = (MODERN_ROOT[k].lstrip("#").upper() for k in ("--accent", "--tint"))
+        rule, fill = (MODERN_ROOT[k].lstrip("#").upper() for k in ("--checkpoint-rule", "--checkpoint-fill"))
         for doc_id, _ in converted():
             with self.subTest(doc=doc_id):
                 sect = re.search(r"<w:sectPr>.*?</w:sectPr>", self.part(doc_id, "word/document.xml"), re.S).group(0)
                 page = int(re.search(r'<w:pgSz\b[^>]*\bw:w="(\d+)"', sect).group(1))
                 left = int(re.search(r'<w:pgMar\b[^>]*\bw:left="(\d+)"', sect).group(1))
                 right = int(re.search(r'<w:pgMar\b[^>]*\bw:right="(\d+)"', sect).group(1))
-                for tbl, styles, _ in self.boxes(doc_id):
+                for tbl, styles, texts in self.boxes(doc_id):
                     if "QuestionLabel" not in styles:
                         continue
-                    self.assertRegex(tbl, r'<w:left w:val="single" w:sz="24" w:space="0" w:color="{}"/>'.format(accent))
-                    self.assertRegex(tbl, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(tint))
+                    # A checkpoint's box takes its own palette (D-0115).
+                    edge, behind = (rule, fill) if texts[0].startswith("Checkpoint ") else (accent, tint)
+                    self.assertRegex(tbl, r'<w:left w:val="single" w:sz="24" w:space="0" w:color="{}"/>'.format(edge))
+                    self.assertRegex(tbl, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(behind))
                     self.assertIn("<w:cantSplit/>", tbl)
                     self.assertIn('<w:tblW w:w="{}" w:type="dxa"/>'.format(page - left - right), tbl)
                 label = self.style(doc_id, "QuestionLabel")
@@ -784,8 +833,7 @@ class PrintKeeps(unittest.TestCase):
         label above its list, and its Week 1 heading), the print's whole
         lines with those words are matched in order to the page's blocks
         with them, and only a heading's counts."""
-        blocks = [(tag.startswith("h"), flat(html.unescape(re.sub(r"<[^>]+>", "", body))))
-                  for tag, body in re.findall(r"<(h[1-4]|p|li)\b[^>]*>(.*?)</\1>", main, re.S)]
+        blocks = [(is_h, flat(t)) for is_h, t in OwnText(main).blocks]
         found, seen = [], {}
         for i, pg in enumerate(pages, 1):
             lines = [flat(l) for l in pg.split("\n") if l.strip()]
@@ -857,6 +905,18 @@ class PrintKeeps(unittest.TestCase):
         self.assertEqual(self.page_endings(label_ends, ["Week 1"], main), [])
         self.assertEqual(self.page_endings(heading_ends, ["Week 1"], main),
                          ["page 1 ends with a heading: Week 1"])
+
+    def test_a_nested_contents_item_with_a_headings_words_is_not_a_heading(self):
+        # PH 213 Lab 6: its contents list nests "Before Lab" under a Week,
+        # and a page may end on that item, far above the heading.
+        main = ('<ul><li><a href="#w">Week 1</a><ul><li><a href="#b">Before Lab</a></li></ul></li></ul>'
+                '<h2 id="w">Week 1</h2><h3 id="b">Before Lab</h3><p>Text.</p>')
+        heads = ["Week 1", "Before Lab"]
+        item_ends = ["DRAFT: license pending\nWeek 1\nBefore Lab\n", "Week 1\nBefore Lab\nText.\n"]
+        heading_ends = ["Week 1\nBefore Lab\nWeek 1\nBefore Lab\n", "Text.\n"]
+        self.assertEqual(self.page_endings(item_ends, heads, main), [])
+        self.assertEqual(self.page_endings(heading_ends, heads, main),
+                         ["page 1 ends with a heading: Before Lab"])
 
     def test_a_question_starting_a_page_and_breaking_is_taller(self):
         top = "DRAFT: license pending\nQUESTION 4\nRead the box.\n\f"
