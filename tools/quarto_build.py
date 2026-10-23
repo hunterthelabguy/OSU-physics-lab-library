@@ -252,7 +252,7 @@ def post():
     base_404(os.path.join(OUT, "404.html"))
     with open(os.path.join(OUT, "robots.txt"), "w", encoding="utf-8",
               newline="\n") as fh:
-        fh.write("# Unlisted draft while the license is open (ledger 37).\n"
+        fh.write("# Shared by link, not indexed (D-0156).\n"
                  "User-agent: *\nDisallow: /\n")
 
 

@@ -3,7 +3,7 @@
 -- goes on each side of the block: the first ends the portrait section
 -- before it, the second ends the block's own landscape section.
 -- tools/downloads.py fills each marker from the document's own section
--- (its page, margins, draft header and footer), so nothing here repeats
+-- (its page, margins and footer), so nothing here repeats
 -- tools/reference.docx. On the page and in the PDF the block stays a Div;
 -- the theme's print rules give it its landscape page.
 

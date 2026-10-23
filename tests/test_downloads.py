@@ -29,7 +29,6 @@ import downloads                          # noqa: E402
 import figure_fixture as fx               # noqa: E402
 import media                              # noqa: E402
 import render                             # noqa: E402
-from render import BANNER_MAIN, BANNER_DETAIL  # noqa: E402
 from test_quarto_site import converted, question_numbers, split_figures  # noqa: E402
 import test_quarto_site                   # noqa: E402
 
@@ -45,7 +44,8 @@ MODERN_BODY = {"font-size": float(re.search(r"font-size:\s*([\d.]+)rem", _BODY).
                "line-height": float(re.search(r"line-height:\s*([\d.]+);", _BODY).group(1))}
 MODERN_P_GAP = float(re.search(r"\np\s*\{\s*margin:\s*0 0 ([\d.]+)rem;", _MODERN).group(1))
 MODERN_LI_GAP = float(re.search(r"\nli\s*\{\s*margin:\s*0 0 ([\d.]+)rem;", _MODERN).group(1))
-FOOTER_NEW = "Downloads carry the same draft notice as these pages."
+# D-0156: the footer sentence and the banner it pointed at are gone.
+FOOTER_GONE = "Downloads carry the same draft notice as these pages."
 FOOTER_OLD = "are not wired up in this draft"
 # The owner's words for every download, in place of the logo (chat, 2026-10-01).
 PHYSICS = "Department of Physics, Oregon State University"
@@ -138,7 +138,7 @@ class Links(unittest.TestCase):
             for theme in ("modern",):
                 text = flat(page(doc_id, theme))
                 with self.subTest(doc=doc_id, theme=theme):
-                    self.assertIn(FOOTER_NEW, text)
+                    self.assertNotIn(FOOTER_GONE, text)
                     self.assertNotIn(FOOTER_OLD, text)
                     # D-0116: the one-source point lives on "How this site works" only.
                     self.assertNotIn("drift apart", text)
@@ -203,9 +203,8 @@ class MarkdownAndWord(unittest.TestCase):
         return m.group(0)
 
     def test_word_body_is_the_modern_words(self):
-        # D-0057: the draft notice moved to the page header, so the body is
-        # the modern words alone (the body's banner paragraphs are gone).
-        # Equations are compared apart (D-0113).
+        # D-0057: the body is the modern words alone; D-0156: no draft
+        # notice anywhere in the file. Equations are compared apart (D-0113).
         for doc_id, source in converted():
             with self.subTest(doc=doc_id):
                 got, _, _ = read_words(str(self.docx(doc_id)))
@@ -213,25 +212,21 @@ class MarkdownAndWord(unittest.TestCase):
                                              "--lua-filter", str(FILTER), "-M", "theme=modern")
                 self.assertEqual(got, want)
                 self.assertIn("Question", got)
-                self.assertNotIn(flat(BANNER_DETAIL), flat(" ".join(got)))
+                self.assertNotIn("license pending", flat(" ".join(got)).lower())
                 same_equations(self, math, api, self.docx(doc_id))
 
-    def test_word_header_is_the_draft_notice(self):
-        # D-0057: BANNER_MAIN, the approved words, on every page, [9] pt
-        # bold and centered, the size and weight of the PDF's banner box.
+    def test_word_has_no_draft_header(self):
+        # D-0156: the page header that carried the draft notice (D-0057) is
+        # gone, and no part of the file says the license is pending.
         for doc_id, _ in converted():
             with self.subTest(doc=doc_id):
                 body = self.part(doc_id, "word/document.xml")
-                self.assertRegex(body, r'<w:headerReference\b[^>]*\bw:type="default"')
-                headers = self.parts(doc_id, r"word/header\d*\.xml")
-                self.assertEqual(len(headers), 1)
-                text = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", headers[0]))
-                self.assertEqual(text, BANNER_MAIN)
-                self.assertIn('<w:pStyle w:val="Header"', headers[0])
-                self.assertNotIn("<w:rPr>", headers[0], "formatting belongs on the Header style")
-                header = self.style(doc_id, "Header")
-                for want in (r'<w:jc w:val="center"', r"<w:b\s*/>", r'<w:sz w:val="18"'):
-                    self.assertRegex(header, want)
+                self.assertNotIn("<w:headerReference", body)
+                self.assertEqual(self.parts(doc_id, r"word/header\d*\.xml"), [])
+                with zipfile.ZipFile(self.docx(doc_id)) as z:
+                    for name in z.namelist():
+                        if name.endswith((".xml", ".rels")):
+                            self.assertNotIn("license pending", z.read(name).decode("utf-8").lower(), name)
 
     def test_word_footer_names_the_department_and_counts_pages(self):
         for doc_id, _ in converted():
@@ -488,11 +483,13 @@ class Html(unittest.TestCase):
                 for chrome in ('class="osu-header"', 'class="site-nav"', 'class="osu-foot"'):
                     self.assertNotIn(chrome, text)
 
-    def test_banner_department_and_noindex(self):
+    def test_no_banner_department_and_noindex(self):
+        # D-0156: no draft banner; the department line and noindex stay.
         for doc_id, _ in converted():
             text = self.download(doc_id)
             with self.subTest(doc=doc_id):
-                self.assertIn(BANNER_MAIN, flat(text))
+                self.assertNotIn("draft-banner", text)
+                self.assertNotIn("license pending", flat(text).lower())
                 self.assertIn(PHYSICS, flat(text))
                 self.assertIn('<meta name="robots" content="noindex', text)
 
@@ -655,7 +652,7 @@ def pdf_text(path):
 
 class LandscapePages(unittest.TestCase):
     """Pass 4: a `::: landscape` block is a landscape page of its own in
-    Word and in print, the draft header and the footer on it (a made-up
+    Word and in print, the footer on it and no draft header (a made-up
     lab and page, D-0119 call 4)."""
 
     SOURCE = ('---\nid: "landscape-lab"\ntitle: "Landscape"\n---\n\n# Landscape\n\n'
@@ -688,7 +685,7 @@ class LandscapePages(unittest.TestCase):
         self.assertIn('<w:pgSz w:w="15840" w:h="12240" w:orient="landscape" />', block)
         self.assertNotIn("landscape", own)
         for s in sections:
-            self.assertIn("<w:headerReference", s)
+            self.assertNotIn("<w:headerReference", s)
             self.assertIn("<w:footerReference", s)
         # The table, and only it, lies in the landscape section.
         at = [m.start() for m in re.finditer(r"<w:sectPr\b", self.xml)]
@@ -717,7 +714,7 @@ class LandscapePages(unittest.TestCase):
         for i, pg in enumerate(pages, 1):
             self.assertIn(PHYSICS, flat(pg))
             self.assertIn("Page {} of 3".format(i), flat(pg))
-            self.assertIn("DRAFT: license pending", flat(pg))
+            self.assertNotIn("license pending", flat(pg).lower())
 
 
 class Pdf(unittest.TestCase):
@@ -734,7 +731,7 @@ class Pdf(unittest.TestCase):
             with self.subTest(doc=doc_id):
                 self.assertEqual(self.path(doc_id).read_bytes()[:5], b"%PDF-")
 
-    def test_banner_running_header_title_and_footer(self):
+    def test_no_banner_title_and_footer(self):
         for doc_id, source in converted():
             title = re.search(r"^# (.+)$", source.read_text(encoding="utf-8"), re.M).group(1)
             raw = self.text(doc_id)
@@ -742,8 +739,8 @@ class Pdf(unittest.TestCase):
             # The footer's own line, so the phrase in a lab's text cannot count.
             footers = re.findall(re.escape(PHYSICS) + r"[ \t]+Page (\d+) of (\d+)", raw)
             with self.subTest(doc=doc_id):
-                self.assertIn(BANNER_MAIN, text)
-                self.assertIn("DRAFT: license pending", text)
+                self.assertNotIn("license pending", text.lower())
+                self.assertNotIn("draft:", text.lower())
                 self.assertIn(flat(title), text)
                 self.assertTrue(footers, "no department footer beside 'Page N of M'")
                 total = int(footers[0][1])
@@ -790,7 +787,6 @@ class PrintKeeps(unittest.TestCase):
         # The "What is Uncertainty?" box sits inside it, between stem and parts (S14).
         ("ph212-data-analysis-handout", "4"),
     }
-    HEADER = words("DRAFT: license pending")
     RULES_OFF = ("<style>@media print { .question, .box { break-inside: auto !important; }"
                  " h1, h2, h3, h4 { break-after: auto !important; } }</style>")
 
@@ -841,7 +837,7 @@ class PrintKeeps(unittest.TestCase):
         found, seen = [], {}
         for i, pg in enumerate(pages, 1):
             lines = [flat(l) for l in pg.split("\n") if l.strip()]
-            body = [l for l in lines if not l.startswith(PHYSICS) and l != "DRAFT: license pending"]
+            body = [l for l in lines if not l.startswith(PHYSICS)]
             for l in body:
                 seen[l] = seen.get(l, 0) + 1
             ending = cls.ends_with_heading("\n".join(body), headings)
@@ -855,14 +851,14 @@ class PrintKeeps(unittest.TestCase):
         return found
 
     def starts_a_page_and_breaks(self, raw, n):
-        """Question n prints first on its page, under the running header,
-        and still crosses a page break: it is taller than a page."""
+        """Question n prints first on its page (no running header since
+        D-0156) and still crosses a page break: it is taller than a page."""
         pages = raw.split("\f")[:-1]
         for i, pg in enumerate(pages):
             got = words(pg)
-            if got[:len(self.HEADER) + 2] == self.HEADER + ["QUESTION", n]:
+            if got[:2] == ["QUESTION", n]:
                 rest = " ".join(words(" ".join(pages[i + 1:i + 2])))
-                return bool(rest) and not rest.startswith(" ".join(self.HEADER) + " QUESTION")
+                return bool(rest) and not rest.startswith("QUESTION")
         return False
 
     @staticmethod
@@ -904,8 +900,8 @@ class PrintKeeps(unittest.TestCase):
     def test_a_paragraph_with_a_headings_words_is_not_a_heading(self):
         main = ("<p>The project:</p><p>Week 1</p><ol><li>Choose</li></ol>"
                 "<h2>Week 1</h2><p>Text.</p>")
-        label_ends = ["DRAFT: license pending\nThe project:\nWeek 1\n", "1. Choose\nWeek 1\nText.\n"]
-        heading_ends = ["DRAFT: license pending\nThe project:\nWeek 1\n1. Choose\nWeek 1\n", "Text.\n"]
+        label_ends = ["The project:\nWeek 1\n", "1. Choose\nWeek 1\nText.\n"]
+        heading_ends = ["The project:\nWeek 1\n1. Choose\nWeek 1\n", "Text.\n"]
         self.assertEqual(self.page_endings(label_ends, ["Week 1"], main), [])
         self.assertEqual(self.page_endings(heading_ends, ["Week 1"], main),
                          ["page 1 ends with a heading: Week 1"])
@@ -916,17 +912,17 @@ class PrintKeeps(unittest.TestCase):
         main = ('<ul><li><a href="#w">Week 1</a><ul><li><a href="#b">Before Lab</a></li></ul></li></ul>'
                 '<h2 id="w">Week 1</h2><h3 id="b">Before Lab</h3><p>Text.</p>')
         heads = ["Week 1", "Before Lab"]
-        item_ends = ["DRAFT: license pending\nWeek 1\nBefore Lab\n", "Week 1\nBefore Lab\nText.\n"]
+        item_ends = ["Week 1\nBefore Lab\n", "Week 1\nBefore Lab\nText.\n"]
         heading_ends = ["Week 1\nBefore Lab\nWeek 1\nBefore Lab\n", "Text.\n"]
         self.assertEqual(self.page_endings(item_ends, heads, main), [])
         self.assertEqual(self.page_endings(heading_ends, heads, main),
                          ["page 1 ends with a heading: Before Lab"])
 
     def test_a_question_starting_a_page_and_breaking_is_taller(self):
-        top = "DRAFT: license pending\nQUESTION 4\nRead the box.\n\f"
-        mid = "DRAFT: license pending\nSome words.\nQUESTION 4\nRead the box.\n\f"
-        rest = "DRAFT: license pending\na. List the sources.\n\f"
-        after = "DRAFT: license pending\nQUESTION 5\nNext.\n\f"
+        top = "QUESTION 4\nRead the box.\n\f"
+        mid = "Some words.\nQUESTION 4\nRead the box.\n\f"
+        rest = "a. List the sources.\n\f"
+        after = "QUESTION 5\nNext.\n\f"
         self.assertTrue(self.starts_a_page_and_breaks(top + rest, "4"))
         self.assertFalse(self.starts_a_page_and_breaks(mid + rest, "4"))
         self.assertFalse(self.starts_a_page_and_breaks(top + after, "4"))

@@ -156,10 +156,10 @@ class ChromePieces(unittest.TestCase):
                     self.assertNotIn('<nav class="site-nav">', text)
 
     def test_presentation_note_and_both_presentations(self):
-        both = from_template(
-            "template.html",
-            r'<footer class="doc-footer">\n<p>\$presentationnote\$</p>\n'
-            r'\$if\(homehref\)\$\n<p>([^<$]+)</p>\n\$endif\$\n</footer>')
+        # D-0156: the footer is the presentation note alone; the sentence
+        # about the draft notice on downloads is gone with the notice.
+        from_template("template.html",
+                      r'(<footer class="doc-footer">\n<p>\$presentationnote\$</p>\n</footer>)')
         for rel, text in self.pages():
             theme = lab_theme(rel)
             footer = re.findall(r'<footer class="doc-footer">\n(.*?)</footer>', text, re.S)
@@ -169,7 +169,7 @@ class ChromePieces(unittest.TestCase):
                     continue
                 self.assertEqual(len(footer), 1)
                 paras = [one_line(html.unescape(p)) for p in re.findall(r"<p>(.*?)</p>", footer[0], re.S)]
-                self.assertEqual(paras, [one_line(render.THEME_NOTE[theme]), one_line(both)])
+                self.assertEqual(paras, [one_line(render.THEME_NOTE[theme])])
 
     def test_method_footnote_only_on_its_page(self):
         shape = from_template(

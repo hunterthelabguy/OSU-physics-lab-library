@@ -67,11 +67,12 @@ class OldChrome(unittest.TestCase):
             {"html": "labs/x/modern/index.html", "kind": "doc", "depth": 3,
              "theme": "modern", "footnote": ""})
         self.assertEqual(body_class, "theme-modern")
-        for piece in ('<div class="draft-banner">', '<header class="osu-header">',
+        for piece in ('<header class="osu-header">',
                       '<nav class="site-nav">',
                       'src="../../../site/brand/OSU_horizontal_2C_W_over_B.png"'):
             self.assertIn(piece, top)
-        self.assertIn(render.BANNER_MAIN, " ".join(top.split()))
+        self.assertNotIn("draft-banner", top)  # D-0156
+        self.assertNotIn("license pending", " ".join(top.split()).lower())
         self.assertNotIn('class="switch"', top)  # D-0108: one presentation
         self.assertIn('<footer class="doc-footer">', bottom)
         self.assertIn('<footer class="osu-foot">', bottom)

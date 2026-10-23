@@ -59,5 +59,3 @@ removed; its words are untouched.
 
 - Instructor notes and rubrics are kept separately and privately. Whether
   they ever become public is an open question for the department.
-- The license is not settled. Until it is, this site is a draft to look at,
-  not something to hand on.

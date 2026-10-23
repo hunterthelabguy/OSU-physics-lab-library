@@ -1,14 +1,14 @@
 """Lab downloads: Markdown, Word, HTML and PDF (D-0052, D-0053).
 
 Run by tools/quarto_build.py after the site is built and dressed; never on
-its own. Every file comes from the modern presentation, carries the draft
-banner (ledger 37) and names the Department of Physics in place of the
+its own. Every file comes from the modern presentation, carries no draft
+banner (D-0156) and names the Department of Physics in place of the
 logo, and is written beside the presentations as labs/<id>/<id>.<ext>, so
 a saved file is named after the lab. Markdown is the source, byte for
-byte (LEDGER 28). Word is Pandoc's, from the source, with the banner in
-its page header and the department in its page footer, both from
+byte (LEDGER 28). Word is Pandoc's, from the source, with the department in
+its page footer, from
 tools/reference.docx with the page size and question label (D-0057). HTML is
-a plain Pandoc render of the source: the banner, the department line and
+a plain Pandoc render of the source: the department line and
 the modern theme, everything embedded and no site chrome, so it opens
 from disk; its equations are MathML (D-0040). Pictures and drawn figures
 come from the lab's media folder, which tools/quarto_build.py fills
@@ -90,9 +90,8 @@ def box_colours():
 
 
 def word(doc, dest):
-    """The source alone in the body; tools/reference.docx supplies the draft
-    notice as the page header, the department line and page count as the
-    page footer, the page, and the question label's style (D-0057); the
+    """The source alone in the body; tools/reference.docx supplies the
+    department line and page count as the page footer, the page, and the question label's style (D-0057); the
     filter draws each question as a one-cell table (D-0082)."""
     pandoc(doc, render.body_after_front_matter(doc["path"]),
            ["-t", "docx", "--reference-doc", REFERENCE_DOCX, "-M", "lang=en"]
@@ -103,10 +102,10 @@ def word(doc, dest):
 
 def landscape_sections(path):
     """Fill tools/filters/landscape.lua's section-break markers from the
-    document's own last section (page, margins, the draft header and
-    footer): a portrait marker as it is, a landscape one with its page
-    turned. A section with no header reference would print none, so each
-    carries the references itself."""
+    document's own last section (page, margins and footer): a portrait
+    marker as it is, a landscape one with its page turned. A section with
+    no footer reference would print none, so each carries the references
+    itself."""
     with zipfile.ZipFile(path) as z:
         infos = z.infolist()
         parts = {i.filename: z.read(i.filename) for i in infos}
@@ -150,8 +149,8 @@ def crop_pictures(path, crops):
 
 
 def html(doc, dest):
-    """The old template with only its banner variables set: no header, nav
-    or footer chrome, so nothing in it links into the site."""
+    """The old template with no site variables set: no header, nav or
+    footer chrome, so nothing in it links into the site."""
     css = lambda *p: os.path.join(render.ROOT, *p).replace(os.sep, "/")
     pandoc(doc, PHYSICS + "\n\n" + render.body_after_front_matter(doc["path"]),
            ["-t", "html5", "--standalone", "--embed-resources", "--mathml",
@@ -160,8 +159,6 @@ def html(doc, dest):
             "-M", "css=" + css("themes", THEME + ".css"),
             "-M", "chromecss=" + css("site", "site.css"),
             "-M", "presentationnote=" + render.THEME_NOTE[THEME],
-            "-M", "bannermain=" + render.BANNER_MAIN,
-            "-M", "bannerdetail=" + render.BANNER_DETAIL,
             "-o", dest])
     with open(dest, encoding="utf-8") as fh:
         text = fh.read()
