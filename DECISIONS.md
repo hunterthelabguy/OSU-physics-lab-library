@@ -1663,3 +1663,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: per-lab exemptions in the tests.
 - binds: D-0112; D-0115; D-0138; D-0149; tests/test_downloads.py
 - test: tests/test_downloads.py::PrintKeeps::test_a_nested_contents_item_with_a_headings_words_is_not_a_heading; the Word-box tests on PH 213 Lab 6
+
+### D-0156  The draft banner comes off every page and download: the department approves sharing; the license text stays open; the site stays unindexed
+- status: ruled
+- proposed-by: owner
+- ruled-by: owner
+- date: 2026-10-23
+- decision: Amends LEDGER 8 and 37. The site may be shared: the "Draft: license pending, not for distribution." banner (`BANNER_MAIN`, `BANNER_DETAIL`) is removed from site pages, lab pages, the sim bar and every download (the Word page header from `tools/reference.docx`, the HTML download, the PDF, the course download), and the published sentences that say the license is unsettled are deleted, not reworded: the landing page's "What is deliberately missing" bullet beginning "The license is not settled.", the method page's sentence beginning "The license for this material is not settled", and the HTML download's footer line "Downloads carry the same draft notice as these pages." The license itself stays open: no LICENSE file, D-0007's logo exclusion and D-0023's copyright line still wait for it, and until then the pages carry default copyright. The site stays unindexed: every page keeps its `noindex` meta and `robots.txt` keeps `Disallow: /`, its comment's reason now this entry. D-0080's test ("every other download still has it") lapses with the notice. Built by a Sonnet subagent in a worktree, one PR, the owner reviewing every removed line in its body.
+- rationale: The owner, 2026-10-23: "Ready to remove draft: license pending disclaimers from all pages and files. [...] URL is stable, the department approves, and I'm starting to share the site with others." To the three calls: "Sharing approved; license later", "Keep noindex for now", "Remove them; I review the diff". Context (Claude): LEDGER 8 held that nothing publishes until the license settles, and the banner's words claim it pending; the department's approval settles distribution, not the license text, so the entry keeps the two apart.
+- alternatives: the license settled now (a LICENSE file with the logo excluded, D-0007, and the copyright line, D-0023); indexing allowed (the `noindex` meta, `robots.txt` and `tools/check_deployed.py` changed); replacement sentences drafted for approval.
+- binds: LEDGER 8; LEDGER 37; LEDGER 44; D-0007; D-0022; D-0023; D-0030; D-0052; D-0057; D-0080; tools/render.py; tools/template.html; tools/template-site.html; tools/make_reference_docx.py; tools/reference.docx; tools/quarto_build.py; site/site.css; site/landing.md; site/how-this-site-works.md; tests
+- test: the PR's tests: no page or download carries the banner; every page keeps `noindex`; `robots.txt` disallows all
