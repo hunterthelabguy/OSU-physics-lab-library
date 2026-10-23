@@ -16,6 +16,7 @@
   --checkpoint-fill: #fdd26e; /* Candela: black 14.6:1, --quiet 6.2:1 */
   --table-gap: 1rem;          /* under a table (D-0130) */
   --cell-pad: .35rem .6rem;   /* inside a table cell (D-0130) */
+  --figure-paper: #fff;       /* Word's page behind a drawn figure; not themed */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -163,6 +164,10 @@ blockquote > :last-child { margin-bottom: 0; }   /* the quote's own margin ends 
    cropped picture shows only Word's part of it: tools/filters/media.lua
    sizes the image inside the span by Word's crop. */
 main img, main svg.drawn-figure { max-width: 100%; height: auto; }
+/* A drawn figure keeps Word's paper in both themes: its lines and labels
+   are Word's colours, black in PH 213 Lab 4, which on the dark page gave
+   about 1.2:1 (WCAG 1.4.3, 1.4.11). A picture brings its own pixels. */
+main svg.drawn-figure { background: var(--figure-paper); }
 .picture-crop { display: inline-block; position: relative; max-width: 100%; overflow: hidden; }
 .picture-crop img { position: absolute; max-width: none; }
 
