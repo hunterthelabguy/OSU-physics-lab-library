@@ -225,5 +225,24 @@ class CheckpointColours(unittest.TestCase):
         self.assertGreaterEqual(contrast(light["--checkpoint-rule"], dark["--checkpoint-fill"]), 3)
 
 
+class DrawnFigurePaper(unittest.TestCase):
+    """A drawn figure sits on Word's white page in both themes: its lines and
+    labels keep Word's colours, black in PH 213 Lab 4 (WCAG 1.4.3, 1.4.11)."""
+
+    MODERN = CheckpointColours.MODERN
+    tokens = CheckpointColours.tokens
+
+    def test_white_in_light_and_dark(self):
+        light = self.tokens(r":root\s*\{(.*?)\}")
+        dark = self.tokens(r":root:not\(\[data-theme=\"light\"\]\)\s*\{(.*?)\}")
+        self.assertEqual(light["--figure-paper"], "FFFFFF")
+        self.assertNotIn("--figure-paper", dark, "the figure's paper is not themed")
+        self.assertGreaterEqual(contrast("000000", light["--figure-paper"]), AA_NORMAL)
+
+    def test_the_figure_takes_it(self):
+        rules = re.findall(r"main svg\.drawn-figure\s*\{([^}]*)\}", self.MODERN)
+        self.assertTrue(any("background: var(--figure-paper)" in r for r in rules))
+
+
 if __name__ == "__main__":
     unittest.main()
