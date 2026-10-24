@@ -15,7 +15,6 @@ ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "build" / "quarto-site"
 sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "tests"))
-from render import BANNER_MAIN            # noqa: E402
 from test_assets import LOGOS, sha256     # noqa: E402
 
 POLICY_LINKS = [
@@ -82,12 +81,14 @@ class FullChrome(unittest.TestCase):
             with self.subTest(page=rel):
                 self.assertIn('<a href="https://physics.oregonstate.edu">Department of Physics</a>', text)
 
-    def test_draft_banner_and_noindex(self):
+    def test_no_draft_banner_and_noindex(self):
         for rel, text in pages():
             with self.subTest(page=rel):
-                # Pandoc wraps long metadata lines, so the sentence can break across lines.
+                # D-0156: no banner. Pandoc wraps long metadata lines, so the
+                # sentence could break across lines; compare it flattened.
                 flat = " ".join(text.split())
-                self.assertIn(BANNER_MAIN, flat)
+                self.assertNotIn("draft-banner", text)
+                self.assertNotIn("license pending", flat.lower())
                 self.assertIn('<meta name="robots" content="noindex', text)
 
     def test_footer_as_ruled(self):
@@ -130,12 +131,13 @@ class SimBar(unittest.TestCase):
                 self.assertIsNotNone(m, "no bar after <body>")
                 self.assertEqual(p.replace(m.group(1), "", 1), src.read_text(encoding="utf-8"))
 
-    def test_bar_logo_and_banner(self):
+    def test_bar_logo_and_no_banner(self):
         for src, pub in self.sims():
             with self.subTest(sim=src.parent.name):
                 bar = self.BAR.search(pub.read_text(encoding="utf-8")).group(1)
                 self.assertIn("background: #000", bar)
-                self.assertIn('<span class="lib-draft">' + BANNER_MAIN + "</span>", bar)
+                self.assertNotIn("lib-draft", bar)  # D-0156
+                self.assertNotIn("license pending", bar.lower())
                 img = re.search(r'<a href="https://oregonstate.edu">(<img[^>]*>)</a>', bar)
                 self.assertIsNotNone(img)
                 attrs = img_attrs(img.group(1))

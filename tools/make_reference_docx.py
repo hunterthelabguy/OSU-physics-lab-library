@@ -2,16 +2,14 @@
 D-0053, D-0057).
 
 One-time tool, run by hand; builds read the committed file. Rerun it when
-the header, the footer, the styles below, the banner wording or the Pandoc
+the footer, the styles below or the Pandoc
 that builds the downloads changes. Needs PANDOC set to Quarto's bundled
 Pandoc (D-0044).
 
 Usage: python tools/make_reference_docx.py
 
 Starts from Pandoc's own default reference document and adds:
-- a page header on every page, the draft notice (render.BANNER_MAIN, ledger
-  37) in the Header style, 9 pt bold and centered like the PDF's banner box;
-  it goes when the license settles;
+- no page header: the draft notice that was there came off under D-0156;
 - a page footer, the department line then "Page N of M" from Word's PAGE and
   NUMPAGES fields, in the Footer style at 8 pt like the PDF's. The size is
   on the style, never on the runs: Word rebuilds a field's result and drops
@@ -43,7 +41,6 @@ import downloads
 import render
 
 OUT = os.path.join(render.ROOT, "tools", "reference.docx")
-HEADER_ID = "rIdLabHeader"
 FOOTER_ID = "rIdLabFooter"
 W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
 TWIPS_PER_INCH = 1440
@@ -78,10 +75,6 @@ ITEM_SPACING = spacing(.5)     # li { margin: 0 0 .5rem; }
 
 
 STYLES = (
-    '<w:style w:type="paragraph" w:styleId="Header"><w:name w:val="header" />'
-    '<w:basedOn w:val="Normal" /><w:uiPriority w:val="99" /><w:unhideWhenUsed />'
-    '<w:pPr><w:spacing w:after="0" /><w:jc w:val="center" /></w:pPr>'
-    '<w:rPr><w:b /><w:bCs /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr></w:style>'
     '<w:style w:type="paragraph" w:styleId="Footer"><w:name w:val="footer" />'
     '<w:basedOn w:val="Normal" /><w:uiPriority w:val="99" /><w:unhideWhenUsed />'
     '<w:pPr><w:spacing w:after="0" /></w:pPr>'
@@ -109,14 +102,13 @@ def field(instr):
 
 
 XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
-HEADER = XML + '<w:hdr {}>'.format(W) + paragraph("Header", run(render.BANNER_MAIN)) + '</w:hdr>\n'
 FOOTER = XML + '<w:ftr {}>'.format(W) + paragraph(
     "Footer", run(downloads.PHYSICS + " · Page ") + field("PAGE") + run(" of ")
     + field("NUMPAGES")) + '</w:ftr>\n'
 PAGE = ('<w:pgSz w:w="{}" w:h="{}" />'.format(*(round(i * TWIPS_PER_INCH) for i in LETTER))
         + '<w:pgMar w:top="{0}" w:right="{0}" w:bottom="{0}" w:left="{0}" w:header="720" '
           'w:footer="720" w:gutter="0" />'.format(round(MARGIN * TWIPS_PER_INCH)))
-PARTS = {"word/header1.xml": ("header", HEADER_ID, HEADER), "word/footer1.xml": ("footer", FOOTER_ID, FOOTER)}
+PARTS = {"word/footer1.xml": ("footer", FOOTER_ID, FOOTER)}
 
 
 def once(pattern, text, repl):
@@ -169,7 +161,7 @@ def edit(name, data):
         text = once(r"<w:sectPr>", text, "<w:sectPr>" + refs)
         text = once(r"</w:footnotePr>", text, "</w:footnotePr>" + PAGE)
     elif name == "word/styles.xml":
-        for style_id in ("Header", "Footer", "QuestionLabel"):
+        for style_id in ("Footer", "QuestionLabel"):
             if 'w:styleId="{}"'.format(style_id) in text:
                 raise SystemExit("Pandoc's default already has the {} style; review this tool".format(style_id))
         for style_id, new in (("BodyText", BODY_SPACING), ("Compact", ITEM_SPACING)):

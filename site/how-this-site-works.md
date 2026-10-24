@@ -111,6 +111,5 @@ listed in the repository by role, with how each is handed over.
 
 ## Not settled yet
 
-The license for this material is not settled, so the site is an unlisted
-draft, as the banner at the top of each page says. The standard for the
+The standard for the
 later phase, when wording does change, is still open (ledger 11).

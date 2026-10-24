@@ -3,14 +3,14 @@
 @font-face { font-family: "Open Sans"; font-style: italic; font-weight: 400; src: url("fonts/OpenSans-Italic.woff2") format("woff2"); }
 @font-face { font-family: "Open Sans"; font-style: italic; font-weight: 700; src: url("fonts/OpenSans-BoldItalic.woff2") format("woff2"); }
 
-/* Site chrome: the draft banner, navigation, landing page, and course index.
+/* Site chrome: navigation, landing page, and course index.
    Document pages load this on top of their presentation theme
    (themes/modern.css), which owns the document body;
    nothing here restyles document content.
 
    Colors from the OSU palette (OSU-branding/OSU-style-guide.md in the sandbox, not
    in this repo). Star Canvas for headings and links (11.8:1 on white),
-   Beaver Orange for the draft banner and accents only. */
+   Beaver Orange for accents only. */
 
 :root {
   --chrome-ink: #000;
@@ -19,7 +19,6 @@
   --chrome-accent: #d73f09;    /* Beaver Orange */
   --chrome-rule: #a7aca2;   /* Coastline */
   --chrome-quiet: #0d5257;     /* Rogue Wave, 8.9:1 on white */
-  --chrome-warn: #ffb500;     /* Luminance, black text 11.86:1 (D-0022) */
   /* Two widths, deliberately. The reading measure is the evidence review's
      number (WCAG 2.2 SC 1.4.8 bounds a line at 80 characters) and governs
      anything anyone reads as prose. The shell is the page frame: 72rem here,
@@ -56,32 +55,6 @@
     --chrome-rule: #8e9089; /* Crater */
     --chrome-quiet: #c6dae7;   /* Moondust */
   }
-}
-
-/* Draft banner: every page, top of every page (ledger 37). */
-.draft-banner {
-  background: var(--chrome-warn);
-  color: #000;
-  font-family: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: .9375rem;
-  line-height: 1.5;
-  font-weight: 400;
-  padding: .5rem 1rem;
-  margin: 0;
-  text-align: center;
-}
-
-/* One line by default (D-0030); the detail opens in place, no script. */
-.draft-banner summary { cursor: pointer; list-style: none; }
-.draft-banner summary::-webkit-details-marker { display: none; }
-.draft-banner .draft-more { text-decoration: underline; text-underline-offset: .15em; margin-left: .5rem; }
-.draft-banner details[open] .draft-more { display: none; }
-.draft-banner summary:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
-
-.draft-banner .draft-detail {
-  font-size: .9rem;
-  max-width: 70ch;
-  margin: .25rem auto 0;
 }
 
 /* Navigation above and below the document. */
@@ -563,14 +536,13 @@ body:where(.quarto-light) {
 .quarto-light .table > :not(caption) > * > * { padding: var(--cell-pad); border-bottom-width: 1px; }
 /* quarto-only: end */
 
-/* Print: TAs and students print handouts. Paper gets the words, a running
-   header with the draft status, and page numbers; none of the screen chrome.
+/* Print: TAs and students print handouts. Paper gets the words, the department
+   line, and page numbers; none of the screen chrome.
    Graded blocks are kept whole by each theme's own print rules, since this
    file does not restyle document content. */
 @page {
   size: letter;
   margin: .75in;
-  @top-right { content: "DRAFT: license pending"; font: 8pt ui-sans-serif, system-ui, sans-serif; }
   @bottom-left { content: "Department of Physics, Oregon State University"; font: 8pt ui-sans-serif, system-ui, sans-serif; }
   @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 8pt ui-sans-serif, system-ui, sans-serif; }
 }
@@ -582,11 +554,6 @@ body:where(.quarto-light) {
 @media print {
   .site-nav, .site-foot .print-hide { display: none; }
   .osu-header, .osu-foot { display: none; }
-  .draft-banner {
-    background: none; color: #000; border: 1px solid #000;
-    font-size: 9pt; padding: 2pt 6pt; margin: 0 0 12pt;
-  }
-  .draft-banner .draft-detail, .draft-banner .draft-more { display: none; }
   body.site-page main > .hero { background: none; box-shadow: none; clip-path: none; color: #000; margin: 0 0 12pt; padding: 0; display: block; }
   body.site-page .hero h1, body.site-page .hero .lead { color: #000; }
   body.site-page .hero > p { display: none; }

@@ -83,7 +83,7 @@ Moved from `CLAUDE.md` on 2026-10-08, verbatim.
 
 - Check built pages over a local HTTP server, not `file://`. The desktop
   app's preview pane renders a local file as a processed snapshot, which
-  drops injected markup: a sim's banner reads as missing when it is in fact
+  drops injected markup: a sim's injected bar reads as missing when it is in fact
   in the file. `python -m http.server 8733 --directory build/quarto-site`
   and load `http://127.0.0.1:8733/`.
 - Start that server from the repo root with `--directory`, never by changing
@@ -131,7 +131,7 @@ Moved from `CLAUDE.md` on 2026-10-08, verbatim.
 
 - Measuring: `tools/measure_chrome.js` loads every page in same-origin
   iframes and returns 375 px scroll widths (with each page's client
-  width), banner heights, contrast ratios, the sim bar fit, and under
+  width), contrast ratios, the sim bar fit, and under
   `courses` the course index and course pages at 375, 1440 and 1920 px:
   the boxes of main, the h1, the intro, tiles, tabs, the lab table and its
   columns, the collapse, Download all and the footnote, and the lines the
@@ -342,8 +342,8 @@ it wider than the measure (D-0070).
   keep working opened from disk, offline: inline CSS and JS, no network, and
   a `default-src 'none'` Content Security Policy. Ledger 38 is why there is
   no framework here.
-- The build injects the draft banner and a way back into the published copy
-  only; the source file is never edited for the site. The injected bar is
+- The build injects a bar (the logo and a way back; no draft banner since
+  D-0156) into the published copy only; the source file is never edited for the site. The injected bar is
   34 px tall at 1280x720 (measured 2026-09-21); the sim fits in 720 px with
   it. The sim's own file carries Open Sans Regular and Bold as data: URIs
   (D-0026); this is a change to the sim's own source, not injected chrome,

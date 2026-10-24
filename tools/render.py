@@ -2,7 +2,7 @@
 
 Once the old build's entry point, this is now a module with no command line:
 tools/quarto_build.py, tools/quarto_chrome.py, tools/downloads.py and
-tools/make_reference_docx.py import it. It holds the banner wording, the
+tools/make_reference_docx.py import it. It holds the
 presentation notes and footnotes, the document nav's metadata, the course
 index and the course pages, the "How this site works" page's footnote,
 the sims and their bar, and the redirect stubs.
@@ -12,8 +12,8 @@ ledger 28): it drops the original Word page settings and follows
 docs/presentation-evidence.md. The faithful presentation was retired, its
 address redirecting. Nothing is ever copied into a second file.
 Output is plain static files with relative links, so any host serves them
-(ledger 39). Every page carries the draft banner and asks search engines not
-to index the site (ledger 37).
+(ledger 39). Every page asks search engines not to index the site (ledger 37);
+no page carries a draft banner (D-0156).
 
 Requires Pandoc in PANDOC (Quarto's bundled binary, D-0044) or on PATH.
 """
@@ -49,15 +49,6 @@ def png_data_uri(path):
     """The sim's policy allows images only as data: URIs (img-src data:)."""
     with open(path, "rb") as fh:
         return "data:image/png;base64," + base64.b64encode(fh.read()).decode("ascii")
-
-# The draft banner, mandatory on every page while the license is open
-# (ledger 37). Owner-reviewed wording; change it here only.
-BANNER_MAIN = "Draft: license pending, not for distribution."
-BANNER_DETAIL = (
-    "An unlisted working draft of the OSU introductory physics lab "
-    "curriculum, shared for comment. The license for this material is not "
-    "settled, so please do not pass these pages on or share the link."
-)
 
 THEME_NOTE = {
     "modern": (
@@ -133,8 +124,6 @@ def document_extras(theme, depth=3):
 def site_vars(depth):
     r = up(depth)
     return [
-        "-M", "bannermain=" + BANNER_MAIN,
-        "-M", "bannerdetail=" + BANNER_DETAIL,
         "-M", "homehref=" + (r or "./"),
         "-M", "indexhref=" + r + "courses/",
         "-M", "methodhref=" + r + METHOD_PATH,
@@ -395,10 +384,7 @@ def course_page_markdown(course, docs, depth=2):
 
 
 def redirect_page(out, target, label="Continue to the lab"):
-    """A plain meta-refresh stub, so a trimmed or old URL still lands somewhere.
-
-    It carries the banner too, so no page on the site is without it.
-    """
+    """A plain meta-refresh stub, so a trimmed or old URL still lands somewhere."""
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(
@@ -407,9 +393,8 @@ def redirect_page(out, target, label="Continue to the lab"):
             '<meta name="robots" content="noindex, nofollow">\n'
             '<meta http-equiv="refresh" content="0; url={0}">\n'
             "<title>Redirecting</title>\n</head>\n<body>\n"
-            "<p>{1}</p>\n"
-            '<p><a href="{0}">{2}</a>.</p>\n'
-            "</body>\n</html>\n".format(target, html.escape(BANNER_MAIN), html.escape(label)))
+            '<p><a href="{0}">{1}</a>.</p>\n'
+            "</body>\n</html>\n".format(target, html.escape(label)))
     return out
 
 
@@ -417,10 +402,9 @@ def redirect_page(out, target, label="Continue to the lab"):
 # disk, so the site chrome is injected into the copy that is published and the
 # source file is never touched. It has to be small: the sim's layout is ruled
 # to fit a 1280x720 laptop without page scrolling, and every pixel here is
-# taken from that budget. So it carries ledger 37's sentence and nothing more,
-# not the longer note the other pages show. The bar is Paddletail Black with
-# the O over W logo (D-0005, D-0020) and the draft sentence in Luminance
-# (D-0022). The sim's own Content Security Policy is `default-src 'none'`
+# taken from that budget. So it carries the logo and two links and nothing
+# more (no draft sentence since D-0156). The bar is Paddletail Black with the
+# O over W logo (D-0005, D-0020). The sim's own Content Security Policy is `default-src 'none'`
 # with inline styles allowed, so an inline <style> works and anything fetched
 # would not; the logo travels as a data: URI for the same reason.
 SIM_CHROME = """<style>
@@ -434,14 +418,12 @@ SIM_CHROME = """<style>
 /* content-box: the sim sets border-box globally, which would shrink the
    22px logo height by the padding instead of adding the padding outside it. */
 .lib-bar img {{ display: block; height: 22px; width: auto; padding: 6px 6px 6px 0; box-sizing: content-box; }}
-.lib-bar .lib-draft {{ background: #ffb500; color: #000; font-weight: 700; padding: 0 .4rem; }}
 .lib-bar a {{ color: #fff; }}
 .lib-bar .lib-links {{ display: flex; gap: 1rem; margin-left: auto; }}
 @media print {{ .lib-bar {{ display: none; }} }}
 </style>
 <div class="lib-bar">
 <a href="https://oregonstate.edu"><img src="{logo}" alt="Oregon State University"></a>
-<span class="lib-draft">{banner}</span>
 <span class="lib-links"><a href="{home}">Library home</a><a href="{sims}">Sims</a></span>
 </div>
 """
@@ -467,11 +449,10 @@ def sims():
 
 
 def render_sim(sim_id, sim, site):
-    """Publish a sim page with the banner and a way back, source untouched."""
+    """Publish a sim page with a way back, source untouched."""
     out = os.path.join(site, "sims", sim_id, "index.html")
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    chrome = SIM_CHROME.format(banner=html.escape(BANNER_MAIN),
-                               logo=png_data_uri(SIM_LOGO),
+    chrome = SIM_CHROME.format(logo=png_data_uri(SIM_LOGO),
                                home=up(2), sims=up(1))
     text, count = BODY_TAG.subn(lambda m: m.group(1) + "\n" + chrome,
                                 sim["text"], count=1)

@@ -7,7 +7,6 @@
 // same-origin iframes at fixed sizes and returns JSON:
 //   scroll375    each page's scrollWidth and clientWidth at 375 px (no
 //                sideways scroll when scrollWidth <= clientWidth)
-//   banner1440   draft banner height, closed and open, at 1440 px
 //   landing1440  the landing prose column's left and right gaps at 1440 px
 //   contrast     WCAG ratios of the chrome text on its background
 //   sim          the sim bar and page height at 1280x720
@@ -100,7 +99,7 @@ await (async () => {
     }
     return out;
   };
-  const out = {scroll375: {}, banner1440: {}, landing1440: null, contrast: {}, sim: null, courses: {}};
+  const out = {scroll375: {}, landing1440: null, contrast: {}, sim: null, courses: {}};
   for (const page of PAGES) {
     for (const [w, h] of [[1920, 1080], [1440, 900], [375, 812]]) {
       const f = await frame("/quarto-site/" + page, w, h), q = f.contentDocument;
@@ -109,14 +108,7 @@ await (async () => {
       if (COURSES.includes(page) || page === LAB + "modern/index.html")
         out.courses[page + " @" + w] = Object.assign({clientWidth: root.clientWidth}, course(q));
       if (w === 1440) {
-        const banner = q.querySelector(".draft-banner"), det = banner.querySelector("details");
-        const closed = Math.round(banner.getBoundingClientRect().height);
-        det.open = true;
-        const opened = Math.round(banner.getBoundingClientRect().height);
-        det.open = false;
-        out.banner1440[page] = {closed, opened};
         out.contrast[page] = {
-          banner: ratio(q.querySelector(".draft-banner strong")),
           sitename: ratio(q.querySelector(".osu-sitename")),
           heroTitle: ratio(q.querySelector(".hero h1")),
           heroLead: ratio(q.querySelector(".hero .lead p")),

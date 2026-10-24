@@ -9,9 +9,6 @@
 $if(chromecss)$<link rel="stylesheet" href="$chromecss$">$endif$
 </head>
 <body class="theme-$theme$">
-$if(bannermain)$
-<div class="draft-banner"><details><summary><strong>$bannermain$</strong> <span class="draft-more">What this means</span></summary><p class="draft-detail">$bannerdetail$</p></details></div>
-$endif$
 $if(homehref)$
 $brandheader()$
 $endif$
@@ -28,9 +25,6 @@ $body$
 </main>
 <footer class="doc-footer">
 <p>$presentationnote$</p>
-$if(homehref)$
-<p>Downloads carry the same draft notice as these pages.</p>
-$endif$
 </footer>
 $if(homehref)$
 $brandfooter()$

@@ -122,6 +122,15 @@ class Pages(unittest.TestCase):
             with self.subTest(page=rel):
                 self.assertIn('<meta name="robots" content="noindex', text)
 
+    def test_no_draft_banner_on_any_page(self):
+        # D-0156: no page, redirect stub or sim carries the banner or says
+        # the license is pending.
+        for rel, _, text in html_pages():
+            with self.subTest(page=rel):
+                self.assertNotIn("draft-banner", text)
+                self.assertNotIn("lib-draft", text)
+                self.assertNotIn("license pending", " ".join(text.split()).lower())
+
     def test_one_h1_per_page(self):
         for rel, _, text in html_pages():
             if is_sim(rel) or is_redirect(text):
@@ -233,6 +242,7 @@ class SimsAndStubs(unittest.TestCase):
     def test_robots_disallows_everything(self):
         text = (QSITE / "robots.txt").read_text(encoding="utf-8")
         self.assertIn("User-agent: *\nDisallow: /\n", text)
+        self.assertIn("# Shared by link, not indexed (D-0156).\n", text)
         self.assertNotIn("Sitemap", text)
 
     def test_faithful_address_redirects_to_modern(self):

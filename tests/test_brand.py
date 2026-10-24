@@ -145,24 +145,17 @@ class OrangeTextIsLarge(unittest.TestCase):
         self.assertEqual(self.small_orange(css), [".small", ".reg18", ".nosize"])
 
 
-class DraftBanner(unittest.TestCase):
-    """D-0022: the draft banner is Luminance with black text."""
+class NoDraftBanner(unittest.TestCase):
+    """D-0156 (amending D-0022): the draft banner is gone from the chrome
+    CSS, its Luminance token with it. Luminance itself stays, as the
+    checkpoint's rule (D-0115, tested below)."""
 
-    def test_black_on_luminance(self):
-        self.assertEqual(round(contrast(LUMINANCE, PADDLETAIL_BLACK), 2), 11.86)
-
-    def test_banner_colors(self):
-        for selector, body in rules():
-            if selector.strip() == ".draft-banner":
-                decl = dict(re.findall(r"([\w-]+)\s*:\s*([^;]+);?", body))
-                t = light_root_tokens()
-                bg = decl.get("background", "").strip()
-                fg = decl.get("color", "").strip()
-                resolve = lambda v: norm_hex(t[v[4:-1]] if v.startswith("var(") else v)
-                self.assertEqual(resolve(bg), LUMINANCE)
-                self.assertEqual(resolve(fg), PADDLETAIL_BLACK)
-                return
-        self.fail("no .draft-banner rule")
+    def test_no_banner_rules_or_words_in_site_css(self):
+        text = SITE_CSS.read_text(encoding="utf-8")
+        for gone in ("draft-banner", "draft-more", "draft-detail", "--chrome-warn",
+                     "license pending"):
+            self.assertNotIn(gone, text.lower())
+        self.assertEqual([s for s, _ in rules() if "draft" in s], [])
 
 
 class Widths(unittest.TestCase):

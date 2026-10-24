@@ -65,14 +65,13 @@ Quarto internals.
   edit them. Its warning gate fails on any Quarto or Pandoc warning.
 - Downloads (D-0052 to D-0054): `tools/downloads.py`, run at the end of
   `tools/quarto_build.py`, writes `labs/<id>/<id>.md` (the source, byte for
-  byte), `.docx`, `.html` and `.pdf`, all from modern, each with the draft
-  banner and "Department of Physics, Oregon State University" in place of
-  the logo. The HTML is a plain Pandoc render with no site chrome; the PDF
+  byte), `.docx`, `.html` and `.pdf`, all from modern, each with "Department of Physics, Oregon State University" in place of
+  the logo and no draft banner (D-0156). The HTML is a plain Pandoc render with no site chrome; the PDF
   is the built modern page printed by Chrome with the `@page` rules. Word's
-  page header (the draft notice), footer, Letter page, body spacing and
+  page footer, Letter page, body spacing and
   question label style come from the committed `tools/reference.docx`
   (D-0057); rerun `tools/make_reference_docx.py` when one of those,
-  `BANNER_MAIN`, `themes/modern.css`'s spacing or the Pandoc version
+  `themes/modern.css`'s spacing or the Pandoc version
   changes. Pandoc's `custom-style` reaches a Div's paragraphs, never its
   list items (probe, 2026-10-01), so the question box is a one-cell table
   that `questions.lua` writes as raw OpenXML around Pandoc's paragraphs
@@ -146,8 +145,8 @@ Quarto internals.
   every caller escapes what it writes, once (D-0099).
   Question numbers come from `tools/filters/questions.lua` at render time;
   none is stored in the source. The "How this site works" page is
-  `site/how-this-site-works.md` (D-0072; its old address redirects); the banner wording is `BANNER_MAIN` and `BANNER_DETAIL` in
-  `tools/render.py`. Output stays host-agnostic static files (ledger 39).
+  `site/how-this-site-works.md` (D-0072; its old address redirects). No page or download carries a draft banner
+  (D-0156); every page keeps its `noindex` meta. Output stays host-agnostic static files (ledger 39).
 - Tools not on PATH: Python 3.12 at
   `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`; the GitHub CLI at
   `C:\Program Files\GitHub CLI\gh.exe`. Node 24 is on PATH; the sim tests

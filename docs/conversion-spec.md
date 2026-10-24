@@ -119,7 +119,7 @@ table.
 - **Landscape pages.** A table Word prints in a landscape section (the two
   capstone rubrics, PH 212 Lab 6 and PH 213 Lab 6) is wrapped in
   `::: landscape`. Word's download puts it in a landscape section of its
-  own with the draft header and footer (`tools/filters/landscape.lua`,
+  own with the footer (`tools/filters/landscape.lua`,
   `downloads.landscape_sections`); the PDF prints it on a landscape page
   (`@page landscape`); the web page is unchanged, the table scrolling in
   its own box. The word check fails a landscape table outside the block
