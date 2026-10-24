@@ -1,6 +1,11 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-17.
+Volatile handoff, capped at one screen. Updated 2026-10-23.
+
+**Sharing (2026-10-23): the draft banner comes off (D-0156).**
+- #68 removes it from every page and download; held for the owner's review
+  of the deleted lines (quoted in its body). License text still open;
+  `noindex` and `robots.txt` stay.
 
 **Pass 5 (2026-10-17): the rest of PH 213; Lab 6 awaits the owner (D-0149).**
 - Merged: Lab 5 #62, Lab 3 #63, test fix #66 (D-0155), Lab 4 #65 (its
@@ -9,9 +14,8 @@ Volatile handoff, capped at one screen. Updated 2026-10-17.
 - #61, Lab 6, green; merges only after the owner's Word and Google Docs
   check (preview `pass5-ph213-lab6.osu-physics-labs.pages.dev`). After
   his word: rebase it, re-insert its shared entries, merge, its hash entry.
-- Found in review: Lab 4's figure draws black on the page, so in dark
-  mode it is about 1.2:1 (WCAG 1.4.3, 1.4.11); a fix awaits the owner.
-  Both capstone rubrics print their landscape heading page near empty
+- Found in review: Lab 4's figure drew black on the dark page (about
+  1.2:1); fixed by #67, figures on white paper (D-0157). Both capstone rubrics print their landscape heading page near empty
   (`table { break-inside: avoid }`), seen, not changed.
 
 **Stretch sandbox (2026-10-15): designed, not built.**

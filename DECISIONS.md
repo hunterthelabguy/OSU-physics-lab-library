@@ -1674,3 +1674,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: the license settled now (a LICENSE file with the logo excluded, D-0007, and the copyright line, D-0023); indexing allowed (the `noindex` meta, `robots.txt` and `tools/check_deployed.py` changed); replacement sentences drafted for approval.
 - binds: LEDGER 8; LEDGER 37; LEDGER 44; D-0007; D-0022; D-0023; D-0030; D-0052; D-0057; D-0080; tools/render.py; tools/template.html; tools/template-site.html; tools/make_reference_docx.py; tools/reference.docx; tools/quarto_build.py; site/site.css; site/landing.md; site/how-this-site-works.md; tests
 - test: the PR's tests: no page or download carries the banner; every page keeps `noindex`; `robots.txt` disallows all
+
+### D-0157  A drawn figure sits on Word's white paper in both themes
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-10-23
+- decision: #67 (squashed as `3d18d45`) adds `--figure-paper: #fff` to `themes/modern.css`, not overridden in dark mode, and gives `main svg.drawn-figure` that background. PH 213 Lab 4's figure (#65), Word's black lines and labels with no background of their own, read about 1.2:1 on the dark page (WCAG 1.4.3, 1.4.11); it now reads 21:1 in both themes. Measured in the branch's build, the lab page against its HTML download, at 375 and 1440 px: in dark mode white behind black labels on both, the box 326 by 252 on both, no sideways scroll; in light mode no visible change; PH 213 Lab 2's and PH 212 Lab 3's figures keep their sizes. Found in the post-merge review of pass 5 (D-0090), 2026-10-17.
+- rationale: The owner, 2026-10-23: "Yes: tool PR giving svg.drawn-figure a white background, measured against the HTML download at 375 and 1440 px." Context (Claude): Word draws these figures on white paper, so white keeps Word's colours; a picture brings its own pixels and needs nothing.
+- alternatives: recolouring the figure for dark mode (departs from Word's colours, and does nothing for a figure's pictures); leaving it (a live 1.4.3 and 1.4.11 failure for dark-mode readers).
+- binds: D-0117; D-0150; themes/modern.css; tests/test_brand.py
+- test: tests/test_brand.py::DrawnFigurePaper
