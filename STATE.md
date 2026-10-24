@@ -2,10 +2,11 @@
 
 Volatile handoff, capped at one screen. Updated 2026-10-23.
 
-**Sharing (2026-10-23): the draft banner comes off (D-0156).**
-- #68 removes it from every page and download; held for the owner's review
-  of the deleted lines (quoted in its body). License text still open;
-  `noindex` and `robots.txt` stay.
+**Sharing (2026-10-23): the draft banner is off (D-0156).**
+- #68 merged (`67e42bc`) after the owner's review of the deleted lines:
+  no page, download or PDF carries it (production read 2026-10-23). The
+  license text is still open (D-0007, D-0023 wait); `noindex` and
+  `robots.txt` stay.
 
 **Pass 5 (2026-10-17): the rest of PH 213; Lab 6 awaits the owner (D-0149).**
 - Merged: Lab 5 #62, Lab 3 #63, test fix #66 (D-0155), Lab 4 #65 (its
