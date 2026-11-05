@@ -129,6 +129,7 @@ def generate():
                 "filters": [{"path": up + "/tools/filters/media.lua", "at": "pre-ast"},
                             up + "/tools/filters/questions.lua"],
                 "css": [up + "/themes/" + theme + ".css"],
+                "library-url": render.LIBRARY_URL,
             }
             if published:
                 # The page sits one folder below the media; Quarto copies

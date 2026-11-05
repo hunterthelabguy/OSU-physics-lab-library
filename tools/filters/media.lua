@@ -22,11 +22,16 @@
 -- 1.4.10); the box takes the keyboard's focus so the scroll is reachable
 -- without a pointer (2.1.1). Word gets the table as Pandoc writes it.
 --
+-- A link to a lab's own file (front matter `files:`, D-0165) points at the
+-- file's published address under `library-url` in every output, page and
+-- download alike, so a saved Word, HTML or PDF file still reaches it.
+--
 -- Metadata: `media-dir`, the folder holding the lab's built media (needed
--- for a figure), and `media-prefix`, put before a picture's path on a page
--- that sits below the media folder's parent ("../" on labs/<id>/modern/).
+-- for a figure), `media-prefix`, put before a picture's path on a page
+-- that sits below the media folder's parent ("../" on labs/<id>/modern/),
+-- and `library-url`, the library's address (render.LIBRARY_URL).
 
-local prefix, dir = "", nil
+local prefix, dir, url = "", nil, nil
 
 local function escape(s)
   return (s:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"):gsub('"', "&quot;"))
@@ -98,6 +103,7 @@ return {
     Meta = function(meta)
       if meta["media-prefix"] then prefix = pandoc.utils.stringify(meta["media-prefix"]) end
       if meta["media-dir"] then dir = pandoc.utils.stringify(meta["media-dir"]) end
+      if meta["library-url"] then url = pandoc.utils.stringify(meta["library-url"]) end
     end,
   },
   {
@@ -112,6 +118,13 @@ return {
       elseif FORMAT == "docx" and drawn then
         return figure_docx(el)
       end
+    end,
+    Link = function(el)
+      local id = el.target:match("^([%w%-]+)%-media/[^/]+$")
+      if not id then return end
+      if not url then error("media.lua: a link to a lab's file needs library-url: " .. el.target) end
+      el.target = url .. "labs/" .. id .. "/" .. el.target
+      return el
     end,
     Table = function(el)
       if FORMAT:match("html") then

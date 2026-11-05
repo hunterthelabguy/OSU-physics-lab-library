@@ -34,6 +34,11 @@ THEMES = ("modern",)
 # text as a visible caption Word does not have (D-0118). _quarto.yml's
 # `from` and tools/check_unchanged.py's FROM say the same (tested).
 FROM = "markdown-smart-implicit_figures"
+# The library's address, the one place it is written for content (D-0165):
+# a link to a lab's own file (front matter `files:`) points here in every
+# output, so a saved Word, HTML or PDF download still reaches it. A move to
+# another host changes this line.
+LIBRARY_URL = "https://osu-physics-labs.pages.dev/"
 
 # Official logo files, committed byte for byte (DECISIONS D-0014, D-0020).
 BRAND = os.path.join(ROOT, "site", "brand")
