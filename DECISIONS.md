@@ -1685,3 +1685,43 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: recolouring the figure for dark mode (departs from Word's colours, and does nothing for a figure's pictures); leaving it (a live 1.4.3 and 1.4.11 failure for dark-mode readers).
 - binds: D-0117; D-0150; themes/modern.css; tests/test_brand.py
 - test: tests/test_brand.py::DrawnFigurePaper
+
+### D-0161  PH 212 Lab 2's two short sentences are finished: the web app's address, and the code on the classroom wall
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-05
+- decision: A content change. In PH 212 Lab 2, "If you want to use Graphical Analysis Pro on your own computer, go to" ends "<https://graphicalanalysis.app>.", and "The activation code for Pro is" ends "posted on the wall of the classroom." Both are declared in `ruled_additions`. The address is the host of the original's own activation link, without the path and query that carried the code (D-0133); the code itself stays out of the repo (D-0104). The wording of the second follows Lab 6's own "It may also be posted on the wall of the classroom." Closes the owner task for Lab 2's box.
+- rationale: The owner, 2026-11-05: "Software activation code is not needed in the handout; it's posted on the wall in the room." then "Leans as agreed". Context (Claude): D-0136 left both sentences ending short; a student, or a screen reader, met a sentence that stops. Found while answering a Disability Access Services request for the PH 212 labs.
+- alternatives: leave both sentences short (reads as broken); cut both sentences (drops the web app's address, which the student still needs off the lab computers).
+- binds: D-0104; D-0133; D-0136; curriculum/ph212/ph212-extending-a-model-handout.md; docs/owner-tasks.md
+- test: CI's content check on the lab (each declared passage must occur)
+
+### D-0162  PH 212 Lab 6's "Open the Pro version of GA in a browser" links to the web app's address
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-05
+- decision: A link change, no word changes. The four words lost their code-bearing target under D-0133; they now link to `https://graphicalanalysis.app`, the same address as D-0161. It opens the free version, which step 2 below it upgrades with the key from the instructor or the classroom wall. Closes that owner task.
+- rationale: The owner, 2026-11-05: "Leans as agreed". Context (Claude): without a target, step 1 named an action with no way to take it.
+- alternatives: leave the words unlinked.
+- binds: D-0133; D-0161; curriculum/ph212/ph212-capstone-handout.md; docs/owner-tasks.md
+- test: CI's content check on the lab (words unchanged)
+
+### D-0163  The two Graphical Analysis button icons in PH 212 Labs 2 and 4 are decorative; their empty alt text stays
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-05
+- decision: PH 212 Lab 2's Graph Tools icon (a small line graph) and Lab 4's Connection icon (a slanted probe in a rounded square) keep Word's empty alt text, now ruled decorative rather than missing. In each, the sentence around the icon already names the button ("the *Graph Tools* ... button", "the Connection icon"), so the picture adds only its look. WCAG 1.1.1 allows empty alt text on an image whose meaning the adjacent text carries. No tool change: the picture check keeps comparing alt text with Word's. Closes both owner tasks.
+- rationale: The owner, 2026-11-05: "Leans as agreed", on Claude's lean. Context (Claude): drafts "line-graph icon" and "sensor-probe icon" were offered; either would be read next to the button's own name, and adding one needs the picture check taught to accept alt text that differs from Word's.
+- alternatives: the drafted alt text (a check change for words that repeat the sentence's meaning).
+- binds: D-0132; docs/owner-tasks.md
+- test: none; a ruling on existing markup
+
+### D-0164  PH 212 Lab 6's OneDrive link stays out; its Google Drive data file becomes a download from the library
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-05
+- decision: Two parts. (1) The OneDrive target D-0104 removed from "your" (Model 1, task 3) is not lab material: read by host and path only on 2026-11-05, it is a document in a personal OneDrive under a hiring committee's folder. It stays out, and "your" stays plain text. The owner task, which assumed a lab document, closes. (2) "Download the GA data file from this google drive link" (an ONID login is required) gives way to the Graphical Analysis file itself, published with the lab: `GA Custom Fit Practice Data.gambl`, supplied by the owner in `New Reference Material/` on 2026-11-05. Read in full that day: a tar holding one `vstudm/data.udm`, Vernier's XML, the application header and two columns, X from 0 to 30.5 by 0.5 and Y a synthetic curve; no name, no student data. How a lab publishes a file that is not a picture, and how the Word, HTML and PDF downloads link to it, is a tool change with its own calls, not yet ruled.
+- rationale: The owner, 2026-11-05: on the link, "I reviewed it and determined it's fine (or alternatively, and probably cleaner, the file--which is currently .gambl, can just become a .csv as another downloadable on the site)"; then "CSV does open but its wonky. If possible, I lean we just attach the .gambl file directly instead." Context (Claude): the owner's review covered the data file; the removed link was a different one, which Claude reported before the ruling.
+- alternatives: a CSV (opens in Graphical Analysis, poorly, per the owner); keeping the Google Drive link (an ONID login, a link the library does not control).
+- binds: D-0104; D-0133; curriculum/ph212/ph212-capstone-handout.md; docs/owner-tasks.md
+- test: none yet; the tool change brings its own
