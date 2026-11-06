@@ -1,0 +1,29 @@
+From e2a758ff86c305a3bea22b72f1124a6cc680a67b Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Fri, 6 Nov 2026 12:15:02 -0800
+Subject: [PATCH 3/6] T3 as written
+
+Red step: none in the plan; checks ok, 2589 words, 10 equations; reader 0 flagged, mtext ['total','total'].
+---
+ curriculum/ph212/ph212-extending-a-model-handout.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/curriculum/ph212/ph212-extending-a-model-handout.md b/curriculum/ph212/ph212-extending-a-model-handout.md
+index 796a8e2..d5bf5ab 100644
+--- a/curriculum/ph212/ph212-extending-a-model-handout.md
++++ b/curriculum/ph212/ph212-extending-a-model-handout.md
+@@ -194,9 +194,9 @@ Perform your experiment and record your data. This should include the value and
+ ::: {.question #ph212-extending-a-model:report-data}
+ **Report your data:**
+ 
+-a.  **Calculate the total uncertainty at each angle $\mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{total}}$ by adding the measurement and statistical uncertainties in quadrature.**
++a.  **Calculate the total uncertainty at each angle $\Delta T_{\text{total}}$ by adding the measurement and statistical uncertainties in quadrature.**
+ 
+-    $$\mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{total}}\mathbf{=}\sqrt{\left( \mathbf{\Delta}\mathbf{T}_{\mathbf{m}} \right)^{\mathbf{2}}\mathbf{+}\left( \mathbf{\Delta}\mathbf{T}_{\mathbf{s}} \right)^{\mathbf{2}}}$$
++    $$\Delta T_{\text{total}} = \sqrt{\left( \Delta T_{m} \right)^{2} + \left( \Delta T_{s} \right)^{2}}$$
+ 
+ b.  **Include a data table representing your entire experiment, with column labels and units, and the total uncertainty values for each angle.**
+ :::
+-- 
+2.55.0.windows.3
+
