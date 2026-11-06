@@ -34,7 +34,7 @@ class Dress(unittest.TestCase):
 
     def test_main_made_bare(self):
         out = dressed()
-        self.assertIn('<main>\n<h1 id="x">X</h1>\n<p>Body.</p>\n</main>', out)
+        self.assertIn('<main id="content">\n<h1 id="x">X</h1>\n<p>Body.</p>\n</main>', out)
         self.assertNotIn("title-block-header", out)
         self.assertNotIn("quarto-document-content", out)
 
@@ -68,13 +68,14 @@ class OldChrome(unittest.TestCase):
              "theme": "modern", "footnote": ""})
         self.assertEqual(body_class, "theme-modern")
         for piece in ('<header class="osu-header">',
-                      '<nav class="site-nav">',
+                      '<nav class="site-nav" aria-label="This page">',
+                      '<a class="skip-link" href="#content">Skip to main content</a>',
                       'src="../../../site/brand/OSU_horizontal_2C_W_over_B.png"'):
             self.assertIn(piece, top)
         self.assertNotIn("draft-banner", top)  # D-0156
         self.assertNotIn("license pending", " ".join(top.split()).lower())
         self.assertNotIn('class="switch"', top)  # D-0108: one presentation
-        self.assertIn('<footer class="doc-footer">', bottom)
+        self.assertIn('<div class="doc-footer">', bottom)
         self.assertIn('<footer class="osu-foot">', bottom)
 
     def test_site_page_with_footnote(self):

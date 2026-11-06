@@ -344,7 +344,7 @@ class BuiltPages(unittest.TestCase):
     def test_heading_row_holds_the_h1(self):
         # Quarto writes the fenced div as a <section> that takes the h1's id.
         for course, _ in courses():
-            main = re.search(r"<main>(.*?)</main>", page(course["code"]).read_text(encoding="utf-8"), re.S).group(1)
+            main = re.search(r"<main id=\"content\">(.*?)</main>", page(course["code"]).read_text(encoding="utf-8"), re.S).group(1)
             with self.subTest(course=course["code"]):
                 self.assertRegex(main.lstrip(), r'^<section id="[^"]+" class="course-head">\s*<h1>')
 

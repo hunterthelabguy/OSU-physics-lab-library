@@ -20,7 +20,7 @@ images:
 
 # Lab 3 – Designing Experiments (2 weeks)
 
-### PH212 – General Physics with Calculus
+## PH212 – General Physics with Calculus
 
 **[Experimental goals]{.underline}**
 
@@ -32,7 +32,7 @@ This is a two-week lab. The first week, you will develop a model of the system, 
 
 The second week, you will collect data using the procedure you determined, calculate the moment of inertia (with uncertainty), and use the experimental value to predict future motion of the flywheel.
 
-### Learning Objectives
+## Learning Objectives
 
 **[Learning goals]{.underline}**
 
@@ -48,7 +48,7 @@ This lab activity is designed to help you practice the following skills:
 4.  Use a model to predict experimental results.
 5.  Extract physical parameters from fits to a model, e.g., the slope of a graph.
 
-### Equipment
+## Equipment
 
 ::: action
 - Flywheel
@@ -338,7 +338,7 @@ c.  **Because the slope is equal to the moment of inertia multiplied by constant
 
 1.  Using Graphical Analysis: Highlight the data on the plot and select “Apply Fit”, then hit the options button and select the “Display Fit Parameters” box.
 
-    ![](ph212-designing-experiments-handout-media/fit-options.svg){.drawn drawings="484604076 2090172472 475339996 389621496"}
+    ![](ph212-designing-experiments-handout-media/fit-options.svg){.drawn drawings="484604076 2090172472 475339996 389621496" label="Two Graphical Analysis screenshots. Left, a linear fit's results box, with an arrow pointing to the gear button in its lower right corner. Right, the Fit Options dialog that button opens, with an arrow pointing to its checkbox, Show Uncertainty of Fit Parameters."}
 
 2.  Using Excel: Type the function shown below into a cell in your Excel spreadsheet.
 
@@ -409,7 +409,7 @@ $I\alpha = (mg - ma)r$,
 
 the equation at the beginning of this handout for the motion of the flywheel in the absence of friction.
 
-### Appendix B – Reference Information
+## Appendix B – Reference Information
 
 This section contains key information from previous labs.
 
@@ -418,7 +418,7 @@ This section contains key information from previous labs.
 3.  Sources of Uncertainty
 4.  Linearization
 
-#### Required Plot Elements
+### Required Plot Elements
 
 ::: action
 - Do not connect the data points with lines.
@@ -429,13 +429,13 @@ This section contains key information from previous labs.
 - Display the equation and R^2^ value for any trendline you include.
 :::
 
-#### What is Uncertainty?
+### What is Uncertainty?
 
 *Uncertainty* is the acknowledgement that we cannot measure things exactly, and so any conclusion based on measurements will always include a range of possible answers. When making a measurement, there is no single “true value” of the measurand (measured quantity) that we can determine. Instead, we can define an interval that defines the range of values that we think are *probable* for the measurand. The narrower the interval, the more precisely we can approximate the measurand.
 
 When including uncertainty in a value, we report it as **A ± Δ~A~**. We believe the value is **A**, but we’re unable to rule out the possibility that it’s higher or lower by an amount **Δ~A~**. (Sometimes it’s written +Δ~1~ / -Δ~2~ if the higher and lower ranges are different.) For example, a time might be reported as 2.45 s ± 0.03 s.
 
-#### Sources of Uncertainty
+### Sources of Uncertainty
 
 The uncertainty in a measurement can be due to a combination of several factors. A crucial aspect of experimentation is to identify all such sources of uncertainty and to numerically estimate their effect on your measurement result.
 
@@ -450,7 +450,7 @@ Common sources of uncertainty include:
 
 A measurement uncertainty is not meant to be an indication of “mistakes” that you might make in an experiment. If you are aware that you have made a mistake, then you should repeat your experiment. **“Human error” is not a valid source of uncertainty**. If you know that you did something “wrong”, then the right course of action is to redo it correctly.
 
-#### Linearization
+### Linearization
 
 In the context of data analysis, “linear” refers to a directly proportional relationship between the dependent and independent variables in an equation.
 
@@ -474,7 +474,7 @@ In practice, **linearization is done by calculating a new column of data** that 
 - It is relatively easy to fit a line to data - there are just two important values to determine: the slope and intercept of the data.
 :::
 
-#### Assumptions
+### Assumptions
 
 A hypothesis typically includes assumptions about the situation being modeled. This could be ignoring a force or assuming it’s constant, or making some other simplification.
 

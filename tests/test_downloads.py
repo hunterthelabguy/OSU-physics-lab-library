@@ -102,7 +102,7 @@ class Links(unittest.TestCase):
     """D-0053: the approved links on modern pages only, outside <main>."""
 
     def site_nav(self, text):
-        m = re.search(r'<nav class="site-nav">.*?</nav>', text, re.S)
+        m = re.search(r'<nav class="site-nav" aria-label="This page">.*?</nav>', text, re.S)
         self.assertIsNotNone(m, "no site-nav")
         return m.group(0)
 
@@ -129,7 +129,7 @@ class Links(unittest.TestCase):
 
     def test_links_outside_main(self):
         for doc_id, _ in converted():
-            main = re.search(r"<main>.*?</main>", page(doc_id, "modern"), re.S).group(0)
+            main = re.search(r"<main id=\"content\">.*?</main>", page(doc_id, "modern"), re.S).group(0)
             with self.subTest(doc=doc_id):
                 self.assertNotIn(" download=", main)
 
@@ -516,9 +516,9 @@ class Html(unittest.TestCase):
             return re.sub(r'\bsrc="[^"]*"', 'src=""', text)
         for doc_id, _ in converted():
             want, want_figures = split_figures(
-                re.search(r"<main>\n(.*?)</main>", page(doc_id, "modern"), re.S).group(1))
+                re.search(r"<main id=\"content\">\n(.*?)</main>", page(doc_id, "modern"), re.S).group(1))
             got, got_figures = split_figures(
-                re.search(r"<main>\n(.*?)</main>", self.download(doc_id), re.S).group(1))
+                re.search(r"<main id=\"content\">\n(.*?)</main>", self.download(doc_id), re.S).group(1))
             with self.subTest(doc=doc_id):
                 self.assertEqual(src(got), src("<p>{}</p>\n{}".format(PHYSICS, want)))
                 self.assertEqual([test_quarto_site.words(f) for f in got_figures],
@@ -643,6 +643,25 @@ class MediaDownloads(unittest.TestCase):
                               "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/")],
                              check=True, capture_output=True, encoding="utf-8").stdout
         self.assertIn('src="../fixture-lab-media/square.png"', out)
+
+    def test_figure_label_names_the_group(self):
+        # D-0166: a figure's label names the inline SVG as a group, so a
+        # screen reader hears what its drawn parts show; Word gets it first
+        # in the PNG's alt text.
+        text = self.source.read_text(encoding="utf-8").replace(
+            'drawings="501"', 'drawings="501" label="Arrows & boxes"')
+        args = ["-f", render.FROM, "--lua-filter", str(downloads.MEDIA_FILTER),
+                "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/")]
+        page = subprocess.run([PANDOC, "-t", "html"] + args, input=text, check=True,
+                              capture_output=True, encoding="utf-8").stdout
+        self.assertIn('<svg role="group" aria-label="Arrows &amp; boxes" xmlns=', page)
+        with tempfile.TemporaryDirectory() as out:
+            docx = Path(out) / "label.docx"
+            subprocess.run([PANDOC, "-o", str(docx)] + args, input=text, check=True,
+                           capture_output=True, encoding="utf-8")
+            with zipfile.ZipFile(docx) as z:
+                doc = z.read("word/document.xml").decode("utf-8")
+        self.assertRegex(doc, r'descr="Arrows &amp; boxes {}'.format(re.escape(fx.FIGURE_ALT)))
 
 
 def pdf_text(path):
@@ -795,8 +814,8 @@ class PrintKeeps(unittest.TestCase):
         text = (folder / "index.html").read_text(encoding="utf-8")
         text = text.replace("<head>", '<head><base href="{}">'.format(folder.as_uri() + "/"), 1)
         extra = (self.RULES_OFF if rules_off else "") + '<div style="height:{}px"></div>'.format(spacer)
-        self.assertEqual(text.count("<main>"), 1)
-        text = text.replace("<main>", "<main>" + extra, 1)
+        self.assertEqual(text.count("<main id=\"content\">"), 1)
+        text = text.replace("<main id=\"content\">", "<main id=\"content\">" + extra, 1)
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp) / "page.html"
             src.write_text(text, encoding="utf-8")
@@ -808,7 +827,7 @@ class PrintKeeps(unittest.TestCase):
     def splits(self, doc_id, raw):
         """Headings that end a page and question blocks broken over two."""
         built = page(doc_id, "modern")
-        main = re.search(r"<main>(.*?)</main>", built, re.S).group(1)
+        main = re.search(r"<main id=\"content\">(.*?)</main>", built, re.S).group(1)
         headings = [flat(html.unescape(re.sub(r"<[^>]+>", "", h))) for h in re.findall(r"<h[1-4]\b[^>]*>(.*?)</h[1-4]>", main, re.S)]
         pages = raw.split("\f")[:-1]
         found = self.page_endings(pages, headings, main)

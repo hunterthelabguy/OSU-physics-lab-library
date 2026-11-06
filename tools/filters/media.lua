@@ -14,7 +14,10 @@
 -- on a page its SVG is written inline, so its labels are text a screen
 -- reader and find-in-page reach (D-0117, call 3); in Word it is the PNG
 -- made from that SVG, at the SVG's size, its alt text Word's for the figure
--- and for each picture in it.
+-- and for each picture in it. A figure's `label` (D-0166) names the whole:
+-- on a page the SVG becomes a group with that name, so a screen reader
+-- hears what the drawing's arrows and shapes show before the pictures'
+-- own alt text; in Word it leads the PNG's alt text.
 --
 -- A table (D-0130) is wrapped, in HTML only, in a `table-scroll` box the
 -- theme scrolls sideways, so a table wider than a phone (PH 211 Lab 2's
@@ -83,7 +86,7 @@ end
 local function figure_docx(el)
   local svg = read(figure_file(el))
   local w, h = svg:match('<svg[^>]-width="([%d.]+)" height="([%d.]+)"')
-  local alts = { pandoc.utils.stringify(el.caption) }
+  local alts = { el.attributes.label or "", pandoc.utils.stringify(el.caption) }
   for alt in svg:gmatch('class="figure%-picture"[^>]-data%-alt="([^"]*)"') do
     table.insert(alts, alt)
   end
@@ -106,6 +109,10 @@ return {
       if FORMAT:match("html") then
         if drawn then
           local svg = read(figure_file(el)):gsub("^%s*<%?xml[^>]*>%s*", ""):gsub("%s+$", "")
+          local label = el.attributes.label
+          if label then
+            svg = svg:gsub("^<svg ", '<svg role="group" aria-label="' .. escape(label):gsub("%%", "%%%%") .. '" ', 1)
+          end
           return pandoc.RawInline("html", svg)
         end
         return pandoc.RawInline("html", picture_html(el))

@@ -266,7 +266,7 @@ class SimsAndStubs(unittest.TestCase):
 
     def test_method_page_from_its_own_source(self):
         # D-0072: the page is site/how-this-site-works.md, not a VISION.md lift.
-        main = re.search(r"<main>(.*?)</main>",
+        main = re.search(r"<main id=\"content\">(.*?)</main>",
                          (QSITE / "how-this-site-works" / "index.html").read_text(encoding="utf-8"),
                          re.S).group(1)
         source = (ROOT / "site" / "how-this-site-works.md").read_text(encoding="utf-8")
