@@ -88,7 +88,7 @@ Custom Curve Fits in GA allows us to fit any model and quickly find the paramete
 - Custom Curve Fits is only available in the Pro mode of GA. If your copy of GA isn’t already upgraded, use (1) to open the browser version or (2) to upgrade your copy to Pro.
 :::
 
-1)  Open the Pro version of GA in a browser
+1)  [Open the Pro version of GA in a browser](https://graphicalanalysis.app)
 2)  Upgrade the version of GA on your computer
     - Click the three dots in the top right corner of the program and click “About”
     - Enter the key that your instructor gives you. It may also be posted on the wall of the classroom. Contact your instructor if you need outside of class.

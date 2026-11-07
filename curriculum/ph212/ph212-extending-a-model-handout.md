@@ -14,6 +14,11 @@ ruled_omissions:
     ledger: "D-0133"
   - text: "[removed under D-0104]."
     ledger: "D-0133"
+ruled_additions:
+  - text: "<https://graphicalanalysis.app>."
+    ledger: "D-0161"
+  - text: "posted on the wall of the classroom."
+    ledger: "D-0161"
 images:
   - file: "ph212-extending-a-model-handout-media/graphical-analysis-graph-tools-icon.png"
     source_part: "word/media/image1.png"
@@ -57,10 +62,10 @@ Graphical Analysis Pro is the software we will use to collect data. It has the a
 
 **The software is already downloaded on lab computers.**
 
-If you want to use Graphical Analysis Pro on your own computer, go to
+If you want to use Graphical Analysis Pro on your own computer, go to <https://graphicalanalysis.app>.
 
 ::: hint
-- The activation code for Pro is
+- The activation code for Pro is posted on the wall of the classroom.
 - You can run Graphical Analysis Pro in a Chrome browser (only Chrome), or you can run it as downloaded software.
 :::
 :::
