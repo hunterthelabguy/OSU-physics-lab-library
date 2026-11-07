@@ -94,7 +94,7 @@ def course_page(course):
 
 
 def main_of(text):
-    return re.search(r"<main>(.*?)</main>", text, re.S).group(1)
+    return re.search(r"<main id=\"content\">(.*?)</main>", text, re.S).group(1)
 
 
 def text_of(fragment):
@@ -139,7 +139,7 @@ class ChromePieces(unittest.TestCase):
             if not theme:
                 continue
             m = meta(render.document_extras(theme))
-            nav = re.findall(r'<nav class="site-nav">.*?</nav>', text, re.S)
+            nav = re.findall(r'<nav class="site-nav" aria-label="This page">.*?</nav>', text, re.S)
             with self.subTest(page=rel):
                 self.assertEqual(len(nav), 1)
                 links = [(html.unescape(a), one_line(html.unescape(t)))
@@ -153,16 +153,16 @@ class ChromePieces(unittest.TestCase):
         for rel, text in self.pages():
             if not lab_theme(rel):
                 with self.subTest(page=rel):
-                    self.assertNotIn('<nav class="site-nav">', text)
+                    self.assertNotIn('<nav class="site-nav" aria-label="This page">', text)
 
     def test_presentation_note_and_both_presentations(self):
         # D-0156: the footer is the presentation note alone; the sentence
         # about the draft notice on downloads is gone with the notice.
         from_template("template.html",
-                      r'(<footer class="doc-footer">\n<p>\$presentationnote\$</p>\n</footer>)')
+                      r'(<div class="doc-footer">\n<p>\$presentationnote\$</p>\n</div>)')
         for rel, text in self.pages():
             theme = lab_theme(rel)
-            footer = re.findall(r'<footer class="doc-footer">\n(.*?)</footer>', text, re.S)
+            footer = re.findall(r'<div class="doc-footer">\n(.*?)</div>', text, re.S)
             with self.subTest(page=rel):
                 if not theme:
                     self.assertEqual(footer, [])
@@ -370,7 +370,7 @@ class CoursePages(unittest.TestCase):
                 self.assertEqual(len(navs), 1)
                 # Under the site nav, before <main>.
                 self.assertLess(text.index('<nav class="osu-nav"'), text.index('<nav class="course-tabs"'))
-                self.assertLess(text.index('<nav class="course-tabs"'), text.index("<main>"))
+                self.assertLess(text.index('<nav class="course-tabs"'), text.index("<main id=\"content\">"))
                 tabs = re.findall(r'<a href="([^"]*)"( aria-current="page")?>([^<]*)</a>', navs[0])
                 self.assertEqual([(href, html.unescape(code)) for href, _, code in tabs],
                                  [("../{}/".format(render.course_slug(c)), c["code"]) for c in listed])
@@ -419,14 +419,40 @@ class CoursePages(unittest.TestCase):
 
 
 class MainBare(unittest.TestCase):
-    """D-0036: one bare <main>, no empty title block."""
+    """D-0036: one <main>, bare but for the skip link's target (D-0166), no
+    empty title block."""
 
     def test_main_is_bare(self):
         for rel, text in chrome_pages():
             with self.subTest(page=rel):
-                self.assertEqual(text.count("<main>"), 1)
-                self.assertNotIn("<main ", text)
+                self.assertEqual(text.count("<main id=\"content\">"), 1)
+                self.assertEqual(text.count("<main"), 1)
                 self.assertNotIn("title-block-header", text)
+
+
+class Landmarks(unittest.TestCase):
+    """D-0166, from the NVDA test of 2026-11-05: a skip link first, every
+    navigation named, one footer landmark."""
+
+    def test_skip_link_is_the_first_link_and_reaches_main(self):
+        for rel, text in chrome_pages():
+            body = text.split("<body", 1)[1]
+            first = re.search(r"<a\b[^>]*>", body).group(0)
+            with self.subTest(page=rel):
+                self.assertEqual(first, '<a class="skip-link" href="#content">')
+                self.assertIn('<main id="content">', text)
+
+    def test_every_nav_is_named(self):
+        for rel, text in chrome_pages():
+            with self.subTest(page=rel):
+                for nav in re.findall(r"<nav\b[^>]*>", text):
+                    self.assertIn("aria-label=", nav)
+
+    def test_one_footer(self):
+        # Only the brand footer is a <footer>; the presentation note is a div.
+        for rel, text in chrome_pages():
+            with self.subTest(page=rel):
+                self.assertEqual(len(re.findall(r"<footer\b", text)), 1)
 
 
 class Published(unittest.TestCase):
@@ -455,7 +481,7 @@ class PageShell(unittest.TestCase):
             with self.subTest(page=rel):
                 self.assertEqual(text.count('<div id="quarto-content"'), 1)
                 opener = text.index('<div id="quarto-content"')
-                self.assertLess(opener, text.index("<main>"))
+                self.assertLess(opener, text.index("<main id=\"content\">"))
                 self.assertLess(text.index("</main>"), text.index("</div> <!-- /content -->"))
 
     def test_load_order_bootstrap_site_theme(self):

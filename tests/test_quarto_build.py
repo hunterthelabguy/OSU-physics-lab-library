@@ -61,7 +61,7 @@ class LabPages(unittest.TestCase):
         pages = sorted((ROOT / "build" / "quarto-site" / "labs").glob("*/modern/index.html"))
         self.assertTrue(pages, "run tools/quarto_build.py first")
         for page in pages:
-            main = page.read_text(encoding="utf-8").split("<main>", 1)[1].split("</main>", 1)[0]
+            main = page.read_text(encoding="utf-8").split("<main id=\"content\">", 1)[1].split("</main>", 1)[0]
             with self.subTest(page=page.parent.parent.name):
                 for found in ("<figure", "<figcaption", "img-fluid", "figure-img", "quarto-float"):
                     self.assertNotIn(found, main)

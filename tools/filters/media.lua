@@ -14,7 +14,10 @@
 -- on a page its SVG is written inline, so its labels are text a screen
 -- reader and find-in-page reach (D-0117, call 3); in Word it is the PNG
 -- made from that SVG, at the SVG's size, its alt text Word's for the figure
--- and for each picture in it.
+-- and for each picture in it. A figure's `label` (D-0166) names the whole:
+-- on a page the SVG becomes a group with that name, so a screen reader
+-- hears what the drawing's arrows and shapes show before the pictures'
+-- own alt text; in Word it leads the PNG's alt text.
 --
 -- A table (D-0130) is wrapped, in HTML only, in a `table-scroll` box the
 -- theme scrolls sideways, so a table wider than a phone (PH 211 Lab 2's
@@ -22,11 +25,16 @@
 -- 1.4.10); the box takes the keyboard's focus so the scroll is reachable
 -- without a pointer (2.1.1). Word gets the table as Pandoc writes it.
 --
+-- A link to a lab's own file (front matter `files:`, D-0165) points at the
+-- file's published address under `library-url` in every output, page and
+-- download alike, so a saved Word, HTML or PDF file still reaches it.
+--
 -- Metadata: `media-dir`, the folder holding the lab's built media (needed
--- for a figure), and `media-prefix`, put before a picture's path on a page
--- that sits below the media folder's parent ("../" on labs/<id>/modern/).
+-- for a figure), `media-prefix`, put before a picture's path on a page
+-- that sits below the media folder's parent ("../" on labs/<id>/modern/),
+-- and `library-url`, the library's address (render.LIBRARY_URL).
 
-local prefix, dir = "", nil
+local prefix, dir, url = "", nil, nil
 
 local function escape(s)
   return (s:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"):gsub('"', "&quot;"))
@@ -83,7 +91,7 @@ end
 local function figure_docx(el)
   local svg = read(figure_file(el))
   local w, h = svg:match('<svg[^>]-width="([%d.]+)" height="([%d.]+)"')
-  local alts = { pandoc.utils.stringify(el.caption) }
+  local alts = { el.attributes.label or "", pandoc.utils.stringify(el.caption) }
   for alt in svg:gmatch('class="figure%-picture"[^>]-data%-alt="([^"]*)"') do
     table.insert(alts, alt)
   end
@@ -98,6 +106,7 @@ return {
     Meta = function(meta)
       if meta["media-prefix"] then prefix = pandoc.utils.stringify(meta["media-prefix"]) end
       if meta["media-dir"] then dir = pandoc.utils.stringify(meta["media-dir"]) end
+      if meta["library-url"] then url = pandoc.utils.stringify(meta["library-url"]) end
     end,
   },
   {
@@ -106,12 +115,23 @@ return {
       if FORMAT:match("html") then
         if drawn then
           local svg = read(figure_file(el)):gsub("^%s*<%?xml[^>]*>%s*", ""):gsub("%s+$", "")
+          local label = el.attributes.label
+          if label then
+            svg = svg:gsub("^<svg ", '<svg role="group" aria-label="' .. escape(label):gsub("%%", "%%%%") .. '" ', 1)
+          end
           return pandoc.RawInline("html", svg)
         end
         return pandoc.RawInline("html", picture_html(el))
       elseif FORMAT == "docx" and drawn then
         return figure_docx(el)
       end
+    end,
+    Link = function(el)
+      local id = el.target:match("^([%w%-]+)%-media/[^/]+$")
+      if not id then return end
+      if not url then error("media.lua: a link to a lab's file needs library-url: " .. el.target) end
+      el.target = url .. "labs/" .. id .. "/" .. el.target
+      return el
     end,
     Table = function(el)
       if FORMAT:match("html") then

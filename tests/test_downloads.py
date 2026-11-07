@@ -33,6 +33,8 @@ from test_quarto_site import converted, question_numbers, split_figures  # noqa:
 import test_quarto_site                   # noqa: E402
 
 LABELS = {"docx": "Word", "html": "HTML", "pdf": "PDF", "md": "Markdown"}
+# Course-wide documents are no lab and may hold no question (D-0160).
+COURSE_WIDE = {doc_id for doc_id, _ in render.course_wide(render.converted_documents())}
 
 # The modern page's values that the Word file follows (D-0057): the light
 # scheme's colors, the body's size and line height, and the paragraph and
@@ -102,7 +104,7 @@ class Links(unittest.TestCase):
     """D-0053: the approved links on modern pages only, outside <main>."""
 
     def site_nav(self, text):
-        m = re.search(r'<nav class="site-nav">.*?</nav>', text, re.S)
+        m = re.search(r'<nav class="site-nav" aria-label="This page">.*?</nav>', text, re.S)
         self.assertIsNotNone(m, "no site-nav")
         return m.group(0)
 
@@ -129,7 +131,7 @@ class Links(unittest.TestCase):
 
     def test_links_outside_main(self):
         for doc_id, _ in converted():
-            main = re.search(r"<main>.*?</main>", page(doc_id, "modern"), re.S).group(0)
+            main = re.search(r"<main id=\"content\">.*?</main>", page(doc_id, "modern"), re.S).group(0)
             with self.subTest(doc=doc_id):
                 self.assertNotIn(" download=", main)
 
@@ -211,7 +213,8 @@ class MarkdownAndWord(unittest.TestCase):
                 want, math, api = read_words(str(source), "-f", render.FROM,
                                              "--lua-filter", str(FILTER), "-M", "theme=modern")
                 self.assertEqual(got, want)
-                self.assertIn("Question", got)
+                if doc_id not in COURSE_WIDE:
+                    self.assertIn("Question", got)
                 self.assertNotIn("license pending", flat(" ".join(got)).lower())
                 same_equations(self, math, api, self.docx(doc_id))
 
@@ -297,7 +300,7 @@ class MarkdownAndWord(unittest.TestCase):
                     self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
                     self.assertTrue(any(texts[1:]), "the checkpoint's words are in the box")
                 self.assertEqual(len(boxes), count)
-                self.assertGreater(count, 0)
+                self.assertTrue(count or doc_id in COURSE_WIDE)
                 for n, (tbl, styles, texts) in zip(numbers, boxes):
                     self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
                     self.assertEqual(styles[0], "QuestionLabel")
@@ -442,6 +445,7 @@ HTML_CAPS = {
     "ph211-hypothesis-testing-handout": 330_000,  # 295,331 bytes, pass 3
     "ph211-team-building-handout": 190_000,
     "ph211-uncertainty-handout": 320_000,  # 284,044 bytes, pass 3
+    "ph21x-problem-solving-strategy": 190_000,  # 164,146 bytes, D-0160
     "ph212-capstone-handout": 390_000,  # 345,602 bytes, pass 4
     "ph212-data-analysis-handout": 210_000,  # 188,615 bytes, pass 4
     "ph212-designing-experiments-handout": 380_000,  # 343,116 bytes, pass 3
@@ -516,9 +520,9 @@ class Html(unittest.TestCase):
             return re.sub(r'\bsrc="[^"]*"', 'src=""', text)
         for doc_id, _ in converted():
             want, want_figures = split_figures(
-                re.search(r"<main>\n(.*?)</main>", page(doc_id, "modern"), re.S).group(1))
+                re.search(r"<main id=\"content\">\n(.*?)</main>", page(doc_id, "modern"), re.S).group(1))
             got, got_figures = split_figures(
-                re.search(r"<main>\n(.*?)</main>", self.download(doc_id), re.S).group(1))
+                re.search(r"<main id=\"content\">\n(.*?)</main>", self.download(doc_id), re.S).group(1))
             with self.subTest(doc=doc_id):
                 self.assertEqual(src(got), src("<p>{}</p>\n{}".format(PHYSICS, want)))
                 self.assertEqual([test_quarto_site.words(f) for f in got_figures],
@@ -540,12 +544,15 @@ class MediaDownloads(unittest.TestCase):
     ID = "fixture-lab"
     SOURCE = ('---\nid: "fixture-lab"\ntitle: "Fixture"\nsource_file: "{original}"\n'
               'source_sha256: "{digest}"\nimages:\n  - file: "fixture-lab-media/square.png"\n'
-              '    source_part: "word/media/fixture.png"\n    sha256: "{sha}"\n---\n\n'
+              '    source_part: "word/media/fixture.png"\n    sha256: "{sha}"\n'
+              'files:\n  - file: "fixture-lab-media/data.gambl"\n    sha256: "{data_sha}"\n---\n\n'
               "# Fixture\n\nBefore $v_{{0}} = \\frac{{d}}{{t}}$.\n\nWords.\n\n"
               '![{figure}](fixture-lab-media/panel.svg){{.drawn drawings="501"}}\n\n'
-              "Caption words.\n\n"
+              "[Caption words.](fixture-lab-media/data.gambl)\n\n"
               '![{picture}](fixture-lab-media/square.png){{width="1.0000in" height="0.5000in"'
               ' crop="10000 20000 5000 0"}}\n')
+    DATA = b"made-up data file\n"
+    FILE_URL = render.LIBRARY_URL + "labs/fixture-lab/fixture-lab-media/data.gambl"
 
     @classmethod
     def setUpClass(cls):
@@ -555,10 +562,12 @@ class MediaDownloads(unittest.TestCase):
         digest, image = fx.original(root, PANDOC, "# Fixture\n\nBefore $v_{0} = \\frac{d}{t}$.\n", xml)
         (root / "fixture-lab-media").mkdir()
         (root / "fixture-lab-media" / "square.png").write_bytes(image)
+        (root / "fixture-lab-media" / "data.gambl").write_bytes(cls.DATA)
         source = root / "fixture-lab.md"
         source.write_text(cls.SOURCE.format(
             original=(root / "original.docx").as_posix(), digest=digest,
-            sha=hashlib.sha256(image).hexdigest(), figure=fx.FIGURE_ALT, picture=fx.PICTURE_ALT),
+            sha=hashlib.sha256(image).hexdigest(), data_sha=hashlib.sha256(cls.DATA).hexdigest(),
+            figure=fx.FIGURE_ALT, picture=fx.PICTURE_ALT),
             encoding="utf-8", newline="\n")
         cls.source = source
         cls.doc = {"path": str(source), "meta": render.pandoc_meta(str(source)),
@@ -578,11 +587,39 @@ class MediaDownloads(unittest.TestCase):
         self.assertEqual(problems, [])
 
     def test_published_media(self):
-        # The picture and the figure's SVG; the PNG is for Word only.
-        self.assertEqual(self.published, ["square.png", "panel.svg"])
+        # The picture, the figure's SVG and the lab's file; the PNG is for
+        # Word only.
+        self.assertEqual(self.published, ["square.png", "panel.svg", "data.gambl"])
         self.assertEqual(media.published(self.doc), self.published)
         folder = Path(downloads.media_dir(self.doc))
         self.assertTrue((folder / "panel.png").is_file())
+        self.assertEqual((folder / "data.gambl").read_bytes(), self.DATA)
+
+    def test_a_changed_file_stops_the_build(self):
+        # D-0165: the bytes are the ones read and ruled, pinned by sha256.
+        doc = dict(self.doc, meta=dict(self.doc["meta"], files=[
+            {"file": "fixture-lab-media/data.gambl", "sha256": "0" * 64}]))
+        with tempfile.TemporaryDirectory() as out, self.assertRaises(SystemExit):
+            media.build(doc, out, downloads.CHROME)
+
+    def test_word_links_the_file_at_the_library(self):
+        # D-0165: a saved Word file still reaches the file.
+        with zipfile.ZipFile(self.docx) as z:
+            rels = z.read("word/_rels/document.xml.rels").decode("utf-8")
+        self.assertIn('Target="{}"'.format(self.FILE_URL), rels)
+
+    def test_html_links_the_file_at_the_library(self):
+        text = self.html.read_text(encoding="utf-8")
+        self.assertIn('href="{}"'.format(self.FILE_URL), text)
+
+    def test_page_links_the_file_at_the_library(self):
+        # The page uses the same address, so Chrome's PDF of it does too.
+        out = subprocess.run([PANDOC, str(self.source), "-f", render.FROM, "-t", "html",
+                              "--lua-filter", str(downloads.MEDIA_FILTER), "-M", "media-prefix=../",
+                              "-M", "library-url=" + render.LIBRARY_URL,
+                              "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/")],
+                             check=True, capture_output=True, encoding="utf-8").stdout
+        self.assertIn('href="{}"'.format(self.FILE_URL), out)
 
     def word_pictures(self):
         with zipfile.ZipFile(self.docx) as z:
@@ -640,13 +677,35 @@ class MediaDownloads(unittest.TestCase):
         # The lab page sits one folder below the media (labs/<id>/modern/).
         out = subprocess.run([PANDOC, str(self.source), "-f", render.FROM, "-t", "html",
                               "--lua-filter", str(downloads.MEDIA_FILTER), "-M", "media-prefix=../",
+                              "-M", "library-url=" + render.LIBRARY_URL,
                               "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/")],
                              check=True, capture_output=True, encoding="utf-8").stdout
         self.assertIn('src="../fixture-lab-media/square.png"', out)
 
+    def test_figure_label_names_the_group(self):
+        # D-0166: a figure's label names the inline SVG as a group, so a
+        # screen reader hears what its drawn parts show; Word gets it first
+        # in the PNG's alt text.
+        text = self.source.read_text(encoding="utf-8").replace(
+            'drawings="501"', 'drawings="501" label="Arrows & boxes"')
+        args = ["-f", render.FROM, "--lua-filter", str(downloads.MEDIA_FILTER),
+                "-M", "library-url=" + render.LIBRARY_URL,
+                "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/")]
+        page = subprocess.run([PANDOC, "-t", "html"] + args, input=text, check=True,
+                              capture_output=True, encoding="utf-8").stdout
+        self.assertIn('<svg role="group" aria-label="Arrows &amp; boxes" xmlns=', page)
+        with tempfile.TemporaryDirectory() as out:
+            docx = Path(out) / "label.docx"
+            subprocess.run([PANDOC, "-o", str(docx)] + args, input=text, check=True,
+                           capture_output=True, encoding="utf-8")
+            with zipfile.ZipFile(docx) as z:
+                doc = z.read("word/document.xml").decode("utf-8")
+        self.assertRegex(doc, r'descr="Arrows &amp; boxes {}'.format(re.escape(fx.FIGURE_ALT)))
+
 
 def pdf_text(path):
-    return subprocess.run([PDFTOTEXT, "-layout", str(path), "-"], check=True,
+    # -enc UTF-8: poppler's Windows build writes Latin-1 by default (D-0160).
+    return subprocess.run([PDFTOTEXT, "-layout", "-enc", "UTF-8", str(path), "-"], check=True,
                           capture_output=True, text=True, encoding="utf-8").stdout
 
 
@@ -795,8 +854,8 @@ class PrintKeeps(unittest.TestCase):
         text = (folder / "index.html").read_text(encoding="utf-8")
         text = text.replace("<head>", '<head><base href="{}">'.format(folder.as_uri() + "/"), 1)
         extra = (self.RULES_OFF if rules_off else "") + '<div style="height:{}px"></div>'.format(spacer)
-        self.assertEqual(text.count("<main>"), 1)
-        text = text.replace("<main>", "<main>" + extra, 1)
+        self.assertEqual(text.count("<main id=\"content\">"), 1)
+        text = text.replace("<main id=\"content\">", "<main id=\"content\">" + extra, 1)
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp) / "page.html"
             src.write_text(text, encoding="utf-8")
@@ -808,7 +867,7 @@ class PrintKeeps(unittest.TestCase):
     def splits(self, doc_id, raw):
         """Headings that end a page and question blocks broken over two."""
         built = page(doc_id, "modern")
-        main = re.search(r"<main>(.*?)</main>", built, re.S).group(1)
+        main = re.search(r"<main id=\"content\">(.*?)</main>", built, re.S).group(1)
         headings = [flat(html.unescape(re.sub(r"<[^>]+>", "", h))) for h in re.findall(r"<h[1-4]\b[^>]*>(.*?)</h[1-4]>", main, re.S)]
         pages = raw.split("\f")[:-1]
         found = self.page_endings(pages, headings, main)
@@ -945,6 +1004,8 @@ class PrintKeeps(unittest.TestCase):
 
     def test_offsets_still_cross_a_break(self):
         for doc_id, _ in converted():
+            if doc_id in COURSE_WIDE:
+                continue      # no question box for an offset to split
             with self.subTest(doc=doc_id):
                 found = [s for px in self.OFFSETS for s in self.splits(doc_id, self.printed(doc_id, px, True))]
                 self.assertTrue(found, "no offset splits anything with the rules off: "

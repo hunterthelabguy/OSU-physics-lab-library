@@ -9,8 +9,15 @@ layer: curriculum
 source_file: "originals/PH212/Lab 6 - Capstone - Handout.docx"
 source_sha256: "4820b23be0a293afd06790af560260f0290beb5c90b9d2ff67ba319de35597fb"
 status: converted
-ruled_omissions: []
+ruled_omissions:
+  - text: "from this google drive link"
+    ledger: "D-0164"
+  - text: "(You must be logged into google drive with your ONID)."
+    ledger: "D-0164"
 ruled_additions: []
+files:
+  - file: "ph212-capstone-handout-media/ga-custom-fit-practice-data.gambl"
+    sha256: "c17cea4946bccfacb9baafa92da45e3fff2adcaec731d39a064d4567a942ff89"
 images:
   - file: "ph212-capstone-handout-media/excel-linest-function.png"
     source_part: "word/media/image1.png"
@@ -28,7 +35,7 @@ images:
 
 # Capstone – Design an Experiment
 
-### PH212 – General Physics with Calculus
+## PH212 – General Physics with Calculus
 
 **Experimental goal: Investigate a model of a phenomenon we haven’t explored in lab. Then design, execute, and analyze an experiment to test predictions based on the model.**
 
@@ -56,12 +63,12 @@ Week 2
 5.  Determine if your results support your model
 
 ::: box
-#### If you miss Week 1 of this activity:
+### If you miss Week 1 of this activity:
 
 If you are able to attend the second week of this lab, you’ll complete the activities for Week 1 during that lab period and complete the Week 2 activities during a makeup lab session. You may work with other students who missed Week 1 as well.
 :::
 
-### Learning Objectives
+## Learning Objectives
 
 **Learning goal: Put all of the skills you learned this term into practice and experience one full cycle of the scientific process.**
 
@@ -75,12 +82,12 @@ Analyze data as appropriate.
 
 Use quantitative evidence such as R^2^ value for a particular fit to support conclusions.
 
-### Skill building: Custom fits in Graphical Analysis
+## Skill building: Custom fits in Graphical Analysis
 
 **For this lab you will need to use the Custom Curve Fit feature of Graphical Analysis.** Here we explain how to use this feature.
 
 ::: box
-#### Creating a custom curve fit in Graphical Analysis
+### Creating a custom curve fit in Graphical Analysis
 
 Custom Curve Fits in GA allows us to fit any model and quickly find the parameters of that fit.
 
@@ -88,7 +95,7 @@ Custom Curve Fits in GA allows us to fit any model and quickly find the paramete
 - Custom Curve Fits is only available in the Pro mode of GA. If your copy of GA isn’t already upgraded, use (1) to open the browser version or (2) to upgrade your copy to Pro.
 :::
 
-1)  Open the Pro version of GA in a browser
+1)  [Open the Pro version of GA in a browser](https://graphicalanalysis.app)
 2)  Upgrade the version of GA on your computer
     - Click the three dots in the top right corner of the program and click “About”
     - Enter the key that your instructor gives you. It may also be posted on the wall of the classroom. Contact your instructor if you need outside of class.
@@ -111,14 +118,14 @@ Once you have access to Pro, we can use the power of Custom Curve Fits.
 ::: box
 **[SKIP THIS IF YOU DID IT IN THE PRE-LAB]{.underline}**
 
-**Try it out!** Download the GA data file from [this google drive link](https://drive.google.com/file/d/1h-bKuXY-w09vTH70dI0Uo3K4v4Rl9oP6/view?usp=sharing) and save it to a place you can access. ([You must be logged into google drive with your ONID]{.underline}). Open it in GA. (Click on *open and* select the data file.)
+**Try it out!** Download [the GA data file](ph212-capstone-handout-media/ga-custom-fit-practice-data.gambl) and save it to a place you can access. Open it in GA. (Click on *open and* select the data file.)
 
 ::: hint
 - The file contains a data set that follows the form: *y = A\*x + B\*x^2^ + C\*sin(x).* (Note that *x^2^* should be entered as *x\^2*.) **Try fitting a curve of this form using the procedure described in the box above. Find the values for A, B, and C as well as their associated uncertainties. Which parameter is negative? What does that mean?**
 :::
 :::
 
-### Phenomena to Investigate {#_Phenomena_to_Investigate}
+## Phenomena to Investigate {#_Phenomena_to_Investigate}
 
 For your project in this lab, you will test a model for **one** of the following phenomena, focusing on the relationship between the force and two other variables:
 
@@ -129,7 +136,7 @@ Your lab should investigate [quantitative]{.underline} relationships. A quantita
 
 To help you, we provide equations and information below on each phenomenon. They include algebraic *factors* that are determined through fits to the data. You should relate the factors in the provided equation to the topics you need to explore. That is, think about the physics meaning of each factor. You may research your topics online to help your understanding. You should cite any sources you use.
 
-### Models and equations for each phenomenon
+## Models and equations for each phenomenon
 
 **[Model 1 – Drag]{.underline}**
 
@@ -179,7 +186,7 @@ $$\mathbf{x}\left( \mathbf{t} \right)\mathbf{= A}\mathbf{e}^{\mathbf{- Bt}}\math
 
 :::: landscape
 ::: box
-#### Remember, an experiment always:
+### Remember, an experiment always:
 
 1.  Starts with a hypothesis, a model describing the behavior of a system
 2.  Uses the model to make a measurable prediction about what will happen in a specific situation
@@ -190,7 +197,7 @@ $$\mathbf{x}\left( \mathbf{t} \right)\mathbf{= A}\mathbf{e}^{\mathbf{- Bt}}\math
     b.  which must be modified if not, in which case the results should be used to suggest possible modifications or changes
 :::
 
-### Evaluation
+## Evaluation
 
 **Week 1 activities will be graded for completion**, and feedback will be provided by your TA. You will use your responses and the feedback you receive to write part of your final report during Week 2.
 
@@ -348,7 +355,7 @@ b.  **Compare your results to your predictions and expectations, discussing, in 
 
 Make sure everyone’s name is on your group’s lab report. If you submit through Gradescope remember to add everyone in your group to the assignment. This is done at the end of the submission process.
 
-### Appendix – Reference Information
+## Appendix – Reference Information
 
 This section contains key information from previous labs.
 
@@ -361,7 +368,7 @@ This section contains key information from previous labs.
 7.  Finding uncertainty in a slope
 8.  Propagation of Uncertainty
 
-#### Required Plot Elements
+### Required Plot Elements
 
 ::: action
 - Do not connect the data points with lines.
@@ -372,13 +379,13 @@ This section contains key information from previous labs.
 - Display the equation and R^2^ value for any trendline you include.
 :::
 
-#### What is Uncertainty?
+### What is Uncertainty?
 
 *Uncertainty* is the acknowledgement that we cannot measure things exactly, and so any conclusion based on measurements will always include a range of possible answers. When making a measurement, there is no single “true value” of the measurand (measured quantity) that we can determine. Instead, we can define an interval that defines the range of values that we think are *probable* for the measurand. The narrower the interval, the more precisely we can approximate the measurand.
 
 When including uncertainty in a value, we report it as **A ± Δ~A~**. We believe the value is **A**, but we’re unable to rule out the possibility that it’s higher or lower by an amount **Δ~A~**. (Sometimes it’s written +Δ~1~ / -Δ~2~ if the higher and lower ranges are different.) For example, a time might be reported as 2.45 s ± 0.03 s.
 
-#### Sources of Uncertainty
+### Sources of Uncertainty
 
 The uncertainty in a measurement can be due to a combination of several factors. A crucial aspect of experimentation is to identify all such sources of uncertainty and to numerically estimate their effect on your measurement result.
 
@@ -393,7 +400,7 @@ Common sources of uncertainty include:
 
 A measurement uncertainty is not meant to be an indication of “mistakes” that you might make in an experiment. If you are aware that you have made a mistake, then you should repeat your experiment. **“Human error” is not a valid source of uncertainty**. If you know that you did something “wrong”, then the right course of action is to redo it correctly.
 
-#### Linearization
+### Linearization
 
 In the context of data analysis, “linear” refers to a directly proportional relationship between the dependent and independent variables in an equation.
 
@@ -417,7 +424,7 @@ In practice, **linearization is done by calculating a new column of data** that 
 - It is relatively easy to fit a line to data - there are just two important values to determine: the slope and intercept of the data.
 :::
 
-#### Assumptions
+### Assumptions
 
 A hypothesis typically includes assumptions about the situation being modeled. This could be ignoring a force or assuming it’s constant, or making some other simplification.
 
@@ -449,7 +456,7 @@ Identifying, justifying, and checking assumptions is an important part of an exp
 
 Describe your experimental set-up, explaining what is held constant, how you’ll vary the dependent variable(s), and what independent variable you’ll measure. Often, this will include a well-labeled diagram.
 
-#### Finding uncertainty in a slope:
+### Finding uncertainty in a slope:
 
 1.  Using Excel: Type the function shown below into a cell in your Excel spreadsheet.
 
@@ -463,7 +470,7 @@ The function outputs two columns of values. The uncertainty in the slope is the 
 
 6.  Using Graphical Analysis: Highlight the data on the plot and select “Apply Fit”, then hit the options button and select the “Display Fit Parameters” box.![Graphical Analysis menu labeled "Fit Options." Menu contains a single checkbox labeled "Show Uncertainty of Fit Parameters."](ph212-capstone-handout-media/graphical-analysis-fit-options.png){width="2.8097in" height="1.7194in"}![Graphical Analysis textbox with results of a linear curve fit. In the lower right corner is a green button with a gear icon. ](ph212-capstone-handout-media/graphical-analysis-fit-results.png){width="1.7089in" height="1.6197in" crop="10822 9940 7992 10517"}
 
-#### Propagation of Uncertainty:
+### Propagation of Uncertainty:
 
 There is an equation that we can use to calculate the total uncertainty in a quantity that depends on several other quantities, each with their own uncertainty.
 
