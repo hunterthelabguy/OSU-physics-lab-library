@@ -22,9 +22,10 @@ point there (a content change, ruled then).
 - [x] PH 212 Lab 6: "Pro version of GA" was linked to the same software
   activation link as Lab 2; the words stay, the link is gone (D-0133).
   Done 2026-11-05: linked to the web app's address (D-0162).
-- [ ] PH 212 Lab 6: the Graphical Analysis data file sits behind a Google
+- [x] PH 212 Lab 6: the Graphical Analysis data file sits behind a Google
   Drive link that needs an ONID login. It becomes a download from the
   library once a lab can publish a file that is not a picture (D-0164).
+  Done 2026-11-07: a library download (#72, on D-0165's `files:`).
 
 ## Pictures that need alt text
 
