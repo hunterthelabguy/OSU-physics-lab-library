@@ -1755,3 +1755,13 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: a CSV (opens in Graphical Analysis, poorly, per the owner); keeping the Google Drive link (an ONID login, a link the library does not control).
 - binds: D-0104; D-0133; curriculum/ph212/ph212-capstone-handout.md; docs/owner-tasks.md
 - test: none yet; the tool change brings its own
+
+### D-0165  A lab can publish its own file, named in `files:`; every output links it at the library's address
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-05
+- decision: Three calls, for D-0164's Graphical Analysis file. (1) A lab names a file that is not a picture in front matter `files:` (`file` under `<id>-media/`, `sha256`), beside the source as its pictures are. `tools/media.py` copies it into the published media folder, `published()` lists it after the pictures and figures, so the page's `resources` and the course download carry it, and a file whose bytes differ from the recorded hash stops the build: the bytes are the ones read and ruled. (2) A link whose target is `<id>-media/<file>` points, in every output (the page, and the Word, HTML and PDF downloads), at `render.LIBRARY_URL` + `labs/<id>/<id>-media/<file>`, written by `tools/filters/media.lua`; the filter stops if the address is missing. The address lives in one constant, `https://osu-physics-labs.pages.dev/` today, so a move to another host changes one line; `_quarto.yml` was the lean's place, but nothing in Python reads that file, and Quarto's own `site-url` would also make a sitemap the noindex policy does not want. The Markdown download keeps the relative link, which works inside the course zip. (3) The wording change in PH 212 Lab 6 rides in its own content PR.
+- rationale: The owner, 2026-11-05: "Leans agreed". Context (Claude): a relative link works on the site and in the course zip but breaks in a Word, HTML or PDF file saved on its own, and a student working from the Word file still needs the data; the PDF is Chrome's print of the page, so the page uses the same absolute address. The cost is one host-specific line against ledger 39's host-agnostic output, kept to that line.
+- alternatives: a relative link everywhere (broken in saved downloads); a CSV (the owner: Graphical Analysis opens it poorly); embedding the file in the Word download (no such route in Pandoc).
+- binds: D-0164; ledger 39; tools/media.py; tools/filters/media.lua; tools/downloads.py; tools/quarto_build.py; tools/render.py
+- test: tests/test_downloads.py::MediaDownloads (published, changed file stops the build, Word, HTML and page links)

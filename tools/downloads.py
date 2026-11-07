@@ -63,6 +63,7 @@ def pandoc(doc, text, args):
         [render.PANDOC, "-f", render.FROM, "--lua-filter", MEDIA_FILTER, "--lua-filter", FILTER,
          "--lua-filter", LANDSCAPE_FILTER,
          "-M", "theme=" + THEME, "--resource-path", lab_dir(doc),
+         "-M", "library-url=" + render.LIBRARY_URL,
          "-M", "media-dir=" + media_dir(doc).replace(os.sep, "/")] + args,
         input=text, capture_output=True, text=True, encoding="utf-8")
     if proc.returncode != 0 or "[WARNING]" in proc.stderr:

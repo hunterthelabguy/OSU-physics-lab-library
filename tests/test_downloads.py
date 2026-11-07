@@ -544,12 +544,15 @@ class MediaDownloads(unittest.TestCase):
     ID = "fixture-lab"
     SOURCE = ('---\nid: "fixture-lab"\ntitle: "Fixture"\nsource_file: "{original}"\n'
               'source_sha256: "{digest}"\nimages:\n  - file: "fixture-lab-media/square.png"\n'
-              '    source_part: "word/media/fixture.png"\n    sha256: "{sha}"\n---\n\n'
+              '    source_part: "word/media/fixture.png"\n    sha256: "{sha}"\n'
+              'files:\n  - file: "fixture-lab-media/data.gambl"\n    sha256: "{data_sha}"\n---\n\n'
               "# Fixture\n\nBefore $v_{{0}} = \\frac{{d}}{{t}}$.\n\nWords.\n\n"
               '![{figure}](fixture-lab-media/panel.svg){{.drawn drawings="501"}}\n\n'
-              "Caption words.\n\n"
+              "[Caption words.](fixture-lab-media/data.gambl)\n\n"
               '![{picture}](fixture-lab-media/square.png){{width="1.0000in" height="0.5000in"'
               ' crop="10000 20000 5000 0"}}\n')
+    DATA = b"made-up data file\n"
+    FILE_URL = render.LIBRARY_URL + "labs/fixture-lab/fixture-lab-media/data.gambl"
 
     @classmethod
     def setUpClass(cls):
@@ -559,10 +562,12 @@ class MediaDownloads(unittest.TestCase):
         digest, image = fx.original(root, PANDOC, "# Fixture\n\nBefore $v_{0} = \\frac{d}{t}$.\n", xml)
         (root / "fixture-lab-media").mkdir()
         (root / "fixture-lab-media" / "square.png").write_bytes(image)
+        (root / "fixture-lab-media" / "data.gambl").write_bytes(cls.DATA)
         source = root / "fixture-lab.md"
         source.write_text(cls.SOURCE.format(
             original=(root / "original.docx").as_posix(), digest=digest,
-            sha=hashlib.sha256(image).hexdigest(), figure=fx.FIGURE_ALT, picture=fx.PICTURE_ALT),
+            sha=hashlib.sha256(image).hexdigest(), data_sha=hashlib.sha256(cls.DATA).hexdigest(),
+            figure=fx.FIGURE_ALT, picture=fx.PICTURE_ALT),
             encoding="utf-8", newline="\n")
         cls.source = source
         cls.doc = {"path": str(source), "meta": render.pandoc_meta(str(source)),
@@ -582,11 +587,39 @@ class MediaDownloads(unittest.TestCase):
         self.assertEqual(problems, [])
 
     def test_published_media(self):
-        # The picture and the figure's SVG; the PNG is for Word only.
-        self.assertEqual(self.published, ["square.png", "panel.svg"])
+        # The picture, the figure's SVG and the lab's file; the PNG is for
+        # Word only.
+        self.assertEqual(self.published, ["square.png", "panel.svg", "data.gambl"])
         self.assertEqual(media.published(self.doc), self.published)
         folder = Path(downloads.media_dir(self.doc))
         self.assertTrue((folder / "panel.png").is_file())
+        self.assertEqual((folder / "data.gambl").read_bytes(), self.DATA)
+
+    def test_a_changed_file_stops_the_build(self):
+        # D-0165: the bytes are the ones read and ruled, pinned by sha256.
+        doc = dict(self.doc, meta=dict(self.doc["meta"], files=[
+            {"file": "fixture-lab-media/data.gambl", "sha256": "0" * 64}]))
+        with tempfile.TemporaryDirectory() as out, self.assertRaises(SystemExit):
+            media.build(doc, out, downloads.CHROME)
+
+    def test_word_links_the_file_at_the_library(self):
+        # D-0165: a saved Word file still reaches the file.
+        with zipfile.ZipFile(self.docx) as z:
+            rels = z.read("word/_rels/document.xml.rels").decode("utf-8")
+        self.assertIn('Target="{}"'.format(self.FILE_URL), rels)
+
+    def test_html_links_the_file_at_the_library(self):
+        text = self.html.read_text(encoding="utf-8")
+        self.assertIn('href="{}"'.format(self.FILE_URL), text)
+
+    def test_page_links_the_file_at_the_library(self):
+        # The page uses the same address, so Chrome's PDF of it does too.
+        out = subprocess.run([PANDOC, str(self.source), "-f", render.FROM, "-t", "html",
+                              "--lua-filter", str(downloads.MEDIA_FILTER), "-M", "media-prefix=../",
+                              "-M", "library-url=" + render.LIBRARY_URL,
+                              "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/")],
+                             check=True, capture_output=True, encoding="utf-8").stdout
+        self.assertIn('href="{}"'.format(self.FILE_URL), out)
 
     def word_pictures(self):
         with zipfile.ZipFile(self.docx) as z:
@@ -644,6 +677,7 @@ class MediaDownloads(unittest.TestCase):
         # The lab page sits one folder below the media (labs/<id>/modern/).
         out = subprocess.run([PANDOC, str(self.source), "-f", render.FROM, "-t", "html",
                               "--lua-filter", str(downloads.MEDIA_FILTER), "-M", "media-prefix=../",
+                              "-M", "library-url=" + render.LIBRARY_URL,
                               "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/")],
                              check=True, capture_output=True, encoding="utf-8").stdout
         self.assertIn('src="../fixture-lab-media/square.png"', out)
