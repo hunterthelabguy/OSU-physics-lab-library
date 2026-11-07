@@ -110,7 +110,10 @@ class DocumentBodies(unittest.TestCase):
         for rel, digest in want.items():
             with self.subTest(page=rel):
                 text = (SITE / rel).read_text(encoding="utf-8")
-                main = re.search(r"<main>.*?</main>", text, re.S).group(0)
+                main = re.search(r"<main id=\"content\">.*?</main>", text, re.S).group(0)
+                # The digests predate the skip link's id (D-0166); the body
+                # they pin is unchanged, so the tag is hashed as it was.
+                main = main.replace('<main id="content">', "<main>", 1)
                 self.assertEqual(hashlib.sha256(main.encode()).hexdigest(), digest)
 
 

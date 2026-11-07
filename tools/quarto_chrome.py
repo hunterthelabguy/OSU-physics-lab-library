@@ -14,7 +14,7 @@ import re
 
 import render
 
-OLD = re.compile(r'<body class="([^"]*)">\n(.*?)<main>.*?</main>\n(.*?)</body>', re.S)
+OLD = re.compile(r'<body class="([^"]*)">\n(.*?)<main id="content">.*?</main>\n(.*?)</body>', re.S)
 QMAIN = re.compile(
     r'<main class="content" id="quarto-document-content">'
     r'<header id="title-block-header" class="quarto-title-block"></header>'
@@ -70,10 +70,11 @@ def once(pattern, text, what):
 
 
 def dress(quarto_html, body_class, top, bottom):
-    """A Quarto page with the old chrome: bare <main>, top chrome right after
-    <body>, bottom chrome right after Quarto's content div."""
+    """A Quarto page with the old chrome: bare <main> but for the skip
+    link's target (D-0166), top chrome right after <body>, bottom chrome
+    right after Quarto's content div."""
     m = once(QMAIN, quarto_html, "Quarto <main>")
-    text = (quarto_html[:m.start()] + "<main>\n" + m.group(1).strip() + "\n</main>"
+    text = (quarto_html[:m.start()] + '<main id="content">\n' + m.group(1).strip() + "\n</main>"
             + quarto_html[m.end():])
     b = once(QBODY, text, "<body class=...>")
     text = (text[:b.start()] + '<body class="{} {}">\n'.format(body_class, b.group(1))

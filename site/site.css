@@ -333,6 +333,18 @@ body.site-page .lab-pending[open] > summary { margin-bottom: var(--space-2); }
 
 .osu-inner { max-width: var(--chrome-shell); margin: 0 auto; padding: 0 1rem; }
 
+/* Skip link (D-0166): hidden until the keyboard reaches it, then shown at
+   the top left over the header (WCAG 2.4.1, 2.4.7). */
+.skip-link {
+  position: absolute; left: .5rem; top: .5rem; z-index: 100;
+  width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.skip-link:focus {
+  width: auto; height: auto; overflow: visible; clip-path: none;
+  padding: .5rem 1rem; background: #fff; color: #000;
+  outline: 3px solid var(--chrome-heading); outline-offset: 2px;
+}
+
 .osu-header, .osu-foot {
   font-family: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
