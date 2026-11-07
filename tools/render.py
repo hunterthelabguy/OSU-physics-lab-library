@@ -34,6 +34,11 @@ THEMES = ("modern",)
 # text as a visible caption Word does not have (D-0118). _quarto.yml's
 # `from` and tools/check_unchanged.py's FROM say the same (tested).
 FROM = "markdown-smart-implicit_figures"
+# The library's address, the one place it is written for content (D-0165):
+# a link to a lab's own file (front matter `files:`) points here in every
+# output, so a saved Word, HTML or PDF download still reaches it. A move to
+# another host changes this line.
+LIBRARY_URL = "https://osu-physics-labs.pages.dev/"
 
 # Official logo files, committed byte for byte (DECISIONS D-0014, D-0020).
 BRAND = os.path.join(ROOT, "site", "brand")
@@ -339,10 +344,30 @@ def download_all(course, docs, depth):
             note=e(DOWNLOAD_NOTE), handouts=e(DOWNLOAD_HANDOUTS), boxes="\n".join(boxes))
 
 
+# A converted document for every PH 21X course, no course's lab (D-0160):
+# its front matter's `course`, and the course index's heading for them.
+COURSE_WIDE = "PH21X"
+COURSE_WIDE_HEADING = "For every course"
+
+
+def course_wide(docs):
+    """The course-wide documents, in curriculum order."""
+    return [(doc_id, doc) for doc_id, doc in docs.items()
+            if doc["meta"].get("course") == COURSE_WIDE]
+
+
 def course_index_markdown(meta, docs):
-    """The course index (D-0069): the chooser, one tile per course."""
-    return "\n".join(["# Course index\n", COURSE_INDEX_INTRO + "\n",
-                      raw_html(course_tiles(meta["courses"], docs))])
+    """The course index (D-0069): the chooser, one tile per course, then
+    the course-wide documents linked under their own heading (D-0160)."""
+    parts = ["# Course index\n", COURSE_INDEX_INTRO + "\n",
+             raw_html(course_tiles(meta["courses"], docs))]
+    shared = course_wide(docs)
+    if shared:
+        parts.append("## " + COURSE_WIDE_HEADING + "\n")
+        parts.append("\n".join("- [{}]({})".format(
+            doc["meta"]["title"], up(1) + "labs/" + doc_id + "/modern/")
+            for doc_id, doc in shared) + "\n")
+    return "\n".join(parts)
 
 
 def course_page_markdown(course, docs, depth=2):

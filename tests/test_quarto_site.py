@@ -106,6 +106,18 @@ class Pages(unittest.TestCase):
             with self.subTest(page=rel):
                 self.assertTrue((QSITE / rel).is_file())
 
+    def test_course_index_links_course_wide_documents(self):
+        # D-0160: under their own heading, each to its modern page.
+        shared = render.course_wide(render.converted_documents())
+        self.assertTrue(shared)
+        # Quarto wraps a link's text, so whitespace is compared collapsed.
+        page = " ".join((QSITE / "courses" / "index.html").read_text(encoding="utf-8").split())
+        self.assertIn(render.COURSE_WIDE_HEADING + "</h2>", page)
+        for doc_id, doc in shared:
+            with self.subTest(doc=doc_id):
+                self.assertIn('href="../labs/{}/modern/">{}</a>'.format(
+                    doc_id, doc["meta"]["title"]), page)
+
     def test_404_page_resolves_links_from_the_root(self):
         # Pages serves 404.html at whatever path was asked for, so the
         # chrome's relative nav links need a base (D-0049).
@@ -202,9 +214,11 @@ class Documents(unittest.TestCase):
     def test_questions_numbered(self):
         # In order, as the source counts them; a `.restart` starts again
         # at 1 (S9, D-0112).
+        shared = {doc_id for doc_id, _ in render.course_wide(render.converted_documents())}
         for doc_id, source in converted():
             want = question_numbers(source.read_text(encoding="utf-8"))
-            self.assertTrue(want)
+            # A course-wide document is no lab and may have none (D-0160).
+            self.assertTrue(want or doc_id in shared)
             modern = (QSITE / "labs" / doc_id / "modern" / "index.html").read_text(encoding="utf-8")
             with self.subTest(doc=doc_id):
                 self.assertEqual([int(k) for k in re.findall(r"Question (\d+)<", modern)], want)

@@ -16,7 +16,9 @@ into the folder the site publishes, `labs/<id>/<id>-media/`, and makes each
 drawn figure's SVG (tools/figures.py) and the PNG the Word download embeds.
 Pictures sit beside the source as `curriculum/<course>/<id>-media/<name>`,
 named in front matter `images:` (file, source_part, sha256); a figure is an
-image with class `drawn` whose file is made, never committed (D-0101).
+image with class `drawn` whose file is made, never committed (D-0101). A
+lab's own file that is not a picture sits there too, named in `files:`
+(file, sha256), and is published as it is (D-0165).
 """
 
 import hashlib
@@ -71,22 +73,28 @@ def lab_media(doc):
     for e in images:
         if "/" in e["file"][len(prefix):] or not e["file"].startswith(prefix):
             raise SystemExit("{}: image {} is not in {}".format(doc["path"], e["file"], prefix))
+    out["files"] = doc["meta"].get("files") or []
+    for e in out["files"]:
+        if "/" in e["file"][len(prefix):] or not e["file"].startswith(prefix):
+            raise SystemExit("{}: file {} is not in {}".format(doc["path"], e["file"], prefix))
     return out
 
 
 def published(doc):
     """The names build() publishes for a lab, in its order: each picture's
-    file, then each figure's SVG. The course download lists them beside the
-    lab's Markdown (render.download_all)."""
+    file, then each figure's SVG, then each of the lab's own files. The
+    course download lists them beside the lab's Markdown
+    (render.download_all)."""
     media = lab_media(doc)
     return ([os.path.basename(e["file"]) for e in media["images"]]
-            + [f["file"] for f in media["figures"]])
+            + [f["file"] for f in media["figures"]]
+            + [os.path.basename(e["file"]) for e in media["files"]])
 
 
 def build(doc, dest, chrome):
     """Fill dest (a lab's media folder) and return the files to publish."""
     media = lab_media(doc)
-    if not media["images"] and not media["figures"]:
+    if not media["images"] and not media["figures"] and not media["files"]:
         return []
     os.makedirs(dest, exist_ok=True)
     source_dir = os.path.dirname(doc["path"])
@@ -104,6 +112,18 @@ def build(doc, dest, chrome):
             fh.write(text)
         figures.png(svg_path, svg_path[:-4] + ".png", chrome)
         published.append(f["file"])
+    # A lab's own file (D-0165), such as a Graphical Analysis data file: its
+    # bytes are the ones read and ruled, so a change stops the build.
+    for e in media["files"]:
+        src = os.path.join(source_dir, e["file"])
+        with open(src, "rb") as fh:
+            digest = hashlib.sha256(fh.read()).hexdigest()
+        if digest != e.get("sha256"):
+            raise SystemExit("{}: {} has sha256 {}, front matter says {}".format(
+                doc["path"], e["file"], digest, e.get("sha256")))
+        name = os.path.basename(e["file"])
+        shutil.copyfile(src, os.path.join(dest, name))
+        published.append(name)
     return published
 
 

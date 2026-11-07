@@ -9,8 +9,15 @@ layer: curriculum
 source_file: "originals/PH212/Lab 6 - Capstone - Handout.docx"
 source_sha256: "4820b23be0a293afd06790af560260f0290beb5c90b9d2ff67ba319de35597fb"
 status: converted
-ruled_omissions: []
+ruled_omissions:
+  - text: "from this google drive link"
+    ledger: "D-0164"
+  - text: "(You must be logged into google drive with your ONID)."
+    ledger: "D-0164"
 ruled_additions: []
+files:
+  - file: "ph212-capstone-handout-media/ga-custom-fit-practice-data.gambl"
+    sha256: "c17cea4946bccfacb9baafa92da45e3fff2adcaec731d39a064d4567a942ff89"
 images:
   - file: "ph212-capstone-handout-media/excel-linest-function.png"
     source_part: "word/media/image1.png"
@@ -88,7 +95,7 @@ Custom Curve Fits in GA allows us to fit any model and quickly find the paramete
 - Custom Curve Fits is only available in the Pro mode of GA. If your copy of GA isn’t already upgraded, use (1) to open the browser version or (2) to upgrade your copy to Pro.
 :::
 
-1)  Open the Pro version of GA in a browser
+1)  [Open the Pro version of GA in a browser](https://graphicalanalysis.app)
 2)  Upgrade the version of GA on your computer
     - Click the three dots in the top right corner of the program and click “About”
     - Enter the key that your instructor gives you. It may also be posted on the wall of the classroom. Contact your instructor if you need outside of class.
@@ -111,7 +118,7 @@ Once you have access to Pro, we can use the power of Custom Curve Fits.
 ::: box
 **[SKIP THIS IF YOU DID IT IN THE PRE-LAB]{.underline}**
 
-**Try it out!** Download the GA data file from [this google drive link](https://drive.google.com/file/d/1h-bKuXY-w09vTH70dI0Uo3K4v4Rl9oP6/view?usp=sharing) and save it to a place you can access. ([You must be logged into google drive with your ONID]{.underline}). Open it in GA. (Click on *open and* select the data file.)
+**Try it out!** Download [the GA data file](ph212-capstone-handout-media/ga-custom-fit-practice-data.gambl) and save it to a place you can access. Open it in GA. (Click on *open and* select the data file.)
 
 ::: hint
 - The file contains a data set that follows the form: *y = A\*x + B\*x^2^ + C\*sin(x).* (Note that *x^2^* should be entered as *x\^2*.) **Try fitting a curve of this form using the procedure described in the box above. Find the values for A, B, and C as well as their associated uncertainties. Which parameter is negative? What does that mean?**

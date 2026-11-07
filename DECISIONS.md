@@ -1686,6 +1686,86 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - binds: D-0117; D-0150; themes/modern.css; tests/test_brand.py
 - test: tests/test_brand.py::DrawnFigurePaper
 
+### D-0158  Scope: the PH 21X problem-solving strategy PDF joins the in-scope originals
+- status: proposed
+- proposed-by: owner
+- date: 2026-10-26
+- decision: Amends D-0084's in-scope list (spec section 2) by one file: `A general phyiscs problem-solving strategy.pdf` at the root of the owner's `21X Lab Curriculum/` folder (the file name's spelling is the original's). It was not in the 2026-10-06 inventory. Claude read it in full on 2026-10-26: one page, the strategy and one example problem, no student data. Committed byte for byte as `originals/PH21X/A general phyiscs problem-solving strategy.pdf`, SHA-256 `ebb9842b2e0fa13b5af11b2b9f63781a7989eb0ad31e964eaebf63e8e90c59b5`. `pdfinfo` reads no metadata stream and no author field (Creator and Producer "PDFium"), so there is nothing for D-0086's strip, which reads Word files only. The page's own byline names its author (D-0159).
+- rationale: The owner, 2026-10-26, asked for this file to be read, converted and placed in the library ("Read, convert to markdown, and tell me where it makes sense to add it"), then "Land it". D-0084 rules that nothing outside the in-scope list is opened, so the owner's request is the scope change, recorded here.
+- alternatives: leaving the file outside the list and the library (the owner asked for it in).
+- binds: D-0084; spec `docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md` section 2; D-0086
+- test: none; the hash is checked by `tools/check_unchanged.py` on every run
+
+### D-0159  The problem-solving strategy keeps its author's byline and names her in its front matter, ahead of D-0073's license conversation
+- status: proposed
+- proposed-by: owner
+- date: 2026-10-26
+- decision: `curriculum/ph21x/ph21x-problem-solving-strategy.md` keeps the original's byline under its title, "Dr. Rebecka Tumblin – General Physics with Calculus", and names her in its front matter as `credit: "Dr. Rebecka Tumblin"`. The key is `credit`, not `author`: Quarto reserves `author`, and an included file's front matter reaches the page's metadata (CLAUDE.md, Quarto traps). This narrows D-0076's hold on authors' names for one kind of document: an original that prints its author on its face, where the name is the original's own words and the conversion rule keeps it. Every other course material still waits for D-0073's conversation. The license for this document is not settled. LEDGER 8 and D-0073 still apply, and the author's own grant is the one that counts (D-0073's reading of OSU Policy 06-200).
+- rationale: The owner, 2026-10-26: "Credit the author", then "byline kept". Claude's note: the byline is in the original, so the conversion keeps it whether or not credit is ruled; the `credit` key is the addition this entry rules. D-0076 declined names in the repo ahead of D-0073 for the AI-use file, whose words quote a statement without naming its authors; this file already names its author.
+- alternatives: credit by title only, as D-0076 does (drops the name the original prints, and so changes the original's words under the conversion rule); waiting for D-0073 (holds a one-page document the owner wants published).
+- binds: D-0073; D-0076; VISION.md principle 4; charter floor 9
+- test: none; the byline is in the word check's sequence, so `tools/check_unchanged.py` fails if it is dropped
+
+### D-0160  A PDF original is checked from its text layer; course-wide documents get their own heading on the course index
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-26
+- decision: (1) Source and page. A converted document for all three PH 21X courses lives in `curriculum/ph21x/` with `course: PH21X`. It goes through the lab pipeline unchanged: page at `/labs/<id>/modern/`, the four downloads, an HTML cap (190,000 bytes; 164,146 measured) and an empty question-id pin in `tests/question-ids.json` (no questions, so no numbers moved). (2) Link. The course index lists each such document under "For every course", after the course tiles (`render.course_wide`, `render.COURSE_WIDE_HEADING`). No course page lists it: it is no course's lab and is not in `site/courses.md`. (3) The word check reads a PDF original with poppler's `pdftotext -enc UTF-8`. Only the word sequence and each equation's text are compared. A text layer keeps no bold, no equation structure and no pictures, and the check's ok line says so. A list's "1." markers and bullets are text in a PDF, so they are dropped; Word's numbering never reaches the sequence either. Word's math survives as Mathematical Alphanumeric Symbols, and each run of them is one inline equation (U+1D400 to U+1D7FF). The page number "1" at the page's top is a ruled omission under this entry. (4) The number check passes a PDF original only when its Markdown holds no question, checkpoint or numbered block, since there are no Word labels to compare. The 1 to 3 list is typed from the page. (5) CI installs poppler before the word check, not after it. (6) Three download tests assume a lab's question box: the Word body holds "Question", at least one box, and a print offset that splits a box. They skip course-wide documents (`COURSE_WIDE` in `tests/test_downloads.py`); every other download test runs on them. (7) The download tests read PDFs with `-enc UTF-8`, as the word check does. Without it, poppler's Windows build writes Latin-1, and 93 download tests errored on a local run, 2026-10-26.
+- rationale: The owner, 2026-10-26: "Land it: curriculum/ph21x source, its own page linked from the course index". Claude's recommendation had been a `/guides/` address with no downloads. Building it showed that `render.converted_documents()` takes every converted file under `curriculum/`, so a separate guides pipeline would need an exclusion as well as a generator, a render rule and its own chrome. The lab pipeline gives the page and the four downloads with no new part; its one cost is that the address says `labs`. A real check against the page, not an exception: the word check now fails on a changed word ("breaks" to "brakes") and a changed equation ($v_o$ to $v_0$), tried on a copy 2026-10-26. Without `-enc UTF-8`, pdftotext writes Latin-1, which drops the math letters and turns the byline's en dash into a hyphen. That was found when the 2026-10-26 first read lost all five equations.
+- alternatives: a `/guides/<id>/` page with its own generator and no downloads (more parts and no print copy); a recorded exception that skips the check for a PDF (a repo must not lie about its verification); the strategy under one course (it serves all three).
+- binds: tools/check_unchanged.py; tools/check_numbers.py; tools/render.py; .github/workflows/verify.yml; tests/test_downloads.py (HTML_CAPS); tests/question-ids.json; D-0077; D-0102; D-0113
+- test: tests/test_check_unchanged.py::PdfText; tests/test_quarto_site.py::Pages::test_course_index_links_course_wide_documents
+
+### D-0161  PH 212 Lab 2's two short sentences are finished: the web app's address, and the code on the classroom wall
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-05
+- decision: A content change. In PH 212 Lab 2, "If you want to use Graphical Analysis Pro on your own computer, go to" ends "<https://graphicalanalysis.app>.", and "The activation code for Pro is" ends "posted on the wall of the classroom." Both are declared in `ruled_additions`. The address is the host of the original's own activation link, without the path and query that carried the code (D-0133); the code itself stays out of the repo (D-0104). The wording of the second follows Lab 6's own "It may also be posted on the wall of the classroom." Closes the owner task for Lab 2's box.
+- rationale: The owner, 2026-11-05: "Software activation code is not needed in the handout; it's posted on the wall in the room." then "Leans as agreed". Context (Claude): D-0136 left both sentences ending short; a student, or a screen reader, met a sentence that stops. Found while answering a Disability Access Services request for the PH 212 labs.
+- alternatives: leave both sentences short (reads as broken); cut both sentences (drops the web app's address, which the student still needs off the lab computers).
+- binds: D-0104; D-0133; D-0136; curriculum/ph212/ph212-extending-a-model-handout.md; docs/owner-tasks.md
+- test: CI's content check on the lab (each declared passage must occur)
+
+### D-0162  PH 212 Lab 6's "Open the Pro version of GA in a browser" links to the web app's address
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-05
+- decision: A link change, no word changes. The four words lost their code-bearing target under D-0133; they now link to `https://graphicalanalysis.app`, the same address as D-0161. It opens the free version, which step 2 below it upgrades with the key from the instructor or the classroom wall. Closes that owner task.
+- rationale: The owner, 2026-11-05: "Leans as agreed". Context (Claude): without a target, step 1 named an action with no way to take it.
+- alternatives: leave the words unlinked.
+- binds: D-0133; D-0161; curriculum/ph212/ph212-capstone-handout.md; docs/owner-tasks.md
+- test: CI's content check on the lab (words unchanged)
+
+### D-0163  The two Graphical Analysis button icons in PH 212 Labs 2 and 4 are decorative; their empty alt text stays
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-05
+- decision: PH 212 Lab 2's Graph Tools icon (a small line graph) and Lab 4's Connection icon (a slanted probe in a rounded square) keep Word's empty alt text, now ruled decorative rather than missing. In each, the sentence around the icon already names the button ("the *Graph Tools* ... button", "the Connection icon"), so the picture adds only its look. WCAG 1.1.1 allows empty alt text on an image whose meaning the adjacent text carries. No tool change: the picture check keeps comparing alt text with Word's. Closes both owner tasks.
+- rationale: The owner, 2026-11-05: "Leans as agreed", on Claude's lean. Context (Claude): drafts "line-graph icon" and "sensor-probe icon" were offered; either would be read next to the button's own name, and adding one needs the picture check taught to accept alt text that differs from Word's.
+- alternatives: the drafted alt text (a check change for words that repeat the sentence's meaning).
+- binds: D-0132; docs/owner-tasks.md
+- test: none; a ruling on existing markup
+
+### D-0164  PH 212 Lab 6's OneDrive link stays out; its Google Drive data file becomes a download from the library
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-05
+- decision: Two parts. (1) The OneDrive target D-0104 removed from "your" (Model 1, task 3) is not lab material: read by host and path only on 2026-11-05, it is a document in a personal OneDrive under a hiring committee's folder. It stays out, and "your" stays plain text. The owner task, which assumed a lab document, closes. (2) "Download the GA data file from this google drive link" (an ONID login is required) gives way to the Graphical Analysis file itself, published with the lab: `GA Custom Fit Practice Data.gambl`, supplied by the owner in `New Reference Material/` on 2026-11-05. Read in full that day: a tar holding one `vstudm/data.udm`, Vernier's XML, the application header and two columns, X from 0 to 30.5 by 0.5 and Y a synthetic curve; no name, no student data. How a lab publishes a file that is not a picture, and how the Word, HTML and PDF downloads link to it, is a tool change with its own calls, not yet ruled.
+- rationale: The owner, 2026-11-05: on the link, "I reviewed it and determined it's fine (or alternatively, and probably cleaner, the file--which is currently .gambl, can just become a .csv as another downloadable on the site)"; then "CSV does open but its wonky. If possible, I lean we just attach the .gambl file directly instead." Context (Claude): the owner's review covered the data file; the removed link was a different one, which Claude reported before the ruling.
+- alternatives: a CSV (opens in Graphical Analysis, poorly, per the owner); keeping the Google Drive link (an ONID login, a link the library does not control).
+- binds: D-0104; D-0133; curriculum/ph212/ph212-capstone-handout.md; docs/owner-tasks.md
+- test: none yet; the tool change brings its own
+
+### D-0165  A lab can publish its own file, named in `files:`; every output links it at the library's address
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-05
+- decision: Three calls, for D-0164's Graphical Analysis file. (1) A lab names a file that is not a picture in front matter `files:` (`file` under `<id>-media/`, `sha256`), beside the source as its pictures are. `tools/media.py` copies it into the published media folder, `published()` lists it after the pictures and figures, so the page's `resources` and the course download carry it, and a file whose bytes differ from the recorded hash stops the build: the bytes are the ones read and ruled. (2) A link whose target is `<id>-media/<file>` points, in every output (the page, and the Word, HTML and PDF downloads), at `render.LIBRARY_URL` + `labs/<id>/<id>-media/<file>`, written by `tools/filters/media.lua`; the filter stops if the address is missing. The address lives in one constant, `https://osu-physics-labs.pages.dev/` today, so a move to another host changes one line; `_quarto.yml` was the lean's place, but nothing in Python reads that file, and Quarto's own `site-url` would also make a sitemap the noindex policy does not want. The Markdown download keeps the relative link, which works inside the course zip. (3) The wording change in PH 212 Lab 6 rides in its own content PR.
+- rationale: The owner, 2026-11-05: "Leans agreed". Context (Claude): a relative link works on the site and in the course zip but breaks in a Word, HTML or PDF file saved on its own, and a student working from the Word file still needs the data; the PDF is Chrome's print of the page, so the page uses the same absolute address. The cost is one host-specific line against ledger 39's host-agnostic output, kept to that line.
+- alternatives: a relative link everywhere (broken in saved downloads); a CSV (the owner: Graphical Analysis opens it poorly); embedding the file in the Word download (no such route in Pandoc).
+- binds: D-0164; ledger 39; tools/media.py; tools/filters/media.lua; tools/downloads.py; tools/quarto_build.py; tools/render.py
+- test: tests/test_downloads.py::MediaDownloads (published, changed file stops the build, Word, HTML and page links)
+
 ### D-0166  Screen-reader fixes from the NVDA test: skip link, named landmarks, PH 212 Labs 3 and 6 headings, a figure's name
 - status: proposed
 - proposed-by: claude
