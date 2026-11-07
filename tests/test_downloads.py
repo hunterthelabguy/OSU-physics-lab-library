@@ -33,6 +33,8 @@ from test_quarto_site import converted, question_numbers, split_figures  # noqa:
 import test_quarto_site                   # noqa: E402
 
 LABELS = {"docx": "Word", "html": "HTML", "pdf": "PDF", "md": "Markdown"}
+# Course-wide documents are no lab and may hold no question (D-0160).
+COURSE_WIDE = {doc_id for doc_id, _ in render.course_wide(render.converted_documents())}
 
 # The modern page's values that the Word file follows (D-0057): the light
 # scheme's colors, the body's size and line height, and the paragraph and
@@ -211,7 +213,8 @@ class MarkdownAndWord(unittest.TestCase):
                 want, math, api = read_words(str(source), "-f", render.FROM,
                                              "--lua-filter", str(FILTER), "-M", "theme=modern")
                 self.assertEqual(got, want)
-                self.assertIn("Question", got)
+                if doc_id not in COURSE_WIDE:
+                    self.assertIn("Question", got)
                 self.assertNotIn("license pending", flat(" ".join(got)).lower())
                 same_equations(self, math, api, self.docx(doc_id))
 
@@ -297,7 +300,7 @@ class MarkdownAndWord(unittest.TestCase):
                     self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
                     self.assertTrue(any(texts[1:]), "the checkpoint's words are in the box")
                 self.assertEqual(len(boxes), count)
-                self.assertGreater(count, 0)
+                self.assertTrue(count or doc_id in COURSE_WIDE)
                 for n, (tbl, styles, texts) in zip(numbers, boxes):
                     self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
                     self.assertEqual(styles[0], "QuestionLabel")
@@ -442,6 +445,7 @@ HTML_CAPS = {
     "ph211-hypothesis-testing-handout": 330_000,  # 295,331 bytes, pass 3
     "ph211-team-building-handout": 190_000,
     "ph211-uncertainty-handout": 320_000,  # 284,044 bytes, pass 3
+    "ph21x-problem-solving-strategy": 190_000,  # 164,146 bytes, D-0160
     "ph212-capstone-handout": 390_000,  # 345,602 bytes, pass 4
     "ph212-data-analysis-handout": 210_000,  # 188,615 bytes, pass 4
     "ph212-designing-experiments-handout": 380_000,  # 343,116 bytes, pass 3
@@ -680,7 +684,8 @@ class MediaDownloads(unittest.TestCase):
 
 
 def pdf_text(path):
-    return subprocess.run([PDFTOTEXT, "-layout", str(path), "-"], check=True,
+    # -enc UTF-8: poppler's Windows build writes Latin-1 by default (D-0160).
+    return subprocess.run([PDFTOTEXT, "-layout", "-enc", "UTF-8", str(path), "-"], check=True,
                           capture_output=True, text=True, encoding="utf-8").stdout
 
 
@@ -979,6 +984,8 @@ class PrintKeeps(unittest.TestCase):
 
     def test_offsets_still_cross_a_break(self):
         for doc_id, _ in converted():
+            if doc_id in COURSE_WIDE:
+                continue      # no question box for an offset to split
             with self.subTest(doc=doc_id):
                 found = [s for px in self.OFFSETS for s in self.splits(doc_id, self.printed(doc_id, px, True))]
                 self.assertTrue(found, "no offset splits anything with the rules off: "

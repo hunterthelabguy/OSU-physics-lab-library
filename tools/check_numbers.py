@@ -26,7 +26,10 @@ reads, in document order, the labels students see:
   question list outside any question (PH 211 Lab 3's appendix contents);
   its markers, in order, against Word's labels at the anchors it names.
 
-An anchor no rule places fails. Exit code 0 when every file passes.
+An anchor no rule places fails. A PDF original has no Word labels
+(D-0160), so its Markdown may hold none of these blocks; a plain ordered
+list outside them is typed from the page and not compared. Exit code 0
+when every file passes.
 """
 
 import hashlib
@@ -221,6 +224,12 @@ def check(md_path, repo_root=ROOT, labels=None):
         capture_output=True, check=True, encoding="utf-8").stdout)
     meta = doc["meta"]["source_file"]
     source = meta["c"] if meta["t"] == "MetaString" else plain(meta["c"])
+    if source.lower().endswith(".pdf"):
+        # No Word labels to read (D-0160): a PDF original may hold no
+        # question, checkpoint or numbered block, since none could be checked.
+        items = rendered_items(md_path)
+        return items, [f"{kind} {label}: a PDF original has no Word labels"
+                       for _, kind, label, _ in items]
     hashes = parts_sha256(os.path.join(repo_root, source))
     record = next((r for r in labels["originals"].values()
                    if r.get("parts_sha256") == hashes), None)
@@ -240,6 +249,8 @@ def main(paths):
             print(f"FAIL {p}")
             for line in problems:
                 print("  " + line)
+        elif not items:
+            print(f"ok   {p} (no question, checkpoint or numbered block to check)")
         else:
             count = {k: sum(1 for i in items if i[1] == k)
                      for k in ("question", "checkpoint", "part")}
