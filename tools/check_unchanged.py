@@ -1,4 +1,4 @@
-"""Content-unchanged check: original Word or Excel file vs converted Markdown.
+"""Content-unchanged check: original Word, Excel or PDF file vs converted Markdown.
 
 Usage: python tools/check_unchanged.py FILE.md [FILE.md ...]
 
@@ -52,6 +52,15 @@ placed below its first lines (D-0118); an inline one is read in place.
 Markdown is read as the build reads it, with implicit figures off, so a
 lone image is not given its alt text as a visible caption (D-0118).
 List markers, block structure, italics, and underline are not compared.
+
+A PDF original (D-0160) is read from its text layer by poppler's pdftotext
+(PDFTOTEXT, or pdftotext on PATH), so only the word sequence and the
+equations' text are compared: a text layer keeps no bold, no equation
+structure and no pictures. Its list markers are text there, so they are
+dropped, as Word's numbering never reaches the word sequence. Word's math
+survives as Mathematical Alphanumeric Symbols; each run of them is one
+inline equation. A display equation, picture or table in a PDF is not
+handled: the one PDF original has none.
 
 Differences are allowed only when declared in front matter and ruled in a
 ledger:
@@ -474,6 +483,49 @@ def xlsx_chars(path, sheet_name):
     return out
 
 
+PDFTOTEXT = os.environ.get("PDFTOTEXT", "pdftotext")
+# A line's list marker in a PDF's text layer: "1. " at a line's start, or a
+# bullet anywhere (pdftotext joins a list's bullets onto one line).
+PDF_NUMBER = re.compile(r"^\d+\.\s", re.M)
+PDF_BULLET = "•"
+
+
+def is_math_alnum(ch):
+    return 0x1D400 <= ord(ch) <= 0x1D7FF
+
+
+def pdf_text_content(text):
+    """(chars, equations) from a PDF's text layer (D-0160).
+
+    chars carry bold None: the text layer has no weight to compare.
+    """
+    text = PDF_NUMBER.sub("", text).replace(PDF_BULLET, " ")
+    chars, eqs, run = [], [], []
+
+    def flush():
+        if run:
+            math = "".join(run)
+            eqs.append({"kind": "inline", "text": math, "norm": math_norm(math),
+                        "shape": None})
+            placeholder(chars, EQUATION)
+            run.clear()
+
+    for ch in text:
+        if is_math_alnum(ch):
+            run.append(ch)
+            continue
+        flush()
+        chars.append((ch, None))
+    flush()
+    return chars, eqs
+
+
+def pdf_content(path):
+    text = subprocess.run([PDFTOTEXT, "-enc", "UTF-8", path, "-"],
+                          capture_output=True, check=True).stdout.decode("utf-8")
+    return pdf_text_content(text)
+
+
 def ast_chars(node, out, bold=False, found=None):
     """Collect (char, bold) from a Pandoc JSON node; attributes are skipped.
 
@@ -650,7 +702,7 @@ def compare_equations(original, converted):
         if o["norm"] != c["norm"]:
             problems.append(f"equation {i}: original text {o['text']!r},"
                             f" converted {c['tex']!r} reads {c['text']!r}")
-        elif o["shape"] != c["shape"]:
+        elif o["shape"] is not None and o["shape"] != c["shape"]:
             diff = ", ".join(f"{k} {a}->{b}" for k, a, b in
                              zip(OMML_KINDS, o["shape"], c["shape"]) if a != b)
             problems.append(f"equation {i}: structure differs ({diff}) in {c['tex']!r}")
@@ -845,6 +897,9 @@ def check(md_path, repo_root):
         original = tokens(chars)
     elif src.lower().endswith(".xlsx"):
         original = tokens(xlsx_chars(src, meta["source_sheet"]))
+    elif src.lower().endswith(".pdf"):
+        chars, o_eqs = pdf_content(src)
+        original = tokens(chars)
     else:
         raise SystemExit(f"unsupported original type: {src}")
     descrs = {}
@@ -919,7 +974,8 @@ def check(md_path, repo_root):
         problems += compare_table_pages([w for _, w in o_tables], [w for _, w in c_tables])
     words = sum(1 for w in a if w not in SHOWN)
     return {"words": words, "bold": compared, "equations": len(o_eqs),
-            "pictures": len(o_pics), "figures": len(found["figures"])}, problems
+            "pictures": len(o_pics), "figures": len(found["figures"]),
+            "pdf": src.lower().endswith(".pdf")}, problems
 
 
 def main(paths):
@@ -932,6 +988,10 @@ def main(paths):
             print(f"FAIL {p}")
             for line in problems:
                 print("  " + line)
+        elif n["pdf"]:
+            print(f"ok   {p} ({n['words']} words identical; {n['equations']} equations'"
+                  f" text identical; a PDF's text layer has no bold, equation"
+                  f" structure or pictures to compare)")
         else:
             print(f"ok   {p} ({n['words']} words identical; bold identical on"
                   f" {n['bold']} words outside headings; {n['equations']} equations,"

@@ -1,6 +1,13 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-23.
+Volatile handoff, capped at one screen. Updated 2026-10-26.
+
+**Problem-solving strategy (2026-10-26): one-page PDF, course-wide.**
+- Branch `problem-solving-strategy`: `curriculum/ph21x/`, its own lab-pipeline
+  page and downloads, linked under "For every course" on the course index.
+  The word check reads PDF originals (D-0160). D-0158 to D-0160 proposed.
+- Open for the owner: the truncated example, "breaks", the license ask
+  (`docs/owner-tasks.md`).
 
 **Sharing (2026-10-23): the draft banner is off (D-0156).**
 - #68 merged (`67e42bc`) after the owner's review of the deleted lines:

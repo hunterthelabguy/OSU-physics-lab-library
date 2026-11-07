@@ -230,6 +230,7 @@
    ["question", "ph213-model-building:predict-combinations"],
    ["question", "ph213-model-building:check-predictions"],
    ["question", "ph213-model-building:compare-results-predictions"]
-  ]
+  ],
+  "ph21x-problem-solving-strategy": []
  }
 }

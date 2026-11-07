@@ -354,5 +354,32 @@ class FiguresAndFiles(unittest.TestCase):
         self.assertTrue(any("[picture]" in p for p in problems), problems)
 
 
+class PdfText(unittest.TestCase):
+    """D-0160: a PDF's text layer, as pdftotext writes it, made up here."""
+
+    TEXT = ("7\nA Title\n1. First step • Keep a car of mass \U0001d45a moving. "
+            "• Use \U0001d707\U0001d458.\n2. Second step\n")
+
+    def test_list_markers_dropped_and_math_runs_are_equations(self):
+        chars, eqs = check_unchanged.pdf_text_content(self.TEXT)
+        words = [w for w, _ in check_unchanged.tokens(chars)]
+        E = check_unchanged.EQUATION
+        self.assertEqual(words, ["7", "A", "Title", "First", "step", "Keep", "a", "car", "of",
+                                 "mass", E, "moving.", "Use", E, ".", "Second", "step"])
+        self.assertEqual([e["norm"] for e in eqs], ["m", "μk"])
+        self.assertTrue(all(e["kind"] == "inline" and e["shape"] is None for e in eqs))
+
+    def test_no_bold_compared(self):
+        chars, _ = check_unchanged.pdf_text_content(self.TEXT)
+        self.assertTrue(all(state is None for _, state in check_unchanged.tokens(chars)))
+
+    def test_text_only_equations_skip_structure(self):
+        o = [{"kind": "inline", "text": "vo", "norm": "vo", "shape": None}]
+        c = [{"kind": "inline", "text": "vo", "norm": "vo", "shape": (1,), "tex": "v_o"}]
+        self.assertEqual(check_unchanged.compare_equations(o, c), [])
+        c[0]["norm"] = "v0"
+        self.assertTrue(check_unchanged.compare_equations(o, c))
+
+
 if __name__ == "__main__":
     unittest.main()
