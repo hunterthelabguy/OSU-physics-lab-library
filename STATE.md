@@ -1,6 +1,16 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-23.
+Volatile handoff, capped at one screen. Updated 2026-11-07.
+
+**Changes phase (2026-11-07): conversion is no longer the only work (D-0168).**
+- Branch `ph211-lab6-whiteboard`: the first ruled change, PH 211 Lab 6
+  (D-0169): whiteboard for carpet, the Go Direct cart in the browser
+  version of Graphical Analysis, and the equipment lines. Every changed
+  passage declared in front matter; the word check unchanged. "How this
+  site works" and the landing page say so. Both entries proposed.
+- Open for the owner: where the web app zeros the cart (a zero step goes
+  back in then). The landing page's older stale lines ("One lab is
+  converted so far") are a separate change.
 
 **Sharing (2026-10-23): the draft banner is off (D-0156).**
 - #68 merged (`67e42bc`) after the owner's review of the deleted lines:
