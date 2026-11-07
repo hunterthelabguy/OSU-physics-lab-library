@@ -1,12 +1,24 @@
 # State
 
-Volatile handoff, capped at one screen. Updated 2026-10-26.
+Volatile handoff, capped at one screen. Updated 2026-11-07.
 
-**Problem-solving strategy (2026-10-26): one-page PDF, course-wide.**
-- Branch `problem-solving-strategy`: `curriculum/ph21x/`, its own lab-pipeline
-  page and downloads, linked under "For every course" on the course index.
-  The word check reads PDF originals (D-0160). D-0158 to D-0160 proposed.
-- Open for the owner: the truncated example, "breaks", the license ask
+**Changes phase (2026-11-07): conversion is no longer the only work (D-0168).**
+- PR #74: the first ruled change, PH 211 Lab 6 (D-0169): whiteboard for
+  carpet, the Go Direct cart in the browser version of Graphical
+  Analysis, and the equipment lines. Every changed passage declared in
+  front matter; the word check unchanged. "How this site works" and the
+  landing page say so. Both entries proposed.
+- Open for the owner: where the web app zeros the cart (a zero step goes
+  back in then). The landing page's older stale lines ("One lab is
+  converted so far") are a separate change.
+
+**Merged 2026-11-07, one at a time, main's run green after each:** #69
+problem-solving strategy (D-0158 to D-0160), #70 PH 212 GA sentences
+(D-0161 to D-0164), #71 a lab's own file (D-0165), #72 PH 212 Lab 6's
+data file, #73 screen-reader fixes (D-0166, plus a test fix for #71's
+`library-url`). Entries still proposed. D-0167 (PH 212 equations) has a
+branch, no PR. #61 waits on the owner's Word check and conflicts with main.
+- Open from #69: the truncated example, "breaks", the license ask
   (`docs/owner-tasks.md`).
 
 **Sharing (2026-10-23): the draft banner is off (D-0156).**

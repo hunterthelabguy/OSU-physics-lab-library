@@ -33,17 +33,23 @@ web pages and Word files. Quarto runs Pandoc across the whole site and lays
 out its pages. A web browser prints each lab's PDF from its web page. The OSU header, footer and colors come from the site's own
 templates; the handouts themselves carry no branding.
 
-## How we know nothing changed
+## How we know what changed
 
-This phase converts format only: no wording, curriculum, objective or
-convention is changed. For every converted handout, a program reads the
+The site began by converting format only: no wording, curriculum, objective
+or convention was changed. For every converted handout, a program reads the
 words of the original Word file and the words of the Markdown file and
 compares them in order, along with which words are bold, every equation,
 and the description of every picture. A second program compares each
 question's number with the number Word shows. They must match
-exactly; PH 211's Lab 1, the first converted, matches on all 989 words. A
-difference that has not been recorded and ruled stops the change from
-being published. The original Word files are kept, their words unchanged, so anyone who
+exactly; PH 211's Lab 1, the first converted, matches on all 989 words.
+
+Handouts now change as well, one ruled change at a time, and only in the
+Markdown file. Each changed passage is listed in the handout's own file:
+the original's words, the words that replace them, and the ledger entry
+that approved the change. The same check still runs on every handout and
+passes only if the words match the original apart from the listed
+passages. A difference that has not been recorded and ruled stops the
+change from being published. The original Word files are kept, their words unchanged, so anyone who
 prefers them loses nothing; the copies stored with the site have their
 author and company fields removed.
 
@@ -78,10 +84,13 @@ be decided again.
 
 ## Who did the work
 
-Hunter Reaves directs Claude, an AI model from Anthropic, to convert the
-original Word documents to Markdown and to build the software that
-converts, checks and publishes them. Every ruling is his, recorded in the
-ledger, and he answers for the work. The project holds itself to the
+The heavy lifting is done by the two open-source tools described above:
+Pandoc converts the files and Quarto builds the site. Around them is
+software written for this site (the word check, the downloads and the
+publishing steps), which Hunter Reaves built with Claude, an AI model from
+Anthropic, as he did the conversion of the original Word documents to
+Markdown. Every ruling is his, recorded in the ledger,
+and he answers for the work. The project holds itself to the
 standard it sets for students in these labs: disclose the use of AI, keep
 the reasoning human, and the human answers for the work.
 
@@ -89,7 +98,7 @@ Common concerns, answered briefly:
 
 | Concern | Answer |
 |---|---|
-| Accuracy | The content-unchanged check, per document. |
+| Accuracy | The word check, per document; every change listed and ruled. |
 | Authorship and credit | Original authors are kept and credited. |
 | A double standard for faculty | The project follows the students' AI policy. |
 | Deskilling | Every judgment is a human ruling in the ledger. |
@@ -108,8 +117,3 @@ site and move it to another host; until someone starting from nothing has
 followed them, that is all this page claims for them.
 The accounts the site depends on (the host, and later a domain) are to be
 listed in the repository by role, with how each is handed over.
-
-## Not settled yet
-
-The standard for the
-later phase, when wording does change, is still open (ledger 11).

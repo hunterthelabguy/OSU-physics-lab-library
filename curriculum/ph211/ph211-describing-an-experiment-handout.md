@@ -8,7 +8,62 @@ visibility: public
 layer: curriculum
 source_file: "originals/PH211/Lab 6 - Describing an Experiment - Handout.docx"
 source_sha256: "cf18da95fc358c0c1006d8a9a42e2d027a27889363bc44a3fcdc8f5487754c19"
-status: converted
+status: ruled-change
+ruled_omissions:
+  - text: "between a block and a carpet square."
+    ledger: "D-0169"
+  - text: "between a wooden block and piece of carpet, but"
+    ledger: "D-0169"
+  - text: "the block on a piece of carpet on a ramp."
+    ledger: "D-0169"
+  - text: >-
+      Wooden block Piece of carpet Meter stick Masses Balance Some stations:
+      Ramp, or Force sensor
+    ledger: "D-0169"
+  - text: "between a wooden block and piece of carpet (both supplied)"
+    ledger: "D-0169"
+  - text: >-
+      Before taking data using the force sensor, you need to prepare it:
+      Open Graphical Analysis Choose your probe setting. Choosing 10 N will
+      give you better precision for smaller forces, but it will give you
+      incorrect values if the force is more than 10 N. In that case choose
+      50 N, reset the probe and repeat the measurement. Do not subject the
+      probe to more than 50 N of force. Connect the Force Sensor. If the
+      sensor is wireless, do not connect it using the computer’s Bluetooth
+      settings. Connection should be done through the Graphical Analysis
+      app. Zero the probe. Place it flat on the table with nothing touching
+      the sensor end (the hook). In Graphical Analysis, click on the display
+      at the bottom right of the screen showing the force sensor reading.
+      Choose “Zero” from the menu. You can zero as often as you like and
+      should do so anytime you get a non-zero reading when the probe has no
+      force on it. You should typically zero anytime you change the setting.
+    ledger: "D-0169"
+ruled_additions:
+  - text: "between a block and a whiteboard."
+    ledger: "D-0169"
+  - text: "between a wooden block and a whiteboard, but"
+    ledger: "D-0169"
+  - text: "Your instructor will tell your group which face of the block to put down."
+    ledger: "D-0169"
+  - text: "the block on a whiteboard on a ramp."
+    ledger: "D-0169"
+  - text: >-
+      Wooden block (two wood faces, two felt faces) Whiteboard Meter stick
+      Balance Some stations: Adjustable ramp with the whiteboard clamped to
+      it, and a protractor, or Cart with a built-in force sensor, and masses
+    ledger: "D-0169"
+  - text: "between a wooden block and a whiteboard (both supplied)"
+    ledger: "D-0169"
+  - text: >-
+      Before taking data using the cart’s force sensor, you need to prepare
+      it: Open Graphical Analysis (graphicalanalysis.app) in Chrome or
+      Edge. Choose Sensor Data Collection, click Wireless, and select your
+      cart. Do not connect it using the computer’s Bluetooth settings. Open
+      Sensor Setup. Open Sensor Channels. Select Force. Deselect Position.
+      Click Done. At the bottom left, click Mode to open Data Collection
+      Settings. Change End Collection from a set duration to Manually, and
+      click Done.
+    ledger: "D-0169"
 images:
   - file: "ph211-describing-an-experiment-handout-media/graphical-analysis-view-icon.png"
     source_part: "word/media/image1.png"
@@ -22,13 +77,13 @@ images:
 
 ## PH 211 – General Physics with Calculus
 
-**Experimental goal: Find the coefficient of static friction between a block and a carpet square.**
+**Experimental goal: Find the coefficient of static friction between a block and a whiteboard.**
 
 In this activity you will devise and describe an experiment, take data and find results, and then give your experimental description to another group. The other group will repeat it and compare their results to yours. At the same time, you’ll repeat their experiment using their description, and compare your results with theirs.
 
-Each experiment will determine the coefficient of static friction between a wooden block and piece of carpet, but in different ways.
+Each experiment will determine the coefficient of static friction between a wooden block and a whiteboard, but in different ways. Your instructor will tell your group which face of the block to put down.
 
-1.  By placing the block on a piece of carpet on a ramp.
+1.  By placing the block on a whiteboard on a ramp.
 2.  By measuring force on the block.
 
 ## Learning Objectives
@@ -48,18 +103,17 @@ You will have access to different equipment depending on which experiment you’
 All stations:
 
 ::: action
-- Wooden block
-- Piece of carpet
+- Wooden block (two wood faces, two felt faces)
+- Whiteboard
 - Meter stick
-- Masses
 - Balance
 :::
 
 Some stations:
 
 ::: action
-- Ramp, or
-- Force sensor
+- Adjustable ramp with the whiteboard clamped to it, and a protractor, or
+- Cart with a built-in force sensor, and masses
 :::
 
 You must design an experiment you can perform using only the equipment at your station.
@@ -94,7 +148,7 @@ When an object is on a ramp at an angle $\theta$ from the horizontal, gravity cr
 
 Below are two possible experiments. You should do the one that fits the equipment at your station. (Your lab instructor may move you to a different station to even out the number of groups doing each experiment.)
 
-In both experiments, your objective is to determine the coefficient of static friction between a wooden block and piece of carpet (both supplied)
+In both experiments, your objective is to determine the coefficient of static friction between a wooden block and a whiteboard (both supplied)
 
 **[Experiment 1 (Ramp):]{.underline} Use the block on the ramp to determine the coefficient of static friction. Use the fact that the block will start moving at a ramp angle** $\theta$ **related to the coefficient by** $\mathbf{\tan}\left( \mathbf{\theta} \right)\mathbf{= \ }\mathbf{\mu}_{\mathbf{s}}$**.**
 
@@ -131,12 +185,15 @@ b.  **Describe the procedure, including how to collect relevant data and what da
 
 *[Experiment 1 (ramp):]{.underline}* Skip to Question 4 below.
 
-*[Experiment 2 (force sensor):]{.underline}* Before taking data using the force sensor, you need to prepare it:
+*[Experiment 2 (force sensor):]{.underline}* Before taking data using the cart’s force sensor, you need to prepare it:
 
-1.  Open Graphical Analysis
-2.  Choose your probe setting. Choosing 10 N will give you better precision for smaller forces, but it will give you incorrect values if the force is more than 10 N. In that case choose 50 N, reset the probe and repeat the measurement. Do not subject the probe to more than 50 N of force.
-3.  Connect the Force Sensor. If the sensor is wireless, do *not* connect it using the computer’s Bluetooth settings. Connection should be done through the Graphical Analysis app.
-4.  Zero the probe. Place it flat on the table with nothing touching the sensor end (the hook). In Graphical Analysis, click on the display at the bottom right of the screen showing the force sensor reading. Choose “Zero” from the menu. You can zero as often as you like and should do so anytime you get a non-zero reading when the probe has no force on it. You should typically zero anytime you change the setting.
+1.  Open Graphical Analysis ([graphicalanalysis.app](https://graphicalanalysis.app)) in Chrome or Edge. Choose *Sensor Data Collection*, click *Wireless*, and select your cart. Do *not* connect it using the computer’s Bluetooth settings.
+2.  Open *Sensor Setup*.
+3.  Open *Sensor Channels*.
+4.  Select *Force*.
+5.  Deselect *Position*.
+6.  Click *Done*.
+7.  At the bottom left, click *Mode* to open *Data Collection Settings*. Change *End Collection* from a set duration to *Manually*, and click *Done*.
 
 Now you’re ready to run your experiment.
 

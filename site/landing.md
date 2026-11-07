@@ -44,12 +44,13 @@ and the accessibility guidelines, and graded questions get their own
 labeled block instead of leaning on bold. A second page that reproduced
 the Word layout was shown beside it until colleagues agreed on this one.
 
-## What has not changed
+## What has changed
 
-No wording, curriculum, objective, or convention has been changed. This
-phase converts format only. For every converted document, the words of the
+The library began by converting format only. Wording now changes too, one
+ruled change at a time. For every converted document, the words of the
 original Word file and which of them are bold are compared against the
-converted version; a difference that has not been recorded and ruled fails
+converted version; each changed passage is listed with the decision that
+approved it, a difference that has not been recorded and ruled fails
 the check, and the change does not land. The original Word files are kept
 and are still available, so anyone who would rather teach from them loses
 nothing. The copy kept with this site has its author and company fields

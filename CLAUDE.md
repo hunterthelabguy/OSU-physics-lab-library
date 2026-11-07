@@ -159,8 +159,13 @@ Quarto internals.
   never here, because git history is permanent. Nothing that carries an
   answer key belongs here: the Electric Force instructor guide and build
   prompt stay out.
-- Conversion phase: no content changes. Format only, proven by the
-  content-unchanged check (docs/conversion-spec.md).
+- Conversion first, then ruled changes (D-0168). A handout's conversion is
+  format only, proven by the content-unchanged check
+  (docs/conversion-spec.md), and lands on its own. A wording change comes
+  after, never folded into a conversion: each changed passage declared in
+  the source's front matter (`ruled_omissions`, `ruled_additions`) with its
+  ledger entry, `status: ruled-change`, and the entry records who drafted
+  the words and who approved them. Never loosen the check for a change.
 - Roles, not names. No invented record data.
 - Original source files are in `../Old Reference Material/` and are
   unvetted: read one in full for student data before planning around it.
