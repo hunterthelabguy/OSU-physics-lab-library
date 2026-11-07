@@ -31,7 +31,10 @@ Markdown file itself. Nothing is copied by hand, so the versions cannot disagree
 Two free, open-source tools do the building. Pandoc converts Markdown into
 web pages and Word files. Quarto runs Pandoc across the whole site and lays
 out its pages. A web browser prints each lab's PDF from its web page. The OSU header, footer and colors come from the site's own
-templates; the handouts themselves carry no branding.
+templates; the handouts themselves carry no branding. A lab page drops
+the Word page settings: its typography follows the reading research and
+the accessibility guidelines, and graded questions get their own labeled
+block instead of leaning on bold.
 
 ## How we know what changed
 
@@ -93,27 +96,3 @@ Markdown. Every ruling is his, recorded in the ledger,
 and he answers for the work. The project holds itself to the
 standard it sets for students in these labs: disclose the use of AI, keep
 the reasoning human, and the human answers for the work.
-
-Common concerns, answered briefly:
-
-| Concern | Answer |
-|---|---|
-| Accuracy | The word check, per document; every change listed and ruled. |
-| Authorship and credit | Original authors are kept and credited. |
-| A double standard for faculty | The project follows the students' AI policy. |
-| Deskilling | Every judgment is a human ruling in the ledger. |
-| Data privacy | No student data enters any repo, by rule. |
-| Jobs and labor | Time saved goes to teaching and TA preparation. |
-
-## If the people change
-
-The site is built so that it does not depend on any one person. Everything
-needed to rebuild it, the handouts, the original Word files, the build
-settings, the tests and the decision ledger, is in one repository. That
-repository is private for now and is planned to become public once its
-whole history has been checked for anything that must not be published.
-Its instructions are being written so that a successor can rebuild the
-site and move it to another host; until someone starting from nothing has
-followed them, that is all this page claims for them.
-The accounts the site depends on (the host, and later a domain) are to be
-listed in the repository by role, with how each is handed over.

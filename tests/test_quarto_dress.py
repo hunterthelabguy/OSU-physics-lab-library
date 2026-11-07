@@ -65,7 +65,7 @@ class OldChrome(unittest.TestCase):
     def test_document_page(self):
         body_class, top, bottom = quarto_chrome.old_chrome(
             {"html": "labs/x/modern/index.html", "kind": "doc", "depth": 3,
-             "theme": "modern", "footnote": ""})
+             "theme": "modern"})
         self.assertEqual(body_class, "theme-modern")
         for piece in ('<header class="osu-header">',
                       '<nav class="site-nav" aria-label="This page">',
@@ -75,21 +75,15 @@ class OldChrome(unittest.TestCase):
         self.assertNotIn("draft-banner", top)  # D-0156
         self.assertNotIn("license pending", " ".join(top.split()).lower())
         self.assertNotIn('class="switch"', top)  # D-0108: one presentation
-        self.assertIn('<div class="doc-footer">', bottom)
+        self.assertNotIn('class="doc-footer"', bottom)  # D-0170
         self.assertIn('<footer class="osu-foot">', bottom)
 
-    def test_site_page_with_footnote(self):
+    def test_site_page_has_no_footnote(self):
+        # D-0170: the method page's source footnote went with the others.
         body_class, top, bottom = quarto_chrome.old_chrome(
-            {"html": "how-this-site-works/index.html", "kind": "site", "depth": 1,
-             "theme": None, "footnote": render.METHOD_FOOTNOTE})
+            {"html": "how-this-site-works/index.html", "kind": "site", "depth": 1, "theme": None})
         self.assertEqual(body_class, "site-page")
         self.assertNotIn("site-nav", top)
-        self.assertIn('<div class="site-foot">', bottom)
-        self.assertIn("site/how-this-site-works.md", bottom)
-
-    def test_site_page_without_footnote(self):
-        _, _, bottom = quarto_chrome.old_chrome(
-            {"html": "index.html", "kind": "site", "depth": 0, "theme": None, "footnote": ""})
         self.assertNotIn("site-foot", bottom)
         self.assertIn('<footer class="osu-foot">', bottom)
 

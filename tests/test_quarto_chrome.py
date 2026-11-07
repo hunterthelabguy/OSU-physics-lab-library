@@ -134,11 +134,13 @@ class ChromePieces(unittest.TestCase):
 
     def test_document_nav(self):
         home = from_template("template.html", r'<a href="\$homehref\$">([^<$]+)</a>')
+        docs = render.converted_documents()
         for rel, text in self.pages():
             theme = lab_theme(rel)
             if not theme:
                 continue
-            m = meta(render.document_extras(theme))
+            doc_id = rel.split("/")[1]
+            m = meta(render.document_extras(theme, 3, docs[doc_id]["meta"].get("course")))
             nav = re.findall(r'<nav class="site-nav" aria-label="This page">.*?</nav>', text, re.S)
             with self.subTest(page=rel):
                 self.assertEqual(len(nav), 1)
@@ -155,34 +157,21 @@ class ChromePieces(unittest.TestCase):
                 with self.subTest(page=rel):
                     self.assertNotIn('<nav class="site-nav" aria-label="This page">', text)
 
-    def test_presentation_note_and_both_presentations(self):
-        # D-0156: the footer is the presentation note alone; the sentence
-        # about the draft notice on downloads is gone with the notice.
-        from_template("template.html",
-                      r'(<div class="doc-footer">\n<p>\$presentationnote\$</p>\n</div>)')
+    def test_no_meta_notes_for_students(self):
+        # D-0170: no page carries the lab page's presentation note, the
+        # method page's source footnote, or the footer's license line.
         for rel, text in self.pages():
-            theme = lab_theme(rel)
-            footer = re.findall(r'<div class="doc-footer">\n(.*?)</div>', text, re.S)
             with self.subTest(page=rel):
-                if not theme:
-                    self.assertEqual(footer, [])
-                    continue
-                self.assertEqual(len(footer), 1)
-                paras = [one_line(html.unescape(p)) for p in re.findall(r"<p>(.*?)</p>", footer[0], re.S)]
-                self.assertEqual(paras, [one_line(render.THEME_NOTE[theme])])
+                self.assertNotIn('class="doc-footer"', text)
+                self.assertNotIn('class="site-foot"', text)
+                self.assertNotIn("License and credits", text)
 
-    def test_method_footnote_only_on_its_page(self):
-        shape = from_template(
-            "template-site.html",
-            r'(<div class="site-foot">\n<p class="print-hide">)\$footnote\$(</p>\n</div>)')
-        for rel, text in self.pages():
-            found = re.findall(re.escape(shape[0]) + "(.*?)" + re.escape(shape[1]), text, re.S)
-            with self.subTest(page=rel):
-                if rel == "how-this-site-works/index.html":
-                    self.assertEqual([one_line(html.unescape(f)) for f in found],
-                                     [one_line(render.METHOD_FOOTNOTE)])
-                else:
-                    self.assertNotIn('<div class="site-foot">', text)
+    def test_lab_nav_goes_to_its_course(self):
+        # D-0170: a PH 211 lab's nav links its course page, one tap from the lab.
+        text = (QSITE / "labs" / "ph211-describing-an-experiment-handout" / "modern"
+                / "index.html").read_text(encoding="utf-8")
+        nav = re.search(r'<nav class="site-nav" aria-label="This page">.*?</nav>', text, re.S).group(0)
+        self.assertIn('<a href="../../../courses/ph211/">PH 211 labs</a>', nav)
 
 
     def test_landing_footnote_not_carried(self):
@@ -208,7 +197,6 @@ def media_css(query):
 
 
 TABLE = re.compile(r'<table class="lab-table">.*?</table>', re.S)
-PENDING = re.compile(r'<details class="lab-pending">\s*<summary>([^<]*)</summary>(.*?)</details>', re.S)
 
 
 def cells(table):
@@ -266,8 +254,7 @@ class LabRows(unittest.TestCase):
         for course in listed:
             done = render.converted_labs(course, docs)
             with self.subTest(course=course["code"]):
-                outside = PENDING.sub("", main_of(course_page(course)))
-                tables = TABLE.findall(outside)
+                tables = TABLE.findall(main_of(course_page(course)))
                 self.assertEqual(len(tables), 1 if done else 0)
                 if not done:
                     continue
@@ -291,20 +278,17 @@ class LabRows(unittest.TestCase):
                 self.assertNotIn("Also available as it was written", main)
                 self.assertNotRegex(main, r"<h[2-6][^>]*>\s*Converted")
 
-    def test_unconverted_labs_collapsed_before_launch(self):
+    def test_labs_not_on_the_site_not_shown(self):
+        # D-0170: a student sees only the labs on the site.
         listed, docs = courses()
         for course in listed:
-            pending = [lab for lab in course.get("labs") or [] if lab.get("document") not in docs]
-            found = PENDING.findall(main_of(course_page(course)))
+            main = main_of(course_page(course))
             with self.subTest(course=course["code"]):
-                self.assertEqual(len(found), 1 if pending else 0)
-                if not pending:
-                    continue
-                summary, inside = found[0]
-                self.assertEqual(summary, "Not yet converted ({})".format(len(pending)))
-                self.assertNotIn("<a ", inside)
-                self.assertEqual([html.unescape(d) for _, _, d in cells(TABLE.search(inside).group(0))],
-                                 [lab["description"] for lab in pending])
+                self.assertNotIn("lab-pending", main)
+                self.assertNotIn("Not yet converted", main)
+                for lab in course.get("labs") or []:
+                    if lab.get("document") not in docs:
+                        self.assertNotIn(html.escape(lab["description"]), main)
 
 
 class CoursePages(unittest.TestCase):
@@ -327,10 +311,9 @@ class CoursePages(unittest.TestCase):
         for (orange, _, inner), course in zip(tiles, listed):
             labs, done = course.get("labs") or [], render.converted_labs(course, docs)
             # The count, computed here from the data: none, all, or some.
-            n = len(labs)
-            count = ("No labs converted yet" if not done else
-                     "{} lab{}".format(n, "" if n == 1 else "s") if len(done) == n else
-                     "{} lab{} listed, {} converted".format(n, "" if n == 1 else "s", len(done)))
+            # D-0170: the labs on the site, nothing about the rest.
+            n = len(done)
+            count = "No labs yet" if not done else "{} lab{}".format(n, "" if n == 1 else "s")
             spans = re.findall(r'<span class="course-tile-([a-z]+)">([^<]*)</span>', inner)
             with self.subTest(course=course["code"]):
                 want = [("code", course["code"])]
@@ -398,24 +381,20 @@ class CoursePages(unittest.TestCase):
                 raw = main_of(course_page(course))
                 main = text_of(raw)
                 self.assertNotIn("none is in hand", main)
-                for lab in course["labs"]:
+                for lab in render.converted_labs(course, courses()[1]):
                     self.assertIn(one_line(lab["title"]), main)
                     self.assertIn(one_line(lab["description"]), main)
                     # Escaped once: "Sharing & Comparing" once read "&amp;".
                     self.assertIn(html.escape(lab["title"]), raw)
                 self.assertNotIn("&amp;amp;", raw)
 
-    def test_footnote_names_the_source_where_labs_are_listed(self):
+    def test_no_source_note_for_students(self):
+        # D-0170: where the list is quoted from stays in site/courses.md.
         for course in courses()[0]:
-            notes = re.findall(r'<p class="course-note">(.*?)</p>', main_of(course_page(course)), re.S)
-            quoted = [n for n in notes if "are quoted from" in n]
+            main = main_of(course_page(course))
             with self.subTest(course=course["code"]):
-                if course.get("labs") and course.get("source_note"):
-                    self.assertEqual(len(quoted), 1)
-                    self.assertIn(course["source_note"], text_of(quoted[0]))
-                    self.assertIn("for {} are".format(course["code"]), text_of(quoted[0]))
-                else:
-                    self.assertEqual(quoted, [])
+                self.assertNotIn("are quoted from", main)
+                self.assertNotIn("listed under the number and title", main)
 
 
 class MainBare(unittest.TestCase):

@@ -42,14 +42,13 @@ def old_chrome(page):
         theme = page["theme"]
         cmd += ["--template", os.path.join(render.ROOT, "tools", "template.html"),
                 "-M", "theme=" + theme,
-                "-M", "css=" + css_path("themes", theme + ".css"),
-                "-M", "presentationnote=" + render.THEME_NOTE[theme]]
-        cmd += render.site_vars(page["depth"]) + render.document_extras(theme, page["depth"])
+                "-M", "css=" + css_path("themes", theme + ".css")]
+        cmd += render.site_vars(page["depth"]) + render.document_extras(
+            theme, page["depth"], page.get("course"))
         if page.get("download_id"):
             cmd += ["-M", "downloadid=" + page["download_id"]]
     else:
-        cmd += ["--template", os.path.join(render.ROOT, "tools", "template-site.html"),
-                "-M", "footnote=" + page["footnote"]]
+        cmd += ["--template", os.path.join(render.ROOT, "tools", "template-site.html")]
         cmd += render.site_vars(page["depth"])
         if page.get("tabs"):
             # A variable, not metadata: Pandoc inserts it as written, links

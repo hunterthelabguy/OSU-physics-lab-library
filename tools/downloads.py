@@ -159,7 +159,6 @@ def html(doc, dest):
             "-M", "title=" + doc["meta"]["title"],
             "-M", "css=" + css("themes", THEME + ".css"),
             "-M", "chromecss=" + css("site", "site.css"),
-            "-M", "presentationnote=" + render.THEME_NOTE[THEME],
             "-o", dest])
     with open(dest, encoding="utf-8") as fh:
         text = fh.read()

@@ -10,9 +10,8 @@ title: "Course index"
 # documents have not been converted. Nothing here is written by Claude.
 # See ledger 45. Nothing is added for a lab its summary does not list.
 # Each course gets its own page, /courses/<code lowercased, no spaces>/
-# (D-0069); the text after this front matter opens every course page that
-# lists labs (D-0070), and source_note names where a course's list is quoted
-# from, in that page's footnote.
+# (D-0069). source_note records where a course's list is quoted from; since
+# D-0170 no page shows it, nor the labs not yet on the site.
 courses:
   - code: "PH 211"
     name: "General Physics with Calculus"
@@ -114,6 +113,3 @@ courses:
         title: "Lab Skills practical (to be done)"
         description: "Written assessment of major skills students should have mastered throughout the curriculum"
 ---
-
-Every lab below is listed under the number and title its own course summary
-gives it.

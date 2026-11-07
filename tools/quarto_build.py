@@ -72,7 +72,7 @@ def generate():
         elif os.path.isfile(path):
             os.remove(path)
 
-    write("index.qmd", {"title": "OSU physics lab library"},
+    write("index.qmd", {"title": "Physics Lab Library"},
           include("index.qmd", "site/landing.md"))
     # Pages serves this at any unknown path (D-0049); post() gives it a base.
     write("404.qmd", {"title": "Page not found"},
@@ -97,12 +97,11 @@ def generate():
           render.sims_index_markdown(render.sims()))
 
     pages = [
-        {"html": "index.html", "kind": "site", "depth": 0, "theme": None, "footnote": ""},
-        {"html": "404.html", "kind": "site", "depth": 0, "theme": None, "footnote": ""},
-        {"html": "courses/index.html", "kind": "site", "depth": 1, "theme": None, "footnote": ""},
-        {"html": "how-this-site-works/index.html", "kind": "site", "depth": 1, "theme": None,
-         "footnote": render.METHOD_FOOTNOTE},
-        {"html": "sims/index.html", "kind": "site", "depth": 1, "theme": None, "footnote": ""},
+        {"html": "index.html", "kind": "site", "depth": 0, "theme": None},
+        {"html": "404.html", "kind": "site", "depth": 0, "theme": None},
+        {"html": "courses/index.html", "kind": "site", "depth": 1, "theme": None},
+        {"html": "how-this-site-works/index.html", "kind": "site", "depth": 1, "theme": None},
+        {"html": "sims/index.html", "kind": "site", "depth": 1, "theme": None},
     ]
 
     for course in meta["courses"]:
@@ -110,7 +109,7 @@ def generate():
         write(folder + "/index.qmd", dict(title=render.course_heading(course), **courses),
               render.course_page_markdown(course, docs))
         pages.append({"html": folder + "/index.html", "kind": "site", "depth": 2,
-                      "theme": None, "footnote": "",
+                      "theme": None,
                       "tabs": render.course_tabs(meta["courses"], course)})
 
     for doc_id, doc in docs.items():
@@ -139,7 +138,8 @@ def generate():
                               "resources": ["../{}/{}".format(folder, f) for f in published]})
             write(page, front, include(page, source))
             pages.append({"html": "labs/{}/{}/index.html".format(doc_id, theme),
-                          "kind": "doc", "depth": 3, "theme": theme, "footnote": "",
+                          "kind": "doc", "depth": 3, "theme": theme,
+                          "course": doc["meta"].get("course", ""),
                           # D-0053: downloads come from modern only.
                           "download_id": doc_id if theme == downloads.THEME else ""})
     return pages
