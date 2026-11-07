@@ -34,3 +34,13 @@ change to the picture check, which compares alt text with Word's.
 
 - [x] PH 212 Lab 2, one icon (D-0132 call 6). Ruled decorative (D-0163).
 - [x] PH 212 Lab 4, one icon (D-0132 call 6). Ruled decorative (D-0163).
+
+## The problem-solving strategy (D-0158 to D-0160)
+
+Converted as printed. A fix to its words is a content change, ruled then.
+
+- [ ] The page is numbered "1" and the example stops at its problem
+  statement, with no worked solution. Ask the author for the full source
+  document.
+- [ ] "slams on its breaks" (brakes). Ask the author before changing it.
+- [ ] The license ask for this document goes to its author (D-0073, D-0159).

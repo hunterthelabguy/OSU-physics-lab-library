@@ -1686,6 +1686,36 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - binds: D-0117; D-0150; themes/modern.css; tests/test_brand.py
 - test: tests/test_brand.py::DrawnFigurePaper
 
+### D-0158  Scope: the PH 21X problem-solving strategy PDF joins the in-scope originals
+- status: proposed
+- proposed-by: owner
+- date: 2026-10-26
+- decision: Amends D-0084's in-scope list (spec section 2) by one file: `A general phyiscs problem-solving strategy.pdf` at the root of the owner's `21X Lab Curriculum/` folder (the file name's spelling is the original's). It was not in the 2026-10-06 inventory. Claude read it in full on 2026-10-26: one page, the strategy and one example problem, no student data. Committed byte for byte as `originals/PH21X/A general phyiscs problem-solving strategy.pdf`, SHA-256 `ebb9842b2e0fa13b5af11b2b9f63781a7989eb0ad31e964eaebf63e8e90c59b5`. `pdfinfo` reads no metadata stream and no author field (Creator and Producer "PDFium"), so there is nothing for D-0086's strip, which reads Word files only. The page's own byline names its author (D-0159).
+- rationale: The owner, 2026-10-26, asked for this file to be read, converted and placed in the library ("Read, convert to markdown, and tell me where it makes sense to add it"), then "Land it". D-0084 rules that nothing outside the in-scope list is opened, so the owner's request is the scope change, recorded here.
+- alternatives: leaving the file outside the list and the library (the owner asked for it in).
+- binds: D-0084; spec `docs/superpowers/specs/2026-10-06-handout-conversion-and-templates-design.md` section 2; D-0086
+- test: none; the hash is checked by `tools/check_unchanged.py` on every run
+
+### D-0159  The problem-solving strategy keeps its author's byline and names her in its front matter, ahead of D-0073's license conversation
+- status: proposed
+- proposed-by: owner
+- date: 2026-10-26
+- decision: `curriculum/ph21x/ph21x-problem-solving-strategy.md` keeps the original's byline under its title, "Dr. Rebecka Tumblin – General Physics with Calculus", and names her in its front matter as `credit: "Dr. Rebecka Tumblin"`. The key is `credit`, not `author`: Quarto reserves `author`, and an included file's front matter reaches the page's metadata (CLAUDE.md, Quarto traps). This narrows D-0076's hold on authors' names for one kind of document: an original that prints its author on its face, where the name is the original's own words and the conversion rule keeps it. Every other course material still waits for D-0073's conversation. The license for this document is not settled. LEDGER 8 and D-0073 still apply, and the author's own grant is the one that counts (D-0073's reading of OSU Policy 06-200).
+- rationale: The owner, 2026-10-26: "Credit the author", then "byline kept". Claude's note: the byline is in the original, so the conversion keeps it whether or not credit is ruled; the `credit` key is the addition this entry rules. D-0076 declined names in the repo ahead of D-0073 for the AI-use file, whose words quote a statement without naming its authors; this file already names its author.
+- alternatives: credit by title only, as D-0076 does (drops the name the original prints, and so changes the original's words under the conversion rule); waiting for D-0073 (holds a one-page document the owner wants published).
+- binds: D-0073; D-0076; VISION.md principle 4; charter floor 9
+- test: none; the byline is in the word check's sequence, so `tools/check_unchanged.py` fails if it is dropped
+
+### D-0160  A PDF original is checked from its text layer; course-wide documents get their own heading on the course index
+- status: proposed
+- proposed-by: claude
+- date: 2026-10-26
+- decision: (1) Source and page. A converted document for all three PH 21X courses lives in `curriculum/ph21x/` with `course: PH21X`. It goes through the lab pipeline unchanged: page at `/labs/<id>/modern/`, the four downloads, an HTML cap (190,000 bytes; 164,146 measured) and an empty question-id pin in `tests/question-ids.json` (no questions, so no numbers moved). (2) Link. The course index lists each such document under "For every course", after the course tiles (`render.course_wide`, `render.COURSE_WIDE_HEADING`). No course page lists it: it is no course's lab and is not in `site/courses.md`. (3) The word check reads a PDF original with poppler's `pdftotext -enc UTF-8`. Only the word sequence and each equation's text are compared. A text layer keeps no bold, no equation structure and no pictures, and the check's ok line says so. A list's "1." markers and bullets are text in a PDF, so they are dropped; Word's numbering never reaches the sequence either. Word's math survives as Mathematical Alphanumeric Symbols, and each run of them is one inline equation (U+1D400 to U+1D7FF). The page number "1" at the page's top is a ruled omission under this entry. (4) The number check passes a PDF original only when its Markdown holds no question, checkpoint or numbered block, since there are no Word labels to compare. The 1 to 3 list is typed from the page. (5) CI installs poppler before the word check, not after it. (6) Three download tests assume a lab's question box: the Word body holds "Question", at least one box, and a print offset that splits a box. They skip course-wide documents (`COURSE_WIDE` in `tests/test_downloads.py`); every other download test runs on them. (7) The download tests read PDFs with `-enc UTF-8`, as the word check does. Without it, poppler's Windows build writes Latin-1, and 93 download tests errored on a local run, 2026-10-26.
+- rationale: The owner, 2026-10-26: "Land it: curriculum/ph21x source, its own page linked from the course index". Claude's recommendation had been a `/guides/` address with no downloads. Building it showed that `render.converted_documents()` takes every converted file under `curriculum/`, so a separate guides pipeline would need an exclusion as well as a generator, a render rule and its own chrome. The lab pipeline gives the page and the four downloads with no new part; its one cost is that the address says `labs`. A real check against the page, not an exception: the word check now fails on a changed word ("breaks" to "brakes") and a changed equation ($v_o$ to $v_0$), tried on a copy 2026-10-26. Without `-enc UTF-8`, pdftotext writes Latin-1, which drops the math letters and turns the byline's en dash into a hyphen. That was found when the 2026-10-26 first read lost all five equations.
+- alternatives: a `/guides/<id>/` page with its own generator and no downloads (more parts and no print copy); a recorded exception that skips the check for a PDF (a repo must not lie about its verification); the strategy under one course (it serves all three).
+- binds: tools/check_unchanged.py; tools/check_numbers.py; tools/render.py; .github/workflows/verify.yml; tests/test_downloads.py (HTML_CAPS); tests/question-ids.json; D-0077; D-0102; D-0113
+- test: tests/test_check_unchanged.py::PdfText; tests/test_quarto_site.py::Pages::test_course_index_links_course_wide_documents
+
 ### D-0161  PH 212 Lab 2's two short sentences are finished: the web app's address, and the code on the classroom wall
 - status: proposed
 - proposed-by: claude

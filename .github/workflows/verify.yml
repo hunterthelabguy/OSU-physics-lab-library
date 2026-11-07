@@ -35,6 +35,16 @@ jobs:
         # a converted file keeps its original's (D-0103). The list is in the
         # script, which tests/test_question_ids.py runs on a fixture.
         run: python3 tools/check_em_dash.py
+      - name: Install pdftotext (PDF original, PDF download tests)
+        # Not on the runner images. The word check reads a PDF original's
+        # text with it (D-0160), so it comes before that step;
+        # tests/test_downloads.py reads the PDFs with it too. The PDFs
+        # themselves use the runner's google-chrome, which
+        # tools/downloads.py finds or fails on (LEDGER 53).
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+          pdftotext -v 2>&1 | head -1
       - name: Content unchanged
         run: |
           # Converted files open with front matter that names a source_file;
@@ -53,14 +63,6 @@ jobs:
             [ -f "$t" ] || continue
             echo "== $t"; (cd "$(dirname "$t")" && node "$(basename "$t")")
           done
-      - name: Install pdftotext (PDF download tests)
-        # Not on the runner images; tests/test_downloads.py reads the PDFs
-        # with it. The PDFs themselves use the runner's google-chrome, which
-        # tools/downloads.py finds or fails on (LEDGER 53).
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y poppler-utils
-          pdftotext -v 2>&1 | head -1
       - name: Quarto site builds
         # Fails on any Quarto warning line (docs/quarto-migration-plan.md).
         run: python3 tools/quarto_build.py
