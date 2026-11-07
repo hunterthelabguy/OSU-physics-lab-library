@@ -689,6 +689,7 @@ class MediaDownloads(unittest.TestCase):
         text = self.source.read_text(encoding="utf-8").replace(
             'drawings="501"', 'drawings="501" label="Arrows & boxes"')
         args = ["-f", render.FROM, "--lua-filter", str(downloads.MEDIA_FILTER),
+                "-M", "library-url=" + render.LIBRARY_URL,
                 "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/")]
         page = subprocess.run([PANDOC, "-t", "html"] + args, input=text, check=True,
                               capture_output=True, encoding="utf-8").stdout
