@@ -171,13 +171,14 @@ body.site-page .button.primary { background: var(--chrome-accent); border-color:
 body.site-page .button:hover, body.site-page .button:focus-visible { text-decoration: underline; text-underline-offset: .15em; }
 body.site-page .button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 
-/* Landing links as cards, two across when there is room (D-0031). */
+/* Landing links as cards (D-0031): stacked, then the three in one row when
+   there is room (D-0170; two across left the third alone). */
 body.site-page .link-cards ul {
   list-style: none; padding: 0; margin: 0 0 var(--space-2);
   display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr);
 }
-@media (min-width: 40rem) {
-  body.site-page .link-cards ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 48rem) {
+  body.site-page .link-cards ul { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 body.site-page .link-cards li {
   margin: 0; padding: var(--space-3);
