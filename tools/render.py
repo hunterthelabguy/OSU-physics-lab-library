@@ -2,10 +2,9 @@
 
 Once the old build's entry point, this is now a module with no command line:
 tools/quarto_build.py, tools/quarto_chrome.py, tools/downloads.py and
-tools/make_reference_docx.py import it. It holds the
-presentation notes and footnotes, the document nav's metadata, the course
-index and the course pages, the "How this site works" page's footnote,
-the sims and their bar, and the redirect stubs.
+tools/make_reference_docx.py import it. It holds the document nav's
+metadata, the course index and the course pages, the sims and their bar,
+and the redirect stubs.
 
 One presentation, modern, renders the Markdown source (D-0108, amending
 ledger 28): it drops the original Word page settings and follows
@@ -55,21 +54,7 @@ def png_data_uri(path):
     with open(path, "rb") as fh:
         return "data:image/png;base64," + base64.b64encode(fh.read()).decode("ascii")
 
-THEME_NOTE = {
-    "modern": (
-        "This page drops the Word page settings and sets typography from the "
-        "reading research and WCAG 2.2 SC 1.4.8. The words are the original "
-        "authors', unchanged; graded questions are marked by a labeled block "
-        "rather than by bold."
-    ),
-}
-
-# The footnote on the "How this site works" page (D-0072). The landing
-# page's footnote named the old build and was not carried (D-0038).
-METHOD_FOOTNOTE = ("This page's source is site/how-this-site-works.md in the "
-                   "project's repository; ledger numbers refer to the dated "
-                   "decision ledger kept there.")
-# Its address; the old one, /how-this-was-made/, redirects here.
+# The "How this site works" page's address; the old one, /how-this-was-made/, redirects here.
 METHOD_PATH = "how-this-site-works/"
 
 
@@ -118,12 +103,16 @@ def up(depth):
     return "../" * depth if depth else ""
 
 
-def document_extras(theme, depth=3):
-    """The document nav's metadata: the course index link."""
-    return [
-        "-M", "uphref=" + up(depth) + "courses/",
-        "-M", "uplabel=Course index",
-    ]
+def document_extras(theme, depth=3, course=None):
+    """The document nav's metadata: the link up to the lab's own course page,
+    "PH 211 labs" (D-0170), or the course index for a document no course
+    page lists (a course-wide document, D-0160). `course` is the document's
+    front-matter course, "PH211"."""
+    for listed in courses_meta()["courses"] if course else []:
+        if course_slug(listed) == "".join(course.split()).lower():
+            return ["-M", "uphref=" + up(depth) + "courses/" + course_slug(listed) + "/",
+                    "-M", "uplabel=" + listed["code"] + " labs"]
+    return ["-M", "uphref=" + up(depth) + "courses/", "-M", "uplabel=Course index"]
 
 
 def site_vars(depth):
@@ -179,14 +168,11 @@ COURSE_INDEX_INTRO = "Choose a course to see its labs."
 
 
 def lab_count(course, docs):
-    """A tile's count line, from site/courses.md and the converted documents."""
-    listed, done = len(course.get("labs") or []), len(converted_labs(course, docs))
+    """A tile's count line: the labs on the site (D-0170)."""
+    done = len(converted_labs(course, docs))
     if not done:
-        return "No labs converted yet"
-    labs = "lab" if listed == 1 else "labs"
-    if done == listed:
-        return "{} {}".format(listed, labs)
-    return "{} {} listed, {} converted".format(listed, labs, done)
+        return "No labs yet"
+    return "{} {}".format(done, "lab" if done == 1 else "labs")
 
 
 def course_tiles(courses, docs):
@@ -251,22 +237,6 @@ def lab_table(labs, docs, depth):
             "</tbody>\n</table>".format(head, "\n".join(rows)))
 
 
-# Before launch only: the labs not yet converted, collapsed under the table
-# (the owner's "5 collapsed", 2026-10-06). Every listed lab is to be
-# converted by launch, and then this renders nothing.
-PENDING_SUMMARY = "Not yet converted ({})"
-
-
-def pending_labs(course, docs, depth):
-    """The collapse of a course's unconverted labs, or "" when there is none."""
-    pending = [lab for lab in course.get("labs") or [] if lab.get("document") not in docs]
-    if not pending:
-        return ""
-    return ('<details class="lab-pending">\n<summary>{}</summary>\n{}\n</details>'
-            .format(html.escape(PENDING_SUMMARY.format(len(pending))),
-                    lab_table(pending, docs, depth)))
-
-
 def raw_html(fragment):
     """A raw HTML block, so Pandoc passes it as written; read as Markdown,
     inline HTML would be wrapped in a paragraph."""
@@ -281,7 +251,7 @@ DOWNLOAD_FORMATS = (("docx", "Word"), ("html", "HTML"), ("pdf", "PDF"), ("md", "
 # dialog's title name the course and say files; the note says what the zip
 # holds; the formats are grouped as the handouts they apply to.
 DOWNLOAD_LABEL = "Download {} files"
-DOWNLOAD_NOTE = "One zip, a folder per lab. Only converted labs are included."
+DOWNLOAD_NOTE = "One zip, a folder per lab."
 DOWNLOAD_HANDOUTS = "Handouts"
 # The control is hidden under this many files (the owner's "6 hide").
 DOWNLOAD_MIN_FILES = 2
@@ -372,11 +342,10 @@ def course_index_markdown(meta, docs):
 
 def course_page_markdown(course, docs, depth=2):
     """One course's page (D-0069 to D-0071): a heading row of its h1 and the
-    course download, the intro from site/courses.md, its converted labs as
-    one table, and before launch the labs not yet converted, collapsed. A
-    course with no labs shows its note instead of the intro."""
+    course download, then the labs on the site as one table. A course with
+    no labs shows its note. Since D-0170 a student sees no list of labs not
+    yet on the site, and no note on where the list is quoted from."""
     e = html.escape
-    labs = course.get("labs") or []
     control = download_all(course, docs, depth)
     # The heading row is a fenced div, which Quarto writes as a <section>
     # holding the h1 and taking its id. A raw <div> before the "#" heading
@@ -386,22 +355,11 @@ def course_page_markdown(course, docs, depth=2):
     if control:
         head += "\n" + raw_html(control)
     parts = [head + ":::\n"]
-    if labs:
-        parts.append(body_after_front_matter(os.path.join(ROOT, "site", "courses.md")))
     if course.get("note"):
         parts.append('<p class="course-note">{}</p>\n'.format(e(course["note"])))
     done = converted_labs(course, docs)
     if done:
         parts.append(raw_html(lab_table(done, docs, depth)))
-    pending = pending_labs(course, docs, depth)
-    if pending:
-        parts.append(raw_html(pending))
-    if labs and course.get("source_note"):
-        parts.append(
-            '<p class="course-note">Lab numbers, titles and descriptions for '
-            "{} are quoted from {}. They are quoted, not converted: the "
-            "content-unchanged check covers converted documents only.</p>\n"
-            .format(e(course["code"]), e(course["source_note"])))
     if control:
         parts.append('<script src="{}site/download-all.js" defer></script>\n'
                      .format(up(depth)))
@@ -498,14 +456,12 @@ def sims_index_markdown(found):
     parts = ["# Sims\n",
              "Small tools students use during a lab. Each one is a single "
              "page that runs in the browser, keeps nothing, and sends "
-             "nothing. Which lab each sim belongs to is not recorded here "
-             "yet.\n"]
+             "nothing.\n"]
     items = []
     for sim_id, sim in found.items():
         items.append(
             '<li class="converted">\n'
             '<p class="lab-title"><a href="{}/">{}</a></p>\n'
-            '<p class="lab-state">Runs in the browser. Nothing is stored and '
-            "nothing is sent.</p>\n</li>".format(e(sim_id), e(sim["title"])))
+            "</li>".format(e(sim_id), e(sim["title"])))
     parts.append('<ul class="lab-list">\n' + "\n".join(items) + "\n</ul>\n")
     return "\n".join(parts)

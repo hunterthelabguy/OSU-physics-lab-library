@@ -3,14 +3,15 @@
 Volatile handoff, capped at one screen. Updated 2026-11-07.
 
 **Changes phase (2026-11-07): conversion is no longer the only work (D-0168).**
-- PR #74: the first ruled change, PH 211 Lab 6 (D-0169): whiteboard for
-  carpet, the Go Direct cart in the browser version of Graphical
+- #74 merged: the first ruled change, PH 211 Lab 6 (D-0169): whiteboard
+  for carpet, the Go Direct cart in the browser version of Graphical
   Analysis, and the equipment lines. Every changed passage declared in
-  front matter; the word check unchanged. "How this site works" and the
-  landing page say so. Both entries proposed.
+  front matter; the word check unchanged. Both entries proposed.
+- Branch `site-student-facing` (D-0170): the landing page is its banner
+  and three cards; meta lines leave the footer, course pages, sims, "How
+  this site works" and lab pages; one name, "Physics Lab Library".
 - Open for the owner: where the web app zeros the cart (a zero step goes
-  back in then). The landing page's older stale lines ("One lab is
-  converted so far") are a separate change.
+  back in then).
 
 **Merged 2026-11-07, one at a time, main's run green after each:** #69
 problem-solving strategy (D-0158 to D-0160), #70 PH 212 GA sentences

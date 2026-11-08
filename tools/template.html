@@ -14,7 +14,7 @@ $brandheader()$
 $endif$
 $if(homehref)$
 <nav class="site-nav" aria-label="This page">
-<a href="$homehref$">OSU physics lab library</a>
+<a href="$homehref$">Physics Lab Library</a>
 $if(uphref)$<a href="$uphref$">$uplabel$</a>$endif$
 <span class="spacer"></span>
 $if(downloadid)$<span class="download-row"><span class="download-label">Download:</span> <a class="download-button" href="../$downloadid$.docx" download="$downloadid$.docx">Word</a> <a class="download-button" href="../$downloadid$.html" download="$downloadid$.html">HTML</a> <a class="download-button" href="../$downloadid$.pdf" download="$downloadid$.pdf">PDF</a> <a class="download-button" href="../$downloadid$.md" download="$downloadid$.md">Markdown</a></span>$endif$
@@ -23,9 +23,6 @@ $endif$
 <main id="content">
 $body$
 </main>
-<div class="doc-footer">
-<p>$presentationnote$</p>
-</div>
 $if(homehref)$
 $brandfooter()$
 $endif$

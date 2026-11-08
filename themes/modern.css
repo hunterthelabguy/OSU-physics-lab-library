@@ -171,15 +171,6 @@ main svg.drawn-figure { background: var(--figure-paper); }
 .picture-crop { display: inline-block; position: relative; max-width: 100%; overflow: hidden; }
 .picture-crop img { position: absolute; max-width: none; }
 
-.doc-footer {
-  max-width: 68ch;
-  margin: 3rem auto 0;
-  padding: 1rem;
-  border-top: 1px solid var(--rule);
-  color: var(--quiet);
-  font-size: .85rem;
-}
-
 /* More of a large screen without a longer line. The measure stays at 68
    characters, which is the evidence review's number and inside WCAG 2.2 SC
    1.4.8's bound of 80; the type grows instead, so the column takes more
@@ -193,7 +184,6 @@ main svg.drawn-figure { background: var(--figure-paper); }
   body { font-size: 11pt; }
   main { max-width: none; padding: 0; }
   .question, .checkpoint { background: none; border-left: 3px solid #000; }
-  .doc-footer { display: none; }
   .question, .checkpoint, .box, svg.drawn-figure, .picture-crop { break-inside: avoid; }
   h1, h2, h3, h4 { break-after: avoid; }
   th, td { border-color: #000; }

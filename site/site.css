@@ -57,8 +57,8 @@
   }
 }
 
-/* Navigation above and below the document. */
-.site-nav, .site-foot {
+/* Navigation above the document. */
+.site-nav {
   font-family: "Open Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: .9rem;
   line-height: 1.5;
@@ -76,12 +76,7 @@
 .site-nav { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; align-items: baseline; }
 .site-nav .spacer { flex: 1 1 auto; }
 
-.site-foot {
-  margin-top: 2rem;
-  padding-bottom: 2.5rem;
-}
-
-.site-nav a, .site-foot a, .site-page a { color: var(--chrome-heading); }
+.site-nav a, .site-page a { color: var(--chrome-heading); }
 
 /* Site pages: landing, course index, course pages, how this was made, sims.
    Their shell is 96rem (D-0070, amending LEDGER 56's 72rem); the header and
@@ -132,7 +127,7 @@ body.site-page.courses main {
     [prose-end] minmax(0, 1fr) [full-end];
 }
 body.site-page.courses main > h1, body.site-page main > .course-head, body.site-page main > .course-tiles,
-body.site-page main > .lab-table, body.site-page main > .lab-pending { grid-column: full; }
+body.site-page main > .lab-table { grid-column: full; }
 
 /* A course page's heading row (D-0071): the h1, and the course download
    right of it at the shell's edge; under it when the two do not fit. */
@@ -176,13 +171,14 @@ body.site-page .button.primary { background: var(--chrome-accent); border-color:
 body.site-page .button:hover, body.site-page .button:focus-visible { text-decoration: underline; text-underline-offset: .15em; }
 body.site-page .button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 
-/* Landing links as cards, two across when there is room (D-0031). */
+/* Landing links as cards (D-0031): stacked, then the three in one row when
+   there is room (D-0170; two across left the third alone). */
 body.site-page .link-cards ul {
   list-style: none; padding: 0; margin: 0 0 var(--space-2);
   display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr);
 }
-@media (min-width: 40rem) {
-  body.site-page .link-cards ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 48rem) {
+  body.site-page .link-cards ul { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 body.site-page .link-cards li {
   margin: 0; padding: var(--space-3);
@@ -305,17 +301,6 @@ body.site-page .lab-table .lab-prefix {
     clip-path: none; white-space: normal;
   }
 }
-
-/* Before launch only: the labs not yet converted, collapsed under the
-   table, no script. The summary is a quiet outlined control at least 44 px
-   tall, keeping its disclosure triangle. */
-body.site-page .lab-pending { margin: 0 0 var(--space-2); }
-body.site-page .lab-pending > summary {
-  width: fit-content; padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--chrome-quiet); border-radius: 6px;
-  color: var(--chrome-quiet); font-weight: 700; cursor: pointer;
-}
-body.site-page .lab-pending[open] > summary { margin-bottom: var(--space-2); }
 
 .lab-state {
   font-size: .85rem;
@@ -564,7 +549,7 @@ body:where(.quarto-light) {
 @page landscape { size: letter landscape; }
 
 @media print {
-  .site-nav, .site-foot .print-hide { display: none; }
+  .site-nav { display: none; }
   .osu-header, .osu-foot { display: none; }
   body.site-page main > .hero { background: none; box-shadow: none; clip-path: none; color: #000; margin: 0 0 12pt; padding: 0; display: block; }
   body.site-page .hero h1, body.site-page .hero .lead { color: #000; }

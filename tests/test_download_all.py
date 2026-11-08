@@ -215,7 +215,7 @@ class Control(unittest.TestCase):
                          ["Download selected", "Close"])
         text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", control)).strip()
         self.assertEqual(text, " ".join(["Download PH 211 files",
-                                         "One zip, a folder per lab. Only converted labs are included.",
+                                         "One zip, a folder per lab.",  # D-0170
                                          "Handouts"] + row + ["Download selected", "Close"]))
 
     def test_no_lab_files_group_without_lab_files(self):
