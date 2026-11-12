@@ -32,7 +32,8 @@ files' `python tools/check_unchanged.py $files` and
 - Word: styles "Question Label 3", "4" and "5" (D-0176's decision; the
   levels `main` uses: 112, 66 and 16 labels), each `basedOn` "Question
   Label" plus `<w:outlineLvl w:val="level-1"/>` and nothing else. A label
-  at any other level fails the Word render, naming D-0176.
+  at any other level fails the Word render, naming D-0176 (the owner,
+  2026-11-12: "Keep three").
 - The box stays a `<div>`: no question becomes a `<section>` (spec 8.1).
 - Commit as hunterthelabguy with the noreply email, no trailer; subjects
   <=72 characters.
@@ -45,7 +46,7 @@ files' `python tools/check_unchanged.py $files` and
 | `themes/modern.css` | label look on a heading | T1 |
 | `tests/test_check_numbers.py` (class `Filter`) | filter unit tests on small bodies | T1 |
 | `tests/test_headings.py` | rendered heading reading: no skip, label level, box headings | T1, T3 |
-| `tests/test_downloads.py` | label form in the print-split check; no duplicate ids; Word styles | T1, T2 |
+| `tests/test_downloads.py` | label form in the print-split check; no duplicate ids; Word styles; a heading in three Word probe bodies | T1, T2 |
 | `tests/fixtures/main-bodies.json` | PH 211 Lab 1's pinned `<main>` digest, recomputed | T1 |
 | `tools/make_reference_docx.py`, `tools/reference.docx` | the three level styles | T2 |
 | `curriculum/ph212/ph212-data-analysis-handout.md:111`, `curriculum/ph212/ph212-extending-a-model-handout.md:122` | box heading `###` to `####` | T3 |
@@ -67,9 +68,17 @@ A question nested in a question is not labelled: top-down traversal with
 194 questions), and `check_numbers` would fail on a missing label.
 
 Revision 1 (2026-11-12) folds executing critique 1 (read 0e233cb; report
-and patches in the scratchpad's `critique-1/`): F1 (label wrapper), F2
+and patches in `2026-11-12-question-headings-critique/pass-1/` beside this
+plan): F1 (label wrapper), F2
 (digest), the print rule dropped, the Word styles brought back to D-0176's
 three, the probe moved after the build, and the plan's text fixes.
+Revision 2 folds critique 2 (read 51be7c7; `pass-2/`): three existing
+Word probe tests gain a heading (their h2 label now stops the Word render),
+the Word failure tested at h6 too, the `__main__` guard kept in
+`test_headings.py`, the `assertNotRegex` form written out, and the
+baseline named as a build of 6599a5f rather than a scratchpad folder. The
+Word failure at h2 and h6 is ruled (D-0176, "Keep three"), as is the
+dropped print rule's record in D-0176's rationale.
 
 ### T1: Labels become headings on the page and the HTML download
 
@@ -228,6 +237,10 @@ class HeadingLevels(unittest.TestCase):
                         section = level
                     elif kind == "label":
                         self.assertEqual(level, section + 1)
+
+
+if __name__ == "__main__":
+    unittest.main()
 ```
 
 - [ ] Run `python -m unittest tests.test_headings -v`; expected failure:
@@ -350,14 +363,20 @@ local section = 1
                     self.assertEqual(len(ids), len(set(ids)))
 ```
 
+  A guard with no red step: it passes before the change too, and fails
+  only if a later change gives the labels ids.
+
 - [ ] Build (`python tools/quarto_build.py`; there is no single-page
   path). Probe after the build, in
   `build/quarto-site/labs/ph212-data-analysis-handout/modern/index.html`:
   the first question reads `<div id="ph212-data-analysis:group-member-qualities" class="question">`
   then `<h3 class="question-label">Question 1</h3>`, with no `id=` and no
   `anchored` class on the heading, and the page's count of `<section` is
-  the baseline's (the build of 0e233cb, kept in the scratchpad as
-  `before-site/`). Anything else stops the task.
+  the baseline's (3). The baseline is a build of 6599a5f made before
+  the task in a throwaway worktree (`git worktree add <short path>
+  6599a5f`, then `python tools/quarto_build.py` there; a short path, since
+  a deep one passes Windows' 260-character limit on media files), its
+  `build/quarto-site` copied aside. Anything else stops the task.
 - [ ] `tests/fixtures/main-bodies.json`: recompute PH 211 Lab 1's digest
   exactly as `DocumentBodies.test_bodies_unchanged` does (its five labels
   changed markup; D-0108 updated it the same way):
@@ -404,10 +423,17 @@ def is_label(style):
   `labelled = [b for b in self.boxes(doc_id) if is_label(b[1][0])]` in
   `test_word_questions_are_one_cell_tables`;
   `self.assertTrue(is_label(styles[0]))` in place of
-  `self.assertEqual(styles[0], "QuestionLabel")`; the last assertion's
-  pattern becomes `r'w:val="QuestionLabel\d?"'` via `assertNotRegex`;
+  `self.assertEqual(styles[0], "QuestionLabel")`; the last assertion,
+  `self.assertNotIn('w:val="QuestionLabel"', re.sub(...))`, becomes
+  `self.assertNotRegex(re.sub(...), r'w:val="QuestionLabel\d?"')` (the
+  text first, the pattern second; the `re.sub(...)` argument unchanged);
   in `test_word_box_is_the_modern_block`,
-  `if not is_label(styles[0]): continue`. New tests:
+  `if not is_label(styles[0]): continue`. Three existing tests render a
+  body with no heading, whose label is h2 and so now stops the Word render
+  (critique 2): in `test_word_box_holds_a_list_between_parts`,
+  `test_word_checkpoint_is_its_own_box` and
+  `test_word_box_without_its_colours_fails`, prefix each body (the
+  `input=` string in the last) with `"## Part\n\n"`. New tests:
 
 ```python
     def test_word_label_styles_add_only_an_outline_level(self):
@@ -470,12 +496,18 @@ def is_label(style):
 
 ```python
     def test_word_label_outside_h3_to_h5_fails(self):
-        # D-0176: Word has Question Label 3 to 5; an h2 label (no section
-        # above it) has no style, so the render stops.
-        out = self.render(q("a"), "-t", "docx", "-o", os.devnull)
-        self.assertNotEqual(out.returncode, 0)
-        self.assertIn("Question Label 3 to 5", out.stderr)
+        # D-0176 ("Keep three"): Word has Question Label 3 to 5; an h2
+        # label (no section above it) or an h6 one has no style, so the
+        # render stops.
+        for body in (q("a"), "##### Five\n\n" + q("a")):
+            with self.subTest(body=body):
+                out = self.render(body, "-t", "docx", "-o", os.devnull)
+                self.assertNotEqual(out.returncode, 0)
+                self.assertIn("Question Label 3 to 5", out.stderr)
 ```
+
+  Its red step in T1's state fails on the old filter's "needs its
+  colours" message, not the new one; that is the expected red.
 - [ ] Build; run the tests; expected: pass.
 - [ ] Commit: "Word question labels get an outline level (D-0176)".
 
@@ -523,8 +555,8 @@ through `tools/check_unchanged.py` and `tools/check_numbers.py`
    the first label's computed `font-size`, `font-weight`, `font-family`,
    `letter-spacing`, `text-transform`, `color`, `line-height`, margins and
    the box's height on PH 212 Lab 1 (h3), PH 211 Data Analysis (h4) and
-   PH 212 Lab 3 (h5), at desktop and 375 px, before (the baseline build
-   kept in the scratchpad) and after. Equal, or reported. The
+   PH 212 Lab 3 (h5), at desktop and 375 px, before (T1's baseline build
+   of 6599a5f) and after. Equal, or reported. The
    accessibility tree (`read_page`) lists the labels as headings at those
    levels.
 3. Print: rasterize each lab's PDF before and after (`pdftoppm -r 50`) and
