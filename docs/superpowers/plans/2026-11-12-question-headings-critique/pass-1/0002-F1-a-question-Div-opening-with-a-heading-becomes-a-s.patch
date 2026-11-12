@@ -1,0 +1,59 @@
+From 979743b5e9489de7eeedfea8435b9ace6c65888c Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 13:11:49 -0800
+Subject: [PATCH 2/5] F1: a question Div opening with a heading becomes a
+ <section>
+
+Label: mechanical (restores the spec's stated markup; needs the owner's
+eye only if he prefers the alternative below).
+Pandoc 3.10's HTML writer (and Quarto 1.10.18) turns a Div whose first
+block is a Header into <section id="<div id>" class="question-label
+question">: the heading's class lands on the whole box, so T1's
+.question-label rule made every question's text .8rem uppercase --quiet
+and replaced the box's 1.5rem margin with 0 0 .35rem. T1's own tests and
+its Quarto probe read only the <hN>, so they passed; the print checks
+failed (105 PrintKeeps failures, the box words now print in capitals).
+Fix: wrap the label Header in an attribute-less Div, which Pandoc and
+Quarto write as no element (probed both), so the page holds
+<div class="question"><h3 class="question-label">; test_headings' walker
+reads through the wrapper. Alternative (needs-ruling): keep the
+<section> and scope the CSS to h2-h6.question-label.
+---
+ tests/test_headings.py      | 2 ++
+ tools/filters/questions.lua | 7 +++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/tests/test_headings.py b/tests/test_headings.py
+index 52c92ad..07d0603 100644
+--- a/tests/test_headings.py
++++ b/tests/test_headings.py
+@@ -44,6 +44,8 @@ def headings(path):
+                 (_, classes, _), content = b["c"]
+                 if any(k in classes for k in ("question", "checkpoint")):
+                     label = content[0]
++                    if label["t"] == "Div" and label["c"][0] == ["", [], []]:
++                        label = label["c"][1][0]
+                     if label["t"] != "Header" or not set(label["c"][1][1]) & set(LABELS):
+                         raise AssertionError("{}: a question's label is not a heading".format(path.name))
+                     found.append((label["c"][0], "label", None))
+diff --git a/tools/filters/questions.lua b/tools/filters/questions.lua
+index 4f4d0f0..66c5595 100644
+--- a/tools/filters/questions.lua
++++ b/tools/filters/questions.lua
+@@ -121,8 +121,11 @@ return {
+         local prefix = kind == "question" and "box" or "checkpoint"
+         return word_box(el.content, colours[prefix .. "-rule"], colours[prefix .. "-fill"], kind), false
+       end
+-      table.insert(el.content, 1,
+-        pandoc.Header(level, { pandoc.Str(text) }, pandoc.Attr("", { kind .. "-label" })))
++      -- An attribute-less Div around the heading, which Pandoc writes as no
++      -- element: a Div opening with a heading becomes a <section> carrying
++      -- the heading's class (Pandoc 3.10, probed 2026-11-12).
++      table.insert(el.content, 1, pandoc.Div({
++        pandoc.Header(level, { pandoc.Str(text) }, pandoc.Attr("", { kind .. "-label" })) }))
+       return el, false
+     end,
+   },
+-- 
+2.55.0.windows.3
+

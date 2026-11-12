@@ -6,7 +6,8 @@ the Word download, with the box drawn as it is today.
 **Architecture:** `tools/filters/questions.lua` already writes every label;
 it switches to top-down traversal so it meets headings and questions in
 document order, tracks the last section level, and writes the label as a
-`Header` (Word: a "Question Label N" paragraph style with an outline level).
+`Header` in an attribute-less `Div` (Word: a "Question Label N" paragraph
+style with an outline level).
 CSS undoes what a heading brings; tests read the rendered headings.
 **Spec:** `docs/superpowers/specs/2026-11-12-question-headings-design.md`
 (sections 3 to 7, 10); ledger D-0176, ruled "Leans as written" 2026-11-12.
@@ -28,9 +29,11 @@ files' `python tools/check_unchanged.py $files` and
   level only (T3).
 - The box looks as it does today on screen at desktop and 375 px; print
   differs only where a page break moves without stranding anything.
-- Word: styles "Question Label 2" to "Question Label 6", each
-  `basedOn` "Question Label" plus `<w:outlineLvl w:val="level-1"/>` and
-  nothing else.
+- Word: styles "Question Label 3", "4" and "5" (D-0176's decision; the
+  levels `main` uses: 112, 66 and 16 labels), each `basedOn` "Question
+  Label" plus `<w:outlineLvl w:val="level-1"/>` and nothing else. A label
+  at any other level fails the Word render, naming D-0176.
+- The box stays a `<div>`: no question becomes a `<section>` (spec 8.1).
 - Commit as hunterthelabguy with the noreply email, no trailer; subjects
   <=72 characters.
 
@@ -39,29 +42,49 @@ files' `python tools/check_unchanged.py $files` and
 | File | Responsibility | Task |
 |---|---|---|
 | `tools/filters/questions.lua` | label as heading, level by section; Word style by level | T1, T2 |
-| `themes/modern.css` | label look on a heading; print rule names the label | T1 |
+| `themes/modern.css` | label look on a heading | T1 |
 | `tests/test_check_numbers.py` (class `Filter`) | filter unit tests on small bodies | T1 |
 | `tests/test_headings.py` | rendered heading reading: no skip, label level, box headings | T1, T3 |
 | `tests/test_downloads.py` | label form in the print-split check; no duplicate ids; Word styles | T1, T2 |
-| `tools/make_reference_docx.py`, `tools/reference.docx` | the five level styles | T2 |
+| `tests/fixtures/main-bodies.json` | PH 211 Lab 1's pinned `<main>` digest, recomputed | T1 |
+| `tools/make_reference_docx.py`, `tools/reference.docx` | the three level styles | T2 |
 | `curriculum/ph212/ph212-data-analysis-handout.md:111`, `curriculum/ph212/ph212-extending-a-model-handout.md:122` | box heading `###` to `####` | T3 |
-| `docs/accessibility/2026-11-05-nvda-ph212.md:7` | "Fixes since" names D-0176 | T3 |
+| `docs/accessibility/2026-11-05-nvda-ph212.md:8` | "Fixes since" names D-0176 | T3 |
 
 `tools/check_numbers.py` is not changed: it reads the label as the plain
-text of the box's first block, which a `Header` gives as "Question N".
+text of the box's first block, which the label's wrapper (T1) gives as
+"Question N".
+
+No print rule is added. An H3 or H4 label already takes the print block's
+`h1, h2, h3, h4 { break-after: avoid; }`, and `.question` keeps
+`break-inside: avoid`; an H5 label (16 of 194) prints as the old `<p>`
+label did. A label-only print rule would have no test that could fail:
+`PrintKeeps` reads headings `<h[1-4]` and the print's "QUESTION N" never
+matches the label's "Question N" (executing critique 1, finding 5).
+
+A question nested in a question is not labelled: top-down traversal with
+`false` does not walk a box's content. None exists on `main` (194 labels,
+194 questions), and `check_numbers` would fail on a missing label.
+
+Revision 1 (2026-11-12) folds executing critique 1 (read 0e233cb; report
+and patches in the scratchpad's `critique-1/`): F1 (label wrapper), F2
+(digest), the print rule dropped, the Word styles brought back to D-0176's
+three, the probe moved after the build, and the plan's text fixes.
 
 ### T1: Labels become headings on the page and the HTML download
 
 **Depends on:** none
-**Files:** modify `tools/filters/questions.lua`, `themes/modern.css:111-117`
-and `:187-188`; test `tests/test_check_numbers.py` (class `Filter`),
-`tests/test_headings.py`, `tests/test_downloads.py:877` and class `Html`
+**Files:** modify `tools/filters/questions.lua`, `themes/modern.css:111-117`,
+`tests/fixtures/main-bodies.json`; test `tests/test_check_numbers.py`
+(class `Filter`), `tests/test_headings.py`, `tests/test_downloads.py:877`
+and class `Html`
 **Seams:** the filter's HTML output for a Markdown body; the rendered AST
 of each source (`check_numbers.FROM`, `check_numbers.FILTER`,
 `-M theme-name=modern`); the built page `build/quarto-site/labs/<id>/modern/index.html`
 **Interfaces:** produces the module-level `section` in `questions.lua`
-and the label element `pandoc.Header(level, {Str text}, Attr("", {kind.."-label"}))`
-for non-Word output; T2 reads `level` in the Word branch.
+and, for non-Word output, the label element
+`pandoc.Div({ pandoc.Header(level, {Str text}, Attr("", {kind.."-label"})) })`
+(an attribute-less wrapper); T2 reads `level` in the Word branch.
 **Verify:** `python -m unittest tests.test_check_numbers.Filter tests.test_headings -v`,
 then the build and `python -m unittest tests.test_downloads -v`
 
@@ -81,6 +104,10 @@ then the build and `python -m unittest tests.test_downloads -v`
                     '<h3 class="checkpoint-label">Checkpoint 1</h3>'):
             self.assertIn(tag, out)
         self.assertNotIn("<p>Question", out)
+        # A Div opening with a heading is written as a <section> carrying
+        # the heading's class (Pandoc 3.10); the box stays a div (spec 8.1).
+        self.assertIn('<div id="a" class="question">', out)
+        self.assertNotIn("<section", out)
 
     def test_heading_in_a_box_is_not_a_section(self):
         # D-0176: a heading inside a question's box leaves the section as
@@ -100,8 +127,11 @@ then the build and `python -m unittest tests.test_downloads -v`
   expected: the three fail (`<p>Question 1</p>` found, no `<h2 class=`;
   the h6 body renders with code 0).
 - [ ] Replace `tests/test_headings.py` with the rendered reading
-  (`skips` now takes a list of levels; the source-text reading goes, since
-  the rendered one holds every source heading too):
+  (`skips` now takes a list of levels). The source-text reading goes,
+  which departs from spec section 3 ("gains a second reading"): the
+  rendered walk finds exactly every ATX heading in all 19 sources
+  (critique 1, measured), so nothing is lost on `main`. It does not walk
+  Table, DefinitionList or Figure content, where no source has a heading.
 
 ```python
 """Heading levels never skip (D-0166; WCAG 1.3.1, from the NVDA test of
@@ -150,6 +180,8 @@ def headings(path):
                 (_, classes, _), content = b["c"]
                 if any(k in classes for k in ("question", "checkpoint")):
                     label = content[0]
+                    if label["t"] == "Div" and label["c"][0] == ["", [], []]:
+                        label = label["c"][1][0]
                     if label["t"] != "Header" or not set(label["c"][1][1]) & set(LABELS):
                         raise AssertionError("{}: a question's label is not a heading".format(path.name))
                     found.append((label["c"][0], "label", None))
@@ -258,16 +290,30 @@ local section = 1
         local prefix = kind == "question" and "box" or "checkpoint"
         return word_box(el.content, colours[prefix .. "-rule"], colours[prefix .. "-fill"], kind), false
       end
-      table.insert(el.content, 1,
-        pandoc.Header(level, { pandoc.Str(text) }, pandoc.Attr("", { kind .. "-label" })))
+      -- An attribute-less Div around the heading, which Pandoc writes as no
+      -- element: a Div opening with a heading becomes a <section> carrying
+      -- the heading's class (Pandoc 3.10, probed 2026-11-12).
+      table.insert(el.content, 1, pandoc.Div({
+        pandoc.Header(level, { pandoc.Str(text) }, pandoc.Attr("", { kind .. "-label" })) }))
       return el, false
     end,
   },
 ```
 
-  and in the header comment replace "The block becomes a labeled block
-  ("Question N")" with "The block becomes a labeled block, its label
-  ("Question N") a heading one level below its section (D-0176)".
+  and in the header comment replace the two lines
+
+```lua
+-- The block becomes a labeled block ("Question N"), and all its bold is
+-- removed so that bold means emphasis again (ledger 29; D-0101, S4). The
+```
+
+  with
+
+```lua
+-- The block becomes a labeled block, its label ("Question N") a heading
+-- one level below its section (D-0176), and all its bold is removed so
+-- that bold means emphasis again (ledger 29; D-0101, S4). The
+```
 - [ ] Run the `Filter` tests; expected: pass, and the rest of
   `tests.test_check_numbers` still passes (`check_numbers` reads the
   `Header`'s plain text).
@@ -288,8 +334,7 @@ local section = 1
 }
 ```
 
-  and in the print block, after `h1, h2, h3, h4 { break-after: avoid; }`,
-  add `  .question-label, .checkpoint-label { break-after: avoid; }`.
+  The print block is not changed (see Files).
 - [ ] `tests/test_downloads.py:877`: the split check's pattern becomes
   `r'<h[2-6] class="question-label">Question (\d+)</h[2-6]>(.*?)</div>'`.
 - [ ] `tests/test_downloads.py`, class `Html`, add:
@@ -305,14 +350,30 @@ local section = 1
                     self.assertEqual(len(ids), len(set(ids)))
 ```
 
-- [ ] Probe before the full build: render one lab page with Quarto
-  (`python tools/quarto_build.py`) and read the first label of PH 212
-  Lab 1 in `build/quarto-site/labs/ph212-data-analysis-handout/modern/index.html`;
-  expected `<h3 class="question-label">Question 1</h3>`, no `id=`, no
-  `anchored` class. Anything else stops the task.
-- [ ] Build, then `python -m unittest discover -s tests`; expected: all
-  pass, including `test_main_is_the_line_then_the_modern_pages` (Quarto's
-  label equals Pandoc's).
+- [ ] Build (`python tools/quarto_build.py`; there is no single-page
+  path). Probe after the build, in
+  `build/quarto-site/labs/ph212-data-analysis-handout/modern/index.html`:
+  the first question reads `<div id="ph212-data-analysis:group-member-qualities" class="question">`
+  then `<h3 class="question-label">Question 1</h3>`, with no `id=` and no
+  `anchored` class on the heading, and the page's count of `<section` is
+  the baseline's (the build of 0e233cb, kept in the scratchpad as
+  `before-site/`). Anything else stops the task.
+- [ ] `tests/fixtures/main-bodies.json`: recompute PH 211 Lab 1's digest
+  exactly as `DocumentBodies.test_bodies_unchanged` does (its five labels
+  changed markup; D-0108 updated it the same way):
+
+```python
+import hashlib, re, pathlib
+text = pathlib.Path("build/quarto-site/labs/ph211-team-building-handout/modern/index.html").read_text(encoding="utf-8")
+main = re.search(r"<main id=\"content\">.*?</main>", text, re.S).group(0).replace('<main id="content">', "<main>", 1)
+print(hashlib.sha256(main.encode()).hexdigest())
+```
+
+  Before replacing it, diff that `<main>` against the baseline's: the only
+  change is the five labels' markup.
+- [ ] `python -m unittest discover -s tests`; expected: all pass,
+  including `test_main_is_the_line_then_the_modern_pages` (Quarto's label
+  equals Pandoc's) and `PrintKeeps`.
 - [ ] Commit: "Question labels become headings on the page and HTML (D-0176)".
 
 ### T2: Word labels get an outline level
@@ -321,23 +382,25 @@ local section = 1
 **Files:** modify `tools/filters/questions.lua` (Word branch),
 `tools/make_reference_docx.py` (STYLES, docstring), regenerate
 `tools/reference.docx`; test `tests/test_downloads.py` (class
-`MarkdownAndWord`)
+`MarkdownAndWord`), `tests/test_check_numbers.py` (class `Filter`)
 **Seams:** the built `.docx` (`word/document.xml`, `word/styles.xml`) via
 `MarkdownAndWord.part`, `.style`, `.boxes`
 **Interfaces:** consumes T1's `level` in the filter's Word branch
-**Verify:** build, then `python -m unittest tests.test_downloads.MarkdownAndWord -v`
+**Verify:** `python -m unittest tests.test_check_numbers.Filter -v`, then
+build and `python -m unittest tests.test_downloads.MarkdownAndWord -v`
 
-- [ ] Failing tests, class `MarkdownAndWord`, add near the top:
+- [ ] Failing tests. At module level in `tests/test_downloads.py`,
+  directly after class `OwnText`, add:
 
 ```python
-LABEL_STYLE = re.compile(r"QuestionLabel[2-6]")
+LABEL_STYLE = re.compile(r"QuestionLabel[3-5]")
 
 
 def is_label(style):
     return bool(style and LABEL_STYLE.fullmatch(style))
 ```
 
-  (module level, after `OwnText`), and in the tests:
+  and in class `MarkdownAndWord`:
   `labelled = [b for b in self.boxes(doc_id) if is_label(b[1][0])]` in
   `test_word_questions_are_one_cell_tables`;
   `self.assertTrue(is_label(styles[0]))` in place of
@@ -351,7 +414,7 @@ def is_label(style):
         # D-0176: "Question Label N" is "Question Label" with the outline
         # level of an hN, and nothing else, so the box looks as it did.
         for doc_id, _ in converted():
-            for level in range(2, 7):
+            for level in range(3, 6):
                 with self.subTest(doc=doc_id, level=level):
                     style = self.style(doc_id, "QuestionLabel{}".format(level))
                     self.assertIn('<w:name w:val="Question Label {}" />'.format(level), style)
@@ -372,7 +435,7 @@ def is_label(style):
 
 - [ ] Run (after a build); expected failure: `is_label` finds no label
   (styles are `QuestionLabel`), so `labelled` is empty and the counts
-  differ; the style tests fail on a missing `QuestionLabel2`.
+  differ; the style tests fail on a missing `QuestionLabel3`.
 - [ ] `tools/make_reference_docx.py`: after the `QuestionLabel` style in
   `STYLES`, append
 
@@ -384,15 +447,35 @@ def is_label(style):
         '<w:name w:val="Question Label {0}" /><w:basedOn w:val="QuestionLabel" />'
         '<w:next w:val="BodyText" /><w:qFormat />'
         '<w:pPr><w:outlineLvl w:val="{1}" /></w:pPr></w:style>'.format(level, level - 1)
-        for level in range(2, 7))
+        for level in range(3, 6))
 ```
 
   (inside the `STYLES = (...)` expression, before its closing
   parenthesis), and in the docstring's Question Label item add "and
-  Question Label 2 to 6, the same with the outline level of an h2 to h6
+  Question Label 3 to 5, the same with the outline level of an h3 to h5
   (D-0176), which the filter picks by the label's level".
 - [ ] Regenerate: `python tools/make_reference_docx.py`.
-- [ ] Filter Word branch: `{ ["custom-style"] = "Question Label " .. level }`.
+- [ ] Filter Word branch: `{ ["custom-style"] = "Question Label " .. level }`,
+  and at the top of that branch:
+
+```lua
+        if level < 3 or level > 5 then
+          error(kind .. " " .. name .. "'s label would be h" .. level
+            .. "; tools/reference.docx has Question Label 3 to 5 only (D-0176)")
+        end
+```
+
+  and its test in `tests/test_check_numbers.py`, class `Filter` (the
+  check comes before `word_box`, so no colours are needed):
+
+```python
+    def test_word_label_outside_h3_to_h5_fails(self):
+        # D-0176: Word has Question Label 3 to 5; an h2 label (no section
+        # above it) has no style, so the render stops.
+        out = self.render(q("a"), "-t", "docx", "-o", os.devnull)
+        self.assertNotEqual(out.returncode, 0)
+        self.assertIn("Question Label 3 to 5", out.stderr)
+```
 - [ ] Build; run the tests; expected: pass.
 - [ ] Commit: "Word question labels get an outline level (D-0176)".
 
@@ -401,7 +484,7 @@ def is_label(style):
 **Depends on:** T1
 **Files:** modify `curriculum/ph212/ph212-data-analysis-handout.md:111`,
 `curriculum/ph212/ph212-extending-a-model-handout.md:122`,
-`docs/accessibility/2026-11-05-nvda-ph212.md:7-8`; test `tests/test_headings.py`
+`docs/accessibility/2026-11-05-nvda-ph212.md:8`; test `tests/test_headings.py`
 **Seams:** `headings(path)` from T1
 **Interfaces:** consumes `headings` and `HeadingLevels.labs`
 **Verify:** `python -m unittest tests.test_headings -v`; the two files
@@ -426,7 +509,7 @@ through `tools/check_unchanged.py` and `tools/check_numbers.py`
   else.
 - [ ] Run the test, then both files through the word and number checks;
   expected: pass, word counts unchanged.
-- [ ] NVDA report line 7 to 8: "The math and the question labels are
+- [ ] NVDA report line 8: "The math and the question labels are
   open." becomes "The question labels are headings (D-0176). The math is
   open." (a record's "Fixes since" clause; its findings stay as written).
 - [ ] Commit: "PH 212 Labs 1 and 2: box headings sit under their question".
@@ -446,7 +529,8 @@ through `tools/check_unchanged.py` and `tools/check_numbers.py`
    levels.
 3. Print: rasterize each lab's PDF before and after (`pdftoppm -r 50`) and
    compare page counts and pixels; report every difference with its cause.
-   Count `/H2` to `/H5` in each new PDF: each lab's labels added.
+   Count `/H2` to `/H5` in each new PDF with `pdfinfo -struct` (poppler's,
+   beside `PDFTOTEXT`): each lab's labels added, at their levels.
 4. Ledger: D-0176's `test:` names the tests as built.
 5. Draft PR, body with the four rulings, the measurements, and the owner's
    Word checks (Navigation pane, a screen reader in Word, a Google Docs
