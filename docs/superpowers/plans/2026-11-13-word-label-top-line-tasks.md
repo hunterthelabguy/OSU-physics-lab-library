@@ -30,7 +30,8 @@ files' `python tools/check_unchanged.py $files` and
 - The box's cell top margin is 92 twips (was `twips(.9)` = 203).
 - A checkpoint uses `checkpoint-rule` / `checkpoint-fill`, a question
   `box-rule` / `box-fill`, for its label as for its box.
-- The box's row keeps `<w:cantSplit/>`; nothing else in the box changes.
+- The box's row keeps `<w:cantSplit/>`; nothing else in the box changes but
+  the 78 stems that take Pandoc's First Paragraph style (accepted, D-0180).
 - No source changes (D-0168). Commit as hunterthelabguy with the noreply
   email, no trailer; subjects <=72 characters.
 
@@ -65,10 +66,19 @@ tests hold the colours and the spacing sum, and Word's render holds the
 edges (spec section 7).
 
 Revision 2 folds critique 2 (read 5805fc6; `pass-2/`): F1 pins the label's
-own zero spacing, which no test held (four mutants of the built files passed
-all 345 tests); the third red test named; the comment width; the pane probe
+own zero spacing, which no test held (of four mutants of the built files,
+three passed all 345 tests: space after, spacing removed, indents; F1 fails
+the first two, and the indent mutant stays, by the pin revision 1 declined); the third red test named; the comment width; the pane probe
 stops with an error when Word is not in front instead of listing a folded
 pane; the row scan's unreliable summary lines; one clause in CLAUDE.md.
+
+Revision 3 folds critique 3 (read 3d66ccf; `pass-3/`), which ran T1
+verbatim with no fixes and green throughout, F1 failing on its mutant; its
+findings were text only: the grep now sees a leftover `def boxes(`, the
+constraint names the accepted stem style, the mutant count, the checkpoint
+comment's third line, and the CLAUDE.md sentence. Critique 3 was the third
+pass and found something, so this revision goes to the owner unchecked by
+a fourth.
 
 ### T1: The Word label leaves the box and becomes its top line
 
@@ -209,14 +219,16 @@ then build and `python -m unittest tests.test_downloads.MarkdownAndWord tests.te
             self.assertRegex(part, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(MODERN_ROOT["--tint"].lstrip("#").upper()))
 ```
 
-  and update its comment's first two lines to
+  and update its comment to
   `# D-0110, D-0115, D-0180: "Checkpoint 1" before a one-cell table` /
-  `# with the light page's Candela fill and Luminance rule, then`, the
-  rest as it is, each line under 80 columns as in the file.
+  `# with the light page's Candela fill and Luminance rule, then` /
+  `# "Question 1" in the question's own colours.`
 
   Delete `boxes` (class `MarkdownAndWord`), `LABEL_STYLE` and `is_label`
   (module level): their three callers are the tests replaced above, and
-  `grep -rn "is_label\|\.boxes(\|LABEL_STYLE" tests/` then prints nothing.
+  `grep -rn "is_label\|boxes(\|LABEL_STYLE" tests/` then prints nothing but
+  `tests/test_download_all.py`'s own module-level `boxes` (a different
+  function), so a leftover `def boxes(` would show.
 
 - [ ] Run `python -m unittest tests.test_downloads.MarkdownAndWord.test_word_checkpoint_is_its_own_box -v`;
   expected failure: `ValueError: not enough values to unpack (expected 2, got 0)`
@@ -304,11 +316,13 @@ end
   before the box as its top line (D-0180).", rewrapped with no new
   comment line past 77 columns.
 
-- [ ] `CLAUDE.md`, Build, the Downloads paragraph: after "so the question
-  box is a one-cell table / that `questions.lua` writes as raw OpenXML
-  around Pandoc's paragraphs / (D-0082)", add ", its label a paragraph just
-  above the table drawn as the box's top line, since Word's Navigation pane
-  leaves out a heading in a table cell (D-0180)", rewrapped.
+- [ ] `CLAUDE.md`, Build, the Downloads paragraph: replace "(D-0082), its
+  colours `--accent` and `--tint` read from / `themes/modern.css` by
+  `downloads.box_colours()`." with "(D-0082); its label is a paragraph just
+  above the table, drawn as the box's top line, since Word's Navigation
+  pane leaves out a heading in a table cell (D-0180); the box's colours
+  `--accent` and `--tint` are read from `themes/modern.css` by
+  `downloads.box_colours()`.", rewrapped.
 - [ ] Run the checkpoint probe test and `tests.test_check_numbers.Filter`;
   expected: pass (the colour and level errors fire before any XML is
   written, as before).
