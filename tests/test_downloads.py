@@ -100,6 +100,13 @@ class OwnText(HTMLParser):
             self.blocks[self.open[-1][1]][1] += data
 
 
+LABEL_STYLE = re.compile(r"QuestionLabel[3-5]")
+
+
+def is_label(style):
+    return bool(style and LABEL_STYLE.fullmatch(style))
+
+
 class Links(unittest.TestCase):
     """D-0053: the approved links on modern pages only, outside <main>."""
 
@@ -288,7 +295,7 @@ class MarkdownAndWord(unittest.TestCase):
             numbers = question_numbers(text)
             count = len(numbers)
             with self.subTest(doc=doc_id, questions=count):
-                labelled = [b for b in self.boxes(doc_id) if "QuestionLabel" in b[1]]
+                labelled = [b for b in self.boxes(doc_id) if is_label(b[1][0])]
                 # A checkpoint is its own box, labelled on its own count
                 # (D-0112, D-0115); the questions keep Word's numbers.
                 boxes = [b for b in labelled if b[2][0].startswith("Question ")]
@@ -303,11 +310,12 @@ class MarkdownAndWord(unittest.TestCase):
                 self.assertTrue(count or doc_id in COURSE_WIDE)
                 for n, (tbl, styles, texts) in zip(numbers, boxes):
                     self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
-                    self.assertEqual(styles[0], "QuestionLabel")
+                    self.assertTrue(is_label(styles[0]))
                     self.assertEqual(texts[0], "Question {}".format(n))
                     self.assertTrue(any(texts[1:]), "the question's words are in the box")
-                self.assertNotIn('w:val="QuestionLabel"', re.sub(
-                    r"<w:tbl>.*?</w:tbl>", "", self.part(doc_id, "word/document.xml"), flags=re.S))
+                self.assertNotRegex(re.sub(
+                    r"<w:tbl>.*?</w:tbl>", "", self.part(doc_id, "word/document.xml"), flags=re.S),
+                    r'w:val="QuestionLabel\d?"')
 
     def test_word_box_is_the_modern_block(self):
         # D-0057, D-0082: the modern page's question block, from
@@ -323,8 +331,7 @@ class MarkdownAndWord(unittest.TestCase):
                 left = int(re.search(r'<w:pgMar\b[^>]*\bw:left="(\d+)"', sect).group(1))
                 right = int(re.search(r'<w:pgMar\b[^>]*\bw:right="(\d+)"', sect).group(1))
                 for tbl, styles, texts in self.boxes(doc_id):
-                    if "QuestionLabel" not in styles:
-                        continue
+                    if not is_label(styles[0]): continue
                     # A checkpoint's box takes its own palette (D-0115).
                     edge, behind = (rule, fill) if texts[0].startswith("Checkpoint ") else (accent, tint)
                     self.assertRegex(tbl, r'<w:left w:val="single" w:sz="24" w:space="0" w:color="{}"/>'.format(edge))
@@ -340,7 +347,7 @@ class MarkdownAndWord(unittest.TestCase):
     def test_word_box_holds_a_list_between_parts(self):
         # D-0082 (finding 3, F14(b)): a stem, lettered parts and a round-bullet
         # action between them draw as one box, which custom-style could not.
-        body = ("::: {.question #probe:parts}\n**Make a plot.**\n\na.  **Slope?**\nb.  **Units?**\n\n"
+        body = ("## Part\n\n::: {.question #probe:parts}\n**Make a plot.**\n\na.  **Slope?**\nb.  **Units?**\n\n"
                 "::: action\n- An action between parts.\n:::\n\nc.  **Agree?**\n:::\n\nAfter.\n")
         with tempfile.TemporaryDirectory() as d:
             out = Path(d) / "probe.docx"
@@ -361,7 +368,7 @@ class MarkdownAndWord(unittest.TestCase):
         # D-0110, D-0115: "Checkpoint 1" in a one-cell table with the light
         # page's Candela fill and Luminance rule, then "Question 1" in the
         # question's own colours.
-        body = "::: {.checkpoint #c}\nExchange contacts.\n:::\n\n::: {.question #a}\n**Why?**\n:::\n"
+        body = "## Part\n\n::: {.checkpoint #c}\nExchange contacts.\n:::\n\n::: {.question #a}\n**Why?**\n:::\n"
         with tempfile.TemporaryDirectory() as d:
             out = Path(d) / "probe.docx"
             subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
@@ -382,7 +389,7 @@ class MarkdownAndWord(unittest.TestCase):
         # The filter never guesses a colour: a Word render without them stops.
         r = subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
                             "-o", os.devnull],
-                           input="::: {.question #a}\nText.\n:::\n", capture_output=True, encoding="utf-8")
+                           input="## Part\n\n::: {.question #a}\nText.\n:::\n", capture_output=True, encoding="utf-8")
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("needs its colours", r.stderr)
 
@@ -430,6 +437,28 @@ class MarkdownAndWord(unittest.TestCase):
             for level in (1, 2, 3, 4):
                 with self.subTest(doc=doc_id, level=level):
                     self.assertIn("<w:keepNext", self.style(doc_id, "Heading{}".format(level)))
+
+    def test_word_label_styles_add_only_an_outline_level(self):
+        # D-0176: "Question Label N" is "Question Label" with the outline
+        # level of an hN, and nothing else, so the box looks as it did.
+        for doc_id, _ in converted():
+            for level in range(3, 6):
+                with self.subTest(doc=doc_id, level=level):
+                    style = self.style(doc_id, "QuestionLabel{}".format(level))
+                    self.assertIn('<w:name w:val="Question Label {}" />'.format(level), style)
+                    self.assertIn('<w:basedOn w:val="QuestionLabel" />', style)
+                    self.assertEqual(re.findall(r"<w:(?:pPr|rPr)>.*?</w:(?:pPr|rPr)>", style, re.S),
+                                     ['<w:pPr><w:outlineLvl w:val="{}" /></w:pPr>'.format(level - 1)])
+
+    def test_word_label_levels_match_the_page(self):
+        # D-0176: each Word label's level is its heading's level on the
+        # page, label for label.
+        for doc_id, _ in converted():
+            with self.subTest(doc=doc_id):
+                word = [int(b[1][0][-1]) for b in self.boxes(doc_id) if is_label(b[1][0])]
+                html = [int(h) for h in re.findall(
+                    r'<h([2-6]) class="(?:question|checkpoint)-label">', page(doc_id, "modern"))]
+                self.assertEqual(word, html)
 
 
 # Each lab's HTML download, measured, times 1.10, rounded up to the next

@@ -19,9 +19,9 @@
 -- probe). The table is raw OpenXML around Pandoc's own paragraphs; its
 -- colours come from themes/modern.css by way of tools/downloads.py
 -- (`box-rule`, `box-fill`, `checkpoint-rule`, `checkpoint-fill`), and the
--- label takes the Question Label style of tools/reference.docx. Any other
--- output would carry a style name into the page as an attribute, so it is
--- never set there.
+-- label takes the Question Label N style of tools/reference.docx, N its
+-- level, 3 to 5 (D-0176). Any other output would carry a style name into
+-- the page as an attribute, so it is never set there.
 
 local questions, checkpoints = 0, 0
 local colours = {}
@@ -115,8 +115,12 @@ return {
       el = unbold(el)
       local text = (kind == "question" and "Question " or "Checkpoint ") .. n
       if FORMAT == "docx" then
+        if level < 3 or level > 5 then
+          error(kind .. " " .. name .. "'s label would be h" .. level
+            .. "; tools/reference.docx has Question Label 3 to 5 only (D-0176)")
+        end
         local label = pandoc.Div({ pandoc.Para({ pandoc.Str(text) }) },
-          pandoc.Attr("", { kind .. "-label" }, { ["custom-style"] = "Question Label" }))
+          pandoc.Attr("", { kind .. "-label" }, { ["custom-style"] = "Question Label " .. level }))
         table.insert(el.content, 1, label)
         local prefix = kind == "question" and "box" or "checkpoint"
         return word_box(el.content, colours[prefix .. "-rule"], colours[prefix .. "-fill"], kind), false

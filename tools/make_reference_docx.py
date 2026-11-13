@@ -15,9 +15,11 @@ Starts from Pandoc's own default reference document and adds:
   on the style, never on the runs: Word rebuilds a field's result and drops
   the formatting of the cached one;
 - the PDF's page: Letter with site/site.css's 0.75 in margins;
-- the Question Label style that tools/filters/questions.lua names for a
-  question's label in Word: the modern page's label, in capitals and its
-  --quiet colour, kept with what follows. The box around the question is a
+- the Question Label style: the modern page's label, in capitals and its
+  --quiet colour, kept with what follows; and Question Label 3 to 5, each
+  that style with the outline level of an h3 to h5 (D-0176), which
+  tools/filters/questions.lua names for a question's label in Word by its
+  level. The box around the question is a
   one-cell table the filter draws (D-0082), not a style;
 - a thin full grid on Pandoc's default Table style, as the modern page
   draws a table (D-0130): single 0.5 pt rules in --quiet. The question and
@@ -84,9 +86,17 @@ STYLES = (
     '<w:pPr><w:keepNext /><w:keepLines />'
     + '<w:spacing w:before="0" w:after="{}" w:line="240" w:lineRule="auto" />'.format(twips(pt(.35)))
     + '</w:pPr>'
-    # .question-label p: .8rem (9 pt), letter-spacing .08em, --quiet.
+    # .question-label: .8rem (9 pt), letter-spacing .08em, --quiet.
     '<w:rPr><w:caps /><w:color w:val="0D5257" /><w:spacing w:val="14" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr>'
-    '</w:style>')
+    '</w:style>'
+    # D-0176: one style per label level, the label's look plus the outline
+    # level of an hN, so Word lists the label as a heading.
+    + ''.join(
+        '<w:style w:type="paragraph" w:customStyle="1" w:styleId="QuestionLabel{0}">'
+        '<w:name w:val="Question Label {0}" /><w:basedOn w:val="QuestionLabel" />'
+        '<w:next w:val="BodyText" /><w:qFormat />'
+        '<w:pPr><w:outlineLvl w:val="{1}" /></w:pPr></w:style>'.format(level, level - 1)
+        for level in range(3, 6)))
 
 
 def paragraph(style, runs):

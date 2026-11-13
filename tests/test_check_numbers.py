@@ -285,6 +285,16 @@ class Filter(unittest.TestCase):
         self.assertNotEqual(out.returncode, 0)
         self.assertIn("h7", out.stderr)
 
+    def test_word_label_outside_h3_to_h5_fails(self):
+        # D-0176 ("Keep three"): Word has Question Label 3 to 5; an h2
+        # label (no section above it) or an h6 one has no style, so the
+        # render stops.
+        for body in (q("a"), "##### Five\n\n" + q("a")):
+            with self.subTest(body=body):
+                out = self.render(body, "-t", "docx", "-o", os.devnull)
+                self.assertNotEqual(out.returncode, 0)
+                self.assertIn("Question Label 3 to 5", out.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
