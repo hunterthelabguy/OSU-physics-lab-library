@@ -76,9 +76,8 @@ ledger:
         converted: "x2=x×x"     # the converted text, as it prints it
         ledger: "D-0167"
 
-A declared equation is excused its text and structure, at one position;
-its kind and the equation count are still compared. A declaration that
-matches no equation, or one whose equation passes undeclared, fails.
+A declared equation is excused its text and structure at one position; its
+kind and the equation count are still compared, and a needless one fails.
 
 Each declared passage must actually occur, so a stale declaration fails too.
 Requires Python 3.9+ and Pandoc on PATH (or in the PANDOC environment

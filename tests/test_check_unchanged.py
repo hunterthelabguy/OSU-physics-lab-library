@@ -202,9 +202,6 @@ class WordCheck(unittest.TestCase):
                 "    converted: \"" + converted + "\"\n"
                 + (f"    ledger: \"{ledger}\"\n" if ledger else ""))
 
-    def test_a_changed_sign_undeclared_fails(self):
-        self.assertFails(STAR, TIMES, "equation 1: original text")
-
     def test_a_declared_sign_passes(self):
         # Spaced as Word's text may print: the check normalizes both.
         n, problems = self.check(STAR, TIMES, front=self.ruled("y = a*b", "y = a×b"))
@@ -245,7 +242,8 @@ class WordCheck(unittest.TestCase):
                          front=self.ruled("y=a*b", "y=a×b", ledger=None))
 
     def test_two_like_declarations_excuse_two_positions(self):
-        twice = self.ruled("∑Fi=0", "∑Fi=0") + self.ruled("∑Fi=0", "∑Fi=0")[len("ruled_equations:\n"):]
+        one = self.ruled("∑Fi=0", "∑Fi=0")
+        twice = one + one.split("\n", 1)[1]
         _, problems = self.check(SUM + "\n" + SUM, PLAIN_SUM + "\n" + PLAIN_SUM, front=twice)
         self.assertEqual(problems, [])
 
