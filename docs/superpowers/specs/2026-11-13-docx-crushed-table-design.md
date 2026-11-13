@@ -40,10 +40,15 @@ measured (1.1).
 Desktop Word through PowerShell 5.1 COM, each file a copy in the
 session scratchpad, opened read-only, `ExportAsFixedFormat(pdf, 17)`, never
 saved, Word's own process stopped by its id; pages read with poppler's
-`pdftotext` and `pdftoppm`. Input: PH 211 Lab 3's built `.docx` from a full
-build of `main` at 6599a5f (the code `main` still runs at 6f6a6fd, a
-ledger-only commit). Body children numbered from 0; child 65 is the
-stopwatch table, child 66 Question 7's box.
+`pdftotext` and `pdftoppm`. Input: PH 211 Lab 3's built `.docx` from the
+D-0177 worktree's build, which is `main` at 6599a5f plus that branch's fix
+(drawn-figure `descr` and custom properties only; no table). Checked
+against `main`'s own code afterwards: a full build at 7ba2e08 (`main`'s
+6f6a6fd plus this spec) gives the same `word/document.xml` in all 19 Word
+downloads, the drawn-figure `descr` paths aside, and its Lab 3 file
+renders in Word at 13 pages and 14 tables, as below. Body children
+numbered from 0; child 65 is the stopwatch table, child 66 Question 7's
+box.
 
 | Variant of `word/document.xml` | Word pages | Word `Tables.Count` | `w:tbl` in the XML | Stopwatch table |
 |---|---|---|---|---|
@@ -143,7 +148,7 @@ render is outside CI; the build reports it by hand (section 5).
 
 - `verify` green in CI: the word check, number check, em-dash check,
   builds and tests.
-- Local build compared with the `main` 6599a5f build: every Word
+- Local build compared with the build bisected in 1.1: every Word
   download's `word/document.xml` identical except PH 211 Lab 3's, which
   differs by the one gap paragraph.
 - PH 211 Lab 3's new Word download rendered by Word as in 1.1: 15 tables,
