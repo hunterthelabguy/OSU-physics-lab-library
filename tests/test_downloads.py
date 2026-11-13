@@ -702,7 +702,8 @@ class MediaDownloads(unittest.TestCase):
             'drawings="501"', 'drawings="501" label="Arrows & boxes"')
         args = ["-f", render.FROM, "--lua-filter", str(downloads.MEDIA_FILTER),
                 "-M", "library-url=" + render.LIBRARY_URL,
-                "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/")]
+                "-M", "media-dir=" + downloads.media_dir(self.doc).replace(os.sep, "/"),
+                "--resource-path", downloads.lab_dir(self.doc)]
         page = subprocess.run([PANDOC, "-t", "html"] + args, input=text, check=True,
                               capture_output=True, encoding="utf-8").stdout
         self.assertIn('<svg role="group" aria-label="Arrows &amp; boxes" xmlns=', page)
