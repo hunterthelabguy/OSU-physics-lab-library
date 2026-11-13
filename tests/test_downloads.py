@@ -187,6 +187,13 @@ class MarkdownAndWord(unittest.TestCase):
                 got = (QSITE / "labs" / doc_id / (doc_id + ".md")).read_bytes()
                 self.assertEqual(got, source.read_bytes())
 
+    def test_word_carries_no_build_path(self):
+        # D-0177: no Word download names the folder it was built in, in a
+        # part (a figure's descr, a custom property) or as an absolute descr.
+        for doc_id, _ in converted():
+            with self.subTest(doc=doc_id):
+                self.assertEqual(build_paths(self.docx(doc_id), ROOT), [])
+
     # These read the Word file's XML. What Word shows on the page is checked
     # by the owner in Word, never by these tests (D-0057).
 
@@ -582,6 +589,11 @@ class MediaDownloads(unittest.TestCase):
     def tearDownClass(cls):
         cls.tmp.cleanup()
 
+    def test_word_carries_no_build_path(self):
+        # D-0177, on a lab built outside the repo.
+        root = Path(self.tmp.name)
+        self.assertEqual(build_paths(self.docx, root, root.resolve(), ROOT), [])
+
     def test_the_fixture_passes_the_word_check(self):
         _, problems = check_unchanged.check(str(self.source), str(ROOT))
         self.assertEqual(problems, [])
@@ -701,6 +713,26 @@ class MediaDownloads(unittest.TestCase):
             with zipfile.ZipFile(docx) as z:
                 doc = z.read("word/document.xml").decode("utf-8")
         self.assertRegex(doc, r'descr="Arrows &amp; boxes {}'.format(re.escape(fx.FIGURE_ALT)))
+
+
+ABSOLUTE = re.compile(r"[A-Za-z]:[\\/]|[\\/]")
+DESCR = re.compile(r'\bdescr="([^"]*)"')
+
+
+def build_paths(docx, *folders):
+    """Each XML part of a Word file that holds one of the folders, in
+    either slash form, and each descr that is an absolute path (D-0177)."""
+    spellings = {str(f).replace("\\", "/").lower() for f in folders}
+    found = []
+    with zipfile.ZipFile(docx) as z:
+        for name in z.namelist():
+            if not name.endswith((".xml", ".rels")):
+                continue
+            text = z.read(name).decode("utf-8")
+            flat = text.replace("\\", "/").lower()
+            found += ["{} holds {}".format(name, s) for s in spellings if s in flat]
+            found += ["{} descr {}".format(name, d) for d in DESCR.findall(text) if ABSOLUTE.match(d)]
+    return found
 
 
 def pdf_text(path):
