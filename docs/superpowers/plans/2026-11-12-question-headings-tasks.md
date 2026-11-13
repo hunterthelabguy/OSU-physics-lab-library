@@ -44,7 +44,7 @@ files' `python tools/check_unchanged.py $files` and
 |---|---|---|
 | `tools/filters/questions.lua` | label as heading, level by section; Word style by level | T1, T2 |
 | `themes/modern.css` | label look on a heading | T1 |
-| `tests/test_check_numbers.py` (class `Filter`) | filter unit tests on small bodies | T1 |
+| `tests/test_check_numbers.py` (class `Filter`) | filter unit tests on small bodies | T1, T2 |
 | `tests/test_headings.py` | rendered heading reading: no skip, label level, box headings | T1, T3 |
 | `tests/test_downloads.py` | label form in the print-split check; no duplicate ids; Word styles; a heading in three Word probe bodies | T1, T2 |
 | `tests/fixtures/main-bodies.json` | PH 211 Lab 1's pinned `<main>` digest, recomputed | T1 |
@@ -79,6 +79,11 @@ the Word failure tested at h6 too, the `__main__` guard kept in
 baseline named as a build of 6599a5f rather than a scratchpad folder. The
 Word failure at h2 and h6 is ruled (D-0176, "Keep three"), as is the
 dropped print rule's record in D-0176's rationale.
+Revision 3 folds critique 3 (read 01a5ca5; `pass-3/`): T2 rewrites the
+comments T1 and T2 leave stale, the Files table names T2 on the `Filter`
+tests, and the baseline is the branch's merge-base with `main`, its
+worktree removed after the print comparison. Critique 3 was the third
+pass and found something, so this revision is unchecked by a fourth.
 
 ### T1: Labels become headings on the page and the HTML download
 
@@ -372,11 +377,14 @@ local section = 1
   the first question reads `<div id="ph212-data-analysis:group-member-qualities" class="question">`
   then `<h3 class="question-label">Question 1</h3>`, with no `id=` and no
   `anchored` class on the heading, and the page's count of `<section` is
-  the baseline's (3). The baseline is a build of 6599a5f made before
-  the task in a throwaway worktree (`git worktree add <short path>
-  6599a5f`, then `python tools/quarto_build.py` there; a short path, since
-  a deep one passes Windows' 260-character limit on media files), its
-  `build/quarto-site` copied aside. Anything else stops the task.
+  the baseline's (3). The baseline is a build of the branch's merge-base
+  with `main` (`git merge-base HEAD origin/main`; 6599a5f when this plan
+  was written, so a rebase onto a later `main` moves it too) made before
+  the task in a throwaway worktree (`git worktree add --detach <short
+  path> <merge-base>`, then `python tools/quarto_build.py` there; a short
+  path, since a deep one passes Windows' 260-character limit on media
+  files), its `build/quarto-site` copied aside. Anything else stops the
+  task.
 - [ ] `tests/fixtures/main-bodies.json`: recompute PH 211 Lab 1's digest
   exactly as `DocumentBodies.test_bodies_unchanged` does (its five labels
   changed markup; D-0108 updated it the same way):
@@ -477,9 +485,27 @@ def is_label(style):
 ```
 
   (inside the `STYLES = (...)` expression, before its closing
-  parenthesis), and in the docstring's Question Label item add "and
-  Question Label 3 to 5, the same with the outline level of an h3 to h5
-  (D-0176), which the filter picks by the label's level".
+  parenthesis). In the docstring replace
+
+```
+- the Question Label style that tools/filters/questions.lua names for a
+  question's label in Word: the modern page's label, in capitals and its
+  --quiet colour, kept with what follows. The box around the question is a
+```
+
+  with
+
+```
+- the Question Label style: the modern page's label, in capitals and its
+  --quiet colour, kept with what follows; and Question Label 3 to 5, each
+  that style with the outline level of an h3 to h5 (D-0176), which
+  tools/filters/questions.lua names for a question's label in Word by its
+  level. The box around the question is a
+```
+
+  and in `QuestionLabel`'s run properties the comment
+  `# .question-label p:` becomes `# .question-label:` (T1 removed the
+  `p`).
 - [ ] Regenerate: `python tools/make_reference_docx.py`.
 - [ ] Filter Word branch: `{ ["custom-style"] = "Question Label " .. level }`,
   and at the top of that branch:
@@ -489,6 +515,22 @@ def is_label(style):
           error(kind .. " " .. name .. "'s label would be h" .. level
             .. "; tools/reference.docx has Question Label 3 to 5 only (D-0176)")
         end
+```
+
+  and in the header comment replace the three lines
+
+```lua
+-- label takes the Question Label style of tools/reference.docx. Any other
+-- output would carry a style name into the page as an attribute, so it is
+-- never set there.
+```
+
+  with
+
+```lua
+-- label takes the Question Label N style of tools/reference.docx, N its
+-- level, 3 to 5 (D-0176). Any other output would carry a style name into
+-- the page as an attribute, so it is never set there.
 ```
 
   and its test in `tests/test_check_numbers.py`, class `Filter` (the
@@ -555,14 +597,15 @@ through `tools/check_unchanged.py` and `tools/check_numbers.py`
    the first label's computed `font-size`, `font-weight`, `font-family`,
    `letter-spacing`, `text-transform`, `color`, `line-height`, margins and
    the box's height on PH 212 Lab 1 (h3), PH 211 Data Analysis (h4) and
-   PH 212 Lab 3 (h5), at desktop and 375 px, before (T1's baseline build
-   of 6599a5f) and after. Equal, or reported. The
+   PH 212 Lab 3 (h5), at desktop and 375 px, before (T1's baseline build)
+   and after. Equal, or reported. The
    accessibility tree (`read_page`) lists the labels as headings at those
    levels.
 3. Print: rasterize each lab's PDF before and after (`pdftoppm -r 50`) and
    compare page counts and pixels; report every difference with its cause.
    Count `/H2` to `/H5` in each new PDF with `pdfinfo -struct` (poppler's,
-   beside `PDFTOTEXT`): each lab's labels added, at their levels.
+   beside `PDFTOTEXT`): each lab's labels added, at their levels. Then
+   `git worktree remove` the baseline worktree.
 4. Ledger: D-0176's `test:` names the tests as built.
 5. Draft PR, body with the four rulings, the measurements, and the owner's
    Word checks (Navigation pane, a screen reader in Word, a Google Docs
