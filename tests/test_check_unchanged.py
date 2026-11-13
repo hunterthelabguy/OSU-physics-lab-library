@@ -31,6 +31,13 @@ MATH = (r"Inline $v_{0} = \frac{d}{t}$ and $\vec{F}$, then"
         "\n\n$$x(t) = x_{0} + v_{0}t + \\frac{1}{2}at^{2}$$\n\n"
         r"and $\left| E \right|$ last.")
 
+# D-0167: a declared equation is excused its text and structure, one
+# position each; its kind and the count are still compared.
+STAR = "Then $y = a*b$ and $c$."
+TIMES = r"Then $y = a \times b$ and $c$."
+SUM = "$$\\sum_{}^{}F_{i} = 0$$\n"
+PLAIN_SUM = "$$\\sum F_{i} = 0$$\n"
+
 W_NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
 M_NS = 'xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"'
 TEXT_BOX = (
@@ -189,6 +196,56 @@ class WordCheck(unittest.TestCase):
     def test_unknown_symbol_font_character_stops(self):
         with self.assertRaises(SystemExit):
             self.check("Steps.", "Steps.\n\nSelect “A” ? “B”.\n", symbol_run("\u00a5"))
+
+    def ruled(self, original, converted, ledger="D-0167"):
+        return ("ruled_equations:\n  - original: \"" + original + "\"\n"
+                "    converted: \"" + converted + "\"\n"
+                + (f"    ledger: \"{ledger}\"\n" if ledger else ""))
+
+    def test_a_declared_sign_passes(self):
+        # Spaced as Word's text may print: the check normalizes both.
+        n, problems = self.check(STAR, TIMES, front=self.ruled("y = a*b", "y = a×b"))
+        self.assertEqual(problems, [])
+        self.assertEqual(n["equations"], 2)
+
+    def test_a_dropped_nary_undeclared_fails_and_names_its_text(self):
+        self.assertFails(SUM, PLAIN_SUM, "reads '∑Fi=0'")
+
+    def test_a_declaration_that_matches_nothing_fails(self):
+        self.assertFails(STAR, TIMES, "matches no equation",
+                         front=self.ruled("y=a*b", "y=a·b"))
+
+    def test_a_needless_declaration_fails(self):
+        self.assertFails(STAR, STAR, "passes undeclared",
+                         front=self.ruled("y=a*b", "y=a*b"))
+
+    def test_a_declaration_excuses_one_position(self):
+        twice = STAR + "\n\nAgain $y = a*b$.\n"
+        _, problems = self.check(twice, twice.replace("a*b", r"a \times b"),
+                                 front=self.ruled("y=a*b", "y=a×b"))
+        self.assertTrue(any("equation 3:" in p for p in problems), problems)
+        self.assertFalse(any("equation 1:" in p for p in problems), problems)
+
+    def test_kind_is_still_compared(self):
+        _, problems = self.check(STAR, r"Then $$y = a \times b$$ and $c$.",
+                                 front=self.ruled("y=a*b", "y=a×b"))
+        self.assertTrue(any("original inline, converted display" in p for p in problems),
+                        problems)
+        self.assertFalse(any("original text" in p for p in problems), problems)
+
+    def test_a_declaration_needs_a_ledger(self):
+        self.assertFails(STAR, TIMES, "lacks a ledger reference",
+                         front=self.ruled("y=a*b", "y=a×b", ledger=None))
+
+    def test_two_like_declarations_excuse_two_positions(self):
+        one = self.ruled("∑Fi=0", "∑Fi=0")
+        twice = one + one.split("\n", 1)[1]
+        _, problems = self.check(SUM + "\n" + SUM, PLAIN_SUM + "\n" + PLAIN_SUM, front=twice)
+        self.assertEqual(problems, [])
+
+    def test_a_declaration_must_match_both_texts(self):
+        self.assertFails(STAR, TIMES, "matches no equation",
+                         front=self.ruled("y=a+b", "y=a×b"))
 
 
 LONG = "words " * 16
@@ -379,6 +436,13 @@ class PdfText(unittest.TestCase):
         self.assertEqual(check_unchanged.compare_equations(o, c), [])
         c[0]["norm"] = "v0"
         self.assertTrue(check_unchanged.compare_equations(o, c))
+
+    def test_a_needless_declaration_on_a_pdf_equation_fails(self):
+        o = [{"kind": "inline", "text": "vo", "norm": "vo", "shape": None}]
+        c = [{"kind": "inline", "text": "vo", "norm": "vo", "shape": (1,), "tex": "v_o"}]
+        problems = check_unchanged.apply_ruled_equations(
+            o, c, [{"original": "vo", "converted": "vo", "ledger": "D-0167"}])
+        self.assertTrue(any("needless" in p for p in problems), problems)
 
 
 if __name__ == "__main__":
