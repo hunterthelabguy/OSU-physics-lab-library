@@ -67,11 +67,12 @@ def build_paths(docx, *folders):
         # part (a figure's descr, a custom property) or as an absolute descr.
         for doc_id, _ in converted():
             with self.subTest(doc=doc_id):
-                self.assertEqual(build_paths(self.docx(doc_id), ROOT, ROOT.resolve()), [])
+                self.assertEqual(build_paths(self.docx(doc_id), ROOT), [])
 ```
 
 `MediaDownloads` (its made-up lab builds in a temporary folder outside the
-repo, which the site-wide test cannot see):
+repo, which the site-wide test cannot see; `ROOT` is already resolved, but
+a temporary folder may be a short 8.3 name, so it is passed both ways):
 
 ```python
     def test_word_carries_no_build_path(self):
@@ -80,7 +81,8 @@ repo, which the site-wide test cannot see):
         self.assertEqual(build_paths(self.docx, root, root.resolve(), ROOT), [])
 ```
 
-Run both on the build of `main` in this worktree:
+Build first (`python tools/quarto_build.py`; a fresh worktree has none),
+then run both:
 `python -m unittest tests.test_downloads.MarkdownAndWord.test_word_carries_no_build_path tests.test_downloads.MediaDownloads.test_word_carries_no_build_path`.
 Expected: both FAIL. The site-wide test: 19 subtests fail, each on
 `docProps/custom.xml`, and the three drawn-figure labs also on
@@ -103,7 +105,8 @@ Commit: `Tests: no Word download holds its build path (D-0177)`.
 3. Header comment, "Metadata" paragraph: `media-dir` is read here and
    dropped from a Word file's metadata, since Pandoc would write it as a
    custom property (D-0177); a figure's PNG in Word keeps its relative
-   path, found through `--resource-path`.
+   path, found through `--resource-path`. Reflow the paragraph to the
+   file's width.
 
 `tests/test_downloads.py`, `MediaDownloads.test_figure_label_names_the_group`:
 its Word probe runs Pandoc with no `--resource-path`, so the relative PNG
@@ -122,5 +125,23 @@ The full verify sequence above, every step green, and the measurement:
 every built `.docx`'s `wp:docPr descr` values identical to the `main`
 baseline build (kept in this worktree's `build/` until T2's build replaces
 it: copy `build/quarto-site/labs/*/*.docx` to the scratchpad first), and
-`docProps/custom.xml` the same less `media-dir`. `document.xml` differs from
-the baseline only in the three `pic:cNvPr descr` values.
+`docProps/custom.xml` the same less `media-dir` (later properties' `pid`
+shift down by one). `document.xml` differs from the baseline only in the
+three `pic:cNvPr descr` values; media bytes and names (`rIdN.png`) are
+unchanged. Expected and harmless elsewhere in the zip: `docProps/core.xml`
+timestamps (every build), and in PH 212 Designing Experiments and PH 213
+Hypothesis Testing the order of one entry in `[Content_Types].xml` and
+`word/_rels/document.xml.rels` (Pandoc orders them by `src`).
+
+## Executing critique, pass 1 (2026-11-13)
+
+Sonnet, scratch tree `.superpowers/sdd/dmp-c1` (branch `critique-dmp-1`),
+every task as written. T1 red as predicted (19 subtests on `custom.xml`,
+three also on `document.xml` and `descr`; the fixture on all three). T2
+green: the two tests; `discover -s tests` 338 OK; em-dash, word and number
+checks green on all 19. T3 as above. Mutation: reverting fix A alone, or B
+alone, turns both tests red. Folded here: build before T1 (low); the T3
+expected differences (medium); reflow the header comment (low); no
+`ROOT.resolve()` in the site-wide test (low). One `tests.test_downloads`
+run errored on a headless Chrome print that hung about 18 minutes and was
+stopped by its process id; the full-suite run after it was clean.
