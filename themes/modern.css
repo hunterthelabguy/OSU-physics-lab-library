@@ -108,8 +108,12 @@ blockquote > :last-child { margin-bottom: 0; }   /* the quote's own margin ends 
   background: var(--checkpoint-fill);
 }
 
-.question-label p, .checkpoint-label p {
+/* The label is a heading one level below its section (D-0176), drawn as
+   the small capitals line it was: everything a heading brings is undone. */
+.question-label, .checkpoint-label {
   font-size: .8rem;
+  font-weight: 400;
+  line-height: 1.6;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--quiet);

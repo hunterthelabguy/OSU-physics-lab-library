@@ -535,6 +535,15 @@ class Html(unittest.TestCase):
                 self.assertIn(doc_id, HTML_CAPS, "measure this lab's HTML download and add its cap")
                 self.assertLessEqual(size, HTML_CAPS[doc_id])
 
+    def test_no_duplicate_ids(self):
+        # D-0176: the label headings carry no id, so a week restart's
+        # second "Question 1" adds none; every id on a page is unique.
+        for doc_id, _ in converted():
+            for text in (page(doc_id, "modern"), self.download(doc_id)):
+                with self.subTest(doc=doc_id):
+                    ids = re.findall(r'\sid="([^"]+)"', text)
+                    self.assertEqual(len(ids), len(set(ids)))
+
 
 class MediaDownloads(unittest.TestCase):
     """A made-up lab with a cropped picture, a drawn figure and an equation
@@ -874,7 +883,7 @@ class PrintKeeps(unittest.TestCase):
         text = "\f".join(" ".join(words(p)) for p in pages)
         start = -1
         tall = {n for d, n in self.TALLER_THAN_A_PAGE if d == doc_id}
-        for n, rest in re.findall(r'<div class="question-label">\s*<p>Question (\d+)</p>\s*</div>(.*?)</div>', main, re.S):
+        for n, rest in re.findall(r'<h[2-6] class="question-label">Question (\d+)</h[2-6]>(.*?)</div>', main, re.S):
             end = " ".join(self.last_words(rest))
             # In order: after a restart (S9), "Question 1" comes again.
             start = text.find("QUESTION " + n, start + 1)
