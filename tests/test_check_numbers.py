@@ -254,6 +254,47 @@ class Filter(unittest.TestCase):
                 self.assertNotEqual(r.returncode, 0)
                 self.assertIn("must open with a paragraph", r.stderr)
 
+    def test_label_is_a_heading_one_below_its_section(self):
+        # D-0176: the label is a heading one level below the last heading
+        # before it; a body with none sits under the page's H1.
+        body = "\n".join([q("z"), "## Week 1\n", q("a"), "### Part A\n", q("b"),
+                          "#### Deep\n", q("c"), "## Week 2\n", q("d", cls="checkpoint")])
+        out = self.render(body, "-t", "html").stdout
+        for tag in ('<h2 class="question-label">Question 1</h2>',
+                    '<h3 class="question-label">Question 2</h3>',
+                    '<h4 class="question-label">Question 3</h4>',
+                    '<h5 class="question-label">Question 4</h5>',
+                    '<h3 class="checkpoint-label">Checkpoint 1</h3>'):
+            self.assertIn(tag, out)
+        self.assertNotIn("<p>Question", out)
+        # A Div opening with a heading is written as a <section> carrying
+        # the heading's class (Pandoc 3.10); the box stays a div (spec 8.1).
+        self.assertIn('<div id="a" class="question">', out)
+        self.assertNotIn("<section", out)
+
+    def test_heading_in_a_box_is_not_a_section(self):
+        # D-0176: a heading inside a question's box leaves the section as
+        # it was, so the next question's label keeps the same level.
+        body = "\n".join(["## Week 1\n", q("a", "::: box\n#### Box title\n\nWords.\n:::"), q("b")])
+        out = self.render(body, "-t", "html").stdout
+        self.assertIn('<h3 class="question-label">Question 1</h3>', out)
+        self.assertIn('<h3 class="question-label">Question 2</h3>', out)
+
+    def test_label_past_h6_fails(self):
+        out = self.render("###### Six\n\n" + q("a"), "-t", "html")
+        self.assertNotEqual(out.returncode, 0)
+        self.assertIn("h7", out.stderr)
+
+    def test_word_label_outside_h3_to_h5_fails(self):
+        # D-0176 ("Keep three"): Word has Question Label 3 to 5; an h2
+        # label (no section above it) or an h6 one has no style, so the
+        # render stops.
+        for body in (q("a"), "##### Five\n\n" + q("a")):
+            with self.subTest(body=body):
+                out = self.render(body, "-t", "docx", "-o", os.devnull)
+                self.assertNotEqual(out.returncode, 0)
+                self.assertIn("Question Label 3 to 5", out.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

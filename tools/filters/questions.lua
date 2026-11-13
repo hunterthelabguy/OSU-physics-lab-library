@@ -9,8 +9,9 @@
 -- open with a paragraph; anything else fails the render (D-0082).
 -- tools/check_numbers.py reads these labels against Word's (D-0102).
 --
--- The block becomes a labeled block ("Question N"), and all its bold is
--- removed so that bold means emphasis again (ledger 29; D-0101, S4). The
+-- The block becomes a labeled block, its label ("Question N") a heading
+-- one level below its section (D-0176), and all its bold is removed so
+-- that bold means emphasis again (ledger 29; D-0101, S4). The
 -- faithful presentation, which kept the bold and printed "N)", is retired
 -- (D-0108). In Word the block is a one-cell table with the page's rule down
 -- the left and its tint behind (D-0082), so stem, parts, bullets and hints
@@ -18,12 +19,15 @@
 -- probe). The table is raw OpenXML around Pandoc's own paragraphs; its
 -- colours come from themes/modern.css by way of tools/downloads.py
 -- (`box-rule`, `box-fill`, `checkpoint-rule`, `checkpoint-fill`), and the
--- label takes the Question Label style of tools/reference.docx. Any other
--- output would carry a style name into the page as an attribute, so it is
--- never set there.
+-- label takes the Question Label N style of tools/reference.docx, N its
+-- level, 3 to 5 (D-0176). Any other output would carry a style name into
+-- the page as an attribute, so it is never set there.
 
 local questions, checkpoints = 0, 0
 local colours = {}
+-- The level of the last heading before a label, outside any question box
+-- (D-0176). The page's H1 is its title, so a label is never above H2.
+local section = 1
 
 local function unbold(el)
   return el:walk({ Strong = function(s) return s.content end })
@@ -73,6 +77,11 @@ return {
     end,
   },
   {
+    -- Top-down, so headings and questions are met in document order. A
+    -- question's own content is not walked: a heading in its box is not a
+    -- section, and nothing in it is labelled.
+    traverse = "topdown",
+    Header = function(h) section = h.level end,
     Div = function(el)
       local kind
       if el.classes:includes("question") then
@@ -82,11 +91,15 @@ return {
       else
         return nil
       end
+      local name = el.identifier ~= "" and ("#" .. el.identifier) or "without an id"
       local first = el.content[1]
       if not first or first.t ~= "Para" then
-        local name = el.identifier ~= "" and ("#" .. el.identifier) or "without an id"
         error(kind .. " " .. name .. " must open with a paragraph, not "
           .. (first and first.t or "nothing"))
+      end
+      local level = section + 1
+      if level > 6 then
+        error(kind .. " " .. name .. " sits under an h6; its label would be h7 (D-0176)")
       end
 
       local n
@@ -101,15 +114,23 @@ return {
 
       el = unbold(el)
       local text = (kind == "question" and "Question " or "Checkpoint ") .. n
-      local label = pandoc.Div({ pandoc.Para({ pandoc.Str(text) }) },
-        pandoc.Attr("", { kind .. "-label" }))
-      table.insert(el.content, 1, label)
       if FORMAT == "docx" then
-        label.attributes["custom-style"] = "Question Label"
+        if level < 3 or level > 5 then
+          error(kind .. " " .. name .. "'s label would be h" .. level
+            .. "; tools/reference.docx has Question Label 3 to 5 only (D-0176)")
+        end
+        local label = pandoc.Div({ pandoc.Para({ pandoc.Str(text) }) },
+          pandoc.Attr("", { kind .. "-label" }, { ["custom-style"] = "Question Label " .. level }))
+        table.insert(el.content, 1, label)
         local prefix = kind == "question" and "box" or "checkpoint"
-        return word_box(el.content, colours[prefix .. "-rule"], colours[prefix .. "-fill"], kind)
+        return word_box(el.content, colours[prefix .. "-rule"], colours[prefix .. "-fill"], kind), false
       end
-      return el
+      -- An attribute-less Div around the heading, which Pandoc writes as no
+      -- element: a Div opening with a heading becomes a <section> carrying
+      -- the heading's class (Pandoc 3.10, probed 2026-11-12).
+      table.insert(el.content, 1, pandoc.Div({
+        pandoc.Header(level, { pandoc.Str(text) }, pandoc.Attr("", { kind .. "-label" })) }))
+      return el, false
     end,
   },
 }

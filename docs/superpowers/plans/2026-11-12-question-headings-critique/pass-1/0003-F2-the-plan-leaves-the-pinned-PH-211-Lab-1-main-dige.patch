@@ -1,0 +1,29 @@
+From 2564348327bf6289775088a791bcd767b071ecad Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 13:36:12 -0800
+Subject: [PATCH 3/5] F2: the plan leaves the pinned PH 211 Lab 1 <main> digest
+ stale
+
+Label: mechanical.
+tests/test_site_chrome.py DocumentBodies pins the SHA-256 of PH 211
+Lab 1's <main> in tests/fixtures/main-bodies.json (D-0010). Its five
+labels change markup, so the full unittest run fails there; the plan's
+Files table does not list the fixture. New digest computed from the
+built page exactly as the test computes it (D-0108 updated it the same
+way).
+---
+ tests/fixtures/main-bodies.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/fixtures/main-bodies.json b/tests/fixtures/main-bodies.json
+index c763975..982c0f9 100644
+--- a/tests/fixtures/main-bodies.json
++++ b/tests/fixtures/main-bodies.json
+@@ -1,3 +1,3 @@
+ {
+-  "labs/ph211-team-building-handout/modern/index.html": "1f388b20dcf126e61b5092e3df1a4893cfa5f804804ee22ef1a4a810e80f9bb8"
++  "labs/ph211-team-building-handout/modern/index.html": "049e89a3290956ca4961199b70a7b21dfe2df94797c4b39424a3be651667d52b"
+ }
+-- 
+2.55.0.windows.3
+

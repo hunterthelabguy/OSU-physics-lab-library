@@ -1,0 +1,318 @@
+From 0a5669166c137df0aff03a32630adb11f347386f Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 16:43:17 -0800
+Subject: [PATCH 2/3] T2 as written
+
+Red step, run against T1's build as the plan states: 95 failures over
+tests.test_check_numbers.Filter and tests.test_downloads.MarkdownAndWord.
+- test_word_questions_are_one_cell_tables: "AssertionError: 0 != N" per lab
+  (is_label finds no QuestionLabel3 to 5, so labelled is empty).
+- test_word_label_styles_add_only_an_outline_level: "no style QuestionLabel3"
+  (and 4, 5) per lab.
+- test_word_label_levels_match_the_page: [] != the page's levels per lab.
+- test_word_label_outside_h3_to_h5_fails, both subtests: "'Question Label 3 to
+  5' not found" in the old filter's "needs its colours" error.
+Regenerating tools/reference.docx changed only word/styles.xml.
+---
+ tests/test_check_numbers.py  |  10 ++++++++
+ tests/test_downloads.py      |  47 ++++++++++++++++++++++++++++-------
+ tools/filters/questions.lua  |   6 ++++-
+ tools/make_reference_docx.py |  14 +++++++++--
+ tools/reference.docx         | Bin 11717 -> 11759 bytes
+ 5 files changed, 65 insertions(+), 12 deletions(-)
+
+diff --git a/tests/test_check_numbers.py b/tests/test_check_numbers.py
+index 54f8d28..6f46cf9 100644
+--- a/tests/test_check_numbers.py
++++ b/tests/test_check_numbers.py
+@@ -285,6 +285,16 @@ class Filter(unittest.TestCase):
+         self.assertNotEqual(out.returncode, 0)
+         self.assertIn("h7", out.stderr)
+ 
++    def test_word_label_outside_h3_to_h5_fails(self):
++        # D-0176 ("Keep three"): Word has Question Label 3 to 5; an h2
++        # label (no section above it) or an h6 one has no style, so the
++        # render stops.
++        for body in (q("a"), "##### Five\n\n" + q("a")):
++            with self.subTest(body=body):
++                out = self.render(body, "-t", "docx", "-o", os.devnull)
++                self.assertNotEqual(out.returncode, 0)
++                self.assertIn("Question Label 3 to 5", out.stderr)
++
+ 
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tests/test_downloads.py b/tests/test_downloads.py
+index d4bca55..3414853 100644
+--- a/tests/test_downloads.py
++++ b/tests/test_downloads.py
+@@ -100,6 +100,13 @@ class OwnText(HTMLParser):
+             self.blocks[self.open[-1][1]][1] += data
+ 
+ 
++LABEL_STYLE = re.compile(r"QuestionLabel[3-5]")
++
++
++def is_label(style):
++    return bool(style and LABEL_STYLE.fullmatch(style))
++
++
+ class Links(unittest.TestCase):
+     """D-0053: the approved links on modern pages only, outside <main>."""
+ 
+@@ -288,7 +295,7 @@ class MarkdownAndWord(unittest.TestCase):
+             numbers = question_numbers(text)
+             count = len(numbers)
+             with self.subTest(doc=doc_id, questions=count):
+-                labelled = [b for b in self.boxes(doc_id) if "QuestionLabel" in b[1]]
++                labelled = [b for b in self.boxes(doc_id) if is_label(b[1][0])]
+                 # A checkpoint is its own box, labelled on its own count
+                 # (D-0112, D-0115); the questions keep Word's numbers.
+                 boxes = [b for b in labelled if b[2][0].startswith("Question ")]
+@@ -303,11 +310,12 @@ class MarkdownAndWord(unittest.TestCase):
+                 self.assertTrue(count or doc_id in COURSE_WIDE)
+                 for n, (tbl, styles, texts) in zip(numbers, boxes):
+                     self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
+-                    self.assertEqual(styles[0], "QuestionLabel")
++                    self.assertTrue(is_label(styles[0]))
+                     self.assertEqual(texts[0], "Question {}".format(n))
+                     self.assertTrue(any(texts[1:]), "the question's words are in the box")
+-                self.assertNotIn('w:val="QuestionLabel"', re.sub(
+-                    r"<w:tbl>.*?</w:tbl>", "", self.part(doc_id, "word/document.xml"), flags=re.S))
++                self.assertNotRegex(re.sub(
++                    r"<w:tbl>.*?</w:tbl>", "", self.part(doc_id, "word/document.xml"), flags=re.S),
++                    r'w:val="QuestionLabel\d?"')
+ 
+     def test_word_box_is_the_modern_block(self):
+         # D-0057, D-0082: the modern page's question block, from
+@@ -323,8 +331,7 @@ class MarkdownAndWord(unittest.TestCase):
+                 left = int(re.search(r'<w:pgMar\b[^>]*\bw:left="(\d+)"', sect).group(1))
+                 right = int(re.search(r'<w:pgMar\b[^>]*\bw:right="(\d+)"', sect).group(1))
+                 for tbl, styles, texts in self.boxes(doc_id):
+-                    if "QuestionLabel" not in styles:
+-                        continue
++                    if not is_label(styles[0]): continue
+                     # A checkpoint's box takes its own palette (D-0115).
+                     edge, behind = (rule, fill) if texts[0].startswith("Checkpoint ") else (accent, tint)
+                     self.assertRegex(tbl, r'<w:left w:val="single" w:sz="24" w:space="0" w:color="{}"/>'.format(edge))
+@@ -340,7 +347,7 @@ class MarkdownAndWord(unittest.TestCase):
+     def test_word_box_holds_a_list_between_parts(self):
+         # D-0082 (finding 3, F14(b)): a stem, lettered parts and a round-bullet
+         # action between them draw as one box, which custom-style could not.
+-        body = ("::: {.question #probe:parts}\n**Make a plot.**\n\na.  **Slope?**\nb.  **Units?**\n\n"
++        body = ("## Part\n\n::: {.question #probe:parts}\n**Make a plot.**\n\na.  **Slope?**\nb.  **Units?**\n\n"
+                 "::: action\n- An action between parts.\n:::\n\nc.  **Agree?**\n:::\n\nAfter.\n")
+         with tempfile.TemporaryDirectory() as d:
+             out = Path(d) / "probe.docx"
+@@ -361,7 +368,7 @@ class MarkdownAndWord(unittest.TestCase):
+         # D-0110, D-0115: "Checkpoint 1" in a one-cell table with the light
+         # page's Candela fill and Luminance rule, then "Question 1" in the
+         # question's own colours.
+-        body = "::: {.checkpoint #c}\nExchange contacts.\n:::\n\n::: {.question #a}\n**Why?**\n:::\n"
++        body = "## Part\n\n::: {.checkpoint #c}\nExchange contacts.\n:::\n\n::: {.question #a}\n**Why?**\n:::\n"
+         with tempfile.TemporaryDirectory() as d:
+             out = Path(d) / "probe.docx"
+             subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
+@@ -382,7 +389,7 @@ class MarkdownAndWord(unittest.TestCase):
+         # The filter never guesses a colour: a Word render without them stops.
+         r = subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
+                             "-o", os.devnull],
+-                           input="::: {.question #a}\nText.\n:::\n", capture_output=True, encoding="utf-8")
++                           input="## Part\n\n::: {.question #a}\nText.\n:::\n", capture_output=True, encoding="utf-8")
+         self.assertNotEqual(r.returncode, 0)
+         self.assertIn("needs its colours", r.stderr)
+ 
+@@ -431,6 +438,28 @@ class MarkdownAndWord(unittest.TestCase):
+                 with self.subTest(doc=doc_id, level=level):
+                     self.assertIn("<w:keepNext", self.style(doc_id, "Heading{}".format(level)))
+ 
++    def test_word_label_styles_add_only_an_outline_level(self):
++        # D-0176: "Question Label N" is "Question Label" with the outline
++        # level of an hN, and nothing else, so the box looks as it did.
++        for doc_id, _ in converted():
++            for level in range(3, 6):
++                with self.subTest(doc=doc_id, level=level):
++                    style = self.style(doc_id, "QuestionLabel{}".format(level))
++                    self.assertIn('<w:name w:val="Question Label {}" />'.format(level), style)
++                    self.assertIn('<w:basedOn w:val="QuestionLabel" />', style)
++                    self.assertEqual(re.findall(r"<w:(?:pPr|rPr)>.*?</w:(?:pPr|rPr)>", style, re.S),
++                                     ['<w:pPr><w:outlineLvl w:val="{}" /></w:pPr>'.format(level - 1)])
++
++    def test_word_label_levels_match_the_page(self):
++        # D-0176: each Word label's level is its heading's level on the
++        # page, label for label.
++        for doc_id, _ in converted():
++            with self.subTest(doc=doc_id):
++                word = [int(b[1][0][-1]) for b in self.boxes(doc_id) if is_label(b[1][0])]
++                html = [int(h) for h in re.findall(
++                    r'<h([2-6]) class="(?:question|checkpoint)-label">', page(doc_id, "modern"))]
++                self.assertEqual(word, html)
++
+ 
+ # Each lab's HTML download, measured, times 1.10, rounded up to the next
+ # 10,000; never a guess. A lab without its own cap fails, so a lab is
+diff --git a/tools/filters/questions.lua b/tools/filters/questions.lua
+index f074cae..21ca571 100644
+--- a/tools/filters/questions.lua
++++ b/tools/filters/questions.lua
+@@ -115,8 +115,12 @@ return {
+       el = unbold(el)
+       local text = (kind == "question" and "Question " or "Checkpoint ") .. n
+       if FORMAT == "docx" then
++        if level < 3 or level > 5 then
++          error(kind .. " " .. name .. "'s label would be h" .. level
++            .. "; tools/reference.docx has Question Label 3 to 5 only (D-0176)")
++        end
+         local label = pandoc.Div({ pandoc.Para({ pandoc.Str(text) }) },
+-          pandoc.Attr("", { kind .. "-label" }, { ["custom-style"] = "Question Label" }))
++          pandoc.Attr("", { kind .. "-label" }, { ["custom-style"] = "Question Label " .. level }))
+         table.insert(el.content, 1, label)
+         local prefix = kind == "question" and "box" or "checkpoint"
+         return word_box(el.content, colours[prefix .. "-rule"], colours[prefix .. "-fill"], kind), false
+diff --git a/tools/make_reference_docx.py b/tools/make_reference_docx.py
+index c7cad89..31b870f 100644
+--- a/tools/make_reference_docx.py
++++ b/tools/make_reference_docx.py
+@@ -17,7 +17,9 @@ Starts from Pandoc's own default reference document and adds:
+ - the PDF's page: Letter with site/site.css's 0.75 in margins;
+ - the Question Label style that tools/filters/questions.lua names for a
+   question's label in Word: the modern page's label, in capitals and its
+-  --quiet colour, kept with what follows. The box around the question is a
++  --quiet colour, kept with what follows, and Question Label 3 to 5, the same
++  with the outline level of an h3 to h5 (D-0176), which the filter picks by
++  the label's level. The box around the question is a
+   one-cell table the filter draws (D-0082), not a style;
+ - a thin full grid on Pandoc's default Table style, as the modern page
+   draws a table (D-0130): single 0.5 pt rules in --quiet. The question and
+@@ -86,7 +88,15 @@ STYLES = (
+     + '</w:pPr>'
+     # .question-label p: .8rem (9 pt), letter-spacing .08em, --quiet.
+     '<w:rPr><w:caps /><w:color w:val="0D5257" /><w:spacing w:val="14" /><w:sz w:val="18" /><w:szCs w:val="18" /></w:rPr>'
+-    '</w:style>')
++    '</w:style>'
++    # D-0176: one style per label level, the label's look plus the outline
++    # level of an hN, so Word lists the label as a heading.
++    + ''.join(
++        '<w:style w:type="paragraph" w:customStyle="1" w:styleId="QuestionLabel{0}">'
++        '<w:name w:val="Question Label {0}" /><w:basedOn w:val="QuestionLabel" />'
++        '<w:next w:val="BodyText" /><w:qFormat />'
++        '<w:pPr><w:outlineLvl w:val="{1}" /></w:pPr></w:style>'.format(level, level - 1)
++        for level in range(3, 6)))
+ 
+ 
+ def paragraph(style, runs):
+diff --git a/tools/reference.docx b/tools/reference.docx
+index 39b590888e971aa60cec2936ffc53d2b5a8100b6..df40d13fdd2942395682f93dd70562f05f83ff88 100644
+GIT binary patch
+delta 2794
+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
+MCeN9v{P))X0164=7ytkO
+
+delta 2744
+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
+Q0*EEQz+!m475@1C4|P-de*gdg
+
+-- 
+2.55.0.windows.3
+

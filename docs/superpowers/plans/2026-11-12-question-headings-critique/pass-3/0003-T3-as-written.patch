@@ -1,0 +1,78 @@
+From 4bfddc80bfe570d119c9df9edd939f46996a58fd Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 16:43:48 -0800
+Subject: [PATCH 3/3] T3 as written
+
+Red step: tests.test_headings, test_box_heading_is_below_its_label fails
+for ph212-data-analysis-handout and ph212-extending-a-model-handout, each
+"AssertionError: 3 not greater than 3". After the two heading lines: green;
+the word check reads 2602 and 2589 words identical, as at the base, and the
+number check passes on both.
+---
+ curriculum/ph212/ph212-data-analysis-handout.md     | 2 +-
+ curriculum/ph212/ph212-extending-a-model-handout.md | 2 +-
+ docs/accessibility/2026-11-05-nvda-ph212.md         | 2 +-
+ tests/test_headings.py                              | 8 ++++++++
+ 4 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/curriculum/ph212/ph212-data-analysis-handout.md b/curriculum/ph212/ph212-data-analysis-handout.md
+index e40a406..f10a182 100644
+--- a/curriculum/ph212/ph212-data-analysis-handout.md
++++ b/curriculum/ph212/ph212-data-analysis-handout.md
+@@ -108,7 +108,7 @@ b.  **List the members of your group and the responsibilities of each as you do
+ **Read the box below on sources of uncertainty.**
+ 
+ ::: box
+-### What is Uncertainty?
++#### What is Uncertainty?
+ 
+ *Uncertainty* is the acknowledgement that we cannot measure things exactly, and so any conclusion based on measurements will always include a range of possible answers. When making a measurement, there is no single “true value” of the measurand (measured quantity) that we can determine. Instead, we can define an interval that defines the range of values that we think are *probable* for the measurand. The narrower the interval, the more precisely we can approximate the measurand.
+ 
+diff --git a/curriculum/ph212/ph212-extending-a-model-handout.md b/curriculum/ph212/ph212-extending-a-model-handout.md
+index 9ecdd34..e4cfb1a 100644
+--- a/curriculum/ph212/ph212-extending-a-model-handout.md
++++ b/curriculum/ph212/ph212-extending-a-model-handout.md
+@@ -119,7 +119,7 @@ As stated above, the goal of today’s experiment is to test whether the model $
+ a.  **Identify at least two important assumptions required to state that your apparatus in this experiment models the real-world problem described in the introduction.**
+ 
+ ::: box
+-### Assumptions:
++#### Assumptions:
+ 
+ A hypothesis typically includes assumptions about the situation being modeled. This could be ignoring the effect of a certain force (i.e. neglecting air resistance) or making some other simplification (i.e. assuming that a spring has a constant stiffness as it’s stretched).
+ 
+diff --git a/docs/accessibility/2026-11-05-nvda-ph212.md b/docs/accessibility/2026-11-05-nvda-ph212.md
+index c260879..e2a6618 100644
+--- a/docs/accessibility/2026-11-05-nvda-ph212.md
++++ b/docs/accessibility/2026-11-05-nvda-ph212.md
+@@ -5,7 +5,7 @@ subagent driving NVDA with scripted key presses; landed under D-0166. Two
+ notes about the run machine's own accounts and windows are omitted here.
+ Fixes since: Labs 3 and 6's headings, the skip link, the footer and
+ navigation landmarks, and Lab 3's figure name (D-0166); Lab 6's Google
+-Drive link (D-0164). The math and the question labels are open.
++Drive link (D-0164). The question labels are headings (D-0176). The math is open.
+ Findings are quoted from the NVDA log, which records the speech NVDA queued,
+ not audio. Nothing was audible. Main-session spot checks against the built
+ pages (2026-11-05) are marked [checked].
+diff --git a/tests/test_headings.py b/tests/test_headings.py
+index 774f5f3..86595d6 100644
+--- a/tests/test_headings.py
++++ b/tests/test_headings.py
+@@ -93,6 +93,14 @@ class HeadingLevels(unittest.TestCase):
+                     elif kind == "label":
+                         self.assertEqual(level, section + 1)
+ 
++    def test_box_heading_is_below_its_label(self):
++        # D-0176: a heading inside a question's box sits under its label.
++        for lab, found in self.labs.items():
++            for level, kind, box in found:
++                if kind == "box":
++                    with self.subTest(lab=lab, level=level):
++                        self.assertGreater(level, box)
++
+ 
+ if __name__ == "__main__":
+     unittest.main()
+-- 
+2.55.0.windows.3
+

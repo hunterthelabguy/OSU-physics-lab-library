@@ -119,7 +119,7 @@ As stated above, the goal of today’s experiment is to test whether the model $
 a.  **Identify at least two important assumptions required to state that your apparatus in this experiment models the real-world problem described in the introduction.**
 
 ::: box
-### Assumptions:
+#### Assumptions:
 
 A hypothesis typically includes assumptions about the situation being modeled. This could be ignoring the effect of a certain force (i.e. neglecting air resistance) or making some other simplification (i.e. assuming that a spring has a constant stiffness as it’s stretched).
 

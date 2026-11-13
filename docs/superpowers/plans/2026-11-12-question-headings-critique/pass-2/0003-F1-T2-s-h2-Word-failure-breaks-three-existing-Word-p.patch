@@ -1,0 +1,54 @@
+From 851a105915be9ee8ee7ff846ad1d3a6769df9169 Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Thu, 12 Nov 2026 15:23:55 -0800
+Subject: [PATCH 3/4] F1: T2's h2 Word failure breaks three existing Word probe
+ tests
+
+Mechanical. T2 makes a Word label at any level but 3 to 5 fail the render, and
+three existing tests in MarkdownAndWord render a body with no heading (label
+h2): test_word_box_holds_a_list_between_parts and
+test_word_checkpoint_is_its_own_box (Pandoc exit 1) and
+test_word_box_without_its_colours_fails ("needs its colours" not found; got
+"question #a's label would be h2; tools/reference.docx has Question Label 3 to
+5 only"). The plan says T2 expects green and lists none of them. Smallest fix:
+each of the three bodies opens with "## Part". The choice behind the failure
+(an h2 label stops the Word render) is the plan's own and stays; the owner may
+rule it.
+---
+ tests/test_downloads.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/tests/test_downloads.py b/tests/test_downloads.py
+index b07853d..11e6151 100644
+--- a/tests/test_downloads.py
++++ b/tests/test_downloads.py
+@@ -370,7 +370,7 @@ class MarkdownAndWord(unittest.TestCase):
+     def test_word_box_holds_a_list_between_parts(self):
+         # D-0082 (finding 3, F14(b)): a stem, lettered parts and a round-bullet
+         # action between them draw as one box, which custom-style could not.
+-        body = ("::: {.question #probe:parts}\n**Make a plot.**\n\na.  **Slope?**\nb.  **Units?**\n\n"
++        body = ("## Part\n\n::: {.question #probe:parts}\n**Make a plot.**\n\na.  **Slope?**\nb.  **Units?**\n\n"
+                 "::: action\n- An action between parts.\n:::\n\nc.  **Agree?**\n:::\n\nAfter.\n")
+         with tempfile.TemporaryDirectory() as d:
+             out = Path(d) / "probe.docx"
+@@ -391,7 +391,7 @@ class MarkdownAndWord(unittest.TestCase):
+         # D-0110, D-0115: "Checkpoint 1" in a one-cell table with the light
+         # page's Candela fill and Luminance rule, then "Question 1" in the
+         # question's own colours.
+-        body = "::: {.checkpoint #c}\nExchange contacts.\n:::\n\n::: {.question #a}\n**Why?**\n:::\n"
++        body = "## Part\n\n::: {.checkpoint #c}\nExchange contacts.\n:::\n\n::: {.question #a}\n**Why?**\n:::\n"
+         with tempfile.TemporaryDirectory() as d:
+             out = Path(d) / "probe.docx"
+             subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
+@@ -412,7 +412,7 @@ class MarkdownAndWord(unittest.TestCase):
+         # The filter never guesses a colour: a Word render without them stops.
+         r = subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
+                             "-o", os.devnull],
+-                           input="::: {.question #a}\nText.\n:::\n", capture_output=True, encoding="utf-8")
++                           input="## Part\n\n::: {.question #a}\nText.\n:::\n", capture_output=True, encoding="utf-8")
+         self.assertNotEqual(r.returncode, 0)
+         self.assertIn("needs its colours", r.stderr)
+ 
+-- 
+2.55.0.windows.3
+
