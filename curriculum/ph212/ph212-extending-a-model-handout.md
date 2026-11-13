@@ -199,9 +199,9 @@ Perform your experiment and record your data. This should include the value and 
 ::: {.question #ph212-extending-a-model:report-data}
 **Report your data:**
 
-a.  **Calculate the total uncertainty at each angle $\mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{total}}$ by adding the measurement and statistical uncertainties in quadrature.**
+a.  **Calculate the total uncertainty at each angle $\Delta T_{\text{total}}$ by adding the measurement and statistical uncertainties in quadrature.**
 
-    $$\mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{total}}\mathbf{=}\sqrt{\left( \mathbf{\Delta}\mathbf{T}_{\mathbf{m}} \right)^{\mathbf{2}}\mathbf{+}\left( \mathbf{\Delta}\mathbf{T}_{\mathbf{s}} \right)^{\mathbf{2}}}$$
+    $$\Delta T_{\text{total}} = \sqrt{\left( \Delta T_{m} \right)^{2} + \left( \Delta T_{s} \right)^{2}}$$
 
 b.  **Include a data table representing your entire experiment, with column labels and units, and the total uncertainty values for each angle.**
 :::
