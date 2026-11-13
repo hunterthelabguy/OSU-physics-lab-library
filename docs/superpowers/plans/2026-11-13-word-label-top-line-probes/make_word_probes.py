@@ -41,7 +41,8 @@ write("C-builtin-heading-in-box.docx", LABEL.sub(lambda m: m.group(0).replace(
 # D: the label above the box, drawn as the box's top line: the box's rule
 # and tint on the label paragraph, its top padding as a border in the tint,
 # and the cell's top margin cut to the label's old space below it.
-def top_line(space_left="9", space_right="12", space_top="10", cell_top="79"):
+def top_line(space_left="9", space_right="12", space_top="10", cell_top="79",
+             ind_left="248", ind_right="248", first_line="0"):
     xml = doc
     for m in reversed(list(LABEL.finditer(doc))):
         para = m.group(0)
@@ -54,7 +55,7 @@ def top_line(space_left="9", space_right="12", space_top="10", cell_top="79"):
                f'<w:left w:val="single" w:sz="24" w:space="{space_left}" w:color="{rule}"/>'
                f'<w:right w:val="single" w:sz="4" w:space="{space_right}" w:color="{fill}"/></w:pBdr>'
                f'<w:shd w:val="clear" w:color="auto" w:fill="{fill}"/>'
-               f'<w:spacing w:before="0" w:after="0"/><w:ind w:left="248" w:right="248"/></w:pPr>')
+               f'<w:spacing w:before="0" w:after="0"/><w:ind w:left="{ind_left}" w:right="{ind_right}" w:firstLine="{first_line}"/></w:pPr>')
         para = re.sub(r"<w:pPr>.*?</w:pPr>", ppr, para, count=1)
         xml = xml[:m.start()] + xml[m.end():]
         head = xml[start:].replace('<w:top w:w="203" w:type="dxa"/>', f'<w:top w:w="{cell_top}" w:type="dxa"/>', 1)
@@ -65,6 +66,11 @@ write("D-label-as-top-line.docx", top_line())
 
 # D2: height equal to the box as built (top border 0.5 pt + 9 pt space +
 # 92 twips cell margin = 203 + 79 twips), rule and tint edges nudged.
+# Arguments: border spaces left, right, top (pt), cell top (twips), and
+# optionally indents left, right, first line (twips). The strand survey ran
+# with 10 11 9 92 (indents 248 248 0); the measured design, D-0180, is
+# 9 11 9 92 238 258 10. A label is one short line, so its indents move
+# nothing vertically and the survey's pagination holds for both.
 if len(sys.argv) > 3:
-    sl, sr, st, ct = sys.argv[3:7]
-    write(f"D2-{sl}-{sr}-{st}-{ct}.docx", top_line(sl, sr, st, ct))
+    args = sys.argv[3:10]
+    write("D2-" + "-".join(args) + ".docx", top_line(*args))

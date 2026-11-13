@@ -50,6 +50,18 @@ label's words still come before the stem's.
 One task: the filter change and its tests are one cycle a reviewer
 accepts or rejects whole.
 
+Revision 1 (2026-11-13) folds executing critique 1 (read 0f2e222; report
+and patches in `2026-11-13-word-label-top-line-critique/pass-1/`): the
+build before the red step, the box test's own guard, the grep's `-r`,
+comment widths, the pane probe expanding every entry, the row scan through
+the seam, and the probe's indents as arguments. Two findings go to the
+owner: 78 of 194 stems take Pandoc's First Paragraph style once a raw
+label precedes them (drawn the same: it is based on Body Text with nothing
+of its own), and the label's rule starts 0.48 pt below its tint. Optional
+pins of the indents and border spaces in CI are not taken: the spec's
+tests hold the colours and the spacing sum, and Word's render holds the
+edges (spec section 7).
+
 ### T1: The Word label leaves the box and becomes its top line
 
 **Depends on:** none (branch `word-label-top`, on `question-headings`)
@@ -61,6 +73,10 @@ returning `[(label_xml, style_id, label_text, table_xml, table_paragraph_texts)]
 **Verify:** `python -m unittest tests.test_downloads.MarkdownAndWord.test_word_checkpoint_is_its_own_box -v`,
 then build and `python -m unittest tests.test_downloads.MarkdownAndWord tests.test_check_numbers.Filter -v`
 
+- [ ] Build the unchanged filter first (`python tools/quarto_build.py`):
+  `tests/test_downloads.py`'s `setUpModule` raises "build/quarto-site is
+  missing" for every test in the module, the probe tests included, and a
+  fresh worktree has no build.
 - [ ] Tests first. In `tests/test_downloads.py`, class `MarkdownAndWord`,
   after `boxes`, add:
 
@@ -135,7 +151,11 @@ then build and `python -m unittest tests.test_downloads.MarkdownAndWord tests.te
                                                 _MODERN).group(1)) / 1.0625 * 12 * 20)
                 after = int(re.search(r'<w:spacing\b[^>]*\bw:after="(\d+)"',
                                       self.style(doc_id, "QuestionLabel")).group(1))
-                for para, _, text, tbl, _ in self.labelled(doc_id):
+                labelled = self.labelled(doc_id)
+                # Without this the loop passes on a file whose labels are
+                # missing (executing critique 1, finding 2).
+                self.assertTrue(labelled or doc_id in COURSE_WIDE, "no label sits before a box")
+                for para, _, text, tbl, _ in labelled:
                     # A checkpoint's box takes its own palette (D-0115).
                     edge, behind = (rule, fill) if text.startswith("Checkpoint ") else (accent, tint)
                     self.assertRegex(tbl, r'<w:left w:val="single" w:sz="24" w:space="0" w:color="{}"/>'.format(edge))
@@ -177,18 +197,22 @@ then build and `python -m unittest tests.test_downloads.MarkdownAndWord tests.te
             self.assertRegex(part, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(MODERN_ROOT["--tint"].lstrip("#").upper()))
 ```
 
-  and update its comment's first line to "D-0110, D-0115, D-0180: "Checkpoint 1"
-  before a one-cell table with ...".
+  and update its comment's first two lines to
+  `# D-0110, D-0115, D-0180: "Checkpoint 1" before a one-cell table` /
+  `# with the light page's Candela fill and Luminance rule, then`, the
+  rest as it is, each line under 80 columns as in the file.
 
   Delete `boxes` (class `MarkdownAndWord`), `LABEL_STYLE` and `is_label`
   (module level): their three callers are the tests replaced above, and
-  `grep -n "is_label\|\.boxes(\|LABEL_STYLE" tests/` then prints nothing.
+  `grep -rn "is_label\|\.boxes(\|LABEL_STYLE" tests/` then prints nothing.
 
 - [ ] Run `python -m unittest tests.test_downloads.MarkdownAndWord.test_word_checkpoint_is_its_own_box -v`;
   expected failure: `ValueError: not enough values to unpack (expected 2, got 0)`
-  (no label paragraph sits before a table yet). The build-reading tests go
-  red after a build of the unchanged filter; `test_word_questions_are_one_cell_tables`
-  fails "every label sits directly before its box".
+  (no label paragraph sits before a table yet). Then
+  `python -m unittest tests.test_downloads.MarkdownAndWord -v` on that
+  build: `test_word_questions_are_one_cell_tables` fails "every label sits
+  directly before its box", and `test_word_box_is_the_modern_block` fails
+  on its own guard (below).
 
 - [ ] Filter. In `tools/filters/questions.lua`, replace the comment above
   `word_box` and the function with:
@@ -264,7 +288,8 @@ end
   Label N style of tools/reference.docx, N its / -- level, 3 to 5
   (D-0176)." with "and the / -- label, in the Question Label N style of
   tools/reference.docx (N its level, / -- 3 to 5; D-0176), sits directly
-  before the box as its top line (D-0180).", rewrapped at 76 columns.
+  before the box as its top line (D-0180).", rewrapped so no line passes
+  the file's widest existing comment line (76 columns).
 
 - [ ] Run the checkpoint probe test and `tests.test_check_numbers.Filter`;
   expected: pass (the colour and level errors fire before any XML is
@@ -283,12 +308,20 @@ end
    in the scratchpad, never saved, stopping only the scripts' own Word
    process; the owner may have Word open), with the committed probes in
    `2026-11-13-word-label-top-line-probes/`:
-   - `nav_pane.ps1` on PH 212 Lab 1: every question listed under its Part;
-     on PH 211 Lab 3 with Part 1 expanded: Question 1 and Questions 2 to 5.
+   - `nav_pane.ps1` (expands every entry by pressing Right on it, so Word
+     must be in front; it stops if another window is) on PH 212 Lab 1:
+     Questions 1 to 16 listed; on PH 211 Lab 3: Questions 1 to 14. As
+     built, PH 212 Lab 1 lists none. Word folds level-3 headings, so
+     without the expansion Questions 8, 9 and 12 of PH 212 Lab 1 are
+     hidden (critique 1, finding 4). If the owner opens Word while the
+     probe starts, its one-new-process check stops it: rerun.
    - `word_pdf.ps1` on PH 212 Lab 1, then `edges.py` on page 3 at 300 dpi
      (`pdftoppm -r 300 -f 3 -l 3 -x 150 -y 620 -W 2400 -H 420`, rows 90
      and 250): the label's rule and the tint's right edge within 0.1 pt of
-     the box's.
+     the box's; then `edges_scan.py` on the same crop, every row through
+     the seam, reporting where the rule starts against the tint's top
+     (critique 1 measured the rule starting 0.48 pt below it; the owner's
+     ruling on that notch is recorded in D-0180).
    - `strand_survey.ps1` and `strand_check.py` over all 18 labs, PR 76's
      build as `A.docx` and this build as `D2.docx`: exactly the two
      strandings of spec section 6.

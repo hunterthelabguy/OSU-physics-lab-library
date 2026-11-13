@@ -1,0 +1,270 @@
+From b4a0f11fc39bfa29c1adef51a9c121fa884a9f61 Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 13:07:44 -0800
+Subject: [PATCH] T1 as written
+
+Red step (before the filter change), with an empty build/quarto-site
+to pass setUpModule (see F-note: the probe test needs the folder):
+test_word_checkpoint_is_its_own_box
+ValueError: not enough values to unpack (expected 2, got 0)
+---
+ tests/test_downloads.py     | 104 +++++++++++++++++++++---------------
+ tools/filters/questions.lua |  40 ++++++++++----
+ 2 files changed, 92 insertions(+), 52 deletions(-)
+
+diff --git a/tests/test_downloads.py b/tests/test_downloads.py
+index 3414853..e2f14e1 100644
+--- a/tests/test_downloads.py
++++ b/tests/test_downloads.py
+@@ -100,13 +100,6 @@ class OwnText(HTMLParser):
+             self.blocks[self.open[-1][1]][1] += data
+ 
+ 
+-LABEL_STYLE = re.compile(r"QuestionLabel[3-5]")
+-
+-
+-def is_label(style):
+-    return bool(style and LABEL_STYLE.fullmatch(style))
+-
+-
+ class Links(unittest.TestCase):
+     """D-0053: the approved links on modern pages only, outside <main>."""
+ 
+@@ -276,46 +269,56 @@ class MarkdownAndWord(unittest.TestCase):
+                 for side in ("top", "right", "bottom", "left"):
+                     self.assertRegex(sect, r'<w:pgMar\b[^>]*\bw:{}="{}"'.format(side, twips))
+ 
+-    def boxes(self, doc_id):
+-        """Each one-cell table in the body: (its XML, its paragraphs' styles, its text)."""
++    # D-0180: a label paragraph, then directly its box's table.
++    LABEL_BEFORE_BOX = re.compile(
++        r'(<w:p><w:pPr><w:pStyle w:val="(QuestionLabel[3-5])" ?/>(?:(?!</w:p>).)*</w:p>)\s*(<w:tbl>.*?</w:tbl>)',
++        re.S)
++
++    def labelled(self, doc_id):
++        """Each label paragraph and the table right after it: (its XML, its
++        style, its text, the table's XML, the table's paragraphs' texts)."""
+         out = []
+-        for tbl in re.findall(r"<w:tbl>.*?</w:tbl>", self.part(doc_id, "word/document.xml"), re.S):
+-            paras = re.findall(r"<w:p\b.*?</w:p>", tbl, re.S)
+-            styles = [(re.search(r'<w:pStyle w:val="([^"]+)"', p) or [None, None])[1] for p in paras]
+-            texts = ["".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", p)) for p in paras]
+-            out.append((tbl, styles, texts))
++        for para, style, tbl in self.LABEL_BEFORE_BOX.findall(self.part(doc_id, "word/document.xml")):
++            text = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", para))
++            texts = ["".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", p))
++                     for p in re.findall(r"<w:p\b.*?</w:p>", tbl, re.S)]
++            out.append((para, style, text, tbl, texts))
+         return out
+ 
+     def test_word_questions_are_one_cell_tables(self):
+-        # D-0082 (amends D-0057): each question is one table of one cell,
+-        # its Question Label paragraph ("Question N") first, in document
+-        # order, so a list or a bullet between parts sits inside the box.
++        # D-0082 (amends D-0057): each question is one table of one cell
++        # holding its words, so a list or a bullet between parts sits inside
++        # the box. D-0180 (amends D-0082): its Question Label paragraph
++        # ("Question N") sits directly before the table, outside every
++        # table, since Word's Navigation pane leaves out a heading in a
++        # table cell; in document order.
+         for doc_id, source in converted():
+             text = source.read_text(encoding="utf-8")
+             numbers = question_numbers(text)
+             count = len(numbers)
++            doc = self.part(doc_id, "word/document.xml")
+             with self.subTest(doc=doc_id, questions=count):
+-                labelled = [b for b in self.boxes(doc_id) if is_label(b[1][0])]
++                labelled = self.labelled(doc_id)
++                self.assertEqual(len(re.findall(r'<w:pStyle w:val="QuestionLabel\d"', doc)), len(labelled),
++                                 "every label sits directly before its box")
+                 # A checkpoint is its own box, labelled on its own count
+                 # (D-0112, D-0115); the questions keep Word's numbers.
+-                boxes = [b for b in labelled if b[2][0].startswith("Question ")]
+-                checkpoints = [b for b in labelled if b[2][0].startswith("Checkpoint ")]
++                boxes = [b for b in labelled if b[2].startswith("Question ")]
++                checkpoints = [b for b in labelled if b[2].startswith("Checkpoint ")]
+                 self.assertEqual(len(boxes) + len(checkpoints), len(labelled))
+-                self.assertEqual([b[2][0] for b in checkpoints],
++                self.assertEqual([b[2] for b in checkpoints],
+                                  ["Checkpoint {}".format(k) for k in range(1, checkpoint_count(text) + 1)])
+-                for tbl, _, texts in checkpoints:
++                for _, _, _, tbl, texts in checkpoints:
+                     self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
+-                    self.assertTrue(any(texts[1:]), "the checkpoint's words are in the box")
++                    self.assertTrue(any(texts), "the checkpoint's words are in the box")
+                 self.assertEqual(len(boxes), count)
+                 self.assertTrue(count or doc_id in COURSE_WIDE)
+-                for n, (tbl, styles, texts) in zip(numbers, boxes):
++                for n, (_, _, label, tbl, texts) in zip(numbers, boxes):
+                     self.assertEqual(len(re.findall(r"<w:tc>", tbl)), 1)
+-                    self.assertTrue(is_label(styles[0]))
+-                    self.assertEqual(texts[0], "Question {}".format(n))
+-                    self.assertTrue(any(texts[1:]), "the question's words are in the box")
+-                self.assertNotRegex(re.sub(
+-                    r"<w:tbl>.*?</w:tbl>", "", self.part(doc_id, "word/document.xml"), flags=re.S),
+-                    r'w:val="QuestionLabel\d?"')
++                    self.assertEqual(label, "Question {}".format(n))
++                    self.assertTrue(any(texts), "the question's words are in the box")
++                self.assertNotRegex("".join(re.findall(r"<w:tbl>.*?</w:tbl>", doc, re.S)),
++                                    r'w:val="QuestionLabel\d?"')
+ 
+     def test_word_box_is_the_modern_block(self):
+         # D-0057, D-0082: the modern page's question block, from
+@@ -330,15 +333,29 @@ class MarkdownAndWord(unittest.TestCase):
+                 page = int(re.search(r'<w:pgSz\b[^>]*\bw:w="(\d+)"', sect).group(1))
+                 left = int(re.search(r'<w:pgMar\b[^>]*\bw:left="(\d+)"', sect).group(1))
+                 right = int(re.search(r'<w:pgMar\b[^>]*\bw:right="(\d+)"', sect).group(1))
+-                for tbl, styles, texts in self.boxes(doc_id):
+-                    if not is_label(styles[0]): continue
++                # D-0180: the label is the box's top line, in the box's
++                # colours, and label to label is as before: the box's top
++                # padding plus the label's space after equals the label's
++                # top border and its space plus the cell's top margin.
++                padding = round(float(re.search(r"\.question, \.checkpoint \{[^}]*padding: ([\d.]+)rem",
++                                                _MODERN).group(1)) / 1.0625 * 12 * 20)
++                after = int(re.search(r'<w:spacing\b[^>]*\bw:after="(\d+)"',
++                                      self.style(doc_id, "QuestionLabel")).group(1))
++                for para, _, text, tbl, _ in self.labelled(doc_id):
+                     # A checkpoint's box takes its own palette (D-0115).
+-                    edge, behind = (rule, fill) if texts[0].startswith("Checkpoint ") else (accent, tint)
++                    edge, behind = (rule, fill) if text.startswith("Checkpoint ") else (accent, tint)
+                     self.assertRegex(tbl, r'<w:left w:val="single" w:sz="24" w:space="0" w:color="{}"/>'.format(edge))
+                     self.assertRegex(tbl, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(behind))
+                     self.assertIn("<w:cantSplit/>", tbl)
+                     self.assertIn('<w:tblW w:w="{}" w:type="dxa"/>'.format(page - left - right), tbl)
+-                label = self.style(doc_id, "QuestionLabel")
++                    self.assertRegex(para, r'<w:left w:val="single" w:sz="24"(?=[^>]*\bw:color="{}")'.format(edge))
++                    self.assertRegex(para, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(behind))
++                    for side in ("top", "right"):
++                        self.assertRegex(para, r'<w:{} w:val="single"(?=[^>]*\bw:color="{}")'.format(side, behind))
++                    top = re.search(r'<w:top w:val="single" w:sz="(\d+)" w:space="(\d+)"', para)
++                    cell = int(re.search(r'<w:tblCellMar><w:top w:w="(\d+)"', tbl).group(1))
++                    self.assertEqual(int(top.group(1)) * 20 // 8 + int(top.group(2)) * 20 + cell, padding + after)
++                label =self.style(doc_id, "QuestionLabel")
+                 self.assertIn("<w:caps", label)
+                 self.assertIn("<w:keepNext", label)
+                 self.assertNotIn("<w:pBdr>", label)
+@@ -365,7 +382,7 @@ class MarkdownAndWord(unittest.TestCase):
+         self.assertNotIn("After.", inside)
+ 
+     def test_word_checkpoint_is_its_own_box(self):
+-        # D-0110, D-0115: "Checkpoint 1" in a one-cell table with the light
++        # D-0110, D-0115, D-0180: "Checkpoint 1" before a one-cell table with the light
+         # page's Candela fill and Luminance rule, then "Question 1" in the
+         # question's own colours.
+         body = "## Part\n\n::: {.checkpoint #c}\nExchange contacts.\n:::\n\n::: {.question #a}\n**Why?**\n:::\n"
+@@ -377,13 +394,16 @@ class MarkdownAndWord(unittest.TestCase):
+                            input=body, check=True, capture_output=True, encoding="utf-8")
+             with zipfile.ZipFile(out) as z:
+                 doc = z.read("word/document.xml").decode("utf-8")
+-        checkpoint, question = re.findall(r"<w:tbl>.*?</w:tbl>", doc, re.S)
++        (cp_label, _, cp_box), (q_label, _, q_box) = self.LABEL_BEFORE_BOX.findall(doc)
+         fill, rule = (MODERN_ROOT[k].lstrip("#").upper() for k in ("--checkpoint-fill", "--checkpoint-rule"))
+-        self.assertIn("Checkpoint 1", checkpoint)
+-        self.assertRegex(checkpoint, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(fill))
+-        self.assertRegex(checkpoint, r'<w:left\b(?=[^>]*\bw:color="{}")'.format(rule))
+-        self.assertIn("Question 1", question)
+-        self.assertRegex(question, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(MODERN_ROOT["--tint"].lstrip("#").upper()))
++        self.assertIn("Checkpoint 1", cp_label)
++        for part in (cp_box, cp_label):
++            self.assertRegex(part, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(fill))
++            self.assertRegex(part, r'<w:left\b(?=[^>]*\bw:color="{}")'.format(rule))
++        self.assertIn("Question 1", q_label)
++        self.assertIn("Why?", q_box)
++        for part in (q_box, q_label):
++            self.assertRegex(part, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(MODERN_ROOT["--tint"].lstrip("#").upper()))
+ 
+     def test_word_box_without_its_colours_fails(self):
+         # The filter never guesses a colour: a Word render without them stops.
+@@ -455,7 +475,7 @@ class MarkdownAndWord(unittest.TestCase):
+         # page, label for label.
+         for doc_id, _ in converted():
+             with self.subTest(doc=doc_id):
+-                word = [int(b[1][0][-1]) for b in self.boxes(doc_id) if is_label(b[1][0])]
++                word = [int(style[-1]) for _, style, _, _, _ in self.labelled(doc_id)]
+                 html = [int(h) for h in re.findall(
+                     r'<h([2-6]) class="(?:question|checkpoint)-label">', page(doc_id, "modern"))]
+                 self.assertEqual(word, html)
+diff --git a/tools/filters/questions.lua b/tools/filters/questions.lua
+index 74558e9..68c93a4 100644
+--- a/tools/filters/questions.lua
++++ b/tools/filters/questions.lua
+@@ -19,9 +19,10 @@
+ -- probe). The table is raw OpenXML around Pandoc's own paragraphs; its
+ -- colours come from themes/modern.css by way of tools/downloads.py
+ -- (`box-rule`, `box-fill`, `checkpoint-rule`, `checkpoint-fill`), and the
+--- label takes the Question Label N style of tools/reference.docx, N its
+--- level, 3 to 5 (D-0176). Any other output would carry a style name into
+--- the page as an attribute, so it is never set there.
++-- label, in the Question Label N style of tools/reference.docx (N its level,
++-- 3 to 5; D-0176), sits directly before the box as its top line (D-0180).
++-- Any other output would carry a style name into the page as an attribute,
++-- so it is never set there.
+ 
+ local questions, checkpoints = 0, 0
+ local colours = {}
+@@ -43,7 +44,29 @@ local TEXT_WIDTH = 10080
+ -- the padding as cell margins, the rule as a 3 pt left border on the text
+ -- column's edge, and an empty paragraph after it for the bottom margin,
+ -- which also keeps two boxes in a row from joining into one table.
+-local function word_box(blocks, rule, fill, kind)
++-- D-0180: the label sits directly before the table, since Word's Navigation
++-- pane leaves out any heading in a table cell, drawn as the box's top line
++-- by direct formatting (questions and checkpoints differ in colour): the
++-- rule as its left border, the tint as its shading and as top and right
++-- borders, so the shading reaches the box's edges. Spaces and indents land
++-- the rule and the tint's edge on the box's, measured in Word's render at
++-- 300 dpi (spec 2026-11-13, section 3).
++-- The cell's top margin under the label: the box's top padding, twips(.9)
++-- = 203, plus Question Label's space after, 79, as before, less the
++-- label's top border (0.5 pt, 10) and its space (9 pt, 180).
++local CELL_TOP = 92
++
++local function word_label(text, level, rule, fill)
++  return pandoc.RawBlock("openxml", '<w:p><w:pPr><w:pStyle w:val="QuestionLabel' .. level .. '"/>'
++    .. '<w:pBdr><w:top w:val="single" w:sz="4" w:space="9" w:color="' .. fill .. '"/>'
++    .. '<w:left w:val="single" w:sz="24" w:space="9" w:color="' .. rule .. '"/>'
++    .. '<w:right w:val="single" w:sz="4" w:space="11" w:color="' .. fill .. '"/></w:pBdr>'
++    .. '<w:shd w:val="clear" w:color="auto" w:fill="' .. fill .. '"/>'
++    .. '<w:spacing w:before="0" w:after="0"/><w:ind w:left="238" w:right="258" w:firstLine="10"/></w:pPr>'
++    .. '<w:r><w:t xml:space="preserve">' .. text .. '</w:t></w:r></w:p>')
++end
++
++local function word_box(text, level, blocks, rule, fill, kind)
+   if not rule or not fill then
+     error("the Word " .. kind .. " box needs its colours; tools/downloads.py passes them")
+   end
+@@ -53,7 +76,7 @@ local function word_box(blocks, rule, fill, kind)
+     .. '<w:top w:val="nil"/><w:left w:val="single" w:sz="24" w:space="0" w:color="' .. rule .. '"/>'
+     .. '<w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/>'
+     .. '</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar>'
+-    .. '<w:top w:w="' .. twips(.9) .. '" w:type="dxa"/><w:left w:w="' .. side .. '" w:type="dxa"/>'
++    .. '<w:top w:w="' .. CELL_TOP .. '" w:type="dxa"/><w:left w:w="' .. side .. '" w:type="dxa"/>'
+     .. '<w:bottom w:w="' .. twips(.1) .. '" w:type="dxa"/><w:right w:w="' .. side .. '" w:type="dxa"/>'
+     .. '</w:tblCellMar><w:tblLook w:val="0000"/></w:tblPr>'
+     .. '<w:tblGrid><w:gridCol w:w="' .. TEXT_WIDTH .. '"/></w:tblGrid>'
+@@ -61,7 +84,7 @@ local function word_box(blocks, rule, fill, kind)
+     .. '<w:shd w:val="clear" w:color="auto" w:fill="' .. fill .. '"/></w:tcPr>'
+   local gap = '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="' .. twips(1.5)
+     .. '" w:lineRule="exact"/></w:pPr></w:p>'
+-  local out = { pandoc.RawBlock("openxml", open) }
++  local out = { word_label(text, level, rule, fill), pandoc.RawBlock("openxml", open) }
+   for _, b in ipairs(blocks) do table.insert(out, b) end
+   table.insert(out, pandoc.RawBlock("openxml", "</w:tc></w:tr></w:tbl>"))
+   table.insert(out, pandoc.RawBlock("openxml", gap))
+@@ -119,11 +142,8 @@ return {
+           error(kind .. " " .. name .. "'s label would be h" .. level
+             .. "; tools/reference.docx has Question Label 3 to 5 only (D-0176)")
+         end
+-        local label = pandoc.Div({ pandoc.Para({ pandoc.Str(text) }) },
+-          pandoc.Attr("", { kind .. "-label" }, { ["custom-style"] = "Question Label " .. level }))
+-        table.insert(el.content, 1, label)
+         local prefix = kind == "question" and "box" or "checkpoint"
+-        return word_box(el.content, colours[prefix .. "-rule"], colours[prefix .. "-fill"], kind), false
++        return word_box(text, level, el.content, colours[prefix .. "-rule"], colours[prefix .. "-fill"], kind), false
+       end
+       -- An attribute-less Div around the heading, which Pandoc writes as no
+       -- element: a Div opening with a heading becomes a <section> carrying
+-- 
+2.55.0.windows.3
+

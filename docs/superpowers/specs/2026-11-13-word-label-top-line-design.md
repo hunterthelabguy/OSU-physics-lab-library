@@ -87,6 +87,15 @@ Uncertainty?", Lab 2 "Assumptions:"), which stay in the table and out of
 the pane, since moving them out would split the box; Word's folding of
 level-3 headings.
 
+One change inside the box, found by executing critique 1 and put to the
+owner: Pandoc gives the paragraph after a heading its "First Paragraph"
+style, and a raw paragraph does not reset that, so in 78 of 194 boxes (those
+directly under a section heading) the stem's style changes from Body Text
+to First Paragraph. In `tools/reference.docx` First Paragraph is based on
+Body Text with nothing of its own, so Word draws it the same (the stem rows
+measured identical); it shows only in Word's style box. Pandoc already
+gives it to every paragraph after a heading outside the boxes.
+
 ## 5. WCAG
 
 1.3.1 and 2.4.10: met in Word as on the page, the labels now navigable
@@ -117,7 +126,8 @@ In CI, reading the Word XML (the tests can read nothing else):
    borders are in the fill; the cell's top margin plus the label's top
    border and its space equals `twips(.9)` plus the reference's
    `Question Label` spacing after (282 twips), so a change to either side
-   fails here.
+   fails here. It also fails on its own when no label sits before a box
+   (critique 1, finding 2).
 3. `test_word_label_levels_match_the_page` reads labels from the new place.
 4. The three probe tests (`holds_a_list_between_parts`,
    `checkpoint_is_its_own_box`, `without_its_colours_fails`) keep their
@@ -126,11 +136,16 @@ In CI, reading the Word XML (the tests can read nothing else):
 
 On this machine, at the build, not in CI (Word is not in CI):
 
-5. The pane reader (UI Automation) lists every question of PH 212 Lab 1
-   and, with Part 1 expanded, PH 211 Lab 3's H4 and H5 labels.
+5. The pane reader (UI Automation, pressing Right on every entry, since
+   Word folds level-3 headings) lists Questions 1 to 16 of PH 212 Lab 1
+   and 1 to 14 of PH 211 Lab 3; as built, none.
 6. The edges, from Word's PDF at 300 dpi: the label's rule within 0.1 pt
    of the box's on the left; the tint's right edge within 0.1 pt of the
-   box's.
+   box's (critique 1: 0.00 pt both). A scan of every row through the seam
+   reports where the rule starts against the tint's top: critique 1
+   measured it 0.48 pt below, the label's top border (in the tint) drawn
+   over the rule's top corner, where as built rule and tint start on the
+   same row. Put to the owner (section 9, item 5).
 7. The strand survey over all 18 labs: exactly the two in section 6.
 
 The owner's acceptance, unchanged from D-0176: Word's Navigation pane, a
@@ -162,6 +177,15 @@ screen reader in Word, a Google Docs import.
    (0). Ruled acceptable; re-counted with answer areas.
 4. The tests cannot see the pane or the seam; both are local checks (5 to
    7) reported in the PR, and the owner's.
+5. The rule starts 0.48 pt below the tint (about 2 px at 300 dpi, under one
+   screen pixel at 100% zoom): a notch at the top-left corner that the
+   design as built does not have. Lean: accept. The alternative is a
+   thinner top border (0.25 pt) with its space and the cell margin
+   re-derived, which halves the notch and needs a new measurement.
+6. The 78 stems' First Paragraph style (section 4). Lean: accept and
+   record it; drawn the same. The alternative is to reset Pandoc's
+   paragraph style after the raw label, which needs the filter to write
+   the stem's style itself.
 
 ## Declined
 
