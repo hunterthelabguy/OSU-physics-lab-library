@@ -209,6 +209,14 @@ The comparison, four-items call 4.2 as amended here:
 - **Bold:** none. `\mathbf` is styling inside math; equations are exempt
   from the bold compare, as headings are.
 
+2026-11-06, D-0167: an equation may change under a ruling, for a screen
+reader (PH 212's: Word's bold off, words as `\text`, groupings fixed, `*`
+as `\times`, hidden-limit sums as `\sum`). A change the comparison above
+would flag is declared in front matter as `ruled_equations`, by Word's text
+and the converted text as the check prints them, with a ledger reference;
+the check excuses that one position's text and structure, never its kind
+or the count.
+
 ## Rubrics (instructor repo)
 
 One file per lab, one `::: {.rubric-item question="<question id>"}` per
@@ -250,8 +258,9 @@ reads the Markdown's words from Pandoc's parse tree, and compares the two
 word sequences and the bold state of every word outside headings (ledger
 24). Bold in the original is resolved through run, character style, and
 paragraph style. It fails on any difference that is not declared in front
-matter as `ruled_omissions` or `ruled_additions`, each with a ledger
-reference; a declared passage that does not occur also fails. CI runs it on
+matter as `ruled_omissions` or `ruled_additions` (an equation as
+`ruled_equations`, D-0167), each with a ledger reference; a declared
+passage that does not occur also fails. CI runs it on
 every file with a `source_file` (ledger 20).
 
 What it does not check: structure (headings, list nesting, which block a

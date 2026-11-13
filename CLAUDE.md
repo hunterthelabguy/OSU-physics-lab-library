@@ -179,6 +179,8 @@ Quarto internals.
   text and structure through Pandoc's own OMML writer, a picture's alt text
   against Word's `descr`. Pandoc misreads a typed "√" or "°" and a
   delimiter's bars; the source's TeX is corrected, never the comparison.
+  An equation changed under a ruling is declared in `ruled_equations`
+  (D-0167).
   It reads a SYMBOL field and a Symbol-font run as Word displays them
   (`SYMBOL_FONT`, D-0123) and stops on a slot it does not know. A drawn figure (S13) is read from the SVG
   `tools/figures.py` makes of its drawings; a drawing anchored to a
