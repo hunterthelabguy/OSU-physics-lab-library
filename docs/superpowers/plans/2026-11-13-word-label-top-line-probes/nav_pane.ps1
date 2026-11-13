@@ -33,7 +33,7 @@ try {
     foreach ($t in @(Tabs)) {
       $t.SetFocus(); Start-Sleep -Milliseconds 150
       [uint32]$fp = 0; [void][W.U]::GetWindowThreadProcessId([W.U]::GetForegroundWindow(), [ref]$fp)
-      if ($fp -ne $wpid) { "NOT SENT: foreground window belongs to process $fp"; break }
+      if ($fp -ne $wpid) { throw "Word is not in front (foreground process $fp); bring it forward and rerun" }
       [System.Windows.Forms.SendKeys]::SendWait("{RIGHT}"); Start-Sleep -Milliseconds 250
     }
     $round++

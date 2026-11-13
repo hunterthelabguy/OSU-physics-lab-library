@@ -40,6 +40,7 @@ files' `python tools/check_unchanged.py $files` and
 |---|---|---|
 | `tools/filters/questions.lua` | label paragraph before the box; cell top margin | T1 |
 | `tests/test_downloads.py` (class `MarkdownAndWord`) | label before box, its drawing, the spacing sum, levels, the checkpoint probe | T1 |
+| `CLAUDE.md` (Build, Downloads) | one clause: the Word label sits above its box (D-0180) | T1 |
 | `DECISIONS.md` (D-0180 `test:`) | the tests as built | after T1 |
 | `docs/superpowers/plans/2026-11-13-word-label-top-line-probes/` | the Word probes and render checks, committed as evidence (no personal paths) | already in |
 
@@ -57,15 +58,22 @@ comment widths, the pane probe expanding every entry, the row scan through
 the seam, and the probe's indents as arguments. Two findings go to the
 owner: 78 of 194 stems take Pandoc's First Paragraph style once a raw
 label precedes them (drawn the same: it is based on Body Text with nothing
-of its own), and the label's rule starts 0.48 pt below its tint. Optional
+of its own), and the label's rule starts 0.48 pt below its tint; the
+owner accepted both ("Accept both", D-0180). Optional
 pins of the indents and border spaces in CI are not taken: the spec's
 tests hold the colours and the spacing sum, and Word's render holds the
 edges (spec section 7).
 
+Revision 2 folds critique 2 (read 5805fc6; `pass-2/`): F1 pins the label's
+own zero spacing, which no test held (four mutants of the built files passed
+all 345 tests); the third red test named; the comment width; the pane probe
+stops with an error when Word is not in front instead of listing a folded
+pane; the row scan's unreliable summary lines; one clause in CLAUDE.md.
+
 ### T1: The Word label leaves the box and becomes its top line
 
 **Depends on:** none (branch `word-label-top`, on `question-headings`)
-**Files:** modify `tools/filters/questions.lua`; test `tests/test_downloads.py`
+**Files:** modify `tools/filters/questions.lua`, `CLAUDE.md`; test `tests/test_downloads.py`
 **Seams:** the built `.docx` via `MarkdownAndWord.part` and `.style`; the
 filter through Pandoc in the probe tests
 **Interfaces:** produces in `test_downloads.py` `MarkdownAndWord.labelled(doc_id)`
@@ -164,6 +172,10 @@ then build and `python -m unittest tests.test_downloads.MarkdownAndWord tests.te
                     self.assertIn('<w:tblW w:w="{}" w:type="dxa"/>'.format(page - left - right), tbl)
                     self.assertRegex(para, r'<w:left w:val="single" w:sz="24"(?=[^>]*\bw:color="{}")'.format(edge))
                     self.assertRegex(para, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(behind))
+                    # The sum below assumes the label has no space of its own
+                    # (executing critique 2, F1: without this, a lost zero
+                    # spacing passes every test and opens a gap in Word).
+                    self.assertIn('<w:spacing w:before="0" w:after="0"/>', para)
                     for side in ("top", "right"):
                         self.assertRegex(para, r'<w:{} w:val="single"(?=[^>]*\bw:color="{}")'.format(side, behind))
                     top = re.search(r'<w:top w:val="single" w:sz="(\d+)" w:space="(\d+)"', para)
@@ -211,8 +223,9 @@ then build and `python -m unittest tests.test_downloads.MarkdownAndWord tests.te
   (no label paragraph sits before a table yet). Then
   `python -m unittest tests.test_downloads.MarkdownAndWord -v` on that
   build: `test_word_questions_are_one_cell_tables` fails "every label sits
-  directly before its box", and `test_word_box_is_the_modern_block` fails
-  on its own guard (below).
+  directly before its box", `test_word_box_is_the_modern_block` fails on
+  its own guard (below), and `test_word_label_levels_match_the_page` fails
+  `[] != [...]` (18 each).
 
 - [ ] Filter. In `tools/filters/questions.lua`, replace the comment above
   `word_box` and the function with:
@@ -288,9 +301,14 @@ end
   Label N style of tools/reference.docx, N its / -- level, 3 to 5
   (D-0176)." with "and the / -- label, in the Question Label N style of
   tools/reference.docx (N its level, / -- 3 to 5; D-0176), sits directly
-  before the box as its top line (D-0180).", rewrapped so no line passes
-  the file's widest existing comment line (76 columns).
+  before the box as its top line (D-0180).", rewrapped with no new
+  comment line past 77 columns.
 
+- [ ] `CLAUDE.md`, Build, the Downloads paragraph: after "so the question
+  box is a one-cell table / that `questions.lua` writes as raw OpenXML
+  around Pandoc's paragraphs / (D-0082)", add ", its label a paragraph just
+  above the table drawn as the box's top line, since Word's Navigation pane
+  leaves out a heading in a table cell (D-0180)", rewrapped.
 - [ ] Run the checkpoint probe test and `tests.test_check_numbers.Filter`;
   expected: pass (the colour and level errors fire before any XML is
   written, as before).
@@ -309,7 +327,8 @@ end
    process; the owner may have Word open), with the committed probes in
    `2026-11-13-word-label-top-line-probes/`:
    - `nav_pane.ps1` (expands every entry by pressing Right on it, so Word
-     must be in front; it stops if another window is) on PH 212 Lab 1:
+     must be in front, and it stops with an error if another window is)
+     on PH 212 Lab 1:
      Questions 1 to 16 listed; on PH 211 Lab 3: Questions 1 to 14. As
      built, PH 212 Lab 1 lists none. Word folds level-3 headings, so
      without the expansion Questions 8, 9 and 12 of PH 212 Lab 1 are
@@ -319,7 +338,9 @@ end
      (`pdftoppm -r 300 -f 3 -l 3 -x 150 -y 620 -W 2400 -H 420`, rows 90
      and 250): the label's rule and the tint's right edge within 0.1 pt of
      the box's; then `edges_scan.py` on the same crop, every row through
-     the seam, reporting where the rule starts against the tint's top
+     the seam, reporting where the rule starts against the tint's top (read
+     its transition lines; its "first tint row" and "first label ink row"
+     are fooled by page text in this crop)
      (critique 1 measured the rule starting 0.48 pt below it; the owner's
      ruling on that notch is recorded in D-0180).
    - `strand_survey.ps1` and `strand_check.py` over all 18 labs, PR 76's

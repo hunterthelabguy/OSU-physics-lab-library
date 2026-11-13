@@ -1,0 +1,31 @@
+From 971d4b33ee4623a0b3cf011d39608666a8640a0f Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 14:00:36 -0800
+Subject: [PATCH 2/2] F1: pin the label's own zero spacing (mechanical,
+ optional)
+
+Not needed to proceed. A label whose direct spacing after was 200, or
+removed (the style's 79 then applies), passed every test at T1 as written;
+Word would draw a gap between the label's tint and its box. One assertion
+in test_word_box_is_the_modern_block; fails on both mutants, green on the
+build.
+---
+ tests/test_downloads.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tests/test_downloads.py b/tests/test_downloads.py
+index 422724f..d093a57 100644
+--- a/tests/test_downloads.py
++++ b/tests/test_downloads.py
+@@ -354,6 +354,8 @@ class MarkdownAndWord(unittest.TestCase):
+                     self.assertIn('<w:tblW w:w="{}" w:type="dxa"/>'.format(page - left - right), tbl)
+                     self.assertRegex(para, r'<w:left w:val="single" w:sz="24"(?=[^>]*\bw:color="{}")'.format(edge))
+                     self.assertRegex(para, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(behind))
++                    # The sum above assumes the label has no space of its own.
++                    self.assertIn('<w:spacing w:before="0" w:after="0"/>', para)
+                     for side in ("top", "right"):
+                         self.assertRegex(para, r'<w:{} w:val="single"(?=[^>]*\bw:color="{}")'.format(side, behind))
+                     top = re.search(r'<w:top w:val="single" w:sz="(\d+)" w:space="(\d+)"', para)
+-- 
+2.55.0.windows.3
+
