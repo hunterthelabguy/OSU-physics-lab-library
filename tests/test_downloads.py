@@ -378,6 +378,30 @@ class MarkdownAndWord(unittest.TestCase):
         self.assertIn("Question 1", question)
         self.assertRegex(question, r'<w:shd\b(?=[^>]*\bw:fill="{}")'.format(MODERN_ROOT["--tint"].lstrip("#").upper()))
 
+    def test_word_box_after_a_table_keeps_its_own_table(self):
+        # D-0179: Word joins two tables that touch, so a box right after a
+        # table gets before it the same gap paragraph that follows it.
+        body = "| a | b |\n|---|---|\n| 1 | 2 |\n\n::: {.question #a}\n**Why?**\n:::\n"
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "probe.docx"
+            subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),
+                            "-M", "theme=modern", *downloads.box_colours(),
+                            "--reference-doc", downloads.REFERENCE_DOCX, "-o", str(out)],
+                           input=body, check=True, capture_output=True, encoding="utf-8")
+            with zipfile.ZipFile(out) as z:
+                doc = z.read("word/document.xml").decode("utf-8")
+        self.assertEqual(len(re.findall(r"<w:tbl>", doc)), 2)
+        between = re.search(r"</w:tbl>\s*(.*?)\s*<w:tbl>", doc, re.S).group(1)
+        gap_after_box = re.findall(r"</w:tbl>\s*(<w:p>.*?</w:p>)", doc, re.S)[-1]
+        self.assertEqual(between, gap_after_box)
+
+    def test_word_tables_never_touch(self):
+        # D-0179: Word joins two tables with no paragraph between them into
+        # one (PH 211 Lab 3's stopwatch table drew one character wide).
+        for doc_id, _ in converted():
+            with self.subTest(doc=doc_id):
+                self.assertNotRegex(self.part(doc_id, "word/document.xml"), r"</w:tbl>\s*<w:tbl[\s>]")
+
     def test_word_box_without_its_colours_fails(self):
         # The filter never guesses a colour: a Word render without them stops.
         r = subprocess.run([PANDOC, "-f", "markdown-smart", "-t", "docx", "--lua-filter", str(FILTER),

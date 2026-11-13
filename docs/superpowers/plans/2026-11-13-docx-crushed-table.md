@@ -65,3 +65,27 @@ Both tests from task 1 pass after a rebuild. Commit the fix.
 Squash-mergeable branch with the spec, D-0179, the plan, the tests and the
 fix. PR body: cause, bisect table, survey, the Word render numbers, and the
 owner's ruling quoted. Read `verify` on the PR.
+
+## Executing critique, pass 1 (2026-11-13)
+
+Sonnet subagent, scratch tree at 7ba2e08, tasks 1 and 2 as written; Lab 3's
+Word file made directly with `downloads.word()` (no full build). Test 1 red
+before, green after; Lab 3's touching tables gone (15 `w:tbl` both times);
+the existing box tests and `test_questions_filter` green; HTML untouched
+(the pass returns `nil` off docx). Edge cases through the filter: table then
+checkpoint, box then box, a table in a list item, a table inside a box
+before another box, table-box-table-box: none touch. A Div ending in a
+table before a box still touches: ruled out of scope (call 3), test 2's net.
+Folded:
+
+1. Test 1 (medium): "exactly one paragraph" is read as: the text between
+   the two tables, whitespace aside, equals the paragraph after the last
+   `</w:tbl>` (the box's trailing gap), each matched as one non-greedy
+   `<w:p>...</w:p>`; equality makes it one paragraph, with no count.
+2. Test 1 (low): "the paragraph that follows the box" is the one after the
+   last `</w:tbl>`.
+3. Tasks 1 and 2 (low): test 1 needs no build. Test 2's red run in task 1
+   needs a current full build of main's code; its green run needs a
+   rebuild after task 2.
+4. Task 2 (low): the box is found by its raw block's text starting with
+   `<w:tbl>`, as `word_box` writes it.
