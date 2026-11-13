@@ -9,6 +9,13 @@ layer: curriculum
 source_file: "originals/PH212/Lab 5 - Sharing & Comparing - Handout.docx"
 source_sha256: "2d9802178887e6ea3f89062cf750e105e725872ab35dfd790f2b025951862cd7"
 status: converted
+ruled_equations:
+  - original: "Δw=w*α(Δxx)2+β(Δyy)2+γ(Δzz)2"
+    converted: "Δw=w×α(Δxx)2+β(Δyy)2+γ(Δzz)2"
+    ledger: "D-0167"
+  - original: "x2=x*x"
+    converted: "x2=x×x"
+    ledger: "D-0167"
 images:
   - file: "ph212-sharing-and-comparing-handout-media/excel-linest-entry.png"
     source_part: "word/media/image1.png"
@@ -60,7 +67,7 @@ Create a model with the equation you will use to find the linear mass density of
 
 ::: hint
 - Waves are created by an oscillator, and the wave frequency is the same as the oscillator frequency.
-- The speed of waves on a string is given by $\mathbf{v =}\sqrt{\mathbf{T}_{\mathbf{S}}\mathbf{/\mu}}$ , where *T~S~* is the tension in the string and *µ* is its linear mass density (or just mass density).
+- The speed of waves on a string is given by $v = \sqrt{T_{S}/\mu}$ , where *T~S~* is the tension in the string and *µ* is its linear mass density (or just mass density).
 - On a string with two fixed ends, you can generate a series of standing waves of different wavelengths ***λ~n~ = 2L/n**,* where *L* is the length of the string and *n* is any positive integer. (“*n*” is the *mode* of the standing wave, and counts the number of anti-nodes, or maxima.)
 - Speed has the same relationship to the frequency and wavelength for standing waves as for traveling waves: ***v = f~n~** **λ~n~***.
 :::
@@ -161,13 +168,13 @@ We would also like to be able to report the uncertainty in the mass density. The
 
 Suppose the quantity $w\ $depends on three other quantities $x,\ y,\ z$, such that $w = \frac{x^{\alpha}y^{\beta}}{z^{\gamma}}$. Each measured quantity has its own uncertainty, $\Delta x,\ \Delta y,\ \Delta z$. Then the uncertainty in $w$ is given by the equation:
 
-$$\Delta w = w*\sqrt{{\alpha\left( \frac{\Delta x}{x} \right)}^{2} + {\beta\left( \frac{\Delta y}{y} \right)}^{2} + {\gamma\left( \frac{\Delta z}{z} \right)}^{2}\ }$$
+$$\Delta w = w \times \sqrt{{\alpha\left( \frac{\Delta x}{x} \right)}^{2} + {\beta\left( \frac{\Delta y}{y} \right)}^{2} + {\gamma\left( \frac{\Delta z}{z} \right)}^{2}\ }$$
 
 You might notice that this looks very similar to the equation you have been using to find total uncertainty from multiple sources, with a few important changes.
 
 ::: hint
 - Each quantity may have different units; by dividing each uncertainty by the measured value everything in the square root is unitless. You can also think of this as adding the percent uncertainties together (also called relative uncertainty), instead of the uncertainties themselves.
-- Exponents are just repeated multiplication – for example, $x^{2} = x*x$. In this case, the uncertainty in $x$ would come up twice in the square root, so we would add $\left( \frac{\Delta x}{x} \right)^{2} + \left( \frac{\Delta x}{x} \right)^{2} = 2\left( \frac{\Delta x}{x} \right)^{2}$, which is why exponents become multiplication factors.
+- Exponents are just repeated multiplication – for example, $x^{2} = x \times x$. In this case, the uncertainty in $x$ would come up twice in the square root, so we would add $\left( \frac{\Delta x}{x} \right)^{2} + \left( \frac{\Delta x}{x} \right)^{2} = 2\left( \frac{\Delta x}{x} \right)^{2}$, which is why exponents become multiplication factors.
 :::
 :::
 
