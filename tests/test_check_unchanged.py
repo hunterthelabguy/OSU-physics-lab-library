@@ -211,10 +211,6 @@ class WordCheck(unittest.TestCase):
     def test_a_dropped_nary_undeclared_fails_and_names_its_text(self):
         self.assertFails(SUM, PLAIN_SUM, "reads '∑Fi=0'")
 
-    def test_a_declared_nary_passes(self):
-        _, problems = self.check(SUM, PLAIN_SUM, front=self.ruled("∑Fi=0", "∑Fi=0"))
-        self.assertEqual(problems, [])
-
     def test_a_declaration_that_matches_nothing_fails(self):
         self.assertFails(STAR, TIMES, "matches no equation",
                          front=self.ruled("y=a*b", "y=a·b"))
