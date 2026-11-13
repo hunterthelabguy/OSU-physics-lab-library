@@ -33,6 +33,12 @@
 -- for a figure), `media-prefix`, put before a picture's path on a page
 -- that sits below the media folder's parent ("../" on labs/<id>/modern/),
 -- and `library-url`, the library's address (render.LIBRARY_URL).
+--
+-- No Word file names the folder it was built in (D-0177): `media-dir` is
+-- an absolute path, so a Word file drops it once read (Pandoc writes a
+-- field it has no core property for as a custom one), and a figure's PNG
+-- keeps the source's relative path, found through `--resource-path` like
+-- a picture's (Pandoc writes an image's path into its inner `descr`).
 
 local prefix, dir, url = "", nil, nil
 
@@ -52,11 +58,9 @@ local function read(path)
   return text
 end
 
-local function figure_file(el, ext)
+local function figure_file(el)
   if not dir then error("media.lua: a drawn figure needs media-dir") end
-  local name = basename(el.src)
-  if ext then name = name:gsub("%.svg$", ext) end
-  return dir .. "/" .. name
+  return dir .. "/" .. basename(el.src)
 end
 
 local function inches(value, what)
@@ -97,7 +101,7 @@ local function figure_docx(el)
   end
   local alt = table.concat(alts, " "):gsub("&quot;", '"'):gsub("&lt;", "<"):gsub("&gt;", ">")
     :gsub("&#x27;", "'"):gsub("&amp;", "&"):gsub("^%s+", ""):gsub("%s+$", "")
-  return pandoc.Image({ pandoc.Str(alt) }, figure_file(el, ".png"), "",
+  return pandoc.Image({ pandoc.Str(alt) }, (el.src:gsub("%.svg$", ".png")), "",
     pandoc.Attr("", {}, { { "width", w .. "px" }, { "height", h .. "px" } }))
 end
 
@@ -107,6 +111,10 @@ return {
       if meta["media-prefix"] then prefix = pandoc.utils.stringify(meta["media-prefix"]) end
       if meta["media-dir"] then dir = pandoc.utils.stringify(meta["media-dir"]) end
       if meta["library-url"] then url = pandoc.utils.stringify(meta["library-url"]) end
+      if FORMAT == "docx" then
+        meta["media-dir"] = nil
+        return meta
+      end
     end,
   },
   {
