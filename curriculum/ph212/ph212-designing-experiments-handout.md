@@ -9,6 +9,13 @@ layer: curriculum
 source_file: "originals/PH212/Lab 3 - Designing Experiments - Handout.docx"
 source_sha256: "4713cbfe3ebb4e3cdb2fe2ef80534268122710295b65c9b56ae18a87418ac76f"
 status: converted
+ruled_equations:
+  - original: "Iα=∑τi=∑Fidisinθi"
+    converted: "Iα=∑τi=∑Fidisinθi"
+    ledger: "D-0167"
+  - original: "ma=∑Fi"
+    converted: "ma=∑Fi"
+    ledger: "D-0167"
 images:
   - file: "ph212-designing-experiments-handout-media/excel-linest-entry.png"
     source_part: "word/media/image3.png"
@@ -133,7 +140,7 @@ We will be estimating uncertainty in linear and angular accelerations measured b
 
 a.  **What quantities will you measure and how will you calculate acceleration?**
 b.  **What sources do you expect to contribute significantly to the uncertainty in a single measurement of the time? List the source(s) and estimate a value for each. If there is more than one source, find the total measurement uncertainty by adding in quadrature.**
-c.  **Use the method described above (under Estimating Uncertainty) to estimate the uncertainty in the acceleration. Note that because you are only doing a single measurement, there is no statistical uncertainty. Report the average acceleration you found in the $\mathbf{A \pm \mathrm{\Delta}A}$ format.**
+c.  **Use the method described above (under Estimating Uncertainty) to estimate the uncertainty in the acceleration. Note that because you are only doing a single measurement, there is no statistical uncertainty. Report the average acceleration you found in the $A \pm \Delta A$ format.**
 :::
 
 ::: {.question #ph212-designing-experiments:linear-motion-detector}
@@ -141,7 +148,7 @@ c.  **Use the method described above (under Estimating Uncertainty) to estimate 
 
 a.  **What quantity is the motion detector measuring directly and what quantities are being calculated in Graphical Analysis? How will you find a value for the average acceleration from the data it records?**
 b.  **Use the method described above (under Estimating Uncertainty) to estimate the uncertainty in the acceleration.**
-c.  **Report the average acceleration you found in the $\mathbf{A \pm \mathrm{\Delta}A}$ format.**
+c.  **Report the average acceleration you found in the $A \pm \Delta A$ format.**
 :::
 
 Now compare the measurements you got using each method to determine which is more reliable – which is more consistent over time and more consistent from run to run. Don’t get caught up in the number of digits provided by the measuring instrument. Focus on the precision to which you believe the results.
@@ -167,7 +174,7 @@ Before going on, save any data you may want to access later.
 
 a.  **What quantities will you measure and how will you calculate the angular acceleration?**
 b.  **What sources do you expect to contribute to the uncertainty in a single measurement of the time? List the source(s) and determine a value for each, then find the total measurement uncertainty.**
-c.  **Use the method described above (under Estimating Uncertainty) to estimate the uncertainty in the acceleration, including statistical uncertainty. Then report the average acceleration you found in the $\mathbf{A \pm \mathrm{\Delta}A}$ format.**
+c.  **Use the method described above (under Estimating Uncertainty) to estimate the uncertainty in the acceleration, including statistical uncertainty. Then report the average acceleration you found in the $A \pm \Delta A$ format.**
 :::
 
 ::: {.question #ph212-designing-experiments:rotational-photogate}
@@ -175,7 +182,7 @@ c.  **Use the method described above (under Estimating Uncertainty) to estimate 
 
 a.  **What quantity is the photogate measuring directly and what quantities are being calculated in Graphical Analysis? How will you find a value for the average angular acceleration from the data it records?**
 b.  **Use the method described above (under Estimating Uncertainty) to estimate the uncertainty in the acceleration.**
-c.  **Report the average acceleration you found in the $\mathbf{A \pm \mathrm{\Delta}A}$ format.**
+c.  **Report the average acceleration you found in the $A \pm \Delta A$ format.**
 :::
 
 Compare the two measurement methods using the same ideas as before.
@@ -329,7 +336,7 @@ a.  **Use your graph to determine a single, final [result for the moment of iner
 b.  **Use one of the methods below to find the uncertainty in the slope. State what method you used and report the value.**
 c.  **Because the slope is equal to the moment of inertia multiplied by constants that don’t have significant uncertainties, the *relative* uncertainties of the slope and moment are equal. Mathematically:**
 
-    $$\frac{\mathbf{\mathrm{\Delta}}_{\mathbf{slope}}}{\mathbf{slope}}\mathbf{\approx}\frac{\mathbf{\mathrm{\Delta}}_{\mathbf{I}}}{\mathbf{I}}$$
+    $$\frac{\Delta_{\text{slope}}}{\text{slope}} \approx \frac{\Delta_{I}}{I}$$
 
     **Use this equation to determine the uncertainty in the moment of inertia.**
 :::
@@ -358,7 +365,7 @@ We can’t measure the moment of inertia of the flywheel directly, but we would 
 **Pick a value of accelerating mass that you *did not* use when taking data in Part 1. Think about whether you want this mass to be within the range of values you tested or outside the range.**
 
 a.  **Calculate an expected acceleration for that mass using your experimental value for the flywheel’s moment of inertia. Show symbolically the equation you used to do so and report your answer.**
-b.  **Calculate the range of possible accelerations for the minimum expected moment of inertia ($\mathbf{I - \mathrm{\Delta}I}$) and the maximum expected moment of inertia ($\mathbf{I + \mathrm{\Delta}I}$). Use this to write down your prediction in $\mathbf{A \pm \mathrm{\Delta}A}$ format.**
+b.  **Calculate the range of possible accelerations for the minimum expected moment of inertia ($I - \Delta I$) and the maximum expected moment of inertia ($I + \Delta I$). Use this to write down your prediction in $A \pm \Delta A$ format.**
 :::
 
 ::: {.question #ph212-designing-experiments:prediction-test}
@@ -381,7 +388,7 @@ $I\alpha = mgr - mar$.
 
 The physics principle we will use is Newton’s second law. For the rotational motion of the wheel this is:
 
-$$I\alpha = \sum_{}^{}\tau_{i} = \sum_{}^{}F_{i}d_{i}\sin\theta_{i}$$
+$$I\alpha = \sum\tau_{i} = \sum F_{i}d_{i}\sin\theta_{i}$$
 
 where $\tau_{i}$ are the individual torques acting on the wheel, and each torque is due to an external applied force *F~i~* acting at a distance *d~i~* from the axis of the wheel at an angle *θ~i~*.
 
@@ -393,7 +400,7 @@ where we have chosen rotation caused by a downward tension to be positive.
 
 To get the magnitude of the tension we use Newton’s second law for the linear motion of the mass:
 
-$$ma = \ \sum_{}^{}F_{i}$$
+$$ma = \ \sum F_{i}$$
 
 where $F_{i}$ are the individual forces acting on the mass.
 
