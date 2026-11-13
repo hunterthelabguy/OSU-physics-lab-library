@@ -1,0 +1,56 @@
+From 3528a432f20d6dc3a5fd8fb5a8ecde469ae2b32b Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Fri, 6 Nov 2026 11:49:17 -0800
+Subject: [PATCH 2/6] T2 as written
+
+No red step in the plan. Counts all matched; grep mathbf 0; word check ok 2602/17; numbers ok; reader: 17 equations, 1 flagged (T\  \propto), mtext ['total'], exit 1.
+---
+ curriculum/ph212/ph212-data-analysis-handout.md | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/curriculum/ph212/ph212-data-analysis-handout.md b/curriculum/ph212/ph212-data-analysis-handout.md
+index e40a406..9d5b496 100644
+--- a/curriculum/ph212/ph212-data-analysis-handout.md
++++ b/curriculum/ph212/ph212-data-analysis-handout.md
+@@ -148,9 +148,9 @@ a.  **Find the statistical uncertainty (the uncertainty associated with the spre
+ 
+ b.  **Find the total uncertainty by combining the uncertainties from all sources (those you estimated in question 4 as well as the statistical uncertainty) using the following equation:**
+ 
+-    $$\mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{total}}\mathbf{= \ }\sqrt{\left( \mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{1}} \right)^{\mathbf{2}}\mathbf{+}\left( \mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{2}} \right)^{\mathbf{2}}\mathbf{+}\left( \mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{3}} \right)^{\mathbf{2}}}$$
++    $$\Delta T_{\text{total}} = \sqrt{\left( \Delta T_{1} \right)^{2} + \left( \Delta T_{2} \right)^{2} + \left( \Delta T_{3} \right)^{2}}$$
+ 
+-    **Where** $\mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{1}}$**,** $\mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{2}}$**, and** $\mathbf{\mathrm{\Delta}}\mathbf{T}_{\mathbf{3}}$ **are the uncertainty values you estimated for each source.**
++    **Where** $\Delta T_{1}$**,** $\Delta T_{2}$**, and** $\Delta T_{3}$ **are the uncertainty values you estimated for each source.**
+ 
+     ::: hint
+     - This is called *adding in quadrature* and it’s the method you’ll use to combine sources of uncertainty throughout the course.
+@@ -205,7 +205,7 @@ Error bars are a way to visually represent the range of values that the measuran
+ 5.  Repeat for each dataset that needs error bars
+ 
+ ::: {.question #ph212-data-analysis:plot-with-error-bars}
+-**Attach the plot of the** $\mathbf{5°}$ **and the** $\mathbf{10°}$ **data with the error bars to your report.**
++**Attach the plot of the** $5°$ **and the** $10°$ **data with the error bars to your report.**
+ :::
+ 
+ ::: {.question #ph212-data-analysis:two-data-sets}
+@@ -273,7 +273,7 @@ In practice, **linearization is done by calculating a new column of data,** that
+ :::
+ 
+ ::: {.question #ph212-data-analysis:linearized-plot}
+-**The given model predicts that T is proportional to** $\sqrt{\mathbf{L}}$ **. Create a linearized plot to test this relationship using the 5˚ data and an appropriate fit. Insert the plot into your report, with all the required elements.**
++**The given model predicts that T is proportional to** $\sqrt{L}$ **. Create a linearized plot to test this relationship using the 5˚ data and an appropriate fit. Insert the plot into your report, with all the required elements.**
+ :::
+ 
+ ::: hint
+@@ -287,7 +287,7 @@ We can now compare the linearized fit to the best fit line that you first determ
+ ::: {.question #ph212-data-analysis:y-intercepts}
+ **Analyze the y-intercepts.**
+ 
+-a.  **Based on your understanding of pendulums (not an equation), what should the period be when** $\mathbf{L}\mathbf{= 0}$**? In other words, what should the y-intercept be? Explain your physical reasoning.**
++a.  **Based on your understanding of pendulums (not an equation), what should the period be when** $L = 0$**? In other words, what should the y-intercept be? Explain your physical reasoning.**
+ b.  **What are the y-intercepts from the fits to your two plots of 5˚ data (general best fit and linearized)? Which more closely matches your physical expectations? Is the difference between the two significant?**
+ :::
+ 
+-- 
+2.55.0.windows.3
+

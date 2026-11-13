@@ -71,6 +71,13 @@ ledger:
     ruled_additions:     # passages in the Markdown, absent from the original
       - text: "..."
         ledger: "library 20"
+    ruled_equations:     # an equation changed under a ruling (D-0167)
+      - original: "x2=x*x"      # Word's text, as the check prints it
+        converted: "x2=x×x"     # the converted text, as it prints it
+        ledger: "D-0167"
+
+A declared equation is excused its text and structure at one position; its
+kind and the equation count are still compared, and a needless one fails.
 
 Each declared passage must actually occur, so a stale declaration fails too.
 Requires Python 3.9+ and Pandoc on PATH (or in the PANDOC environment
@@ -705,7 +712,37 @@ def compare_equations(original, converted):
         elif o["shape"] is not None and o["shape"] != c["shape"]:
             diff = ", ".join(f"{k} {a}->{b}" for k, a, b in
                              zip(OMML_KINDS, o["shape"], c["shape"]) if a != b)
-            problems.append(f"equation {i}: structure differs ({diff}) in {c['tex']!r}")
+            problems.append(f"equation {i}: structure differs ({diff}) in {c['tex']!r}"
+                            f" reads {c['text']!r}")
+    return problems
+
+
+def apply_ruled_equations(o_eqs, c_eqs, ruled):
+    """Excuse each declared equation's text and structure (D-0167).
+
+    A declaration names an equation by Word's text and the converted text,
+    as compare_equations prints them; it excuses the first position not yet
+    excused where both match, by giving the converted record the original's
+    text and structure. Its kind and the count are still compared.
+    """
+    problems, excused = [], set()
+    for item in ruled or []:
+        if not item.get("ledger"):
+            problems.append(f"ruled_equations entry lacks a ledger reference:"
+                            f" {item.get('original')!r}")
+        want = (math_norm(item.get("original") or ""), math_norm(item.get("converted") or ""))
+        at = next((i for i, (o, c) in enumerate(zip(o_eqs, c_eqs))
+                   if i not in excused and (o["norm"], c["norm"]) == want), None)
+        if at is None:
+            problems.append(f"ruled_equations entry matches no equation:"
+                            f" {item.get('original')!r} -> {item.get('converted')!r}")
+            continue
+        excused.add(at)
+        o, c = o_eqs[at], c_eqs[at]
+        if o["norm"] == c["norm"] and o["shape"] in (None, c["shape"]):
+            problems.append(f"ruled_equations entry for equation {at + 1} is needless:"
+                            f" it passes undeclared ({c['tex']!r})")
+        c_eqs[at] = {**c, "text": o["text"], "norm": o["norm"], "shape": o["shape"]}
     return problems
 
 
@@ -962,6 +999,7 @@ def check(md_path, repo_root):
 
     back = iter(tex_equations([m for m in found["math"] if m[0] != "figure"], doc["pandoc-api-version"]))
     c_eqs = [m[1] if m[0] == "figure" else next(back) for m in found["math"]]
+    problems += apply_ruled_equations(o_eqs, c_eqs, meta.get("ruled_equations"))
     problems += compare_equations(o_eqs, c_eqs)
     if src.lower().endswith(".docx"):
         with zipfile.ZipFile(src) as package:
