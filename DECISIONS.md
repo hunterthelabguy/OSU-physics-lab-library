@@ -1816,3 +1816,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: rewording the presentation note instead of cutting it ("any change is listed and ruled"; keeps a meta line on a student page); keeping the "Not yet converted" collapse as "Coming soon" (shows a lab marked "not implemented"); one name "OSU physics lab library" (the header's "Department of Physics" and logo already say OSU).
 - binds: D-0038; D-0068; D-0069; D-0070; D-0071; D-0072; D-0088; D-0160; D-0166; D-0168; D-0169; site/landing.md; site/how-this-site-works.md; site/courses.md; tools/render.py; tools/quarto_build.py; tools/quarto_chrome.py; tools/downloads.py; tools/template.html; tools/template-site.html; tools/brandfooter.html; site/site.css; themes/modern.css; tests
 - test: tests/test_quarto_chrome.py::ChromePieces::test_no_meta_notes_for_students and test_lab_nav_goes_to_its_course; LabRows::test_labs_not_on_the_site_not_shown; CoursePages::test_no_source_note_for_students and the tile counts; tests/test_quarto_dress.py::OldChrome::test_site_page_has_no_footnote
+
+### D-0178  D-0167's equation changes leave a handout's `status` at `converted`, and "How this site works" does not list them
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-11-13
+- decision: Applies D-0167 under D-0168. (1) A PH 212 lab whose equations change under D-0167 keeps `status: converted`, Labs 3, 5 and 6 included, though they declare `ruled_equations` (and Lab 6 its moved `)` under `ruled_omissions` and `ruled_additions`): the changes are equation format, not wording, and `ruled-change` stays for wording changes (D-0169's is the one so far). This matches the record: PH 212 Lab 2 (D-0133, D-0161), PH 212 Lab 6 (D-0164) and the PH 21X strategy (D-0160) declare differences and stay `converted`. Nothing in the repo reads `status`. (2) "How this site works" is not changed. Its "Each changed passage is listed in the handout's own file" speaks of words; bold inside an equation has never been compared (D-0113), and D-0167 itself records the bold coming off.
+- rationale: The owner, 2026-11-13: "Leans; build", to these two leans from the plan's third executing critique (`docs/superpowers/plans/2026-11-06-ph212-math-critique/pass-3/report.md`). Context (Claude): the plan had said a file that declares a difference takes `ruled-change`; the critique found that false to the record.
+- alternatives: Labs 3, 5 and 6 as `ruled-change` (calls a format fix a wording change, and Labs 2 and 6 already declare without it); a public sentence on the page about equation format fixes (new public wording to draft and approve).
+- binds: D-0113; D-0167; D-0168; D-0169; curriculum/ph212/ph212-designing-experiments-handout.md; curriculum/ph212/ph212-sharing-and-comparing-handout.md; curriculum/ph212/ph212-capstone-handout.md; site/how-this-site-works.md
+- test: none; a convention, and nothing reads `status`
