@@ -1,6 +1,6 @@
 # A table just before a question box joins it in Word: design
 
-Status: draft for the owner's review, 2026-11-13. Written by Claude in a
+Status: ruled 2026-11-13 ("Leans as written" on the four calls in section 4). Written by Claude in a
 side session started from the question-headings (D-0176) session, whose
 Word probe found the symptom. Ledger: D-0179 (proposed). Ledger entries win
 over this file. Plan and build wait for the ruling; the build ends in a
