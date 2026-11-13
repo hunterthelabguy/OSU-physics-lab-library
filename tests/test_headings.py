@@ -93,6 +93,14 @@ class HeadingLevels(unittest.TestCase):
                     elif kind == "label":
                         self.assertEqual(level, section + 1)
 
+    def test_box_heading_is_below_its_label(self):
+        # D-0176: a heading inside a question's box sits under its label.
+        for lab, found in self.labs.items():
+            for level, kind, box in found:
+                if kind == "box":
+                    with self.subTest(lab=lab, level=level):
+                        self.assertGreater(level, box)
+
 
 if __name__ == "__main__":
     unittest.main()
