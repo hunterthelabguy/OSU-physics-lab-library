@@ -1827,3 +1827,27 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: Labs 3, 5 and 6 as `ruled-change` (calls a format fix a wording change, and Labs 2 and 6 already declare without it); a public sentence on the page about equation format fixes (new public wording to draft and approve).
 - binds: D-0113; D-0167; D-0168; D-0169; curriculum/ph212/ph212-designing-experiments-handout.md; curriculum/ph212/ph212-sharing-and-comparing-handout.md; curriculum/ph212/ph212-capstone-handout.md; site/how-this-site-works.md
 - test: none; a convention, and nothing reads `status`
+
+### D-0181  A function of a bracketed argument reads correctly: the build groups the function's name with its argument in MathML
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-13
+- decision: From the NVDA rerun after D-0167 (`docs/accessibility/2026-11-13-nvda-ph212-equations.md`, #85, section 3 item 1). For `\sin`, `\cos` and the like, Pandoc's MathML writer puts the function's name and the invisible function application (U+2061) in an `<mrow>` of their own, then the argument after it. Before a bracketed argument, MathCAT 0.7.2 (NVDA 2026.3, ClearSpeak) reads that as "cosine of times open paren C t plus D close paren". Two NVDA probes on local pages (2026-11-13, on the owner's word) settled the cause.
+  - The four TeX spellings of PH 212 Lab 6's oscillator all read "of times": `\cos\left( \right)`, `\cos( )`, `{\cos\left( \right)}`, `\cos{( )}`.
+  - So do `\cos( )` and `\sin( )` alone, and `A\cos( )`.
+  - A function before a letter reads correctly ("A e raised to the negative B t power cosine of theta"), so the exponential before it is not the cause.
+  - The same equation, hand-written with the name, U+2061 and the bracketed argument in one `<mrow>`, reads "cosine of open paren C t plus D close paren plus E".
+
+  (1) The build rewrites that pattern into the grouping that read correctly: an `<mrow>` holding only `<mi>` NAME and `<mo>` U+2061, followed by a bracketed argument, becomes one `<mrow>` of NAME, U+2061 and the argument. A bracketed argument is a fenced `<mrow>` (`\left( \right)`), or a bare `<mo>(` through its matching `<mo>)`. A pattern it cannot pair (an unmatched bracket) fails the build, never passes silently.
+  (2) It runs on every built page, in `tools/quarto_build.py`'s `dress_pages`, and on the HTML download, in `tools/downloads.py`'s `html`. It does not run on the Word download, whose equations are OMML that Word reads its own way, nor on the PDF, which Chrome prints from the page.
+  (3) No source changes and the word check is untouched: it reads sources, not built pages. The pages it changes on main today are PH 212 Lab 6 (`cos`) and PH 213 Data Analysis (`sin`, `a = m \sin(\theta)`). PH 213's other `sin(θ)`, set as letters, is left for PH 213's own entry.
+  (4) It lands as one tool PR with made-up fixtures, read on CI's build with the plan's MathML reader, which now flags a function group followed by a bracket. NVDA re-reads the two pages only on the owner's word.
+- rationale: The owner, 2026-11-05: "Use sensible best practices -- it shouldn't be based on one person's desires." Context (Claude): the fault sits in Pandoc's MathML output, not in any handout's TeX, so a fix in the source would be a workaround per equation. The build already rewrites every page (`dress_pages`), and the HTML download is already post-processed there.
+- alternatives:
+  - Leave it and report it to MathCAT upstream only (no fix for this term's readers; a report upstream is worth sending either way).
+  - Rewrite the TeX (the probes show no spelling helps).
+  - A Lua filter (it runs before Pandoc writes MathML, so it cannot reach the grouping).
+  - Script in the page (a runtime dependency, absent from the HTML download, and against static output, ledger 39).
+  - Patching Pandoc (not ours to ship).
+- binds: D-0113; D-0167; LEDGER 39; tools/quarto_build.py; tools/downloads.py; tests
+- test: a unit test of the rewrite on made-up MathML (fenced and bare argument; a function before a letter left alone; an unmatched bracket fails); a built-page test that no page or HTML download keeps the pattern; CI's build read for PH 212 Lab 6 and PH 213 Data Analysis
