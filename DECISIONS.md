@@ -1829,8 +1829,9 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - test: none; a convention, and nothing reads `status`
 
 ### D-0181  A function of a bracketed argument reads correctly: the build groups the function's name with its argument in MathML
-- status: proposed
+- status: ruled
 - proposed-by: claude
+- ruled-by: owner
 - date: 2026-11-13
 - decision: From the NVDA rerun after D-0167 (`docs/accessibility/2026-11-13-nvda-ph212-equations.md`, #85, section 3 item 1). For `\sin`, `\cos` and the like, Pandoc's MathML writer puts the function's name and the invisible function application (U+2061) in an `<mrow>` of their own, then the argument after it. Before a bracketed argument, MathCAT 0.7.2 (NVDA 2026.3, ClearSpeak) reads that as "cosine of times open paren C t plus D close paren". Two NVDA probes on local pages (2026-11-13, on the owner's word) settled the cause.
   - The four TeX spellings of PH 212 Lab 6's oscillator all read "of times": `\cos\left( \right)`, `\cos( )`, `{\cos\left( \right)}`, `\cos{( )}`.
@@ -1842,7 +1843,7 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
   (2) It runs on every built page, in `tools/quarto_build.py`'s `dress_pages`, and on the HTML download, in `tools/downloads.py`'s `html`. It does not run on the Word download, whose equations are OMML that Word reads its own way, nor on the PDF, which Chrome prints from the page.
   (3) No source changes and the word check is untouched: it reads sources, not built pages. The pages it changes on main today are PH 212 Lab 6 (`cos`) and PH 213 Data Analysis (`sin`, `a = m \sin(\theta)`). PH 213's other `sin(θ)`, set as letters, is left for PH 213's own entry.
   (4) It lands as one tool PR with made-up fixtures, read on CI's build with the plan's MathML reader, which now flags a function group followed by a bracket. NVDA re-reads the two pages only on the owner's word.
-- rationale: The owner, 2026-11-05: "Use sensible best practices -- it shouldn't be based on one person's desires." Context (Claude): the fault sits in Pandoc's MathML output, not in any handout's TeX, so a fix in the source would be a workaround per equation. The build already rewrites every page (`dress_pages`), and the HTML download is already post-processed there.
+- rationale: The owner, 2026-11-05: "Use sensible best practices -- it shouldn't be based on one person's desires." The owner, 2026-11-13, to this entry: "Rule as drafted". Context (Claude): the fault sits in Pandoc's MathML output, not in any handout's TeX, so a fix in the source would be a workaround per equation. The build already rewrites every page (`dress_pages`), and the HTML download is already post-processed there.
 - alternatives:
   - Leave it and report it to MathCAT upstream only (no fix for this term's readers; a report upstream is worth sending either way).
   - Rewrite the TeX (the probes show no spelling helps).
