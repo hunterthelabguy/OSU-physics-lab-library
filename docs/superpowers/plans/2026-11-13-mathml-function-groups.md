@@ -25,16 +25,29 @@ built page. No source changes.
 ## The markup (measured on CI's build at `c70151f`, 2026-11-13)
 
 Pandoc writes a function's name as `<mrow><mi mathvariant="normal">cos</mi>
-<mo>U+2061</mo></mrow>` with no whitespace and U+2061 as the literal
-character, in pages and in the HTML download alike. What follows it:
+<mo>U+2061</mo></mrow>` with no whitespace. Pandoc itself writes U+2061 as
+`&#8289;`. The pages hold the literal character after Quarto's own
+processing, and the HTML download after `--embed-resources`. The rewrite and
+the tests accept the literal character, `&#8289;` and `&#x2061;`. What
+follows it:
 - a fenced argument, written as `<mrow><mo stretchy="true" form="prefix">(</mo>...
   <mo stretchy="true" form="postfix">)</mo></mrow>` (PH 212 Lab 6,
   `\cos\left( Ct + D \right)`);
 - bare brackets in the same `<mrow>` as the name group, `<mo stretchy="false"
   form="prefix">(</mo>...<mo stretchy="false" form="postfix">)</mo>`
   (PH 213 Data Analysis, `\sin(\theta)`);
-- a letter or script (`\sin\theta_{i}`). This is left alone; it reads
-  correctly.
+- a letter, script or fraction (`\sin\theta_{i}`, Lab 6's `\frac{m g\sin\theta}{b_1}`).
+  This is left alone; it reads correctly.
+
+Only round brackets count, matched by character, as D-0181 (1) says: `( )`,
+fenced or bare. `[x]`, `\{x\}` and `|x|` after a function are left alone.
+Brackets pair among the same row's children. A `)` that closes inside a
+child element (`\sin(x)^{2}`, `\sin(x)_{i}`, `\sin(x)'`, where Pandoc puts the
+`)` in the `<msup>` or `<msub>`), or a bracket that spans aligned rows, cannot
+be paired, so the build stops (D-0181 (1)). Regrouping across an element
+boundary would write broken MathML. Known limit: `\cos{\left( x \right) +
+E}` is two nested rows; it does not match and is left alone. No page holds
+it; Lab 6 had it before D-0167.
 
 A function written without U+2061 (`<mi>sin</mi>` alone, PH 212 Lab 6's
 `g\sin\theta`) is not matched.
@@ -47,9 +60,9 @@ therefore wrapped in an `<mrow>` of their own, so both cases give that shape.
 
 | File | Change |
 |---|---|
-| `tools/downloads.py` | `FUNCTION_GROUP`, `MATH_TAG`, `grouped_functions` after `without_empty_image_role`; `html()` runs it |
+| `tools/downloads.py` | `FUNCTION_GROUP`, `MATH_TOKEN`, `argument_end`, `grouped_functions` after `without_empty_image_role`; `html()` runs it |
 | `tools/quarto_build.py` | `dress_pages` runs it before `quarto_chrome.dress` |
-| `tests/test_downloads.py` | class `FunctionGroups`, six unit tests on made-up markup |
+| `tests/test_downloads.py` | class `FunctionGroups`, eight unit tests on made-up markup |
 | `tests/test_quarto_site.py` | `Pages.test_functions_grouped_with_their_brackets` |
 | `DECISIONS.md` | D-0181 (ruled, on this branch) |
 
@@ -58,7 +71,9 @@ therefore wrapped in an `<mrow>` of their own, so both cases give that shape.
 **Depends on:** none
 **Seams:** `downloads.grouped_functions(text) -> str`; raises `SystemExit` on
 an unmatched bracket.
-**Verify:** `python -m unittest tests.test_downloads.FunctionGroups` (6 OK).
+**Verify:** `python -m unittest tests.test_downloads.FunctionGroups` (8 OK).
+`tests/test_downloads.py`'s `setUpModule` needs a `build/quarto-site`
+folder: locally, an empty one does, for these unit tests.
 
 - [ ] Branch `mathml-function-groups` (worktree
   `.superpowers/sdd/mathml-function-groups`), on `origin/main` plus D-0181.
@@ -70,43 +85,53 @@ class FunctionGroups(unittest.TestCase):
     """D-0181: a function's name, U+2061 and its bracketed argument in one
     mrow, the grouping MathCAT reads as "cosine of (...)" (made-up markup)."""
 
-    NAME = '<mrow><mi mathvariant="normal">{}</mi><mo>⁡</mo></mrow>'
+    NAME = '<mrow><mi mathvariant="normal">{}</mi><mo>\u2061</mo></mrow>'
     OPEN = '<mo stretchy="{}" form="prefix">(</mo>'
     CLOSE = '<mo stretchy="{}" form="postfix">)</mo>'
 
-    def grouped(self, name, arg):
-        return ('<mrow><mi mathvariant="normal">' + name + '</mi><mo>⁡</mo>'
+    def grouped(self, name, arg, apply="\u2061"):
+        return ('<mrow><mi mathvariant="normal">' + name + '</mi><mo>' + apply + '</mo>'
                 + arg + '</mrow>')
 
+    def bare(self, inner='<mi>x</mi>'):
+        return self.OPEN.format("false") + inner + self.CLOSE.format("false")
+
     def test_fenced_argument_joins_its_function(self):
-        arg = ('<mrow>' + self.OPEN.format("true") + '<mi>x</mi>'
-               + self.CLOSE.format("true") + '</mrow>')
+        arg = '<mrow>' + self.OPEN.format("true") + '<mi>x</mi>' + self.CLOSE.format("true") + '</mrow>'
         got = downloads.grouped_functions(
             '<math><mrow><mi>A</mi>' + self.NAME.format("cos") + arg + '<mo>+</mo></mrow></math>')
         self.assertEqual(got, '<math><mrow><mi>A</mi>' + self.grouped("cos", arg)
                          + '<mo>+</mo></mrow></math>')
 
     def test_bare_brackets_are_wrapped_and_joined(self):
-        run = self.OPEN.format("false") + '<mi>θ</mi>' + self.CLOSE.format("false")
-        got = downloads.grouped_functions(
-            '<mrow><mi>m</mi>' + self.NAME.format("sin") + run + '</mrow>')
+        got = downloads.grouped_functions('<mrow><mi>m</mi>' + self.NAME.format("sin") + self.bare() + '</mrow>')
         self.assertEqual(got, '<mrow><mi>m</mi>'
-                         + self.grouped("sin", '<mrow>' + run + '</mrow>') + '</mrow>')
+                         + self.grouped("sin", '<mrow>' + self.bare() + '</mrow>') + '</mrow>')
+
+    def test_the_entity_form_is_grouped_too(self):
+        name = self.NAME.format("sin").replace("\u2061", "&#8289;")
+        got = downloads.grouped_functions('<mrow>' + name + self.bare() + '</mrow>')
+        self.assertEqual(got, '<mrow>' + self.grouped("sin", '<mrow>' + self.bare() + '</mrow>',
+                                                       "&#8289;") + '</mrow>')
 
     def test_a_function_inside_an_argument_is_grouped_too(self):
-        inner = self.OPEN.format("false") + '<mi>x</mi>' + self.CLOSE.format("false")
-        outer = (self.OPEN.format("false") + self.NAME.format("cos") + inner
-                 + self.CLOSE.format("false"))
+        outer = self.bare(self.NAME.format("cos") + self.bare())
         got = downloads.grouped_functions('<mrow>' + self.NAME.format("sin") + outer + '</mrow>')
-        want_inner = self.grouped("cos", '<mrow>' + inner + '</mrow>')
-        want = self.grouped("sin", '<mrow>' + self.OPEN.format("false") + want_inner
-                            + self.CLOSE.format("false") + '</mrow>')
+        want_inner = self.grouped("cos", '<mrow>' + self.bare() + '</mrow>')
+        want = self.grouped("sin", '<mrow>' + self.bare(want_inner) + '</mrow>')
         self.assertEqual(got, '<mrow>' + want + '</mrow>')
 
-    def test_a_function_before_a_letter_is_left_alone(self):
-        text = ('<mrow>' + self.NAME.format("sin") + '<msub><mi>θ</mi><mi>i</mi></msub>'
-                '<mi mathvariant="normal">sin</mi><mi>θ</mi></mrow>')
-        self.assertEqual(downloads.grouped_functions(text), text)
+    def test_what_is_not_a_round_bracket_after_a_function_is_left_alone(self):
+        for after in ('<msub><mi>θ</mi><mi>i</mi></msub>',          # a letter or script
+                      '<mo stretchy="false" form="prefix">[</mo><mi>x</mi>'
+                      '<mo stretchy="false" form="postfix">]</mo>',  # square brackets
+                      '<mo stretchy="false" form="prefix">|</mo><mi>x</mi>'
+                      '<mo stretchy="false" form="prefix">|</mo>'):  # bars
+            text = '<mrow>' + self.NAME.format("sin") + after + '</mrow>'
+            with self.subTest(after=after):
+                self.assertEqual(downloads.grouped_functions(text), text)
+        other = '<mrow><mrow><mi>a</mi><mo>+</mo></mrow>' + self.bare() + '</mrow>'
+        self.assertEqual(downloads.grouped_functions(other), other)
 
     def test_a_bracket_group_holding_more_stops_the_build(self):
         arg = ('<mrow>' + self.OPEN.format("true") + '<mi>x</mi>' + self.CLOSE.format("true")
@@ -115,40 +140,51 @@ class FunctionGroups(unittest.TestCase):
             downloads.grouped_functions('<mrow>' + self.NAME.format("cos") + arg + '</mrow>')
 
     def test_an_unmatched_bracket_stops_the_build(self):
+        # The row ends first; a ")" after it does not pair with the "(".
         with self.assertRaises(SystemExit):
             downloads.grouped_functions(
-                '<mrow>' + self.NAME.format("sin") + self.OPEN.format("false")
-                + '<mi>x</mi></mrow>')
+                '<mrow><mrow>' + self.NAME.format("sin") + self.OPEN.format("false")
+                + '<mi>x</mi></mrow>' + self.CLOSE.format("false") + '</mrow>')
+
+    def test_a_bracket_closing_inside_a_script_stops_the_build(self):
+        # \sin(x)^{2}: Pandoc puts the ")" inside the msup.
+        with self.assertRaises(SystemExit):
+            downloads.grouped_functions(
+                '<mrow>' + self.NAME.format("sin") + self.OPEN.format("false") + '<mi>x</mi>'
+                '<msup>' + self.CLOSE.format("false") + '<mn>2</mn></msup></mrow>')
 ```
 
-- [ ] Run; expected: 6 errors (`AttributeError: ... grouped_functions`).
+- [ ] Run; expected: 8 errors (`AttributeError: ... grouped_functions`).
 - [ ] Implement, after `without_empty_image_role` in `tools/downloads.py`:
 
 ```python
 # D-0181: Pandoc writes a function's name and U+2061 as an mrow of their own;
 # before a bracket MathCAT then reads "cosine of times (...)".
-FUNCTION_GROUP = re.compile(r'<mrow>(<mi[^>]*>[^<]+</mi><mo>⁡</mo>)</mrow>'
-                            r'(?=(?:<mrow>)?<mo[^>]*form="prefix")')
-MATH_TAG = re.compile(r'<mrow\b[^>]*>|</mrow>|<mo\b[^>]*form="(prefix|postfix)"[^>]*>[^<]*</mo>')
+APPLY = "(?:\u2061|&#8289;|&#x2061;)"
+FUNCTION_GROUP = re.compile(r'<mrow>(<mi[^>]*>[^<]+</mi><mo>' + APPLY + r'</mo>)</mrow>'
+                            r'(?=(?:<mrow>)?<mo[^>]*>\(</mo>)')
+MATH_TOKEN = re.compile(r'<mo\b[^>]*>([()])</mo>|<(/?)\w+\b[^>]*?(/?)>')
 
 
 def argument_end(text, start):
-    """End of the bare brackets that open at start: just past the bracket
-    that closes the first."""
-    rows = fences = 0
-    for m in MATH_TAG.finditer(text, start):
-        tag = m.group(0)
-        if tag.startswith("<mrow"):
-            rows += 1
-        elif tag == "</mrow>":
-            rows -= 1
-            if rows < 0:
+    """End of the brackets that open at start: just past the ")" that closes
+    the first "(" among the same row's children."""
+    depth = parens = 0
+    for m in MATH_TOKEN.finditer(text, start):
+        if m.group(1):
+            if depth == 0:
+                parens += 1 if m.group(1) == "(" else -1
+                if parens == 0:
+                    return m.end()
+        elif m.group(3):
+            continue  # an empty element, <mspace/>
+        elif m.group(2):
+            depth -= 1
+            if depth < 0:
                 break
         else:
-            fences += 1 if m.group(1) == "prefix" else -1
-        if rows == 0 and fences == 0:
-            return m.end()
-    raise SystemExit("D-0181: a function's bracket is not closed: "
+            depth += 1
+    raise SystemExit("D-0181: a function's bracket does not close in its own row: "
                      + text[start:start + 120])
 
 
@@ -176,13 +212,16 @@ def grouped_functions(text):
     return "".join(out) + text[pos:]
 ```
 
-  Both cases scan the brackets from the opening `<mo>` to the one that
-  brings the count back to 0. A fenced argument must close its `<mrow>` right
-  there; if that row holds more (`{(x) + E}`, the shape Lab 6's TeX had before
-  D-0167), the build stops rather than sweep the rest into the argument. An
-  `</mrow>` that closes the enclosing row first means an unmatched bracket,
-  and the build stops too.
-- [ ] Run; expected: 6 OK.
+  Both cases```
+
+  Both cases scan from the opening `(` to the `)` that brings the count back
+  to 0, counting only brackets that are direct children of the row, while
+  tracking every element's open and close tags. A close tag below the
+  starting depth (the row ends, or an `</msup>` or `</mtd>` closes first)
+  means the bracket cannot be paired, and the build stops. A fenced argument
+  must close its `<mrow>` right after its `)`. If that row holds more, the
+  build stops rather than sweep the rest into the argument.
+- [ ] Run; expected: 8 OK.
 - [ ] Commit `Downloads: group a function with its bracketed argument (D-0181)`.
 
 ### T2: run it on the pages and the HTML download
@@ -205,23 +244,43 @@ the MathML reader.
 ```python
     def test_functions_grouped_with_their_brackets(self):
         # D-0181: no function's name sits in an mrow of its own before a
-        # bracket, on a lab page or its HTML download; Lab 6's cosine is grouped.
-        apart = re.compile(r'<mrow><mi[^>]*>[^<]+</mi><mo>⁡</mo></mrow>'
-                           r'(?:<mrow>)?<mo[^>]*form="prefix"')
+        # bracket, on a lab page or its HTML download; the two that had one
+        # (PH 212 Lab 6's cosine, PH 213 Data Analysis's sine) are grouped.
+        apply = "(?:\u2061|&#8289;|&#x2061;)"
+        apart = re.compile(r'<mrow><mi[^>]*>[^<]+</mi><mo>' + apply + r'</mo></mrow>'
+                           r'(?:<mrow>)?<mo[^>]*>\(</mo>')
         for doc_id, _ in converted():
             for rel in (f"labs/{doc_id}/modern/index.html", f"labs/{doc_id}/{doc_id}.html"):
                 with self.subTest(page=rel):
                     self.assertIsNone(apart.search((QSITE / rel).read_text(encoding="utf-8")))
-        lab6 = (QSITE / "labs/ph212-capstone-handout/modern/index.html").read_text(encoding="utf-8")
-        self.assertIn('<mi mathvariant="normal">cos</mi><mo>⁡</mo><mrow><mo', lab6)
+        for doc_id, name in (("ph212-capstone-handout", "cos"), ("ph213-data-analysis-handout", "sin")):
+            for rel in (f"labs/{doc_id}/modern/index.html", f"labs/{doc_id}/{doc_id}.html"):
+                with self.subTest(grouped=rel):
+                    self.assertRegex((QSITE / rel).read_text(encoding="utf-8"),
+                                     '<mi mathvariant="normal">' + name + '</mi><mo>' + apply
+                                     + '</mo><mrow><mo')
 ```
 
-- [ ] Locally: run `grouped_functions` on CI's artifact copies of PH 212
-  Lab 6's and PH 213 Data Analysis's page and HTML download. Expected: each
-  changes exactly one equation, and the MathML reader, with its function
-  check added, flags none of them. (The reader's existing U+2061 exemption
-  is why D-0167's check missed this; the added check flags an `<mrow>`
-  holding only an `<mi>` and U+2061 that is followed by a prefix `<mo>`.)
+- [ ] Locally: run `grouped_functions` on CI's artifact copies of every lab
+  page and HTML download. Expected: exactly four files change (PH 212 Lab 6
+  and PH 213 Data Analysis, page and download), one equation each; every
+  other file comes back byte-identical; every `<math>` still parses as XML.
+  Add this check to the MathML reader's `flags()` and run it: 1 flag before,
+  0 after, on each of the four files.
+
+```python
+        if tag == "mrow" and [local(k) for k in kids] == ["mi", "mo"] \
+                and (kids[1].text or "") == "\u2061":
+            parent = parents.get(el)
+            sibs = [k for k in parent if local(k) != "annotation"] if parent is not None else []
+            nxt = sibs[sibs.index(el) + 1] if el in sibs and sibs.index(el) + 1 < len(sibs) else None
+            first = nxt[0] if nxt is not None and local(nxt) == "mrow" and len(nxt) else nxt
+            if first is not None and local(first) == "mo" and (first.text or "").strip() == "(":
+                out.append("function apart from its bracket")
+```
+
+  (`parents` is `{c: p for p in math.iter() for c in p}`, built once at the
+  top of `flags()`.)
 - [ ] Commit `Build: function groups on pages and HTML downloads (D-0181)`;
   push; PR; green `verify`; read CI's artifact for the two pages.
 
