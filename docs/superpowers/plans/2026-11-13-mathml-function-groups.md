@@ -52,7 +52,9 @@ converter writes it), `\sin\left( x \right)^{2}` and `\sin^{2}(x)` (the name
 group is not followed by a bracket). No page holds any of them today; PH
 211 has an unconverted `\mathbf{\tan}\left(`, so its conversion should look.
 An empty element (`<mspace/>`) is never written by Pandoc; if one sits in an
-argument the depth count is off and the build stops.
+argument the depth count is off: the build stops, or, inside an outer
+bracket, the outer `)` is swept into the group; no page or Pandoc output
+holds one.
 
 A function written without U+2061 (`<mi>sin</mi>` alone, PH 212 Lab 6's
 `g\sin\theta`) is not matched.
@@ -221,8 +223,6 @@ def grouped_functions(text):
                 "<mrow>", grouped_functions(arg), "</mrow>", "</mrow>"]
         pos = end
     return "".join(out) + text[pos:]
-```
-
 ```
 
   Both cases scan from the opening `(` to the `)` that brings the count back
