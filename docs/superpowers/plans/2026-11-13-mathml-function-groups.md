@@ -45,9 +45,14 @@ Brackets pair among the same row's children. A `)` that closes inside a
 child element (`\sin(x)^{2}`, `\sin(x)_{i}`, `\sin(x)'`, where Pandoc puts the
 `)` in the `<msup>` or `<msub>`), or a bracket that spans aligned rows, cannot
 be paired, so the build stops (D-0181 (1)). Regrouping across an element
-boundary would write broken MathML. Known limit: `\cos{\left( x \right) +
-E}` is two nested rows; it does not match and is left alone. No page holds
-it; Lab 6 had it before D-0167.
+boundary would write broken MathML. Known limits, left alone
+and not regrouped (pass 2 confirmed each on Pandoc's output): `\cos{\left( x
+\right) + E}` (two nested rows; Lab 6 had it before D-0167, and Word's
+converter writes it), `\sin\left( x \right)^{2}` and `\sin^{2}(x)` (the name
+group is not followed by a bracket). No page holds any of them today; PH
+211 has an unconverted `\mathbf{\tan}\left(`, so its conversion should look.
+An empty element (`<mspace/>`) is never written by Pandoc; if one sits in an
+argument the depth count is off and the build stops.
 
 A function written without U+2061 (`<mi>sin</mi>` alone, PH 212 Lab 6's
 `g\sin\theta`) is not matched.
@@ -62,7 +67,7 @@ therefore wrapped in an `<mrow>` of their own, so both cases give that shape.
 |---|---|
 | `tools/downloads.py` | `FUNCTION_GROUP`, `MATH_TOKEN`, `argument_end`, `grouped_functions` after `without_empty_image_role`; `html()` runs it |
 | `tools/quarto_build.py` | `dress_pages` runs it before `quarto_chrome.dress` |
-| `tests/test_downloads.py` | class `FunctionGroups`, eight unit tests on made-up markup |
+| `tests/test_downloads.py` | class `FunctionGroups`, nine unit tests on made-up markup |
 | `tests/test_quarto_site.py` | `Pages.test_functions_grouped_with_their_brackets` |
 | `DECISIONS.md` | D-0181 (ruled, on this branch) |
 
@@ -71,7 +76,7 @@ therefore wrapped in an `<mrow>` of their own, so both cases give that shape.
 **Depends on:** none
 **Seams:** `downloads.grouped_functions(text) -> str`; raises `SystemExit` on
 an unmatched bracket.
-**Verify:** `python -m unittest tests.test_downloads.FunctionGroups` (8 OK).
+**Verify:** `python -m unittest tests.test_downloads.FunctionGroups` (9 OK).
 `tests/test_downloads.py`'s `setUpModule` needs a `build/quarto-site`
 folder: locally, an empty one does, for these unit tests.
 
@@ -146,6 +151,14 @@ class FunctionGroups(unittest.TestCase):
                 '<mrow><mrow>' + self.NAME.format("sin") + self.OPEN.format("false")
                 + '<mi>x</mi></mrow>' + self.CLOSE.format("false") + '</mrow>')
 
+    def test_a_bracket_closing_in_a_later_cell_stops_the_build(self):
+        # Aligned rows, \sin( x \\ y ): the ")" is in the next cell.
+        text = ('<mtable><mtr><mtd>' + self.NAME.format("sin") + self.OPEN.format("false")
+                + '<mi>x</mi></mtd></mtr><mtr><mtd><mi>y</mi>' + self.CLOSE.format("false")
+                + '</mtd></mtr></mtable>')
+        with self.assertRaises(SystemExit):
+            downloads.grouped_functions(text)
+
     def test_a_bracket_closing_inside_a_script_stops_the_build(self):
         # \sin(x)^{2}: Pandoc puts the ")" inside the msup.
         with self.assertRaises(SystemExit):
@@ -154,7 +167,7 @@ class FunctionGroups(unittest.TestCase):
                 '<msup>' + self.CLOSE.format("false") + '<mn>2</mn></msup></mrow>')
 ```
 
-- [ ] Run; expected: 8 errors (`AttributeError: ... grouped_functions`).
+- [ ] Run; expected: 9 tests, all erroring (`AttributeError: ... grouped_functions`; unittest counts each subTest's error too).
 - [ ] Implement, after `without_empty_image_role` in `tools/downloads.py`:
 
 ```python
@@ -163,7 +176,7 @@ class FunctionGroups(unittest.TestCase):
 APPLY = "(?:\u2061|&#8289;|&#x2061;)"
 FUNCTION_GROUP = re.compile(r'<mrow>(<mi[^>]*>[^<]+</mi><mo>' + APPLY + r'</mo>)</mrow>'
                             r'(?=(?:<mrow>)?<mo[^>]*>\(</mo>)')
-MATH_TOKEN = re.compile(r'<mo\b[^>]*>([()])</mo>|<(/?)\w+\b[^>]*?(/?)>')
+MATH_TOKEN = re.compile(r'<mo\b[^>]*>([()])</mo>|<(/?)\w+\b[^>]*>')
 
 
 def argument_end(text, start):
@@ -176,8 +189,6 @@ def argument_end(text, start):
                 parens += 1 if m.group(1) == "(" else -1
                 if parens == 0:
                     return m.end()
-        elif m.group(3):
-            continue  # an empty element, <mspace/>
         elif m.group(2):
             depth -= 1
             if depth < 0:
@@ -212,7 +223,7 @@ def grouped_functions(text):
     return "".join(out) + text[pos:]
 ```
 
-  Both cases```
+```
 
   Both cases scan from the opening `(` to the `)` that brings the count back
   to 0, counting only brackets that are direct children of the row, while
@@ -221,7 +232,7 @@ def grouped_functions(text):
   means the bracket cannot be paired, and the build stops. A fenced argument
   must close its `<mrow>` right after its `)`. If that row holds more, the
   build stops rather than sweep the rest into the argument.
-- [ ] Run; expected: 8 OK.
+- [ ] Run; expected: 9 OK.
 - [ ] Commit `Downloads: group a function with its bracketed argument (D-0181)`.
 
 ### T2: run it on the pages and the HTML download
