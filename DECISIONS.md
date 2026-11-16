@@ -1838,3 +1838,42 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: one equation, `$T \propto \sqrt{L}$` with the gloss after it (17 equations become 16, which `ruled_equations` cannot declare since the count is always compared; a tool change under its own ruling, and D-0113 never loosens the comparison); "$T \propto \sqrt{L}$, where $\propto$ means “is proportional to”" (keeps the count but needs two equation declarations, and repeats line 256's definition); leaving it.
 - binds: D-0113; D-0167; D-0168; D-0178; curriculum/ph212/ph212-data-analysis-handout.md
 - test: `tools/check_unchanged.py` and `tools/check_numbers.py` on the file; the built MathML of the sentence; NVDA only on the owner's word
+
+### D-0182  PH 212 Lab 3's tension, `F^{T}`, reads "F transpose"; a subscript label reads "F sub T"
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-16
+- decision: From the NVDA rerun (`docs/accessibility/2026-11-13-nvda-ph212-equations.md`, section 3 item 2): `I alpha is equal to F transpose r` and `m a is equal to m g minus F transpose`. The handout labels forces with a superscript. Its two display equations set `F^{T}`, and its prose sets *F^T^* three times and *F^g^* once. D-0167 left this alone as a rename. An NVDA probe on a local page (2026-11-16; NVDA 2026.3, MathCAT 0.7.2, ClearSpeak; on the owner's word) read three spellings of `I\alpha = F^{T}r`:
+  - `F^{T}`: "I alpha is equal to F transpose r".
+  - `F^{\text{T}}`: "I alpha is equal to F transpose r". The upright form does not help, though the word check passes it undeclared.
+  - `F_{T}`: "I alpha is equal to F sub T r".
+
+  So the fix is a rename, a content change under D-0168. The owner's calls:
+  - (1) The two equations become `F_{T}`. Each needs a `ruled_equations` declaration: the check fails their structure (sSub 0->1, sSup 1->0), while their text (`Iα=FTr`, `ma=mg−FT`) is unchanged.
+  - (2) The prose follows: *F^T^* becomes *F~T~* three times. The word check cannot see this, since it does not compare prose super- or subscripts, so this entry is the only record.
+  - (3) *F^g^* becomes *F~g~*, so the handout keeps one labelling convention.
+  - `status` becomes `ruled-change`. Drafted by: Claude. Approved by: pending.
+  - Lean: (1) to (3).
+- rationale: The owner, 2026-11-13: "Can we go ahead and fix these too?" The owner, 2026-11-16: "Yes, run the NVDA probe."
+- alternatives: the upright `F^{\text{T}}` (read "transpose" in the probe); renaming only the equations (prose and equations would then disagree); leaving it, as D-0167 did.
+- binds: D-0113; D-0167; D-0168; curriculum/ph212/ph212-designing-experiments-handout.md
+- test: `tools/check_unchanged.py` with the two declarations; the built MathML has no `msup` on F; NVDA only on the owner's word
+
+### D-0183  PH 212 Labs 5 and 6's uncertainty rule keeps Word's grouping and shows it: `(αΔx/x)²`
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-16
+- decision: From the NVDA rerun (#85, section 3 item 3): `alpha of open paren delta x over x close paren squared`. In both originals, Word's OMML squares α and the bracket as one group (the `sSup` base holds `α` and `d(Δx/x)`; read 2026-11-16), and the TeX and the MathML keep that. The page shows no outer bracket, so it looks like α times the square. The hint below the equation teaches that reading: "(Δx/x)² + (Δx/x)² = 2(Δx/x)²", exponents "become multiplication factors". For w = x^α y^β / z^γ with independent uncertainties, ∂w/∂x = αw/x, which gives Word's grouping. The owner ruled the meaning on 2026-11-16: Word's grouping. An NVDA probe on a local page (2026-11-16, same setup as D-0182's) read:
+  - The current form: "the square root of alpha of open paren delta x over x close paren squared plus beta of ... plus gamma of ...".
+  - U+2062 (invisible times) inserted after α, β and γ, the build fix of D-0181's kind: "alpha times open paren delta x over x close paren squared ...". The "of" goes, but a listener hears α times the squared bracket: the hint's meaning, not Word's.
+  - `\left( \alpha\frac{\Delta x}{x} \right)^{2}` for each term: "open paren alpha delta x over x close paren squared ...". Word's grouping, for a listener and on the page.
+
+  Calls:
+  - (1) Both labs set each term as `\left( \alpha\frac{\Delta x}{x} \right)^{2}` (β, γ alike). The equation's text changes, so each lab's D-0167 declaration of this equation gets the new converted text, the check prints it, and both D-0167 and D-0183 are cited.
+  - (2) The hint's "2(Δx/x)²" then contradicts the equation on the page. Rewording it is a wording change under D-0168 and the owner's own call: physics he teaches, not a format fix. It is not drafted here.
+  - `status` stays `converted` if only (1) lands (an equation-only change, D-0178), and becomes `ruled-change` with (2).
+  - Lean: (1) now; (2) as the owner rules.
+- rationale: The owner, 2026-11-13: "Can we go ahead and fix these too?" The owner, 2026-11-16: "Word's grouping for Lab 5 and 6." Context (Claude): the invisible-times fix reads well but voices the meaning the owner did not choose, so only the visible bracket serves both readers.
+- alternatives: the invisible times in the build (above); square only the bracket, `\alpha\left( ... \right)^{2}` (the hint's meaning, against the ruling; it would also pass the word check undeclared, which counts structure and cannot see scope); a visible `\cdot` (reads as α times the square on the page too); leaving it.
+- binds: D-0113; D-0167; D-0168; D-0178; D-0181; curriculum/ph212/ph212-sharing-and-comparing-handout.md; curriculum/ph212/ph212-capstone-handout.md
+- test: `tools/check_unchanged.py` on both labs with the updated declarations; the built MathML has `msup` over a fenced `mrow` holding the Greek letter and the fraction; NVDA only on the owner's word
