@@ -8,7 +8,17 @@ visibility: public
 layer: curriculum
 source_file: "originals/PH212/Lab 1 - Data Analysis - Handout.docx"
 source_sha256: "2d28c22db05827a39bcf703ac8643750423a800ec99d8af7bc59f93f14b5f032"
-status: converted
+status: ruled-change
+ruled_omissions:
+  - text: "(is proportional to)"
+    ledger: "D-0184"
+ruled_additions:
+  - text: "is proportional to"
+    ledger: "D-0184"
+ruled_equations:
+  - original: "T ∝"
+    converted: "T"
+    ledger: "D-0184"
 ---
 
 # Lab 1 – Data Analysis
@@ -242,7 +252,7 @@ In many experiments, the goal is to check a hypothesis, or model, that describes
 
 $$T = 2\pi\sqrt{\frac{L}{g}}$$
 
-where $g$ is the acceleration due to gravity. In other words, we are predicting that $T\  \propto$ (is proportional to) $\sqrt{L}$. If we plotted *T* vs. *L*, we would expect a nonlinear curve.
+where $g$ is the acceleration due to gravity. In other words, we are predicting that $T$ is proportional to $\sqrt{L}$. If we plotted *T* vs. *L*, we would expect a nonlinear curve.
 
 It is typically easier to tell if something is or is not a line (that is, see if two quantities are proportional to each other) than to evaluate if they have some other, more complicated relationship. If we have a prediction about the relationship between two quantities that is nonlinear, we can “force” a proportional relationship using a process called *linearization*.
 
