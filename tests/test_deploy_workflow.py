@@ -156,6 +156,12 @@ class TestedFolderIsDeployedFolder(unittest.TestCase):
         self.assertRegex(text, r"(?m)^          path: " + re.escape(output_dir()) + "$")
         self.assertRegex(text, r"(?m)^          name: quarto-site$")
 
+    def test_upload_kept_seven_days(self):
+        # D-0187: at GitHub's default 90 days, 242 builds (1.53 GB) filled
+        # the artifact quota and refused the upload (2026-11-16).
+        text = steps(jobs()["verify"])[-1][1]
+        self.assertRegex(text, r"(?m)^          retention-days: 7$")
+
     def test_deploy_downloads_into_output_dir(self):
         text = "".join(t for _, t in steps(deploy()) if "actions/download-artifact@" in t)
         self.assertRegex(text, r"(?m)^          name: quarto-site$")
