@@ -16,6 +16,14 @@ this tool removes none of it: it stops, naming the part, so a new original
 that has one is looked at before anything is committed. Custom properties
 that only repeat app.xml's fields pass (`APP_FIELDS`). Prints both hashes.
 
+D-0185: the custom property `ContentTypeId` passes too. SharePoint writes it
+into a file kept in a document library; its value names the library's
+content type, not a person. Such a file also carries `customXml` parts: a
+form template, the content type's schema, and a properties record. The
+schema declares person fields (`SharedWithUsers`, `DisplayName`) without
+holding anyone; a properties record that fills one in stops the strip
+(`PERSON_VALUE`).
+
 D-0133: `--redact LIST` names a UTF-8 file, kept outside the repo, of
 passages that must never be committed (one per line). In every XML part
 each passage, raw or XML-escaped, becomes `MARKER`; in a .rels part, an
@@ -47,6 +55,11 @@ STOP_PART = (
 CUSTOM = "docProps/custom.xml"
 APP_FIELDS = {"AppVersion", "DocSecurity", "HyperlinksChanged", "LinksUpToDate",
               "ScaleCrop", "ShareDoc"}
+# What SharePoint adds that names no one (D-0185).
+SHAREPOINT_FIELDS = {"ContentTypeId"}
+CUSTOM_XML = re.compile(r"^customXml/item\d+\.xml$")
+SCHEMA = b"contentTypeSchema"
+PERSON_VALUE = re.compile(rb"<(\w+:)?(DisplayName|AccountId|UserInfo)\b")
 PROPERTY_NAME = re.compile(rb'<property\b[^>]*\bname="([^"]*)"')
 AUTHOR = re.compile(rb'\sw:author="')
 EXIF = b"Exif\x00\x00"
@@ -69,9 +82,12 @@ def refusals(z):
             found.append(f"{name}: a part D-0086 lists, which this tool does not strip")
         elif name == CUSTOM:
             other = sorted({n.decode("utf-8") for n in PROPERTY_NAME.findall(z.read(name))}
-                           - APP_FIELDS)
+                           - APP_FIELDS - SHAREPOINT_FIELDS)
             if other:
                 found.append(f"{name}: custom properties {', '.join(other)}")
+        elif (CUSTOM_XML.match(name) and SCHEMA not in z.read(name)
+              and PERSON_VALUE.search(z.read(name))):
+            found.append(f"{name}: a SharePoint properties record that names a person")
         elif name.startswith("word/") and name.endswith(".xml") and AUTHOR.search(z.read(name)):
             found.append(f"{name}: a revision or comment author (w:author)")
         elif name.lower().endswith((".jpg", ".jpeg")) and EXIF in z.read(name)[:65536]:

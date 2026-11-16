@@ -89,6 +89,36 @@ class Strip(unittest.TestCase):
         with zipfile.ZipFile(self.dir / "out.docx") as z:
             self.assertEqual(z.read("docProps/custom.xml"), custom)
 
+    def test_sharepoint_content_type_passes_when_it_names_no_one(self):
+        # D-0185: the instructor notes kept in a SharePoint library. The
+        # schema declares person fields; the properties record fills none.
+        extra = {
+            "docProps/custom.xml":
+                b'<Properties><property name="ContentTypeId"/></Properties>',
+            "customXml/item1.xml":
+                b'<ct:contentTypeSchema><xsd:element name="UserInfo"/>'
+                b'<xsd:element name="DisplayName"/></ct:contentTypeSchema>',
+            "customXml/item2.xml":
+                b'<p:properties><documentManagement/></p:properties>',
+        }
+        path = self.write("sharepoint.docx", {**self.parts, **extra})
+        strip_identity.strip(path, self.dir / "out.docx")
+        with zipfile.ZipFile(self.dir / "out.docx") as z:
+            for name, data in extra.items():
+                self.assertEqual(z.read(name), data)
+
+    def test_sharepoint_properties_naming_a_person_stop_it(self):
+        record = (b'<p:properties><documentManagement><SharedWithUsers><UserInfo>'
+                  b'<DisplayName>A</DisplayName></UserInfo></SharedWithUsers>'
+                  b'</documentManagement></p:properties>')
+        path = self.write("shared.docx", {
+            **self.parts,
+            "docProps/custom.xml": b'<Properties><property name="ContentTypeId"/></Properties>',
+            "customXml/item2.xml": record})
+        with self.assertRaises(SystemExit) as stop:
+            strip_identity.strip(path, self.dir / "out.docx")
+        self.assertIn("customXml/item2.xml", str(stop.exception))
+
     def test_revision_author_stops_it(self):
         doc = self.parts["word/document.xml"].replace(
             b"<w:body>", b'<w:body><w:p><w:ins w:id="1" w:author="Someone"/></w:p>', 1)

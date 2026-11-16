@@ -1827,3 +1827,23 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: Labs 3, 5 and 6 as `ruled-change` (calls a format fix a wording change, and Labs 2 and 6 already declare without it); a public sentence on the page about equation format fixes (new public wording to draft and approve).
 - binds: D-0113; D-0167; D-0168; D-0169; curriculum/ph212/ph212-designing-experiments-handout.md; curriculum/ph212/ph212-sharing-and-comparing-handout.md; curriculum/ph212/ph212-capstone-handout.md; site/how-this-site-works.md
 - test: none; a convention, and nothing reads `status`
+
+### D-0185  The strip tool passes SharePoint's `ContentTypeId`; a properties record that names a person still stops it
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-16
+- decision: `tools/strip_identity.py` no longer stops on the custom property `ContentTypeId`. It is what SharePoint writes into a file kept in a document library, and its value identifies the library's content type. The `customXml` parts that come with it stay byte for byte: a form template, the content type's schema, and a properties record. The schema declares person fields (`SharedWithUsers`, `UserInfo`, `DisplayName`, `AccountId`) and holds no one. A new stop covers the case the pass would otherwise open: a `customXml` item that is not the schema and holds a `DisplayName`, `AccountId` or `UserInfo` element stops the strip, naming the part. Numbered D-0185 because open branches hold D-0179 to D-0184.
+- rationale: Asked "Let the strip tool pass ContentTypeId, by a library PR?", the owner, 2026-11-16: "Yes, pass it". Context (Claude): the stop held 7 of the 19 instructor-notes files (PH 211 Lab 7; PH 212 Labs 1, 4, 6; PH 213 Labs 2, 3, 4), which convert into the instructor repo (its ledger 49 to 52). All seven were read part by part on 2026-11-16: every properties record is empty, and every schema's only text is Word's own description of the revision field. PH 212 Lab 1 also carries a Google Docs round-trip record: an opaque document identifier and a signature, no name. PH 213 Lab 2 still stops, on EXIF data in a photograph, which this entry does not touch.
+- alternatives: Remove the property and the `customXml` parts (changes parts the tool promises to copy byte for byte, and the parts name no one); strip the seven by hand under a one-off ruling (seven unrepeatable strips, and the next SharePoint file stops again); pass the property with no new stop (a file shared by name in SharePoint would then pass unread).
+- binds: D-0086; tools/strip_identity.py; tests/test_strip_identity.py
+- test: tests/test_strip_identity.py: `test_sharepoint_content_type_passes_when_it_names_no_one`, `test_sharepoint_properties_naming_a_person_stop_it`
+
+### D-0186  The owner's word clears the 19 instructor-notes files for reading; pass 7 opens for notes only
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-16
+- decision: Amends D-0084 on one point. The 19 files named "Instructor notes.docx" under `../Old Reference Material/21X Lab Curriculum/` (7 for PH 211, 6 for PH 212, 6 for PH 213) are cleared for reading on the owner's word, as the handouts were. They convert into the private instructor repo under this repo's conversion spec; nothing from them enters this repo. Still closed: the PH 211 Lab 6 duplicate with an email address in its filename, the spreadsheets, the sample contracts and the example presentations.
+- rationale: Asked "Do you clear the instructor notes for me to open, on your word as with the handouts?", the owner, 2026-11-16: "Yes, notes only". Context (Claude): the question to the owner said 16 files, a miscount; the folder holds 19. The instructor repo's ledger 49 records the same ruling and what followed.
+- alternatives: A pre-scan before reading (declined for the handouts, D-0094); clearing the whole notes folders (the owner's "notes only" excludes it).
+- binds: D-0084; D-0086
+- test: none; a clearance
