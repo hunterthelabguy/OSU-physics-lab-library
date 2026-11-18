@@ -1,13 +1,12 @@
 # Re-baselining at the first ruled change: design
 
-- **Status:** proposed, for the owner's approval. Spec and ledger only; no
-  code, no plan.
+- **Status:** approved by the owner, 2026-11-18 ("Approve and promote").
+  Spec and ledger only; no code, no plan.
 - **Question (D-0194 (2)):** what should `tools/check_numbers.py` compare
   once a ruled change (D-0168) edits a handout's question list?
 - **Answer:** nothing. From a handout's first ruled change on, its own
   Markdown is the baseline, and neither Word check runs on it (D-0195).
-- **Entries:** D-0195 and D-0196, both `proposed`, in `DECISIONS.md` on
-  this branch.
+- **Entries:** D-0195 and D-0196, ruled 2026-11-18.
 - **Revision 2, 2026-11-18.** Revision 1 (commit 02696d9) answered the
   question with `ruled_numbering`, a list of question-list edits declared
   against Word's anchors, and five entries. The owner's review set the
