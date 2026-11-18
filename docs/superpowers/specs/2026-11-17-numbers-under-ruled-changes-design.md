@@ -161,6 +161,8 @@ ruled_numbering:
     ledger: "D-0nnn"
 ```
 
+- Removing a top-level anchor removes its parts with it; moving one moves
+  them.
 - `restart` may name `none` with `replaces`, when a ruling removes a week
   split.
 - A `sequence` lists the question's parts in order. Each item is a Word
