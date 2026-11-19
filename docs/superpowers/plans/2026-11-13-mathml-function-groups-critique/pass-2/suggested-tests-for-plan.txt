@@ -1,0 +1,16 @@
+Two tests for class FunctionGroups (verified: green on the plan's code; the
+first is red when argument_end's `if depth < 0: break` is removed, the second
+is red when its `elif m.group(3): continue` branch is removed).
+
+    def test_a_bracket_closing_in_a_later_cell_stops_the_build(self):
+        # Aligned rows, \sin( x \ y ): the ")" is in the next cell.
+        text = ('<mtable><mtr><mtd>' + self.NAME.format("sin") + self.OPEN.format("false")
+                + '<mi>x</mi></mtd></mtr><mtr><mtd><mi>y</mi>' + self.CLOSE.format("false")
+                + '</mtd></mtr></mtable>')
+        with self.assertRaises(SystemExit):
+            downloads.grouped_functions(text)
+
+    def test_an_empty_element_in_the_argument_opens_no_row(self):
+        arg = self.OPEN.format("false") + '<mi>x</mi><mspace width="1em"/>' + self.CLOSE.format("false")
+        got = downloads.grouped_functions('<mrow>' + self.NAME.format("sin") + arg + '</mrow>')
+        self.assertIn('<mo>\u2061</mo><mrow>' + arg + '</mrow></mrow>', got)

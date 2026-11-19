@@ -162,9 +162,9 @@ def html(doc, dest):
             "-o", dest])
     with open(dest, encoding="utf-8") as fh:
         text = fh.read()
-    decorative = without_empty_image_role(text)
-    if decorative != text:
-        text = decorative
+    cleaned = grouped_functions(without_empty_image_role(text))
+    if cleaned != text:
+        text = cleaned
         with open(dest, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(text)
     left = [u for u in re.findall(r'\b(?:src|href)="([^"]*)"', text) if is_relative(u)]
@@ -186,6 +186,59 @@ def without_empty_image_role(text):
         tag = re.sub(r'\saria-label(?:="")?(?=[\s>])', "", tag)
         return re.sub(r'\salt(?=[\s>])', ' alt=""', tag)
     return re.sub(r"<img\b[^>]*>", one, text)
+
+
+
+# D-0181: Pandoc writes a function's name and U+2061 as an mrow of their own;
+# before a bracket MathCAT then reads "cosine of times (...)".
+APPLY = "(?:\u2061|&#8289;|&#x2061;)"
+FUNCTION_GROUP = re.compile(r'<mrow>(<mi[^>]*>[^<]+</mi><mo>' + APPLY + r'</mo>)</mrow>'
+                            r'(?=(?:<mrow>)?<mo[^>]*>\(</mo>)')
+MATH_TOKEN = re.compile(r'<mo\b[^>]*>([()])</mo>|<(/?)\w+\b[^>]*>')
+
+
+def argument_end(text, start):
+    """End of the brackets that open at start: just past the ")" that closes
+    the first "(" among the same row's children."""
+    depth = parens = 0
+    for m in MATH_TOKEN.finditer(text, start):
+        if m.group(1):
+            if depth == 0:
+                parens += 1 if m.group(1) == "(" else -1
+                if parens == 0:
+                    return m.end()
+        elif m.group(2):
+            depth -= 1
+            if depth < 0:
+                break
+        else:
+            depth += 1
+    raise SystemExit("D-0181: a function's bracket does not close in its own row: "
+                     + text[start:start + 120])
+
+
+def grouped_functions(text):
+    """D-0181: a function's name, U+2061 and its bracketed argument in one
+    mrow, the grouping MathCAT reads as "cosine of (...)"."""
+    out, pos = [], 0
+    for m in FUNCTION_GROUP.finditer(text):
+        if m.start() < pos:
+            continue  # inside an argument already rewritten
+        start = m.end()
+        fenced = text.startswith("<mrow>", start)
+        first = start + len("<mrow>") if fenced else start
+        end = argument_end(text, first)
+        if fenced:
+            if not text.startswith("</mrow>", end):
+                raise SystemExit("D-0181: a function's bracketed group holds more"
+                                 " than its brackets: " + text[start:end + 40])
+            arg, end = text[first:end], end + len("</mrow>")
+        else:
+            arg = text[start:end]
+        out += [text[pos:m.start()], "<mrow>", m.group(1),
+                "<mrow>", grouped_functions(arg), "</mrow>", "</mrow>"]
+        pos = end
+    return "".join(out) + text[pos:]
 
 
 def pdf(page_path, dest):

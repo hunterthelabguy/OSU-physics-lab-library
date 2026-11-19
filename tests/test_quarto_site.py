@@ -106,6 +106,25 @@ class Pages(unittest.TestCase):
             with self.subTest(page=rel):
                 self.assertTrue((QSITE / rel).is_file())
 
+
+    def test_functions_grouped_with_their_brackets(self):
+        # D-0181: no function's name sits in an mrow of its own before a
+        # bracket, on a lab page or its HTML download; the two that had one
+        # (PH 212 Lab 6's cosine, PH 213 Data Analysis's sine) are grouped.
+        apply = "(?:\u2061|&#8289;|&#x2061;)"
+        apart = re.compile(r'<mrow><mi[^>]*>[^<]+</mi><mo>' + apply + r'</mo></mrow>'
+                           r'(?:<mrow>)?<mo[^>]*>\(</mo>')
+        for doc_id, _ in converted():
+            for rel in (f"labs/{doc_id}/modern/index.html", f"labs/{doc_id}/{doc_id}.html"):
+                with self.subTest(page=rel):
+                    self.assertIsNone(apart.search((QSITE / rel).read_text(encoding="utf-8")))
+        for doc_id, name in (("ph212-capstone-handout", "cos"), ("ph213-data-analysis-handout", "sin")):
+            for rel in (f"labs/{doc_id}/modern/index.html", f"labs/{doc_id}/{doc_id}.html"):
+                with self.subTest(grouped=rel):
+                    self.assertRegex((QSITE / rel).read_text(encoding="utf-8"),
+                                     '<mi mathvariant="normal">' + name + '</mi><mo>' + apply
+                                     + '</mo><mrow><mo')
+
     def test_course_index_links_course_wide_documents(self):
         # D-0160: under their own heading, each to its modern page.
         shared = render.course_wide(render.converted_documents())
