@@ -1849,3 +1849,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: leaving the paragraph (false once a handout is re-baselined); drafting replacement wording now (moot if #89 merges).
 - binds: D-0168 (5); D-0195; site/how-this-site-works.md; PR #89
 - test: none; public wording, checked by the owner
+
+### D-0187  The site build handed to deploy is kept 7 days, not GitHub's default 90
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-11-16
+- decision: Amends D-0048's hand-off. `verify`'s upload of `build/quarto-site` (artifact `quarto-site`) sets `retention-days: 7`. On 2026-11-16 the repository held 242 such artifacts (1.53 GB, none past GitHub's default 90 days), the account's artifact quota was full, and the upload failed. That failed main's run for 33d6cb2 (#85; deploy skipped, so production stayed at c70151f's build) and #86's verify, though every check before the upload passed. The deploy job downloads the artifact in the same run, within minutes. Seven days still leaves a week of builds to compare a deployment against (the runbook's "compare a deployment only against CI's artifact"). The same day, on the owner's word, the 225 artifacts created before 2026-11-09 were deleted (1.27 GB; 17 kept, the oldest from 2026-11-13). The refusal said usage "is recalculated every 6-12 hours", but seven hourly reruns of #88's verify were refused through 2026-11-17 04:47. The next upload that went through was main's run for bff3394 (2026-11-18 22:45). GitHub's billing page says deleting lowers current storage but not the month's accrued storage, and it does not say which of the two blocks uploads.
+- rationale: The owner, 2026-11-16, asked whether to delete the 225 old artifacts: "Delete them". Asked whether to add a short retention so storage cannot fill again: "Yes, 7 days".
+- alternatives: leave the default and delete by hand when it fills (it failed unannounced once already); a scheduled cleanup workflow (a second moving part for what one setting does).
+- binds: D-0047; D-0048; .github/workflows/verify.yml; tests/test_deploy_workflow.py
+- test: tests/test_deploy_workflow.py::TestedFolderIsDeployedFolder::test_upload_kept_seven_days

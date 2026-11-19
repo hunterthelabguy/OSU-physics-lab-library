@@ -73,11 +73,13 @@ jobs:
       - name: Hand the tested folder to deploy
         # D-0048: deploy ships exactly these bytes, never a rebuild. The path
         # is _quarto.yml's output-dir (tests/test_deploy_workflow.py).
+        # D-0187: kept 7 days, not GitHub's 90; deploy reads it within minutes.
         uses: actions/upload-artifact@v4
         with:
           name: quarto-site
           path: build/quarto-site
           if-no-files-found: error
+          retention-days: 7
 
   deploy:
     # D-0047, D-0048: Cloudflare Pages, Direct Upload. A push to main is
