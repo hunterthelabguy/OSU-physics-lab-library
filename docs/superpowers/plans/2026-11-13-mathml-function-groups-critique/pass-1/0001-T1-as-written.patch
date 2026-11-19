@@ -1,0 +1,146 @@
+From 64a9a934bc372d0b07afd7cb39e900b9b5894518 Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 16:49:30 -0800
+Subject: [PATCH 1/2] T1 as written
+
+Red step: python -m unittest tests.test_downloads.FunctionGroups first
+failed in setUpModule (RuntimeError: build/quarto-site is missing: run
+tools/quarto_build.py first; 0 tests ran). With an empty, untracked
+build/quarto-site directory: 6 errors, AttributeError: module 'downloads'
+has no attribute 'grouped_functions'. Green: 6 OK.
+---
+ tests/test_downloads.py | 55 +++++++++++++++++++++++++++++++++++++++++
+ tools/downloads.py      | 51 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 106 insertions(+)
+
+diff --git a/tests/test_downloads.py b/tests/test_downloads.py
+index 4bcd0a4..7c68c3f 100644
+--- a/tests/test_downloads.py
++++ b/tests/test_downloads.py
+@@ -823,6 +823,61 @@ class DecorativePictures(unittest.TestCase):
+         self.assertEqual(downloads.without_empty_image_role(tag), tag)
+ 
+ 
++class FunctionGroups(unittest.TestCase):
++    """D-0181: a function's name, U+2061 and its bracketed argument in one
++    mrow, the grouping MathCAT reads as "cosine of (...)" (made-up markup)."""
++
++    NAME = '<mrow><mi mathvariant="normal">{}</mi><mo>⁡</mo></mrow>'
++    OPEN = '<mo stretchy="{}" form="prefix">(</mo>'
++    CLOSE = '<mo stretchy="{}" form="postfix">)</mo>'
++
++    def grouped(self, name, arg):
++        return ('<mrow><mi mathvariant="normal">' + name + '</mi><mo>⁡</mo>'
++                + arg + '</mrow>')
++
++    def test_fenced_argument_joins_its_function(self):
++        arg = ('<mrow>' + self.OPEN.format("true") + '<mi>x</mi>'
++               + self.CLOSE.format("true") + '</mrow>')
++        got = downloads.grouped_functions(
++            '<math><mrow><mi>A</mi>' + self.NAME.format("cos") + arg + '<mo>+</mo></mrow></math>')
++        self.assertEqual(got, '<math><mrow><mi>A</mi>' + self.grouped("cos", arg)
++                         + '<mo>+</mo></mrow></math>')
++
++    def test_bare_brackets_are_wrapped_and_joined(self):
++        run = self.OPEN.format("false") + '<mi>θ</mi>' + self.CLOSE.format("false")
++        got = downloads.grouped_functions(
++            '<mrow><mi>m</mi>' + self.NAME.format("sin") + run + '</mrow>')
++        self.assertEqual(got, '<mrow><mi>m</mi>'
++                         + self.grouped("sin", '<mrow>' + run + '</mrow>') + '</mrow>')
++
++    def test_a_function_inside_an_argument_is_grouped_too(self):
++        inner = self.OPEN.format("false") + '<mi>x</mi>' + self.CLOSE.format("false")
++        outer = (self.OPEN.format("false") + self.NAME.format("cos") + inner
++                 + self.CLOSE.format("false"))
++        got = downloads.grouped_functions('<mrow>' + self.NAME.format("sin") + outer + '</mrow>')
++        want_inner = self.grouped("cos", '<mrow>' + inner + '</mrow>')
++        want = self.grouped("sin", '<mrow>' + self.OPEN.format("false") + want_inner
++                            + self.CLOSE.format("false") + '</mrow>')
++        self.assertEqual(got, '<mrow>' + want + '</mrow>')
++
++    def test_a_function_before_a_letter_is_left_alone(self):
++        text = ('<mrow>' + self.NAME.format("sin") + '<msub><mi>θ</mi><mi>i</mi></msub>'
++                '<mi mathvariant="normal">sin</mi><mi>θ</mi></mrow>')
++        self.assertEqual(downloads.grouped_functions(text), text)
++
++    def test_a_bracket_group_holding_more_stops_the_build(self):
++        arg = ('<mrow>' + self.OPEN.format("true") + '<mi>x</mi>' + self.CLOSE.format("true")
++               + '<mo>+</mo><mi>E</mi></mrow>')
++        with self.assertRaises(SystemExit):
++            downloads.grouped_functions('<mrow>' + self.NAME.format("cos") + arg + '</mrow>')
++
++    def test_an_unmatched_bracket_stops_the_build(self):
++        with self.assertRaises(SystemExit):
++            downloads.grouped_functions(
++                '<mrow>' + self.NAME.format("sin") + self.OPEN.format("false")
++                + '<mi>x</mi></mrow>')
++
++
+ class PrintKeeps(unittest.TestCase):
+     """D-0058: in print, a question block stays whole and a heading never
+     ends a page. The rules are the theme's (themes/modern.css, @media print)
+diff --git a/tools/downloads.py b/tools/downloads.py
+index 1755851..8b741e5 100644
+--- a/tools/downloads.py
++++ b/tools/downloads.py
+@@ -188,6 +188,57 @@ def without_empty_image_role(text):
+     return re.sub(r"<img\b[^>]*>", one, text)
+ 
+ 
++# D-0181: Pandoc writes a function's name and U+2061 as an mrow of their own;
++# before a bracket MathCAT then reads "cosine of times (...)".
++FUNCTION_GROUP = re.compile(r'<mrow>(<mi[^>]*>[^<]+</mi><mo>⁡</mo>)</mrow>'
++                            r'(?=(?:<mrow>)?<mo[^>]*form="prefix")')
++MATH_TAG = re.compile(r'<mrow\b[^>]*>|</mrow>|<mo\b[^>]*form="(prefix|postfix)"[^>]*>[^<]*</mo>')
++
++
++def argument_end(text, start):
++    """End of the bare brackets that open at start: just past the bracket
++    that closes the first."""
++    rows = fences = 0
++    for m in MATH_TAG.finditer(text, start):
++        tag = m.group(0)
++        if tag.startswith("<mrow"):
++            rows += 1
++        elif tag == "</mrow>":
++            rows -= 1
++            if rows < 0:
++                break
++        else:
++            fences += 1 if m.group(1) == "prefix" else -1
++        if rows == 0 and fences == 0:
++            return m.end()
++    raise SystemExit("D-0181: a function's bracket is not closed: "
++                     + text[start:start + 120])
++
++
++def grouped_functions(text):
++    """D-0181: a function's name, U+2061 and its bracketed argument in one
++    mrow, the grouping MathCAT reads as "cosine of (...)"."""
++    out, pos = [], 0
++    for m in FUNCTION_GROUP.finditer(text):
++        if m.start() < pos:
++            continue  # inside an argument already rewritten
++        start = m.end()
++        fenced = text.startswith("<mrow>", start)
++        first = start + len("<mrow>") if fenced else start
++        end = argument_end(text, first)
++        if fenced:
++            if not text.startswith("</mrow>", end):
++                raise SystemExit("D-0181: a function's bracketed group holds more"
++                                 " than its brackets: " + text[start:end + 40])
++            arg, end = text[first:end], end + len("</mrow>")
++        else:
++            arg = text[start:end]
++        out += [text[pos:m.start()], "<mrow>", m.group(1),
++                "<mrow>", grouped_functions(arg), "</mrow>", "</mrow>"]
++        pos = end
++    return "".join(out) + text[pos:]
++
++
+ def pdf(page_path, dest):
+     """Headless Chrome prints the built modern page with the site's print
+     rules, which hide the header, nav and footer and supply the running
+-- 
+2.55.0.windows.3
+

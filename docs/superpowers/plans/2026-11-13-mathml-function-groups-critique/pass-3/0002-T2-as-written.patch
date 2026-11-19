@@ -1,0 +1,74 @@
+From e421bbcf2f09afa1f1c9c2dcb0ce2b7e905ef83c Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Fri, 13 Nov 2026 17:08:05 -0800
+Subject: [PATCH 2/2] T2 as written
+
+---
+ tests/test_quarto_site.py | 19 +++++++++++++++++++
+ tools/downloads.py        |  6 +++---
+ tools/quarto_build.py     |  2 +-
+ 3 files changed, 23 insertions(+), 4 deletions(-)
+
+diff --git a/tests/test_quarto_site.py b/tests/test_quarto_site.py
+index 3155654..eaeb6b7 100644
+--- a/tests/test_quarto_site.py
++++ b/tests/test_quarto_site.py
+@@ -106,6 +106,25 @@ class Pages(unittest.TestCase):
+             with self.subTest(page=rel):
+                 self.assertTrue((QSITE / rel).is_file())
+ 
++
++    def test_functions_grouped_with_their_brackets(self):
++        # D-0181: no function's name sits in an mrow of its own before a
++        # bracket, on a lab page or its HTML download; the two that had one
++        # (PH 212 Lab 6's cosine, PH 213 Data Analysis's sine) are grouped.
++        apply = "(?:\u2061|&#8289;|&#x2061;)"
++        apart = re.compile(r'<mrow><mi[^>]*>[^<]+</mi><mo>' + apply + r'</mo></mrow>'
++                           r'(?:<mrow>)?<mo[^>]*>\(</mo>')
++        for doc_id, _ in converted():
++            for rel in (f"labs/{doc_id}/modern/index.html", f"labs/{doc_id}/{doc_id}.html"):
++                with self.subTest(page=rel):
++                    self.assertIsNone(apart.search((QSITE / rel).read_text(encoding="utf-8")))
++        for doc_id, name in (("ph212-capstone-handout", "cos"), ("ph213-data-analysis-handout", "sin")):
++            for rel in (f"labs/{doc_id}/modern/index.html", f"labs/{doc_id}/{doc_id}.html"):
++                with self.subTest(grouped=rel):
++                    self.assertRegex((QSITE / rel).read_text(encoding="utf-8"),
++                                     '<mi mathvariant="normal">' + name + '</mi><mo>' + apply
++                                     + '</mo><mrow><mo')
++
+     def test_course_index_links_course_wide_documents(self):
+         # D-0160: under their own heading, each to its modern page.
+         shared = render.course_wide(render.converted_documents())
+diff --git a/tools/downloads.py b/tools/downloads.py
+index 83535e3..fea6ebf 100644
+--- a/tools/downloads.py
++++ b/tools/downloads.py
+@@ -162,9 +162,9 @@ def html(doc, dest):
+             "-o", dest])
+     with open(dest, encoding="utf-8") as fh:
+         text = fh.read()
+-    decorative = without_empty_image_role(text)
+-    if decorative != text:
+-        text = decorative
++    cleaned = grouped_functions(without_empty_image_role(text))
++    if cleaned != text:
++        text = cleaned
+         with open(dest, "w", encoding="utf-8", newline="\n") as fh:
+             fh.write(text)
+     left = [u for u in re.findall(r'\b(?:src|href)="([^"]*)"', text) if is_relative(u)]
+diff --git a/tools/quarto_build.py b/tools/quarto_build.py
+index da1f032..1005ada 100644
+--- a/tools/quarto_build.py
++++ b/tools/quarto_build.py
+@@ -215,7 +215,7 @@ def dress_pages(pages):
+             text = fh.read()
+         body_class, top, bottom = quarto_chrome.old_chrome(page)
+         with open(path, "w", encoding="utf-8", newline="\n") as fh:
+-            fh.write(quarto_chrome.dress(text, body_class, top, bottom))
++            fh.write(quarto_chrome.dress(downloads.grouped_functions(text), body_class, top, bottom))
+ 
+ 
+ def base_404(path):
+-- 
+2.55.0.windows.3
+
