@@ -1,0 +1,169 @@
+From f5ad5b0fc20695aa27901b01211c8ba819bda5e5 Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Wed, 18 Nov 2026 18:25:32 -0800
+Subject: [PATCH 2/4] T2 as written
+
+Red step, as the plan says: test_page_link_points_at_the_library and
+test_word_link_points_at_the_library failed with the source form
+href="ph21x-lab-handbook#linearization" unchanged (page) and no Target at
+the library's address (Word); test_bad_links_are_found and
+test_every_document_link_resolves passed. Green: 4 tests OK.
+---
+ tests/test_lab_handbook.py | 106 +++++++++++++++++++++++++++++++++++++
+ tools/filters/media.lua    |  20 +++++--
+ 2 files changed, 122 insertions(+), 4 deletions(-)
+ create mode 100644 tests/test_lab_handbook.py
+
+diff --git a/tests/test_lab_handbook.py b/tests/test_lab_handbook.py
+new file mode 100644
+index 0000000..8153a7b
+--- /dev/null
++++ b/tests/test_lab_handbook.py
+@@ -0,0 +1,106 @@
++"""The Lab Handbook (D-0188, D-0190): links to a converted document by id,
++and the handbook's fixed section addresses."""
++
++import json
++import os
++import re
++import subprocess
++import sys
++import tempfile
++import unittest
++import zipfile
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++sys.path.insert(0, str(ROOT / "tools"))
++import render  # noqa: E402
++
++PANDOC = os.environ.get("PANDOC", "pandoc")
++MEDIA = ROOT / "tools" / "filters" / "media.lua"
++HANDBOOK = "ph21x-lab-handbook"
++ADDRESSES = ["plot-elements", "linearization", "what-is-uncertainty", "sources-of-uncertainty",
++             "predictions-hypotheses-models", "graphical-analysis-tips", "variables-and-parameters"]
++# media.lua's own pattern, `^([%w%-]+)#([%w%-_]+)$`, so every link it
++# rewrites is one this test validates, whatever its case, title or brackets.
++DOC_LINK = re.compile(r"^([A-Za-z0-9-]+)#([A-Za-z0-9_-]+)$")
++
++
++def sources(docs=None):
++    """{id: path} of every converted document (render.converted_documents())."""
++    docs = render.converted_documents() if docs is None else docs
++    return {i: Path(d["path"]) for i, d in docs.items()}
++
++
++def parsed(path):
++    """(link targets, identifiers) in a source, as Pandoc reads it."""
++    doc = json.loads(subprocess.run([PANDOC, str(path), "-f", render.FROM, "-t", "json"],
++                                    capture_output=True, check=True, encoding="utf-8").stdout)
++    targets, idents = [], set()
++
++    def walk(node):
++        if isinstance(node, list):
++            for n in node:
++                walk(n)
++        elif isinstance(node, dict):
++            if node.get("t") == "Link":
++                targets.append(node["c"][2][0])
++            elif node.get("t") in ("Header", "Div", "Span"):
++                attr = node["c"][1] if node["t"] == "Header" else node["c"][0]
++                if attr[0]:
++                    idents.add(attr[0])
++            walk(node.get("c"))
++
++    walk(doc["blocks"])
++    return targets, idents
++
++
++def bad_links(sources):
++    """(id, target) of each `<id>#<identifier>` link whose id is no such
++    document or whose identifier is not one on that document."""
++    read = {i: parsed(p) for i, p in sources.items()}
++    bad = []
++    for doc_id, (targets, _) in read.items():
++        for target in targets:
++            m = DOC_LINK.match(target)
++            if m and (m.group(1) not in read or m.group(2) not in read[m.group(1)][1]):
++                bad.append((doc_id, target))
++    return bad
++
++
++class Links(unittest.TestCase):
++    TEXT = "[Linearization](ph21x-lab-handbook#linearization) and [here](#local).\n"
++    URL = render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#linearization"
++
++    def run_filter(self, to, out=None):
++        args = [PANDOC, "-f", render.FROM, "--lua-filter", str(MEDIA),
++                "-M", "library-url=" + render.LIBRARY_URL]
++        args += ["-o", str(out)] if out else ["-t", to]
++        return subprocess.run(args, input=self.TEXT, capture_output=True, encoding="utf-8")
++
++    def test_page_link_points_at_the_library(self):
++        page = self.run_filter("html").stdout
++        self.assertIn('href="' + self.URL + '"', page)
++        self.assertIn('href="#local"', page)
++
++    def test_word_link_points_at_the_library(self):
++        with tempfile.TemporaryDirectory() as d:
++            out = Path(d) / "links.docx"
++            self.assertEqual(self.run_filter("docx", out).returncode, 0)
++            with zipfile.ZipFile(out) as z:
++                rels = z.read("word/_rels/document.xml.rels").decode("utf-8")
++        self.assertIn('Target="' + self.URL + '"', rels)
++
++    def test_every_document_link_resolves(self):
++        self.assertEqual(bad_links(sources()), [])
++
++    def test_bad_links_are_found(self):
++        # Every form media.lua rewrites (pass 2, probes/link_forms.py): plain,
++        # titled, angle-bracketed, upper case.
++        with tempfile.TemporaryDirectory() as d:
++            a, b = Path(d) / "a.md", Path(d) / "b.md"
++            a.write_text("## Heading {#x}\n", encoding="utf-8")
++            b.write_text('[ok](a#x) [no](a#y) [none](c#x) [titled](a#z "T")'
++                         " [angle](<a#w>) [upper](A#x) [local](#x)\n", encoding="utf-8")
++            found = bad_links(sources({"a": {"path": a}, "b": {"path": b}}))
++        self.assertEqual(sorted(found),
++                         [("b", "A#x"), ("b", "a#w"), ("b", "a#y"), ("b", "a#z"), ("b", "c#x")])
+diff --git a/tools/filters/media.lua b/tools/filters/media.lua
+index 0e642a3..feabc4e 100644
+--- a/tools/filters/media.lua
++++ b/tools/filters/media.lua
+@@ -29,6 +29,11 @@
+ -- file's published address under `library-url` in every output, page and
+ -- download alike, so a saved Word, HTML or PDF file still reaches it.
+ --
++-- A link to another converted document's section, `<id>#<identifier>`
++-- (D-0190), points at that page under `library-url` the same way. Its
++-- identifier is written on the target's heading; tests/test_lab_handbook.py
++-- fails on a link to an unknown document or identifier.
++--
+ -- Metadata: `media-dir`, the folder holding the lab's built media (needed
+ -- for a figure), `media-prefix`, put before a picture's path on a page
+ -- that sits below the media folder's parent ("../" on labs/<id>/modern/),
+@@ -128,10 +133,17 @@ return {
+     end,
+     Link = function(el)
+       local id = el.target:match("^([%w%-]+)%-media/[^/]+$")
+-      if not id then return end
+-      if not url then error("media.lua: a link to a lab's file needs library-url: " .. el.target) end
+-      el.target = url .. "labs/" .. id .. "/" .. el.target
+-      return el
++      if id then
++        if not url then error("media.lua: a link to a lab's file needs library-url: " .. el.target) end
++        el.target = url .. "labs/" .. id .. "/" .. el.target
++        return el
++      end
++      local doc, ident = el.target:match("^([%w%-]+)#([%w%-_]+)$")
++      if doc then
++        if not url then error("media.lua: a link to a document needs library-url: " .. el.target) end
++        el.target = url .. "labs/" .. doc .. "/modern/#" .. ident
++        return el
++      end
+     end,
+     Table = function(el)
+       if FORMAT:match("html") then
+-- 
+2.55.0.windows.3
+

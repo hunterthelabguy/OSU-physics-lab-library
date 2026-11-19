@@ -1,0 +1,116 @@
+From d18bcc2173855727993c9d9ea9f9dfe0c07c4faa Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Tue, 17 Nov 2026 11:22:13 -0800
+Subject: [PATCH 3/7] T3 as written
+
+Red step: tests.test_check_em_dash, 3 tests, FAILED (failures=1):
+test_dash_in_an_addition_is_found, "Lists differ: [] !=
+['curriculum/x.md (ruled_additions)']". Green: 3 tests OK;
+tools/check_em_dash.py exit 0.
+---
+ tests/test_check_em_dash.py | 37 +++++++++++++++++++++++++++++++++++++
+ tools/check_em_dash.py      | 27 +++++++++++++++++++++++++++
+ 2 files changed, 64 insertions(+)
+ create mode 100644 tests/test_check_em_dash.py
+
+diff --git a/tests/test_check_em_dash.py b/tests/test_check_em_dash.py
+new file mode 100644
+index 0000000..7f3328d
+--- /dev/null
++++ b/tests/test_check_em_dash.py
+@@ -0,0 +1,37 @@
++"""The em-dash scan reads a converted file's ruled additions (spec 4.7):
++new public wording, which the word check does not compare with an original."""
++
++import sys
++import tempfile
++import unittest
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++sys.path.insert(0, str(ROOT / "tools"))
++import check_em_dash  # noqa: E402
++
++DASH = "\u2014"
++
++
++def converted(addition, body="Words."):
++    return ('---\nid: x\nsource_file: "o.docx"\nruled_additions:\n  - text: "' + addition
++            + '"\n    ledger: "D-0000"\n---\n\n' + body + "\n")
++
++
++class RuledAdditions(unittest.TestCase):
++
++    def scan(self, text):
++        with tempfile.TemporaryDirectory() as d:
++            (Path(d) / "curriculum").mkdir()
++            (Path(d) / "curriculum" / "x.md").write_text(text, encoding="utf-8")
++            return check_em_dash.scan(d, ("curriculum",))
++
++    def test_dash_in_an_addition_is_found(self):
++        self.assertEqual(self.scan(converted("New " + DASH + " words")),
++                         ["curriculum/x.md (ruled_additions)"])
++
++    def test_dash_in_the_original_words_is_kept(self):
++        self.assertEqual(self.scan(converted("New words", body="Old " + DASH + " words")), [])
++
++    def test_repository_is_clean(self):
++        self.assertEqual(check_em_dash.scan(), [])
+diff --git a/tools/check_em_dash.py b/tools/check_em_dash.py
+index 797b9b0..38814a1 100644
+--- a/tools/check_em_dash.py
++++ b/tools/check_em_dash.py
+@@ -8,9 +8,11 @@ Internal docs are not scanned. A converted file, whose front matter names a
+ `source_file`, is skipped: it keeps every em dash its original holds, and the
+ word check proves its words are the original's (D-0103). Binary files are
+ skipped. Exit code 1 and the files listed when any other file has one.
++A converted file's `ruled_additions` text is scanned: it is new public wording (Lab Handbook spec 4.7).
+ """
+ 
+ import os
++import re
+ import sys
+ 
+ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+@@ -37,6 +39,27 @@ def converted(path):
+     return False
+ 
+ 
++ADDITION = re.compile(r'^\s+(?:-\s+)?text:\s*"(.*)"\s*$')
++
++
++def added_text(path):
++    """The `text` of each `ruled_additions` entry in a file's front matter."""
++    with open(path, encoding="utf-8") as fh:
++        lines = fh.read().split("\n")
++    out, inside = [], False
++    for line in lines[1:]:
++        line = line.rstrip("\r")
++        if line == "---":
++            break
++        if line and not line[0].isspace():
++            inside = line.startswith("ruled_additions:")
++            continue
++        m = ADDITION.match(line) if inside else None
++        if m:
++            out.append(m.group(1))
++    return out
++
++
+ def files(root, paths):
+     for p in paths:
+         full = os.path.join(root, p)
+@@ -55,6 +78,10 @@ def scan(root=ROOT, paths=PUBLISHED):
+         if b"\0" in data or EM_DASH not in data:
+             continue
+         if path.endswith(".md") and converted(path):
++            # Its words are the original's (D-0103), but a ruled addition is
++            # new public wording (spec 4.7).
++            if any("\u2014" in t for t in added_text(path)):
++                found.append(os.path.relpath(path, root).replace(os.sep, "/") + " (ruled_additions)")
+             continue
+         found.append(os.path.relpath(path, root).replace(os.sep, "/"))
+     return found
+-- 
+2.55.0.windows.3
+

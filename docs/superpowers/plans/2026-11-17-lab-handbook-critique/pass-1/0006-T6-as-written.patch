@@ -1,0 +1,99 @@
+From ccf405c6c0d6c24821f197012ee7a47908f28b4c Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Tue, 17 Nov 2026 12:40:34 -0800
+Subject: [PATCH 6/7] T6 as written
+
+Red step (on the T5 build): tests.test_quarto_site.LabHandbook, FAILED
+(failures=1): test_titled_lab_handbook_with_contents_links, "Regex didn't
+match: '<h1[^>]*>Lab Handbook</h1>'". Green: check_unchanged ok on the
+handbook (994 words, bold on 972, 5 equations, 2 pictures);
+check_numbers ok; check_em_dash clean. Full Verify at this commit: all
+checks ok, build ok, 371 tests OK (1147 s).
+---
+ curriculum/ph21x/ph21x-lab-handbook.md | 31 +++++++++++++++++---------
+ tests/test_quarto_site.py              |  6 +++++
+ 2 files changed, 26 insertions(+), 11 deletions(-)
+
+diff --git a/curriculum/ph21x/ph21x-lab-handbook.md b/curriculum/ph21x/ph21x-lab-handbook.md
+index c4e9d8d..b993acd 100644
+--- a/curriculum/ph21x/ph21x-lab-handbook.md
++++ b/curriculum/ph21x/ph21x-lab-handbook.md
+@@ -1,13 +1,13 @@
+ ---
+ id: ph21x-lab-handbook
+-title: "Appendix B – Reference Information"
++title: "Lab Handbook"
+ course: PH21X
+ audience: student
+ visibility: public
+ layer: curriculum
+ source_file: "originals/PH211/Lab 7 - Capstone - Handout.docx"
+ source_sha256: "b8f38b5a04e1a01304f7ec7b71e7e54c2e13e46af80f5fe91f58cf76c8722ea6"
+-status: converted
++status: ruled-change
+ ruled_omissions:
+   - span:
+       to: "Appendix B – Reference Information"
+@@ -15,6 +15,15 @@ ruled_omissions:
+         first: "o1"
+         last: "o11.2"
+     ledger: "D-0188"
++  - text: "Appendix B – Reference Information"
++    ledger: "D-0188"
++  - text: "This section contains key information from previous labs:"
++    ledger: "D-0188"
++ruled_additions:
++  - text: "Lab Handbook"
++    ledger: "D-0188"
++  - text: "Every lab after the first uses the ideas on this page. Read it before you start a lab, and come back whenever a lab asks for a plot, a fit or an uncertainty."
++    ledger: "D-0188"
+ images:
+   - file: "ph21x-lab-handbook-media/graphical-analysis-view-icon.png"
+     source_part: "word/media/image1.png"
+@@ -24,17 +33,17 @@ images:
+     sha256: "36df8e6bdf281576cc60c1e819bfc8b499fad38ed8027eaee5ca5e8dc9a32b4f"
+ ---
+ 
+-# Appendix B – Reference Information
++# Lab Handbook
+ 
+-This section contains key information from previous labs:
++Every lab after the first uses the ideas on this page. Read it before you start a lab, and come back whenever a lab asks for a plot, a fit or an uncertainty.
+ 
+-1.  Required Plot Elements
+-2.  Linearization
+-3.  What is Uncertainty?
+-4.  Sources of Uncertainty
+-5.  Predictions, Hypotheses, and Models
+-6.  Tips for Using Graphical Analysis
+-7.  Variables and Parameters
++1.  [Required Plot Elements](#plot-elements)
++2.  [Linearization](#linearization)
++3.  [What is Uncertainty?](#what-is-uncertainty)
++4.  [Sources of Uncertainty](#sources-of-uncertainty)
++5.  [Predictions, Hypotheses, and Models](#predictions-hypotheses-models)
++6.  [Tips for Using Graphical Analysis](#graphical-analysis-tips)
++7.  [Variables and Parameters](#variables-and-parameters)
+ 
+ ## Required Plot Elements {#plot-elements}
+ 
+diff --git a/tests/test_quarto_site.py b/tests/test_quarto_site.py
+index ae2ab62..96ce9c6 100644
+--- a/tests/test_quarto_site.py
++++ b/tests/test_quarto_site.py
+@@ -186,6 +186,12 @@ class LabHandbook(unittest.TestCase):
+         found = re.findall(r'<h2[^>]*\bid="([^"]+)"', self.page())
+         self.assertEqual(found, self.ADDRESSES)
+ 
++    def test_titled_lab_handbook_with_contents_links(self):
++        page = self.page()
++        self.assertRegex(page, r"<h1[^>]*>Lab Handbook</h1>")
++        for address in self.ADDRESSES:
++            self.assertIn('href="#' + address + '"', page)
++
+ 
+ class NoThirdParty(unittest.TestCase):
+     """D-0033: no theme or setting that loads a third-party resource."""
+-- 
+2.55.0.windows.3
+

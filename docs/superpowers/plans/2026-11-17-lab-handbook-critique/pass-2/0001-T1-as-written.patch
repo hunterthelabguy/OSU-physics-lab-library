@@ -1,0 +1,326 @@
+From 789f956704d2ebbf4f4a3444ca5163990f2cf14c Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Wed, 18 Nov 2026 15:34:10 -0800
+Subject: [PATCH 1/4] T1 as written
+
+Red step: 7 tests, failures=1, errors=7 (subtests counted). check_unchanged
+Rebaselined.test_ruled_change_is_skipped and check_numbers
+Rebaselined.test_ruled_change_is_skipped: FileNotFoundError reading
+missing.docx (the plan expected AttributeError: no attribute 'SKIP' for
+the first); test_status_forms: AttributeError: module 'check_unchanged'
+has no attribute 'rebaselined'; test_ruled_change_is_scanned: [] !=
+['curriculum/x.md']. test_converted_is_still_checked passed before the
+change.
+
+D-0169's lists not dropped: the plan's check against the main checkout
+printed " M curriculum/ph211/ph211-describing-an-experiment-handout.md",
+so the step was skipped by the plan's rule.
+---
+ CLAUDE.md                     | 17 +++++++++------
+ docs/conversion-spec.md       |  7 +++++-
+ tests/test_check_em_dash.py   | 36 +++++++++++++++++++++++++++++++
+ tests/test_check_numbers.py   | 17 +++++++++++++++
+ tests/test_check_unchanged.py | 40 +++++++++++++++++++++++++++++++++++
+ tools/check_em_dash.py        | 11 ++++++----
+ tools/check_numbers.py        |  4 ++++
+ tools/check_unchanged.py      | 26 +++++++++++++++++++++++
+ 8 files changed, 146 insertions(+), 12 deletions(-)
+ create mode 100644 tests/test_check_em_dash.py
+
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 3960b42..70f136e 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -138,7 +138,7 @@ Quarto internals.
+   Windows command-line limit). Open Sans in `site/fonts/` is rebuilt only by
+   `tools/subset_fonts.py`.
+ - One Markdown source feeds one presentation, `themes/modern.css`, and the
+-  downloads; never copy content into a second file. D-0108 retired the
++  downloads; never copy content into a second file (one exception, until PH 211's appendix copies are cut: the Lab Handbook's sections, D-0191). D-0108 retired the
+   faithful page (amending ledger 28): each `labs/<id>/faithful/` address is
+   a redirect stub to `../modern/`, and `render.THEMES` is `("modern",)`.
+   `render.pandoc_meta` returns plain text, so
+@@ -159,13 +159,16 @@ Quarto internals.
+   never here, because git history is permanent. Nothing that carries an
+   answer key belongs here: the Electric Force instructor guide and build
+   prompt stay out.
+-- Conversion first, then ruled changes (D-0168). A handout's conversion is
+-  format only, proven by the content-unchanged check
++- Conversion first, then ruled changes (D-0168, D-0195). A handout's
++  conversion is format only, proven by the content-unchanged check
+   (docs/conversion-spec.md), and lands on its own. A wording change comes
+-  after, never folded into a conversion: each changed passage declared in
+-  the source's front matter (`ruled_omissions`, `ruled_additions`) with its
+-  ledger entry, `status: ruled-change`, and the entry records who drafted
+-  the words and who approved them. Never loosen the check for a change.
++  after, never folded into a conversion. The first ruled change sets
++  `status: ruled-change`; from then on the handout's own Markdown is the
++  baseline, and both Word checks skip it and print why. Each change is
++  reviewed in its PR's diff, its commit cites the ruling, and the ruling,
++  in the instructor repo's ledger, records who drafted the words and who
++  approved them. A ruled change keeps no front-matter list of changed
++  passages. Never loosen a check for a change to a `converted` file.
+ - Roles, not names. No invented record data.
+ - Original source files are in `../Old Reference Material/` and are
+   unvetted: read one in full for student data before planning around it.
+diff --git a/docs/conversion-spec.md b/docs/conversion-spec.md
+index dbc1b28..e18da1b 100644
+--- a/docs/conversion-spec.md
++++ b/docs/conversion-spec.md
+@@ -18,7 +18,7 @@ visibility: public                # public | private
+ layer: curriculum                 # curriculum | osu-local
+ source_file: "originals/PH211/Lab 1 - Team Building - Handout.docx"
+ source_sha256: "<hash of the original file>"
+-status: converted                 # converted | checked | ruled-change
++status: converted                 # converted | checked | ruled-change (the Word checks skip ruled-change, D-0195)
+ ruled_omissions: []               # see Content-unchanged check
+ ruled_additions: []
+ ```
+@@ -263,6 +263,11 @@ matter as `ruled_omissions` or `ruled_additions` (an equation as
+ passage that does not occur also fails. CI runs it on
+ every file with a `source_file` (ledger 20).
+ 
++A file whose `status` is `ruled-change` is skipped, with a printed reason:
++from a handout's first ruled change its own Markdown is the baseline
++(D-0195). Its changes are reviewed in the PR diff and cite their ruling in
++the instructor repo; the declarations above are for conversions only.
++
+ What it does not check: structure (headings, list nesting, which block a
+ line sits in), italics and underline. Since pass 4 it does check each
+ table's column shares against Word's grid, within 5 points: a pipe table's
+diff --git a/tests/test_check_em_dash.py b/tests/test_check_em_dash.py
+new file mode 100644
+index 0000000..dea73d1
+--- /dev/null
++++ b/tests/test_check_em_dash.py
+@@ -0,0 +1,36 @@
++"""The em-dash scan (D-0103, D-0195): a converted file keeps its original's
++em dashes; a ruled-change file is the site's own wording and is scanned."""
++
++import sys
++import tempfile
++import unittest
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++sys.path.insert(0, str(ROOT / "tools"))
++import check_em_dash  # noqa: E402
++
++DASH = "—"
++
++
++def source(status, body):
++    return '---\nid: x\nsource_file: "o.docx"\nstatus: ' + status + '\n---\n\n' + body + "\n"
++
++
++class Scan(unittest.TestCase):
++
++    def scan(self, text):
++        with tempfile.TemporaryDirectory() as d:
++            (Path(d) / "curriculum").mkdir()
++            (Path(d) / "curriculum" / "x.md").write_text(text, encoding="utf-8")
++            return check_em_dash.scan(d, ("curriculum",))
++
++    def test_converted_keeps_its_originals_dashes(self):
++        self.assertEqual(self.scan(source("converted", "Old " + DASH + " words")), [])
++
++    def test_ruled_change_is_scanned(self):
++        self.assertEqual(self.scan(source("ruled-change", "New " + DASH + " words")),
++                         ["curriculum/x.md"])
++
++    def test_repository_is_clean(self):
++        self.assertEqual(check_em_dash.scan(), [])
+diff --git a/tests/test_check_numbers.py b/tests/test_check_numbers.py
+index 914eb57..004c850 100644
+--- a/tests/test_check_numbers.py
++++ b/tests/test_check_numbers.py
+@@ -6,6 +6,8 @@ of docs/word-labels.json, whose originals are not in this repo: only the
+ labels are compared, against a skeleton lab marked up as the spec says.
+ """
+ 
++import contextlib
++import io
+ import json
+ import os
+ import subprocess
+@@ -255,5 +257,20 @@ class Filter(unittest.TestCase):
+                 self.assertIn("must open with a paragraph", r.stderr)
+ 
+ 
++class Rebaselined(unittest.TestCase):
++    """D-0195: the number check skips a ruled-change file too."""
++
++    def test_ruled_change_is_skipped(self):
++        with tempfile.TemporaryDirectory() as d:
++            md = Path(d) / "lab.md"
++            md.write_text('---\nsource_file: "missing.docx"\nstatus: ruled-change\n---\n\n'
++                          '::: question\nWords.\n:::\n', encoding="utf-8", newline="\n")
++            out = io.StringIO()
++            with contextlib.redirect_stdout(out):
++                code = check_numbers.main([str(md)])
++        self.assertEqual(code, 0)
++        self.assertIn("ruled-change: its own Markdown is the baseline, D-0195", out.getvalue())
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tests/test_check_unchanged.py b/tests/test_check_unchanged.py
+index 02387fc..8dd685f 100644
+--- a/tests/test_check_unchanged.py
++++ b/tests/test_check_unchanged.py
+@@ -7,7 +7,9 @@ box, a SYMBOL field, a drawn figure, an anchored picture; the last two from
+ tests/figure_fixture.py).
+ """
+ 
++import contextlib
+ import hashlib
++import io
+ import os
+ import struct
+ import subprocess
+@@ -445,5 +447,43 @@ class PdfText(unittest.TestCase):
+         self.assertTrue(any("needless" in p for p in problems), problems)
+ 
+ 
++class Rebaselined(unittest.TestCase):
++    """D-0195: from a handout's first ruled change, the Word checks skip it."""
++
++    def lab(self, d, status):
++        md = Path(d) / "lab.md"
++        md.write_text('---\nsource_file: "missing.docx"\nstatus: ' + status
++                      + '\n---\n\nWords.\n', encoding="utf-8", newline="\n")
++        return md
++
++    def run_main(self, md):
++        out = io.StringIO()
++        with contextlib.redirect_stdout(out):
++            code = check_unchanged.main([str(md)])
++        return code, out.getvalue()
++
++    def test_ruled_change_is_skipped(self):
++        with tempfile.TemporaryDirectory() as d:
++            md = self.lab(d, "ruled-change")
++            code, out = self.run_main(md)
++        self.assertEqual(code, 0)
++        self.assertEqual(out, check_unchanged.SKIP.format(md) + "\n")
++
++    def test_converted_is_still_checked(self):
++        # The original is missing, so a file that is checked fails to read it.
++        with tempfile.TemporaryDirectory() as d, self.assertRaises((OSError, SystemExit)):
++            self.run_main(self.lab(d, "converted"))
++
++    def test_status_forms(self):
++        with tempfile.TemporaryDirectory() as d:
++            for status, want in (('"ruled-change"', True), ("ruled-change   # D-0195", True),
++                                 ("converted", False), ("checked", False)):
++                with self.subTest(status=status):
++                    self.assertEqual(check_unchanged.rebaselined(self.lab(d, status)), want)
++            plain = Path(d) / "plain.md"
++            plain.write_text("No front matter.\nstatus: ruled-change\n", encoding="utf-8")
++            self.assertFalse(check_unchanged.rebaselined(plain))
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tools/check_em_dash.py b/tools/check_em_dash.py
+index 797b9b0..08b1ba6 100644
+--- a/tools/check_em_dash.py
++++ b/tools/check_em_dash.py
+@@ -5,13 +5,16 @@ Usage: python tools/check_em_dash.py
+ Scans only the published sources (2026-10-03 ruling): the files that
+ _quarto.yml, tools/quarto_build.py and tools/render.py turn into pages.
+ Internal docs are not scanned. A converted file, whose front matter names a
+-`source_file`, is skipped: it keeps every em dash its original holds, and the
+-word check proves its words are the original's (D-0103). Binary files are
+-skipped. Exit code 1 and the files listed when any other file has one.
++`source_file`, is skipped while its status is `converted`: it keeps every em
++dash its original holds, and the word check proves its words are the
++original's (D-0103). A `ruled-change` file is the site's own wording and is
++scanned (D-0195). Binary files are skipped. Exit code 1 and the files listed
++when any other file has one.
+ """
+ 
+ import os
+ import sys
++from check_unchanged import rebaselined  # D-0195
+ 
+ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ PUBLISHED = (
+@@ -54,7 +57,7 @@ def scan(root=ROOT, paths=PUBLISHED):
+             data = fh.read()
+         if b"\0" in data or EM_DASH not in data:
+             continue
+-        if path.endswith(".md") and converted(path):
++        if path.endswith(".md") and converted(path) and not rebaselined(path):
+             continue
+         found.append(os.path.relpath(path, root).replace(os.sep, "/"))
+     return found
+diff --git a/tools/check_numbers.py b/tools/check_numbers.py
+index 3b09581..4a3790d 100644
+--- a/tools/check_numbers.py
++++ b/tools/check_numbers.py
+@@ -39,6 +39,7 @@ import re
+ import subprocess
+ import sys
+ import zipfile
++from check_unchanged import SKIP, rebaselined  # noqa: E402  (D-0195)
+ 
+ PANDOC = os.environ.get("PANDOC", "pandoc")
+ # How every step reads a source (render.FROM; tested to agree).
+@@ -243,6 +244,9 @@ def check(md_path, repo_root=ROOT, labels=None):
+ def main(paths):
+     failed = 0
+     for p in paths:
++        if rebaselined(p):
++            print(SKIP.format(p))
++            continue
+         items, problems = check(p)
+         if problems:
+             failed += 1
+diff --git a/tools/check_unchanged.py b/tools/check_unchanged.py
+index 35b9c90..d1e3064 100644
+--- a/tools/check_unchanged.py
++++ b/tools/check_unchanged.py
+@@ -110,6 +110,29 @@ PANDOC = os.environ.get("PANDOC", "pandoc")
+ # How every step reads a converted source (render.FROM, _quarto.yml's from):
+ # no smart quotes, and no implicit figures (D-0118).
+ FROM = "markdown-smart-implicit_figures"
++
++
++SKIP = "skip {} (ruled-change: its own Markdown is the baseline, D-0195)"
++
++
++def rebaselined(path):
++    """True when a file's front matter sets `status: ruled-change`. From a
++    handout's first ruled change its own Markdown is the baseline, and the
++    Word checks skip it (D-0195)."""
++    with open(path, encoding="utf-8", errors="replace") as fh:
++        lines = fh.read().split("\n")
++    if lines[0].rstrip("\r") != "---":
++        return False
++    for line in lines[1:]:
++        line = line.rstrip("\r")
++        if line == "---":
++            return False
++        if line.startswith("status:"):
++            value = line.split(":", 1)[1].split("#", 1)[0].strip().strip("\"'")
++            return value == "ruled-change"
++    return False
++
++
+ # Word's size in inches to four places is within this many EMU of its extent.
+ SIZE_TOLERANCE = 46
+ INLINE_CONTAINERS = {
+@@ -1020,6 +1043,9 @@ def main(paths):
+     repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+     failed = 0
+     for p in paths:
++        if rebaselined(p):
++            print(SKIP.format(p))
++            continue
+         n, problems = check(p, repo_root)
+         if problems:
+             failed += 1
+-- 
+2.55.0.windows.3
+

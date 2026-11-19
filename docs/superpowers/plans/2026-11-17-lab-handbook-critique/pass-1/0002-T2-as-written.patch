@@ -1,0 +1,137 @@
+From ba59cc1e5203733c076e58680b3f25e3967eb918 Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Tue, 17 Nov 2026 11:21:49 -0800
+Subject: [PATCH 2/7] T2 as written
+
+Red step: tests.test_check_numbers, 23 tests, FAILED (failures=3):
+test_span_labels_excused got ["Word has 2 numbered paragraphs to place, the
+converted lab 0; Word's from o1 on are unmatched"]; test_span_labels_not_a_
+run_fail and test_span_labels_too_few_fail found only that message (the
+plan named the first two). Green: 23 tests OK; check_numbers.py ok on all
+19 converted files.
+---
+ tests/test_check_numbers.py | 31 +++++++++++++++++++++++++++----
+ tools/check_numbers.py      | 30 +++++++++++++++++++++++++++++-
+ 2 files changed, 56 insertions(+), 5 deletions(-)
+
+diff --git a/tests/test_check_numbers.py b/tests/test_check_numbers.py
+index 914eb57..468082d 100644
+--- a/tests/test_check_numbers.py
++++ b/tests/test_check_numbers.py
+@@ -38,14 +38,14 @@ def q(ident, *parts, cls="question"):
+ class Fixture:
+     """A temp folder holding an original docx, a lab and a labels record."""
+ 
+-    def __init__(self, body, labels):
++    def __init__(self, body, labels, front=""):
+         self.dir = tempfile.TemporaryDirectory()
+         root = Path(self.dir.name)
+         src = root / "src.md"
+         src.write_text("Any words.\n", encoding="utf-8")
+         subprocess.run([PANDOC, str(src), "-o", str(root / "original.docx")], check=True)
+         self.md = root / "lab.md"
+-        self.md.write_text('---\nsource_file: "original.docx"\n---\n\n' + body,
++        self.md.write_text('---\nsource_file: "original.docx"\n' + front + '---\n\n' + body,
+                            encoding="utf-8", newline="\n")
+         self.root = root
+         self.labels = {"originals": {"fixture": {
+@@ -61,8 +61,8 @@ class Fixture:
+ 
+ class NumberCheck(unittest.TestCase):
+ 
+-    def run_fixture(self, body, labels):
+-        f = Fixture(body, labels)
++    def run_fixture(self, body, labels, front=""):
++        f = Fixture(body, labels, front)
+         try:
+             return f.check()
+         finally:
+@@ -178,6 +178,29 @@ class NumberCheck(unittest.TestCase):
+             f.close()
+         self.assertTrue(any("no record" in p for p in problems), problems)
+ 
++    TWO = [["o1", "1)"], ["o2", "2)"]]
++
++    @staticmethod
++    def span(first, last):
++        return ('ruled_omissions:\n  - span:\n      to: "Any words."\n      labels:\n'
++                '        first: "{}"\n        last: "{}"\n    ledger: "D-0189"\n'.format(first, last))
++
++    def test_span_labels_excused(self):
++        # D-0189: Word's labels inside a ruled span are not placed.
++        self.assertEqual(self.run_fixture("Words only.\n", self.TWO, self.span("o1", "o2")), [])
++
++    def test_labels_without_a_span_still_fail(self):
++        problems = self.run_fixture("Words only.\n", self.TWO)
++        self.assertTrue(any("Word has 2 numbered paragraphs to place" in p for p in problems), problems)
++
++    def test_span_labels_too_few_fail(self):
++        problems = self.run_fixture("Words only.\n", self.TWO, self.span("o1", "o1"))
++        self.assertTrue(any("Word has 1 numbered paragraphs to place" in p for p in problems), problems)
++
++    def test_span_labels_not_a_run_fail(self):
++        problems = self.run_fixture("Words only.\n", self.TWO, self.span("o2", "o9"))
++        self.assertTrue(any("not a run of Word's labels" in p for p in problems), problems)
++
+ 
+ class RealRecords(unittest.TestCase):
+     """Skeleton labs marked up as the spec says, against Word's real labels."""
+diff --git a/tools/check_numbers.py b/tools/check_numbers.py
+index 3b09581..dba6255 100644
+--- a/tools/check_numbers.py
++++ b/tools/check_numbers.py
+@@ -26,6 +26,10 @@ reads, in document order, the labels students see:
+   question list outside any question (PH 211 Lab 3's appendix contents);
+   its markers, in order, against Word's labels at the anchors it names.
+ 
++- a span omission (D-0189) that names `labels: {first, last}`: that run of
++  Word's labels, in the record's order, lies in the span and is not placed.
++  The word check proves the span's words absent; this only excuses labels.
++
+ An anchor no rule places fails. A PDF original has no Word labels
+ (D-0160), so its Markdown may hold none of these blocks; a plain ordered
+ list outside them is typed from the page and not compared. Exit code 0
+@@ -98,6 +102,22 @@ def plain(node):
+     return ""
+ 
+ 
++def meta_text(node):
++    return node["c"] if node["t"] == "MetaString" else plain(node["c"])
++
++
++def span_labels(meta):
++    """(first, last) anchors of each span omission's `labels` (D-0189)."""
++    out = []
++    node = meta.get("ruled_omissions")
++    for item in (node["c"] if node and node["t"] == "MetaList" else []):
++        span = item["c"].get("span") if item["t"] == "MetaMap" else None
++        labels = span["c"].get("labels") if span and span["t"] == "MetaMap" else None
++        if labels and labels["t"] == "MetaMap":
++            out.append((meta_text(labels["c"]["first"]), meta_text(labels["c"]["last"])))
++    return out
++
++
+ def rendered_items(md_path):
+     """[(level, kind, label, id)] in document order, as the filter labels them.
+     A report item's list items are kind "report" (level None); a `.numbered`
+@@ -236,8 +256,16 @@ def check(md_path, repo_root=ROOT, labels=None):
+     if record is None:
+         return None, [f"no record in docs/word-labels.json has this original's"
+                       f" parts ({', '.join(PARTS)}); read Word's labels again (D-0102)"]
++    labels, problems = list(record["labels"]), []
++    for first, last in span_labels(doc["meta"]):
++        ids = [a for a, _ in labels]
++        if first not in ids or last not in ids or ids.index(first) > ids.index(last):
++            problems.append(f"span labels {first} to {last}: not a run of Word's labels"
++                            " in order (D-0189)")
++            continue
++        labels = labels[:ids.index(first)] + labels[ids.index(last) + 1:]
+     items = rendered_items(md_path)
+-    return items, compare(record["labels"], items)
++    return items, problems + compare(labels, items)
+ 
+ 
+ def main(paths):
+-- 
+2.55.0.windows.3
+

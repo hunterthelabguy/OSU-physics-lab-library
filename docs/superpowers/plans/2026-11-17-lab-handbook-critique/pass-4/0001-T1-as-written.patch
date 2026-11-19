@@ -1,0 +1,545 @@
+From 8527777a6ac0bb926963c391598aff87f2739bed Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 11:13:26 -0800
+Subject: [PATCH 1/4] T1 as written
+
+Red step (plan line 205), after the build-first step (241 s), with the
+full Verify's exports; T1's focused verify: Ran 97 tests, FAILED
+(failures=2, errors=9):
+- check_unchanged Rebaselined.test_ruled_change_is_skipped: FileNotFoundError
+  on missing.docx
+- check_unchanged Rebaselined.test_status_forms (4 subtests): AttributeError:
+  module 'check_unchanged' has no attribute 'rebaselined'
+- check_unchanged Rebaselined.test_rebaselined_files_are_pinned:
+  AttributeError (no rebaselined)
+- check_numbers Rebaselined.test_ruled_change_is_skipped: FileNotFoundError
+  on missing.docx (parts_sha256)
+- question_ids EmDashScan.test_ruled_change_is_scanned:
+  Lists differ: [] != ['curriculum/lab.md']
+- question_ids Pin.test_reordering_a_ruled_change_file_fails_the_pin:
+  AttributeError (no rebaselined)
+- downloads MediaDownloads.test_a_changed_image_stops_the_build:
+  AssertionError: SystemExit not raised
+test_converted_is_still_checked passed.
+
+Green: 97 tests OK. Full Verify: exit 0, 354 tests, 1198 s; one skip
+line from each Word check for ph211-describing-an-experiment-handout.md.
+---
+ .github/workflows/verify.yml                  |  8 ++-
+ CLAUDE.md                                     | 34 ++++++------
+ .../ph211-describing-an-experiment-handout.md | 55 -------------------
+ docs/conversion-spec.md                       |  7 ++-
+ site/landing.md                               |  3 +-
+ tests/test_check_numbers.py                   | 17 ++++++
+ tests/test_check_unchanged.py                 | 52 ++++++++++++++++++
+ tests/test_downloads.py                       |  8 +++
+ tests/test_question_ids.py                    | 30 ++++++++++
+ tools/check_em_dash.py                        | 11 ++--
+ tools/check_numbers.py                        |  9 ++-
+ tools/check_unchanged.py                      | 28 ++++++++++
+ tools/media.py                                |  7 +++
+ 13 files changed, 186 insertions(+), 83 deletions(-)
+
+diff --git a/.github/workflows/verify.yml b/.github/workflows/verify.yml
+index 6be79a5..52aec1b 100644
+--- a/.github/workflows/verify.yml
++++ b/.github/workflows/verify.yml
+@@ -32,8 +32,9 @@ jobs:
+           echo "PANDOC=$found" >> "$GITHUB_ENV"
+       - name: No em dashes in published sources
+         # Only what publishes to students and the public (2026-10-03 ruling);
+-        # a converted file keeps its original's (D-0103). The list is in the
+-        # script, which tests/test_question_ids.py runs on a fixture.
++        # a converted file keeps its original's (D-0103); a ruled-change file
++        # is scanned (D-0195). The list is in the script, which
++        # tests/test_question_ids.py runs on a fixture.
+         run: python3 tools/check_em_dash.py
+       - name: Install pdftotext (PDF original, PDF download tests)
+         # Not on the runner images. The word check reads a PDF original's
+@@ -49,7 +50,8 @@ jobs:
+         run: |
+           # Converted files open with front matter that names a source_file;
+           # docs that merely show an example of it are skipped. The word
+-          # check, then Word's labels (D-0102, D-0112).
++          # check, then Word's labels (D-0102, D-0112); both skip a
++          # ruled-change file (D-0195).
+           files=$(for f in $(git ls-files '*.md'); do
+             [ "$(head -1 "$f")" = "---" ] && sed -n '2,/^---$/p' "$f" | grep -q '^source_file:' && echo "$f"
+           done || true)
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 3960b42..166235b 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -137,16 +137,15 @@ Quarto internals.
+   embeds a logo. Never pass a data: URI as a Pandoc `-M` value (past the
+   Windows command-line limit). Open Sans in `site/fonts/` is rebuilt only by
+   `tools/subset_fonts.py`.
+-- One Markdown source feeds one presentation, `themes/modern.css`, and the
+-  downloads; never copy content into a second file. D-0108 retired the
+-  faithful page (amending ledger 28): each `labs/<id>/faithful/` address is
+-  a redirect stub to `../modern/`, and `render.THEMES` is `("modern",)`.
+-  `render.pandoc_meta` returns plain text, so
+-  every caller escapes what it writes, once (D-0099).
+-  Question numbers come from `tools/filters/questions.lua` at render time;
+-  none is stored in the source. The "How this site works" page is
+-  `site/how-this-site-works.md` (D-0072; its old address redirects). No page or download carries a draft banner
+-  (D-0156); every page keeps its `noindex` meta. Output stays host-agnostic static files (ledger 39).
++- One Markdown source feeds one presentation, `themes/modern.css`, and the downloads; never copy content into a
++  second file (one exception, until PH 211's appendix copies are cut: the Lab Handbook's sections, D-0191, held
++  to Lab 7's by a test, D-0198; a change reaches every copy in one PR). D-0108 retired the faithful page
++  (amending ledger 28): each `labs/<id>/faithful/` address is a redirect stub to `../modern/`, and
++  `render.THEMES` is `("modern",)`. `render.pandoc_meta` returns plain text, so every caller escapes what it
++  writes, once (D-0099). Question numbers come from `tools/filters/questions.lua` at render time; none is
++  stored in the source. The "How this site works" page is `site/how-this-site-works.md` (D-0072; its old
++  address redirects). No page or download carries a draft banner (D-0156); every page keeps its `noindex` meta.
++  Output stays host-agnostic static files (ledger 39).
+ - Tools not on PATH: Python 3.12 at
+   `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`; the GitHub CLI at
+   `C:\Program Files\GitHub CLI\gh.exe`. Node 24 is on PATH; the sim tests
+@@ -159,13 +158,16 @@ Quarto internals.
+   never here, because git history is permanent. Nothing that carries an
+   answer key belongs here: the Electric Force instructor guide and build
+   prompt stay out.
+-- Conversion first, then ruled changes (D-0168). A handout's conversion is
+-  format only, proven by the content-unchanged check
++- Conversion first, then ruled changes (D-0168, D-0195). A handout's
++  conversion is format only, proven by the content-unchanged check
+   (docs/conversion-spec.md), and lands on its own. A wording change comes
+-  after, never folded into a conversion: each changed passage declared in
+-  the source's front matter (`ruled_omissions`, `ruled_additions`) with its
+-  ledger entry, `status: ruled-change`, and the entry records who drafted
+-  the words and who approved them. Never loosen the check for a change.
++  after, never folded into a conversion. The first ruled change sets
++  `status: ruled-change`; from then on the handout's own Markdown is the
++  baseline, and both Word checks skip it and print why. Each change is
++  reviewed in its PR's diff, its commit cites the ruling, and the ruling,
++  in the instructor repo's ledger, records who drafted the words and who
++  approved them. A ruled change keeps no front-matter list of changed
++  passages. Never loosen a check for a change to a `converted` file.
+ - Roles, not names. No invented record data.
+ - Original source files are in `../Old Reference Material/` and are
+   unvetted: read one in full for student data before planning around it.
+diff --git a/curriculum/ph211/ph211-describing-an-experiment-handout.md b/curriculum/ph211/ph211-describing-an-experiment-handout.md
+index caf2e55..15b9505 100644
+--- a/curriculum/ph211/ph211-describing-an-experiment-handout.md
++++ b/curriculum/ph211/ph211-describing-an-experiment-handout.md
+@@ -9,61 +9,6 @@ layer: curriculum
+ source_file: "originals/PH211/Lab 6 - Describing an Experiment - Handout.docx"
+ source_sha256: "cf18da95fc358c0c1006d8a9a42e2d027a27889363bc44a3fcdc8f5487754c19"
+ status: ruled-change
+-ruled_omissions:
+-  - text: "between a block and a carpet square."
+-    ledger: "D-0169"
+-  - text: "between a wooden block and piece of carpet, but"
+-    ledger: "D-0169"
+-  - text: "the block on a piece of carpet on a ramp."
+-    ledger: "D-0169"
+-  - text: >-
+-      Wooden block Piece of carpet Meter stick Masses Balance Some stations:
+-      Ramp, or Force sensor
+-    ledger: "D-0169"
+-  - text: "between a wooden block and piece of carpet (both supplied)"
+-    ledger: "D-0169"
+-  - text: >-
+-      Before taking data using the force sensor, you need to prepare it:
+-      Open Graphical Analysis Choose your probe setting. Choosing 10 N will
+-      give you better precision for smaller forces, but it will give you
+-      incorrect values if the force is more than 10 N. In that case choose
+-      50 N, reset the probe and repeat the measurement. Do not subject the
+-      probe to more than 50 N of force. Connect the Force Sensor. If the
+-      sensor is wireless, do not connect it using the computer’s Bluetooth
+-      settings. Connection should be done through the Graphical Analysis
+-      app. Zero the probe. Place it flat on the table with nothing touching
+-      the sensor end (the hook). In Graphical Analysis, click on the display
+-      at the bottom right of the screen showing the force sensor reading.
+-      Choose “Zero” from the menu. You can zero as often as you like and
+-      should do so anytime you get a non-zero reading when the probe has no
+-      force on it. You should typically zero anytime you change the setting.
+-    ledger: "D-0169"
+-ruled_additions:
+-  - text: "between a block and a whiteboard."
+-    ledger: "D-0169"
+-  - text: "between a wooden block and a whiteboard, but"
+-    ledger: "D-0169"
+-  - text: "Your instructor will tell your group which face of the block to put down."
+-    ledger: "D-0169"
+-  - text: "the block on a whiteboard on a ramp."
+-    ledger: "D-0169"
+-  - text: >-
+-      Wooden block (two wood faces, two felt faces) Whiteboard Meter stick
+-      Balance Some stations: Adjustable ramp with the whiteboard clamped to
+-      it, and a protractor, or Cart with a built-in force sensor, and masses
+-    ledger: "D-0169"
+-  - text: "between a wooden block and a whiteboard (both supplied)"
+-    ledger: "D-0169"
+-  - text: >-
+-      Before taking data using the cart’s force sensor, you need to prepare
+-      it: Open Graphical Analysis (graphicalanalysis.app) in Chrome or
+-      Edge. Choose Sensor Data Collection, click Wireless, and select your
+-      cart. Do not connect it using the computer’s Bluetooth settings. Open
+-      Sensor Setup. Open Sensor Channels. Select Force. Deselect Position.
+-      Click Done. At the bottom left, click Mode to open Data Collection
+-      Settings. Change End Collection from a set duration to Manually, and
+-      click Done.
+-    ledger: "D-0169"
+ images:
+   - file: "ph211-describing-an-experiment-handout-media/graphical-analysis-view-icon.png"
+     source_part: "word/media/image1.png"
+diff --git a/docs/conversion-spec.md b/docs/conversion-spec.md
+index dbc1b28..e18da1b 100644
+--- a/docs/conversion-spec.md
++++ b/docs/conversion-spec.md
+@@ -18,7 +18,7 @@ visibility: public                # public | private
+ layer: curriculum                 # curriculum | osu-local
+ source_file: "originals/PH211/Lab 1 - Team Building - Handout.docx"
+ source_sha256: "<hash of the original file>"
+-status: converted                 # converted | checked | ruled-change
++status: converted                 # converted | checked | ruled-change (the Word checks skip ruled-change, D-0195)
+ ruled_omissions: []               # see Content-unchanged check
+ ruled_additions: []
+ ```
+@@ -263,6 +263,11 @@ matter as `ruled_omissions` or `ruled_additions` (an equation as
+ passage that does not occur also fails. CI runs it on
+ every file with a `source_file` (ledger 20).
+ 
++A file whose `status` is `ruled-change` is skipped, with a printed reason:
++from a handout's first ruled change its own Markdown is the baseline
++(D-0195). Its changes are reviewed in the PR diff and cite their ruling in
++the instructor repo; the declarations above are for conversions only.
++
+ What it does not check: structure (headings, list nesting, which block a
+ line sits in), italics and underline. Since pass 4 it does check each
+ table's column shares against Word's grid, within 5 points: a pipe table's
+diff --git a/site/landing.md b/site/landing.md
+index 293353f..1c045bc 100644
+--- a/site/landing.md
++++ b/site/landing.md
+@@ -22,6 +22,5 @@ Each handout downloads from its page as Word, PDF, HTML or Markdown.
+   Small tools students use during a lab, each one a single
+   page that runs in the browser, keeps nothing, and sends nothing.
+ - [How this site works](how-this-site-works/)
+-  How a page is built, how it is checked against the original, and who
+-  did the work.
++  How a page is built and who did the work.
+ :::
+diff --git a/tests/test_check_numbers.py b/tests/test_check_numbers.py
+index 914eb57..004c850 100644
+--- a/tests/test_check_numbers.py
++++ b/tests/test_check_numbers.py
+@@ -6,6 +6,8 @@ of docs/word-labels.json, whose originals are not in this repo: only the
+ labels are compared, against a skeleton lab marked up as the spec says.
+ """
+ 
++import contextlib
++import io
+ import json
+ import os
+ import subprocess
+@@ -255,5 +257,20 @@ class Filter(unittest.TestCase):
+                 self.assertIn("must open with a paragraph", r.stderr)
+ 
+ 
++class Rebaselined(unittest.TestCase):
++    """D-0195: the number check skips a ruled-change file too."""
++
++    def test_ruled_change_is_skipped(self):
++        with tempfile.TemporaryDirectory() as d:
++            md = Path(d) / "lab.md"
++            md.write_text('---\nsource_file: "missing.docx"\nstatus: ruled-change\n---\n\n'
++                          '::: question\nWords.\n:::\n', encoding="utf-8", newline="\n")
++            out = io.StringIO()
++            with contextlib.redirect_stdout(out):
++                code = check_numbers.main([str(md)])
++        self.assertEqual(code, 0)
++        self.assertIn("ruled-change: its own Markdown is the baseline, D-0195", out.getvalue())
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tests/test_check_unchanged.py b/tests/test_check_unchanged.py
+index 02387fc..b805822 100644
+--- a/tests/test_check_unchanged.py
++++ b/tests/test_check_unchanged.py
+@@ -7,7 +7,9 @@ box, a SYMBOL field, a drawn figure, an anchored picture; the last two from
+ tests/figure_fixture.py).
+ """
+ 
++import contextlib
+ import hashlib
++import io
+ import os
+ import struct
+ import subprocess
+@@ -445,5 +447,55 @@ class PdfText(unittest.TestCase):
+         self.assertTrue(any("needless" in p for p in problems), problems)
+ 
+ 
++class Rebaselined(unittest.TestCase):
++    """D-0195: from a handout's first ruled change, the Word checks skip it."""
++
++    def lab(self, d, status):
++        md = Path(d) / "lab.md"
++        md.write_text('---\nsource_file: "missing.docx"\nstatus: ' + status
++                      + '\n---\n\nWords.\n', encoding="utf-8", newline="\n")
++        return md
++
++    def run_main(self, md):
++        out = io.StringIO()
++        with contextlib.redirect_stdout(out):
++            code = check_unchanged.main([str(md)])
++        return code, out.getvalue()
++
++    def test_ruled_change_is_skipped(self):
++        with tempfile.TemporaryDirectory() as d:
++            md = self.lab(d, "ruled-change")
++            code, out = self.run_main(md)
++        self.assertEqual(code, 0)
++        self.assertEqual(out, check_unchanged.SKIP.format(md) + "\n")
++
++    def test_converted_is_still_checked(self):
++        # The original is missing, so a file that is checked fails to read it.
++        with tempfile.TemporaryDirectory() as d, self.assertRaises((OSError, SystemExit)):
++            self.run_main(self.lab(d, "converted"))
++
++    def test_status_forms(self):
++        with tempfile.TemporaryDirectory() as d:
++            for status, want in (('"ruled-change"', True), ("ruled-change   # D-0195", True),
++                                 ("converted", False), ("checked", False)):
++                with self.subTest(status=status):
++                    self.assertEqual(check_unchanged.rebaselined(self.lab(d, status)), want)
++            plain = Path(d) / "plain.md"
++            plain.write_text("No front matter.\nstatus: ruled-change\n", encoding="utf-8")
++            self.assertFalse(check_unchanged.rebaselined(plain))
++
++    # D-0198 (3): every re-baselined file, with the ruling that changed it
++    # first. Setting `status: ruled-change` switches both Word checks off, so
++    # it edits this list in the same diff.
++    REBASELINED = {
++        "curriculum/ph211/ph211-describing-an-experiment-handout.md": "D-0169",
++    }
++
++    def test_rebaselined_files_are_pinned(self):
++        found = {p.relative_to(ROOT).as_posix() for p in sorted((ROOT / "curriculum").rglob("*.md"))
++                 if check_unchanged.rebaselined(p)}
++        self.assertEqual(found, set(self.REBASELINED))
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tests/test_downloads.py b/tests/test_downloads.py
+index 4bcd0a4..972444e 100644
+--- a/tests/test_downloads.py
++++ b/tests/test_downloads.py
+@@ -602,6 +602,14 @@ class MediaDownloads(unittest.TestCase):
+         with tempfile.TemporaryDirectory() as out, self.assertRaises(SystemExit):
+             media.build(doc, out, downloads.CHROME)
+ 
++    def test_a_changed_image_stops_the_build(self):
++        # D-0198 (4): a picture's bytes are pinned too, since the word check
++        # that compared pictures skips a ruled-change file.
++        images = [dict(self.doc["meta"]["images"][0], sha256="0" * 64)]
++        doc = dict(self.doc, meta=dict(self.doc["meta"], images=images))
++        with tempfile.TemporaryDirectory() as out, self.assertRaises(SystemExit):
++            media.build(doc, out, downloads.CHROME)
++
+     def test_word_links_the_file_at_the_library(self):
+         # D-0165: a saved Word file still reaches the file.
+         with zipfile.ZipFile(self.docx) as z:
+diff --git a/tests/test_question_ids.py b/tests/test_question_ids.py
+index 254df9c..5888562 100644
+--- a/tests/test_question_ids.py
++++ b/tests/test_question_ids.py
+@@ -20,6 +20,7 @@ from pathlib import Path
+ ROOT = Path(__file__).resolve().parent.parent
+ sys.path.insert(0, str(ROOT / "tools"))
+ import check_em_dash  # noqa: E402
++import check_unchanged  # noqa: E402
+ 
+ PANDOC = os.environ.get("PANDOC", "pandoc")
+ PIN = json.loads((ROOT / "tests" / "question-ids.json").read_text(encoding="utf-8"))["labs"]
+@@ -81,6 +82,24 @@ class Pin(unittest.TestCase):
+         self.assertEqual(sorted(ids), sorted(PIN[lab]))
+         self.assertNotEqual(ids, PIN[lab])
+ 
++    def test_reordering_a_ruled_change_file_fails_the_pin(self):
++        # D-0195: re-baselining skips the Word checks, never the pin.
++        text = PH211.read_text(encoding="utf-8")
++        self.assertIn("\nstatus: converted\n", text)
++        text = text.replace("\nstatus: converted\n", "\nstatus: ruled-change\n", 1)
++        a = text.index("::: {.question #ph211-team-building:good-lab-partner}")
++        b = text.index("::: {.question #ph211-team-building:sketches}")
++        end = text.index(":::\n", b) + 4
++        first_end = text.index(":::\n", a) + 4
++        swapped = text[:a] + text[b:end] + text[first_end:b] + text[a:first_end] + text[end:]
++        with tempfile.TemporaryDirectory() as d:
++            md = Path(d) / "lab.md"
++            md.write_text(swapped, encoding="utf-8", newline="\n")
++            self.assertTrue(check_unchanged.rebaselined(md))
++            lab, ids = read(md)
++        self.assertEqual(sorted(ids), sorted(PIN[lab]))
++        self.assertNotEqual(ids, PIN[lab])
++
+ 
+ class EmDashScan(unittest.TestCase):
+ 
+@@ -103,6 +122,17 @@ class EmDashScan(unittest.TestCase):
+     def test_published_sources_have_none(self):
+         self.assertEqual(check_em_dash.scan(), [])
+ 
++    def test_ruled_change_is_scanned(self):
++        # D-0195: a ruled-change file is the site's own wording.
++        with tempfile.TemporaryDirectory() as d:
++            root = Path(d)
++            (root / "curriculum").mkdir()
++            (root / "curriculum" / "lab.md").write_text(
++                '---\nsource_file: "originals/x.docx"\nstatus: ruled-change\n---\n\n'
++                'new words—here\n', encoding="utf-8")
++            found = check_em_dash.scan(str(root), ("curriculum",))
++        self.assertEqual(found, ["curriculum/lab.md"])
++
+ 
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tools/check_em_dash.py b/tools/check_em_dash.py
+index 797b9b0..054fa8e 100644
+--- a/tools/check_em_dash.py
++++ b/tools/check_em_dash.py
+@@ -5,13 +5,16 @@ Usage: python tools/check_em_dash.py
+ Scans only the published sources (2026-10-03 ruling): the files that
+ _quarto.yml, tools/quarto_build.py and tools/render.py turn into pages.
+ Internal docs are not scanned. A converted file, whose front matter names a
+-`source_file`, is skipped: it keeps every em dash its original holds, and the
+-word check proves its words are the original's (D-0103). Binary files are
+-skipped. Exit code 1 and the files listed when any other file has one.
++`source_file`, is skipped unless its status is `ruled-change`: it keeps every
++em dash its original holds, and the word check proves its words are the
++original's (D-0103). A `ruled-change` file is the site's own wording and is
++scanned (D-0195). Binary files are skipped. Exit code 1 and the files listed
++when any other file has one.
+ """
+ 
+ import os
+ import sys
++from check_unchanged import rebaselined  # D-0195
+ 
+ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ PUBLISHED = (
+@@ -54,7 +57,7 @@ def scan(root=ROOT, paths=PUBLISHED):
+             data = fh.read()
+         if b"\0" in data or EM_DASH not in data:
+             continue
+-        if path.endswith(".md") and converted(path):
++        if path.endswith(".md") and converted(path) and not rebaselined(path):
+             continue
+         found.append(os.path.relpath(path, root).replace(os.sep, "/"))
+     return found
+diff --git a/tools/check_numbers.py b/tools/check_numbers.py
+index 3b09581..6efd78e 100644
+--- a/tools/check_numbers.py
++++ b/tools/check_numbers.py
+@@ -28,8 +28,9 @@ reads, in document order, the labels students see:
+ 
+ An anchor no rule places fails. A PDF original has no Word labels
+ (D-0160), so its Markdown may hold none of these blocks; a plain ordered
+-list outside them is typed from the page and not compared. Exit code 0
+-when every file passes.
++list outside them is typed from the page and not compared. A file whose
++`status` is `ruled-change` is skipped with a printed reason (D-0195).
++Exit code 0 when every file passes.
+ """
+ 
+ import hashlib
+@@ -39,6 +40,7 @@ import re
+ import subprocess
+ import sys
+ import zipfile
++from check_unchanged import SKIP, rebaselined  # noqa: E402  (D-0195)
+ 
+ PANDOC = os.environ.get("PANDOC", "pandoc")
+ # How every step reads a source (render.FROM; tested to agree).
+@@ -243,6 +245,9 @@ def check(md_path, repo_root=ROOT, labels=None):
+ def main(paths):
+     failed = 0
+     for p in paths:
++        if rebaselined(p):
++            print(SKIP.format(p))
++            continue
+         items, problems = check(p)
+         if problems:
+             failed += 1
+diff --git a/tools/check_unchanged.py b/tools/check_unchanged.py
+index 35b9c90..76a186e 100644
+--- a/tools/check_unchanged.py
++++ b/tools/check_unchanged.py
+@@ -62,6 +62,10 @@ survives as Mathematical Alphanumeric Symbols; each run of them is one
+ inline equation. A display equation, picture or table in a PDF is not
+ handled: the one PDF original has none.
+ 
++A file whose `status` is `ruled-change` is skipped with a printed reason:
++from a handout's first ruled change its own Markdown is the baseline
++(D-0195). The declarations below are for conversions only.
++
+ Differences are allowed only when declared in front matter and ruled in a
+ ledger:
+ 
+@@ -110,6 +114,27 @@ PANDOC = os.environ.get("PANDOC", "pandoc")
+ # How every step reads a converted source (render.FROM, _quarto.yml's from):
+ # no smart quotes, and no implicit figures (D-0118).
+ FROM = "markdown-smart-implicit_figures"
++SKIP = "skip {} (ruled-change: its own Markdown is the baseline, D-0195)"
++
++
++def rebaselined(path):
++    """True when a file's front matter sets `status: ruled-change`. From a
++    handout's first ruled change its own Markdown is the baseline, and the
++    Word checks skip it (D-0195)."""
++    with open(path, encoding="utf-8", errors="replace") as fh:
++        lines = fh.read().split("\n")
++    if lines[0].rstrip("\r") != "---":
++        return False
++    for line in lines[1:]:
++        line = line.rstrip("\r")
++        if line == "---":
++            return False
++        if line.startswith("status:"):
++            value = line.split(":", 1)[1].split("#", 1)[0].strip().strip("\"'")
++            return value == "ruled-change"
++    return False
++
++
+ # Word's size in inches to four places is within this many EMU of its extent.
+ SIZE_TOLERANCE = 46
+ INLINE_CONTAINERS = {
+@@ -1020,6 +1045,9 @@ def main(paths):
+     repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+     failed = 0
+     for p in paths:
++        if rebaselined(p):
++            print(SKIP.format(p))
++            continue
+         n, problems = check(p, repo_root)
+         if problems:
+             failed += 1
+diff --git a/tools/media.py b/tools/media.py
+index 241a253..b832b8e 100644
+--- a/tools/media.py
++++ b/tools/media.py
+@@ -100,8 +100,15 @@ def build(doc, dest, chrome):
+     source_dir = os.path.dirname(doc["path"])
+     original = os.path.join(render.ROOT, doc["meta"]["source_file"])
+     published = []
++    # A picture's bytes are pinned the same way (D-0198 (4)): the word check
++    # that compares pictures skips a ruled-change file.
+     for e in media["images"]:
+         src = os.path.join(source_dir, e["file"])
++        with open(src, "rb") as fh:
++            digest = hashlib.sha256(fh.read()).hexdigest()
++        if digest != e.get("sha256"):
++            raise SystemExit("{}: {} has sha256 {}, front matter says {}".format(
++                doc["path"], e["file"], digest, e.get("sha256")))
+         name = os.path.basename(e["file"])
+         shutil.copyfile(src, os.path.join(dest, name))
+         published.append(name)
+-- 
+2.55.0.windows.3
+
