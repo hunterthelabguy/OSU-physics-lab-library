@@ -215,7 +215,7 @@ def dress_pages(pages):
             text = fh.read()
         body_class, top, bottom = quarto_chrome.old_chrome(page)
         with open(path, "w", encoding="utf-8", newline="\n") as fh:
-            fh.write(quarto_chrome.dress(text, body_class, top, bottom))
+            fh.write(quarto_chrome.dress(downloads.grouped_functions(text), body_class, top, bottom))
 
 
 def base_404(path):

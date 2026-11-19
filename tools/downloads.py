@@ -162,9 +162,9 @@ def html(doc, dest):
             "-o", dest])
     with open(dest, encoding="utf-8") as fh:
         text = fh.read()
-    decorative = without_empty_image_role(text)
-    if decorative != text:
-        text = decorative
+    cleaned = grouped_functions(without_empty_image_role(text))
+    if cleaned != text:
+        text = cleaned
         with open(dest, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(text)
     left = [u for u in re.findall(r'\b(?:src|href)="([^"]*)"', text) if is_relative(u)]
