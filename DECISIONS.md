@@ -1860,3 +1860,14 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: leave the default and delete by hand when it fills (it failed unannounced once already); a scheduled cleanup workflow (a second moving part for what one setting does).
 - binds: D-0047; D-0048; .github/workflows/verify.yml; tests/test_deploy_workflow.py
 - test: tests/test_deploy_workflow.py::TestedFolderIsDeployedFolder::test_upload_kept_seven_days
+
+### D-0184  PH 212 Lab 1's split proportionality becomes one sentence: "T is proportional to √L"
+- status: ruled
+- proposed-by: claude
+- ruled-by: owner
+- date: 2026-11-16
+- decision: From the NVDA rerun (`docs/accessibility/2026-11-13-nvda-ph212-equations.md`, #85, section 3 item 4), which read `T is proportional to`, then the prose `(is proportional to)`, then `the square root of L`. Line 245 of `curriculum/ph212/ph212-data-analysis-handout.md` set `$T\  \propto$ (is proportional to) $\sqrt{L}$`, splitting the equation around a parenthesis as Word does. A wording change under D-0168: the sentence becomes "we are predicting that $T$ is proportional to $\sqrt{L}$." The symbol and the parentheses go, and the original's own words carry the meaning; ∝ is still introduced eleven lines later ("where ∝ means “is proportional to”"). Declared: `ruled_omissions` "(is proportional to)", `ruled_additions` "is proportional to", and `ruled_equations` original "T ∝", converted "T", each citing D-0184; the equation count is unchanged (17). `status` becomes `ruled-change` under D-0168 (2), since words are declared (D-0178 kept `converted` for equation-only changes). Drafted by: Claude. Approved by: the owner, 2026-11-16.
+- rationale: The owner, 2026-11-13: "Can we go ahead and fix these too?" The owner, 2026-11-16, to this entry as drafted with its lean (a): "D-0184 lean approved."
+- alternatives: one equation, `$T \propto \sqrt{L}$` with the gloss after it (17 equations become 16, which `ruled_equations` cannot declare since the count is always compared; a tool change under its own ruling, and D-0113 never loosens the comparison); "$T \propto \sqrt{L}$, where $\propto$ means “is proportional to”" (keeps the count but needs two equation declarations, and repeats line 256's definition); leaving it.
+- binds: D-0113; D-0167; D-0168; D-0178; curriculum/ph212/ph212-data-analysis-handout.md
+- test: `tools/check_unchanged.py` and `tools/check_numbers.py` on the file; the built MathML of the sentence; NVDA only on the owner's word
