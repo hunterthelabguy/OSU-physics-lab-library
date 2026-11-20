@@ -29,6 +29,11 @@
 -- file's published address under `library-url` in every output, page and
 -- download alike, so a saved Word, HTML or PDF file still reaches it.
 --
+-- A link to another converted document's section, `<id>#<identifier>`
+-- (D-0190), points at that page under `library-url` the same way. Its
+-- identifier is written on the target's heading; tests/test_lab_handbook.py
+-- fails on a link to an unknown document or identifier.
+--
 -- Metadata: `media-dir`, the folder holding the lab's built media (needed
 -- for a figure), `media-prefix`, put before a picture's path on a page
 -- that sits below the media folder's parent ("../" on labs/<id>/modern/),
@@ -128,10 +133,17 @@ return {
     end,
     Link = function(el)
       local id = el.target:match("^([%w%-]+)%-media/[^/]+$")
-      if not id then return end
-      if not url then error("media.lua: a link to a lab's file needs library-url: " .. el.target) end
-      el.target = url .. "labs/" .. id .. "/" .. el.target
-      return el
+      if id then
+        if not url then error("media.lua: a link to a lab's file needs library-url: " .. el.target) end
+        el.target = url .. "labs/" .. id .. "/" .. el.target
+        return el
+      end
+      local doc, ident = el.target:match("^([%w%-]+)#([%w%-_]+)$")
+      if doc then
+        if not url then error("media.lua: a link to a document needs library-url: " .. el.target) end
+        el.target = url .. "labs/" .. doc .. "/modern/#" .. ident
+        return el
+      end
     end,
     Table = function(el)
       if FORMAT:match("html") then
