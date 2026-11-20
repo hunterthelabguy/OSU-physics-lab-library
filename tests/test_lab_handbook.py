@@ -113,3 +113,11 @@ class Links(unittest.TestCase):
         self.assertEqual(sorted(found),
                          [("b", "A#x"), ("b", "a#a:q1"), ("b", "a#plain-heading"), ("b", "a#w"), ("b", "a#x.y"),
                           ("b", "a#y"), ("b", "a#z"), ("b", "c#x")])
+
+
+class Addresses(unittest.TestCase):
+
+    def test_seven_fixed_addresses(self):
+        source = sources()[HANDBOOK].read_text(encoding="utf-8")
+        found = re.findall(r"^## .*\{#([A-Za-z0-9_-]+)\}$", source, re.M)
+        self.assertEqual(found, ADDRESSES)
