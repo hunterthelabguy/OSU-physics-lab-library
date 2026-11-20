@@ -602,6 +602,14 @@ class MediaDownloads(unittest.TestCase):
         with tempfile.TemporaryDirectory() as out, self.assertRaises(SystemExit):
             media.build(doc, out, downloads.CHROME)
 
+    def test_a_changed_image_stops_the_build(self):
+        # D-0198 (4): a picture's bytes are pinned too, since the word check
+        # that compared pictures skips a ruled-change file.
+        images = [dict(self.doc["meta"]["images"][0], sha256="0" * 64)]
+        doc = dict(self.doc, meta=dict(self.doc["meta"], images=images))
+        with tempfile.TemporaryDirectory() as out, self.assertRaises(SystemExit):
+            media.build(doc, out, downloads.CHROME)
+
     def test_word_links_the_file_at_the_library(self):
         # D-0165: a saved Word file still reaches the file.
         with zipfile.ZipFile(self.docx) as z:

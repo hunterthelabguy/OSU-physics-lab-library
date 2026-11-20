@@ -20,6 +20,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import check_em_dash  # noqa: E402
+import check_unchanged  # noqa: E402
 
 PANDOC = os.environ.get("PANDOC", "pandoc")
 PIN = json.loads((ROOT / "tests" / "question-ids.json").read_text(encoding="utf-8"))["labs"]
@@ -81,6 +82,24 @@ class Pin(unittest.TestCase):
         self.assertEqual(sorted(ids), sorted(PIN[lab]))
         self.assertNotEqual(ids, PIN[lab])
 
+    def test_reordering_a_ruled_change_file_fails_the_pin(self):
+        # D-0195: re-baselining skips the Word checks, never the pin.
+        text = PH211.read_text(encoding="utf-8")
+        self.assertIn("\nstatus: converted\n", text)
+        text = text.replace("\nstatus: converted\n", "\nstatus: ruled-change\n", 1)
+        a = text.index("::: {.question #ph211-team-building:good-lab-partner}")
+        b = text.index("::: {.question #ph211-team-building:sketches}")
+        end = text.index(":::\n", b) + 4
+        first_end = text.index(":::\n", a) + 4
+        swapped = text[:a] + text[b:end] + text[first_end:b] + text[a:first_end] + text[end:]
+        with tempfile.TemporaryDirectory() as d:
+            md = Path(d) / "lab.md"
+            md.write_text(swapped, encoding="utf-8", newline="\n")
+            self.assertTrue(check_unchanged.rebaselined(md))
+            lab, ids = read(md)
+        self.assertEqual(sorted(ids), sorted(PIN[lab]))
+        self.assertNotEqual(ids, PIN[lab])
+
 
 class EmDashScan(unittest.TestCase):
 
@@ -102,6 +121,17 @@ class EmDashScan(unittest.TestCase):
 
     def test_published_sources_have_none(self):
         self.assertEqual(check_em_dash.scan(), [])
+
+    def test_ruled_change_is_scanned(self):
+        # D-0195: a ruled-change file is the site's own wording.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "curriculum").mkdir()
+            (root / "curriculum" / "lab.md").write_text(
+                '---\nsource_file: "originals/x.docx"\nstatus: ruled-change\n---\n\n'
+                'new words\u2014here\n', encoding="utf-8")
+            found = check_em_dash.scan(str(root), ("curriculum",))
+        self.assertEqual(found, ["curriculum/lab.md"])
 
 
 if __name__ == "__main__":

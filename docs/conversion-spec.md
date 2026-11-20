@@ -18,7 +18,7 @@ visibility: public                # public | private
 layer: curriculum                 # curriculum | osu-local
 source_file: "originals/PH211/Lab 1 - Team Building - Handout.docx"
 source_sha256: "<hash of the original file>"
-status: converted                 # converted | checked | ruled-change
+status: converted                 # converted | checked | ruled-change (the Word checks skip ruled-change, D-0195)
 ruled_omissions: []               # see Content-unchanged check
 ruled_additions: []
 ```
@@ -262,6 +262,11 @@ matter as `ruled_omissions` or `ruled_additions` (an equation as
 `ruled_equations`, D-0167), each with a ledger reference; a declared
 passage that does not occur also fails. CI runs it on
 every file with a `source_file` (ledger 20).
+
+A file whose `status` is `ruled-change` is skipped, with a printed reason:
+from a handout's first ruled change its own Markdown is the baseline
+(D-0195). Its changes are reviewed in the PR diff and cite their ruling in
+the instructor repo; the declarations above are for conversions only.
 
 What it does not check: structure (headings, list nesting, which block a
 line sits in), italics and underline. Since pass 4 it does check each

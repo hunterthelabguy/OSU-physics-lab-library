@@ -7,7 +7,9 @@ box, a SYMBOL field, a drawn figure, an anchored picture; the last two from
 tests/figure_fixture.py).
 """
 
+import contextlib
 import hashlib
+import io
 import os
 import struct
 import subprocess
@@ -443,6 +445,69 @@ class PdfText(unittest.TestCase):
         problems = check_unchanged.apply_ruled_equations(
             o, c, [{"original": "vo", "converted": "vo", "ledger": "D-0167"}])
         self.assertTrue(any("needless" in p for p in problems), problems)
+
+
+class Rebaselined(unittest.TestCase):
+    """D-0195: from a handout's first ruled change, the Word checks skip it."""
+
+    def lab(self, d, status):
+        md = Path(d) / "lab.md"
+        md.write_text('---\nsource_file: "missing.docx"\nstatus: ' + status
+                      + '\n---\n\nWords.\n', encoding="utf-8", newline="\n")
+        return md
+
+    def run_main(self, md):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = check_unchanged.main([str(md)])
+        return code, out.getvalue()
+
+    def test_ruled_change_is_skipped(self):
+        with tempfile.TemporaryDirectory() as d:
+            md = self.lab(d, "ruled-change")
+            code, out = self.run_main(md)
+        self.assertEqual(code, 0)
+        self.assertEqual(out, check_unchanged.SKIP.format(md) + "\n")
+
+    def test_converted_is_still_checked(self):
+        # The original is missing, so a file that is checked fails to read it.
+        with tempfile.TemporaryDirectory() as d, self.assertRaises((OSError, SystemExit)):
+            self.run_main(self.lab(d, "converted"))
+
+    def test_status_forms(self):
+        with tempfile.TemporaryDirectory() as d:
+            for status, want in (('"ruled-change"', True), ("ruled-change   # D-0195", True),
+                                 ("converted", False), ("checked", False)):
+                with self.subTest(status=status):
+                    self.assertEqual(check_unchanged.rebaselined(self.lab(d, status)), want)
+            plain = Path(d) / "plain.md"
+            plain.write_text("No front matter.\nstatus: ruled-change\n", encoding="utf-8")
+            self.assertFalse(check_unchanged.rebaselined(plain))
+
+    # D-0198 (3): every re-baselined file, with the ruling that changed it
+    # first. Setting `status: ruled-change` switches both Word checks off, so
+    # it edits this list in the same diff.
+    REBASELINED = {
+        "curriculum/ph211/ph211-describing-an-experiment-handout.md": "D-0169",
+        "curriculum/ph212/ph212-data-analysis-handout.md": "D-0184",
+    }
+
+    def test_rebaselined_files_are_pinned(self):
+        found = {p.relative_to(ROOT).as_posix() for p in sorted((ROOT / "curriculum").rglob("*.md"))
+                 if check_unchanged.rebaselined(p)}
+        self.assertEqual(found, set(self.REBASELINED))
+
+    LISTS = ("ruled_omissions:", "ruled_additions:", "ruled_equations:")
+
+    def test_no_ruled_change_file_keeps_a_list(self):
+        # D-0195 (3), D-0200: a ruled change keeps no front-matter list of
+        # changed passages; nothing reads one once the Word checks skip it.
+        kept = []
+        for path in self.REBASELINED:
+            lines = (ROOT / path).read_text(encoding="utf-8").split("\n")
+            front = lines[1:lines.index("---", 1)]
+            kept += [(path, line) for line in front if line.startswith(self.LISTS)]
+        self.assertEqual(kept, [])
 
 
 if __name__ == "__main__":

@@ -9,16 +9,6 @@ layer: curriculum
 source_file: "originals/PH212/Lab 1 - Data Analysis - Handout.docx"
 source_sha256: "2d28c22db05827a39bcf703ac8643750423a800ec99d8af7bc59f93f14b5f032"
 status: ruled-change
-ruled_omissions:
-  - text: "(is proportional to)"
-    ledger: "D-0184"
-ruled_additions:
-  - text: "is proportional to"
-    ledger: "D-0184"
-ruled_equations:
-  - original: "T ∝"
-    converted: "T"
-    ledger: "D-0184"
 ---
 
 # Lab 1 – Data Analysis
