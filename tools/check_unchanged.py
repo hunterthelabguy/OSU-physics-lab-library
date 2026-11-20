@@ -62,6 +62,10 @@ survives as Mathematical Alphanumeric Symbols; each run of them is one
 inline equation. A display equation, picture or table in a PDF is not
 handled: the one PDF original has none.
 
+A file whose `status` is `ruled-change` is skipped with a printed reason:
+from a handout's first ruled change its own Markdown is the baseline
+(D-0195). The declarations below are for conversions only.
+
 Differences are allowed only when declared in front matter and ruled in a
 ledger:
 
@@ -110,6 +114,25 @@ PANDOC = os.environ.get("PANDOC", "pandoc")
 # How every step reads a converted source (render.FROM, _quarto.yml's from):
 # no smart quotes, and no implicit figures (D-0118).
 FROM = "markdown-smart-implicit_figures"
+SKIP = "skip {} (ruled-change: its own Markdown is the baseline, D-0195)"
+
+
+def rebaselined(path):
+    """True when a file's front matter sets `status: ruled-change`. From a
+    handout's first ruled change its own Markdown is the baseline, and the
+    Word checks skip it (D-0195)."""
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        lines = fh.read().split("\n")
+    if lines[0].rstrip("\r") != "---":
+        return False
+    for line in lines[1:]:
+        line = line.rstrip("\r")
+        if line == "---":
+            return False
+        if line.startswith("status:"):
+            value = line.split(":", 1)[1].split("#", 1)[0].strip().strip("\"'")
+            return value == "ruled-change"
+    return False
 # Word's size in inches to four places is within this many EMU of its extent.
 SIZE_TOLERANCE = 46
 INLINE_CONTAINERS = {
@@ -1020,6 +1043,9 @@ def main(paths):
     repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     failed = 0
     for p in paths:
+        if rebaselined(p):
+            print(SKIP.format(p))
+            continue
         n, problems = check(p, repo_root)
         if problems:
             failed += 1

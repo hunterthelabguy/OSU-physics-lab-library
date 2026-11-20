@@ -28,8 +28,9 @@ reads, in document order, the labels students see:
 
 An anchor no rule places fails. A PDF original has no Word labels
 (D-0160), so its Markdown may hold none of these blocks; a plain ordered
-list outside them is typed from the page and not compared. Exit code 0
-when every file passes.
+list outside them is typed from the page and not compared. A file whose
+`status` is `ruled-change` is skipped with a printed reason (D-0195).
+Exit code 0 when every file passes.
 """
 
 import hashlib
@@ -39,6 +40,7 @@ import re
 import subprocess
 import sys
 import zipfile
+from check_unchanged import SKIP, rebaselined  # noqa: E402  (D-0195)
 
 PANDOC = os.environ.get("PANDOC", "pandoc")
 # How every step reads a source (render.FROM; tested to agree).
@@ -243,6 +245,9 @@ def check(md_path, repo_root=ROOT, labels=None):
 def main(paths):
     failed = 0
     for p in paths:
+        if rebaselined(p):
+            print(SKIP.format(p))
+            continue
         items, problems = check(p)
         if problems:
             failed += 1

@@ -6,6 +6,8 @@ of docs/word-labels.json, whose originals are not in this repo: only the
 labels are compared, against a skeleton lab marked up as the spec says.
 """
 
+import contextlib
+import io
 import json
 import os
 import subprocess
@@ -253,6 +255,21 @@ class Filter(unittest.TestCase):
                 r = self.render(body, "-t", "html")
                 self.assertNotEqual(r.returncode, 0)
                 self.assertIn("must open with a paragraph", r.stderr)
+
+
+class Rebaselined(unittest.TestCase):
+    """D-0195: the number check skips a ruled-change file too."""
+
+    def test_ruled_change_is_skipped(self):
+        with tempfile.TemporaryDirectory() as d:
+            md = Path(d) / "lab.md"
+            md.write_text('---\nsource_file: "missing.docx"\nstatus: ruled-change\n---\n\n'
+                          '::: question\nWords.\n:::\n', encoding="utf-8", newline="\n")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                code = check_numbers.main([str(md)])
+        self.assertEqual(code, 0)
+        self.assertIn("ruled-change: its own Markdown is the baseline, D-0195", out.getvalue())
 
 
 if __name__ == "__main__":
