@@ -490,6 +490,7 @@ class Rebaselined(unittest.TestCase):
     REBASELINED = {
         "curriculum/ph211/ph211-describing-an-experiment-handout.md": "D-0169",
         "curriculum/ph212/ph212-data-analysis-handout.md": "D-0184",
+        "curriculum/ph21x/ph21x-lab-handbook.md": "D-0197",
     }
 
     def test_rebaselined_files_are_pinned(self):

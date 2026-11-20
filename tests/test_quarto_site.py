@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 sys.path.insert(0, str(ROOT / "tools"))
 import test_site_chrome as chrome         # noqa: E402  (for SimBar.BAR only)
 import render                             # noqa: E402
+import test_lab_handbook                  # noqa: E402  (ADDRESSES)
 
 
 def setUpModule():
@@ -189,6 +190,25 @@ class Pages(unittest.TestCase):
                 base = QSITE if href.startswith("/") else path.parent
                 with self.subTest(page=rel, href=href):
                     self.assertTrue((base / href.split("?")[0].lstrip("/")).resolve().is_file())
+
+
+class LabHandbook(unittest.TestCase):
+    """D-0188, D-0190: the handbook page and its fixed addresses."""
+
+    ADDRESSES = test_lab_handbook.ADDRESSES   # one list (spec 4.3)
+
+    def page(self):
+        return (QSITE / "labs" / "ph21x-lab-handbook" / "modern" / "index.html").read_text(encoding="utf-8")
+
+    def test_addresses_on_its_sections(self):
+        found = re.findall(r'<h2[^>]*\bid="([^"]+)"', self.page())
+        self.assertEqual(found, self.ADDRESSES)
+
+    def test_titled_lab_handbook_with_contents_links(self):
+        page = self.page()
+        self.assertRegex(page, r"<h1[^>]*>Lab Handbook</h1>")
+        for address in self.ADDRESSES:
+            self.assertIn('href="#' + address + '"', page)
 
 
 class NoThirdParty(unittest.TestCase):
