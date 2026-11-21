@@ -8,7 +8,7 @@ visibility: public
 layer: curriculum
 source_file: "originals/PH211/Lab 3 - Uncertainty - Handout.docx"
 source_sha256: "bfc0d03a8df8b718c7fafa075ec9740a3bb0e3001465df7c27d2da983d0078c5"
-status: converted
+status: ruled-change
 images:
   - file: "ph211-uncertainty-handout-media/ball-on-ramp-with-meter-stick.jpg"
     source_part: "word/media/image1.jpg"
@@ -241,44 +241,9 @@ Note: adding custom error bars is only available in the desktop version of Excel
 
 ## Appendix – Reference Information
 
-This section contains key information from previous labs:
+Read the Lab Handbook. It holds the key information from previous labs:
 
 ::: {.numbered anchors="o14.0.1 o14.0.2"}
-1.  Required Plot Elements
-2.  Linearization
-:::
-
-#### **Required Plot Elements**
-
-::: action
-- Do not connect the data points with lines.
-- Make sure you create *Scatter Plots* and not *Line Plots*.
-- Evaluate if the plot makes sense. Are the axes correct? Do you have the right number of data points?
-- Include a descriptive title and labels on each axis, always including physical units.
-- Add a legend, unless you only have one set of data and the title describes it.
-- Display the equation and R^2^ value for any trendline you include.
-:::
-
-#### Linearization
-
-In the context of data analysis, “linear” refers to a directly proportional relationship between the dependent and independent variables in an equation.
-
-::: action
-- Mathematically, if two variables $x$ and $y$ have a linear relationship, we can express this as $y = mx + b$ where m and b are constants.
-- More simply, we can write this as $y \propto x$ where $\propto$ means “is proportional to”.
-- When graphed, data with a linear relationship falls on a straight line.
-:::
-
-**Linearization comes in handy when your data or hypothesis is *not* linear.**
-
-When you fit data with a linear trendline, you are essentially checking whether the two variables are proportional to each other. To check a nonlinear hypothesis, can we instead check if one variable is proportional to *a function of* the other variable.
-
-In practice, **linearization is done by calculating a new column of data** that gives the values of a function of the input variable. Typically, the input variable is the independent variable, and the function is chosen so that the resulting quantity is proportional to the dependent variable.
-
-**Why Linearize?**
-
-::: action
-- Linear data is typically easier to understand and analyze.
-- There are analysis methods we can apply to linear data that don’t work as well (or at all) with nonlinear data.
-- It is relatively easy to fit a line to data - there are just two important values to determine: the slope and intercept of the data.
+1.  [Required Plot Elements](ph21x-lab-handbook#plot-elements)
+2.  [Linearization](ph21x-lab-handbook#linearization)
 :::

@@ -181,6 +181,31 @@ class MarkdownAndWord(unittest.TestCase):
     def docx(self, doc_id):
         return QSITE / "labs" / doc_id / (doc_id + ".docx")
 
+    def test_lab3_word_links_to_the_handbook(self):
+        # D-0190: a saved Word file still reaches the handbook.
+        with zipfile.ZipFile(QSITE / "labs" / "ph211-uncertainty-handout"
+                             / "ph211-uncertainty-handout.docx") as z:
+            rels = z.read("word/_rels/document.xml.rels").decode("utf-8")
+        for address in ("plot-elements", "linearization"):
+            self.assertIn('Target="' + render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
+                          + address + '"', rels)
+
+    def test_lab3_html_download_links_to_the_handbook(self):
+        # D-0190: the HTML download too.
+        text = (QSITE / "labs" / "ph211-uncertainty-handout"
+                / "ph211-uncertainty-handout.html").read_text(encoding="utf-8")
+        for address in ("plot-elements", "linearization"):
+            self.assertIn('href="' + render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
+                          + address + '"', text)
+
+    def test_lab3_pdf_links_to_the_handbook(self):
+        # D-0190 (2) names the PDF: Chrome writes each link as a /URI action.
+        pdf = (QSITE / "labs" / "ph211-uncertainty-handout"
+               / "ph211-uncertainty-handout.pdf").read_bytes()
+        for address in ("plot-elements", "linearization"):
+            self.assertIn((render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
+                           + address).encode("ascii"), pdf)
+
     def test_markdown_is_the_source_byte_for_byte(self):
         for doc_id, source in converted():
             with self.subTest(doc=doc_id):

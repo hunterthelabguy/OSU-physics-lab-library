@@ -489,6 +489,7 @@ class Rebaselined(unittest.TestCase):
     # it edits this list in the same diff.
     REBASELINED = {
         "curriculum/ph211/ph211-describing-an-experiment-handout.md": "D-0169",
+        "curriculum/ph211/ph211-uncertainty-handout.md": "D-0192",
         "curriculum/ph212/ph212-data-analysis-handout.md": "D-0184",
         "curriculum/ph21x/ph21x-lab-handbook.md": "D-0197",
     }
