@@ -42,6 +42,11 @@ Quarto internals.
   `STATE.md` is the one-screen handoff. `LEDGER.md` is frozen history:
   never appended to, still binding where not amended. The spec's validator
   does not exist; `tests/test_brand.py` asserts the ruled quantities.
+- **Skills matrix (D-0204):** once its data file lands in the instructor
+  repo, every PR body here carries one line, "Matrix rows touched: <ids>"
+  or "Matrix rows touched: none". A ruled change that moves a skill's code
+  updates that file by its own PR there. CI cannot read the private file,
+  so review is the gate.
 - **Commit trailer:** none. Identity `hunterthelabguy` with the noreply email.
 - **Remote:** `git@github-hunterthelabguy:hunterthelabguy/OSU-physics-lab-library.git`
 
