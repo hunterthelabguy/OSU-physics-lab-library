@@ -5,13 +5,17 @@ Usage: python tools/check_em_dash.py
 Scans only the published sources (2026-10-03 ruling): the files that
 _quarto.yml, tools/quarto_build.py and tools/render.py turn into pages.
 Internal docs are not scanned. A converted file, whose front matter names a
-`source_file`, is skipped: it keeps every em dash its original holds, and the
-word check proves its words are the original's (D-0103). Binary files are
-skipped. Exit code 1 and the files listed when any other file has one.
+`source_file`, is skipped unless its status is `ruled-change`: it keeps every
+em dash its original holds, and the word check proves its words are the
+original's (D-0103). A `ruled-change` file is the site's own wording and is
+scanned (D-0195). Binary files are skipped. Exit code 1 and the files listed
+when any other file has one.
 """
 
 import os
 import sys
+
+from check_unchanged import rebaselined  # D-0195
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PUBLISHED = (
@@ -54,7 +58,7 @@ def scan(root=ROOT, paths=PUBLISHED):
             data = fh.read()
         if b"\0" in data or EM_DASH not in data:
             continue
-        if path.endswith(".md") and converted(path):
+        if path.endswith(".md") and converted(path) and not rebaselined(path):
             continue
         found.append(os.path.relpath(path, root).replace(os.sep, "/"))
     return found

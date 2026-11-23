@@ -32,8 +32,9 @@ jobs:
           echo "PANDOC=$found" >> "$GITHUB_ENV"
       - name: No em dashes in published sources
         # Only what publishes to students and the public (2026-10-03 ruling);
-        # a converted file keeps its original's (D-0103). The list is in the
-        # script, which tests/test_question_ids.py runs on a fixture.
+        # a converted file keeps its original's (D-0103); a ruled-change file
+        # is scanned (D-0195). The list is in the script, which
+        # tests/test_question_ids.py runs on a fixture.
         run: python3 tools/check_em_dash.py
       - name: Install pdftotext (PDF original, PDF download tests)
         # Not on the runner images. The word check reads a PDF original's
@@ -49,7 +50,8 @@ jobs:
         run: |
           # Converted files open with front matter that names a source_file;
           # docs that merely show an example of it are skipped. The word
-          # check, then Word's labels (D-0102, D-0112).
+          # check, then Word's labels (D-0102, D-0112); both skip a
+          # ruled-change file (D-0195).
           files=$(for f in $(git ls-files '*.md'); do
             [ "$(head -1 "$f")" = "---" ] && sed -n '2,/^---$/p' "$f" | grep -q '^source_file:' && echo "$f"
           done || true)
@@ -73,11 +75,13 @@ jobs:
       - name: Hand the tested folder to deploy
         # D-0048: deploy ships exactly these bytes, never a rebuild. The path
         # is _quarto.yml's output-dir (tests/test_deploy_workflow.py).
+        # D-0187: kept 7 days, not GitHub's 90; deploy reads it within minutes.
         uses: actions/upload-artifact@v4
         with:
           name: quarto-site
           path: build/quarto-site
           if-no-files-found: error
+          retention-days: 7
 
   deploy:
     # D-0047, D-0048: Cloudflare Pages, Direct Upload. A push to main is

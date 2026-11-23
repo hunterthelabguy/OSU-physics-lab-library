@@ -1,0 +1,127 @@
+From 99fd9ce78272661dd1b226d67acf56165d13de52 Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Wed, 18 Nov 2026 16:39:01 -0800
+Subject: [PATCH 4/4] T4 as written
+
+Red step, against the T3 build: 5 tests, failures=3.
+test_lab3_links_to_the_handbook, test_lab3_html_download_links_to_the_handbook:
+'href="https://osu-physics-labs.pages.dev/labs/ph21x-lab-handbook/modern/#plot-elements"'
+not found; test_lab3_word_links_to_the_handbook: 'Target="...#plot-elements"'
+not found in the relationships part. The plan's script asserts held. Full
+Verify: 363 tests OK, 1,282 s, with the skip line for Lab 3 from each check.
+---
+ curriculum/ph211/ph211-uncertainty-handout.md | 43 ++-----------------
+ tests/test_downloads.py                       | 18 ++++++++
+ tests/test_quarto_site.py                     |  6 +++
+ 3 files changed, 28 insertions(+), 39 deletions(-)
+
+diff --git a/curriculum/ph211/ph211-uncertainty-handout.md b/curriculum/ph211/ph211-uncertainty-handout.md
+index 773a559..f886f99 100644
+--- a/curriculum/ph211/ph211-uncertainty-handout.md
++++ b/curriculum/ph211/ph211-uncertainty-handout.md
+@@ -8,7 +8,7 @@ visibility: public
+ layer: curriculum
+ source_file: "originals/PH211/Lab 3 - Uncertainty - Handout.docx"
+ source_sha256: "bfc0d03a8df8b718c7fafa075ec9740a3bb0e3001465df7c27d2da983d0078c5"
+-status: converted
++status: ruled-change
+ images:
+   - file: "ph211-uncertainty-handout-media/ball-on-ramp-with-meter-stick.jpg"
+     source_part: "word/media/image1.jpg"
+@@ -241,44 +241,9 @@ Note: adding custom error bars is only available in the desktop version of Excel
+ 
+ ## Appendix – Reference Information
+ 
+-This section contains key information from previous labs:
++Read the Lab Handbook. It holds the key information from previous labs:
+ 
+ ::: {.numbered anchors="o14.0.1 o14.0.2"}
+-1.  Required Plot Elements
+-2.  Linearization
+-:::
+-
+-#### **Required Plot Elements**
+-
+-::: action
+-- Do not connect the data points with lines.
+-- Make sure you create *Scatter Plots* and not *Line Plots*.
+-- Evaluate if the plot makes sense. Are the axes correct? Do you have the right number of data points?
+-- Include a descriptive title and labels on each axis, always including physical units.
+-- Add a legend, unless you only have one set of data and the title describes it.
+-- Display the equation and R^2^ value for any trendline you include.
+-:::
+-
+-#### Linearization
+-
+-In the context of data analysis, “linear” refers to a directly proportional relationship between the dependent and independent variables in an equation.
+-
+-::: action
+-- Mathematically, if two variables $x$ and $y$ have a linear relationship, we can express this as $y = mx + b$ where m and b are constants.
+-- More simply, we can write this as $y \propto x$ where $\propto$ means “is proportional to”.
+-- When graphed, data with a linear relationship falls on a straight line.
+-:::
+-
+-**Linearization comes in handy when your data or hypothesis is *not* linear.**
+-
+-When you fit data with a linear trendline, you are essentially checking whether the two variables are proportional to each other. To check a nonlinear hypothesis, can we instead check if one variable is proportional to *a function of* the other variable.
+-
+-In practice, **linearization is done by calculating a new column of data** that gives the values of a function of the input variable. Typically, the input variable is the independent variable, and the function is chosen so that the resulting quantity is proportional to the dependent variable.
+-
+-**Why Linearize?**
+-
+-::: action
+-- Linear data is typically easier to understand and analyze.
+-- There are analysis methods we can apply to linear data that don’t work as well (or at all) with nonlinear data.
+-- It is relatively easy to fit a line to data - there are just two important values to determine: the slope and intercept of the data.
++1.  [Required Plot Elements](ph21x-lab-handbook#plot-elements)
++2.  [Linearization](ph21x-lab-handbook#linearization)
+ :::
+diff --git a/tests/test_downloads.py b/tests/test_downloads.py
+index 6b292b4..62420f3 100644
+--- a/tests/test_downloads.py
++++ b/tests/test_downloads.py
+@@ -431,6 +431,24 @@ class MarkdownAndWord(unittest.TestCase):
+                 with self.subTest(doc=doc_id, level=level):
+                     self.assertIn("<w:keepNext", self.style(doc_id, "Heading{}".format(level)))
+ 
++    def test_lab3_word_links_to_the_handbook(self):
++        # D-0190: a saved Word file still reaches the handbook.
++        with zipfile.ZipFile(QSITE / "labs" / "ph211-uncertainty-handout"
++                             / "ph211-uncertainty-handout.docx") as z:
++            rels = z.read("word/_rels/document.xml.rels").decode("utf-8")
++        for address in ("plot-elements", "linearization"):
++            self.assertIn('Target="' + render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
++                          + address + '"', rels)
++
++    def test_lab3_html_download_links_to_the_handbook(self):
++        # D-0190: the HTML download too. The PDF is Chrome's print of the
++        # page, so the page test covers it, as for D-0165's file links.
++        text = (QSITE / "labs" / "ph211-uncertainty-handout"
++                / "ph211-uncertainty-handout.html").read_text(encoding="utf-8")
++        for address in ("plot-elements", "linearization"):
++            self.assertIn('href="' + render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
++                          + address + '"', text)
++
+ 
+ # Each lab's HTML download, measured, times 1.10, rounded up to the next
+ # 10,000; never a guess. A lab without its own cap fails, so a lab is
+diff --git a/tests/test_quarto_site.py b/tests/test_quarto_site.py
+index d336f70..61400b6 100644
+--- a/tests/test_quarto_site.py
++++ b/tests/test_quarto_site.py
+@@ -191,6 +191,12 @@ class LabHandbook(unittest.TestCase):
+         for address in self.ADDRESSES:
+             self.assertIn('href="#' + address + '"', page)
+ 
++    def test_lab3_links_to_the_handbook(self):
++        page = (QSITE / "labs" / "ph211-uncertainty-handout" / "modern" / "index.html").read_text(encoding="utf-8")
++        for address in ("plot-elements", "linearization"):
++            self.assertIn('href="' + render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
++                          + address + '"', page)
++
+ 
+ class NoThirdParty(unittest.TestCase):
+     """D-0033: no theme or setting that loads a third-party resource."""
+-- 
+2.55.0.windows.3
+

@@ -181,6 +181,31 @@ class MarkdownAndWord(unittest.TestCase):
     def docx(self, doc_id):
         return QSITE / "labs" / doc_id / (doc_id + ".docx")
 
+    def test_lab3_word_links_to_the_handbook(self):
+        # D-0190: a saved Word file still reaches the handbook.
+        with zipfile.ZipFile(QSITE / "labs" / "ph211-uncertainty-handout"
+                             / "ph211-uncertainty-handout.docx") as z:
+            rels = z.read("word/_rels/document.xml.rels").decode("utf-8")
+        for address in ("plot-elements", "linearization"):
+            self.assertIn('Target="' + render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
+                          + address + '"', rels)
+
+    def test_lab3_html_download_links_to_the_handbook(self):
+        # D-0190: the HTML download too.
+        text = (QSITE / "labs" / "ph211-uncertainty-handout"
+                / "ph211-uncertainty-handout.html").read_text(encoding="utf-8")
+        for address in ("plot-elements", "linearization"):
+            self.assertIn('href="' + render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
+                          + address + '"', text)
+
+    def test_lab3_pdf_links_to_the_handbook(self):
+        # D-0190 (2) names the PDF: Chrome writes each link as a /URI action.
+        pdf = (QSITE / "labs" / "ph211-uncertainty-handout"
+               / "ph211-uncertainty-handout.pdf").read_bytes()
+        for address in ("plot-elements", "linearization"):
+            self.assertIn((render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
+                           + address).encode("ascii"), pdf)
+
     def test_markdown_is_the_source_byte_for_byte(self):
         for doc_id, source in converted():
             with self.subTest(doc=doc_id):
@@ -469,6 +494,7 @@ HTML_CAPS = {
     "ph211-hypothesis-testing-handout": 330_000,  # 295,331 bytes, pass 3
     "ph211-team-building-handout": 190_000,
     "ph211-uncertainty-handout": 320_000,  # 284,044 bytes, pass 3
+    "ph21x-lab-handbook": 190_000,  # 169,306 bytes, D-0188
     "ph21x-problem-solving-strategy": 190_000,  # 164,146 bytes, D-0160
     "ph212-capstone-handout": 390_000,  # 345,602 bytes, pass 4
     "ph212-data-analysis-handout": 210_000,  # 188,615 bytes, pass 4
@@ -623,6 +649,14 @@ class MediaDownloads(unittest.TestCase):
         # D-0165: the bytes are the ones read and ruled, pinned by sha256.
         doc = dict(self.doc, meta=dict(self.doc["meta"], files=[
             {"file": "fixture-lab-media/data.gambl", "sha256": "0" * 64}]))
+        with tempfile.TemporaryDirectory() as out, self.assertRaises(SystemExit):
+            media.build(doc, out, downloads.CHROME)
+
+    def test_a_changed_image_stops_the_build(self):
+        # D-0198 (4): a picture's bytes are pinned too, since the word check
+        # that compared pictures skips a ruled-change file.
+        images = [dict(self.doc["meta"]["images"][0], sha256="0" * 64)]
+        doc = dict(self.doc, meta=dict(self.doc["meta"], images=images))
         with tempfile.TemporaryDirectory() as out, self.assertRaises(SystemExit):
             media.build(doc, out, downloads.CHROME)
 
@@ -845,6 +879,88 @@ class DecorativePictures(unittest.TestCase):
     def test_named_picture_unchanged(self):
         tag = '<img role="img" aria-label="A cart on a ramp" src="a" alt="A cart on a ramp">'
         self.assertEqual(downloads.without_empty_image_role(tag), tag)
+
+
+
+class FunctionGroups(unittest.TestCase):
+    """D-0181: a function's name, U+2061 and its bracketed argument in one
+    mrow, the grouping MathCAT reads as "cosine of (...)" (made-up markup)."""
+
+    NAME = '<mrow><mi mathvariant="normal">{}</mi><mo>\u2061</mo></mrow>'
+    OPEN = '<mo stretchy="{}" form="prefix">(</mo>'
+    CLOSE = '<mo stretchy="{}" form="postfix">)</mo>'
+
+    def grouped(self, name, arg, apply="\u2061"):
+        return ('<mrow><mi mathvariant="normal">' + name + '</mi><mo>' + apply + '</mo>'
+                + arg + '</mrow>')
+
+    def bare(self, inner='<mi>x</mi>'):
+        return self.OPEN.format("false") + inner + self.CLOSE.format("false")
+
+    def test_fenced_argument_joins_its_function(self):
+        arg = '<mrow>' + self.OPEN.format("true") + '<mi>x</mi>' + self.CLOSE.format("true") + '</mrow>'
+        got = downloads.grouped_functions(
+            '<math><mrow><mi>A</mi>' + self.NAME.format("cos") + arg + '<mo>+</mo></mrow></math>')
+        self.assertEqual(got, '<math><mrow><mi>A</mi>' + self.grouped("cos", arg)
+                         + '<mo>+</mo></mrow></math>')
+
+    def test_bare_brackets_are_wrapped_and_joined(self):
+        got = downloads.grouped_functions('<mrow><mi>m</mi>' + self.NAME.format("sin") + self.bare() + '</mrow>')
+        self.assertEqual(got, '<mrow><mi>m</mi>'
+                         + self.grouped("sin", '<mrow>' + self.bare() + '</mrow>') + '</mrow>')
+
+    def test_the_entity_form_is_grouped_too(self):
+        name = self.NAME.format("sin").replace("\u2061", "&#8289;")
+        got = downloads.grouped_functions('<mrow>' + name + self.bare() + '</mrow>')
+        self.assertEqual(got, '<mrow>' + self.grouped("sin", '<mrow>' + self.bare() + '</mrow>',
+                                                       "&#8289;") + '</mrow>')
+
+    def test_a_function_inside_an_argument_is_grouped_too(self):
+        outer = self.bare(self.NAME.format("cos") + self.bare())
+        got = downloads.grouped_functions('<mrow>' + self.NAME.format("sin") + outer + '</mrow>')
+        want_inner = self.grouped("cos", '<mrow>' + self.bare() + '</mrow>')
+        want = self.grouped("sin", '<mrow>' + self.bare(want_inner) + '</mrow>')
+        self.assertEqual(got, '<mrow>' + want + '</mrow>')
+
+    def test_what_is_not_a_round_bracket_after_a_function_is_left_alone(self):
+        for after in ('<msub><mi>θ</mi><mi>i</mi></msub>',          # a letter or script
+                      '<mo stretchy="false" form="prefix">[</mo><mi>x</mi>'
+                      '<mo stretchy="false" form="postfix">]</mo>',  # square brackets
+                      '<mo stretchy="false" form="prefix">|</mo><mi>x</mi>'
+                      '<mo stretchy="false" form="prefix">|</mo>'):  # bars
+            text = '<mrow>' + self.NAME.format("sin") + after + '</mrow>'
+            with self.subTest(after=after):
+                self.assertEqual(downloads.grouped_functions(text), text)
+        other = '<mrow><mrow><mi>a</mi><mo>+</mo></mrow>' + self.bare() + '</mrow>'
+        self.assertEqual(downloads.grouped_functions(other), other)
+
+    def test_a_bracket_group_holding_more_stops_the_build(self):
+        arg = ('<mrow>' + self.OPEN.format("true") + '<mi>x</mi>' + self.CLOSE.format("true")
+               + '<mo>+</mo><mi>E</mi></mrow>')
+        with self.assertRaises(SystemExit):
+            downloads.grouped_functions('<mrow>' + self.NAME.format("cos") + arg + '</mrow>')
+
+    def test_an_unmatched_bracket_stops_the_build(self):
+        # The row ends first; a ")" after it does not pair with the "(".
+        with self.assertRaises(SystemExit):
+            downloads.grouped_functions(
+                '<mrow><mrow>' + self.NAME.format("sin") + self.OPEN.format("false")
+                + '<mi>x</mi></mrow>' + self.CLOSE.format("false") + '</mrow>')
+
+    def test_a_bracket_closing_in_a_later_cell_stops_the_build(self):
+        # Aligned rows, \sin( x \\ y ): the ")" is in the next cell.
+        text = ('<mtable><mtr><mtd>' + self.NAME.format("sin") + self.OPEN.format("false")
+                + '<mi>x</mi></mtd></mtr><mtr><mtd><mi>y</mi>' + self.CLOSE.format("false")
+                + '</mtd></mtr></mtable>')
+        with self.assertRaises(SystemExit):
+            downloads.grouped_functions(text)
+
+    def test_a_bracket_closing_inside_a_script_stops_the_build(self):
+        # \sin(x)^{2}: Pandoc puts the ")" inside the msup.
+        with self.assertRaises(SystemExit):
+            downloads.grouped_functions(
+                '<mrow>' + self.NAME.format("sin") + self.OPEN.format("false") + '<mi>x</mi>'
+                '<msup>' + self.CLOSE.format("false") + '<mn>2</mn></msup></mrow>')
 
 
 class PrintKeeps(unittest.TestCase):

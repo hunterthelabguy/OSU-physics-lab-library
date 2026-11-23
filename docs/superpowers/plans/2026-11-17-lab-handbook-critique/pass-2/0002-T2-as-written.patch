@@ -1,0 +1,149 @@
+From 9086e352d907051729905b020c4b4ea44749af89 Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Wed, 18 Nov 2026 15:49:40 -0800
+Subject: [PATCH 2/4] T2 as written
+
+Red step: 4 tests, failures=2. test_page_link_points_at_the_library:
+'href=".../labs/ph21x-lab-handbook/modern/#linearization"' not found in
+'<p><a href="ph21x-lab-handbook#linearization">Linearization</a> ...';
+test_word_link_points_at_the_library: 'Target=".../modern/#linearization"'
+not found in the relationships part. The other two passed, as the plan
+said. Green: 4 tests OK; then quarto_build.py and tests.test_downloads
+tests.test_quarto_site OK (899 s).
+---
+ tests/test_lab_handbook.py | 84 ++++++++++++++++++++++++++++++++++++++
+ tools/filters/media.lua    | 20 +++++++--
+ 2 files changed, 100 insertions(+), 4 deletions(-)
+ create mode 100644 tests/test_lab_handbook.py
+
+diff --git a/tests/test_lab_handbook.py b/tests/test_lab_handbook.py
+new file mode 100644
+index 0000000..cd67f43
+--- /dev/null
++++ b/tests/test_lab_handbook.py
+@@ -0,0 +1,84 @@
++"""The Lab Handbook (D-0188, D-0190): links to a converted document by id,
++and the handbook's fixed section addresses."""
++
++import os
++import re
++import subprocess
++import sys
++import tempfile
++import unittest
++import zipfile
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++sys.path.insert(0, str(ROOT / "tools"))
++import render  # noqa: E402
++
++PANDOC = os.environ.get("PANDOC", "pandoc")
++MEDIA = ROOT / "tools" / "filters" / "media.lua"
++HANDBOOK = "ph21x-lab-handbook"
++ADDRESSES = ["plot-elements", "linearization", "what-is-uncertainty", "sources-of-uncertainty",
++             "predictions-hypotheses-models", "graphical-analysis-tips", "variables-and-parameters"]
++LINK = re.compile(r"\]\(([a-z0-9][a-z0-9-]*)#([A-Za-z0-9_-]+)\)")
++IDENT = re.compile(r"\{#([A-Za-z0-9_-]+)\}")
++
++
++def converted_sources(root=ROOT):
++    """{id: path} of every curriculum document with a source_file."""
++    out = {}
++    for p in sorted((root / "curriculum").rglob("*.md")):
++        text = p.read_text(encoding="utf-8")
++        if text.startswith("---") and re.search(r"^source_file:", text, re.M):
++            out[re.search(r"^id:\s*(\S+)", text, re.M).group(1)] = p
++    return out
++
++
++def bad_links(sources):
++    """(id, target) of each `<id>#<identifier>` link whose id is no such
++    document or whose identifier is not one written on that document."""
++    idents = {i: set(IDENT.findall(p.read_text(encoding="utf-8"))) for i, p in sources.items()}
++    bad = []
++    for doc_id, path in sources.items():
++        for target, ident in LINK.findall(path.read_text(encoding="utf-8")):
++            if target not in idents or ident not in idents[target]:
++                bad.append((doc_id, target + "#" + ident))
++    return bad
++
++
++class Links(unittest.TestCase):
++    TEXT = "[Linearization](ph21x-lab-handbook#linearization) and [here](#local).\n"
++    URL = render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#linearization"
++
++    def run_filter(self, to, out=None):
++        args = [PANDOC, "-f", render.FROM, "--lua-filter", str(MEDIA),
++                "-M", "library-url=" + render.LIBRARY_URL]
++        args += ["-o", str(out)] if out else ["-t", to]
++        return subprocess.run(args, input=self.TEXT, capture_output=True, encoding="utf-8")
++
++    def test_page_link_points_at_the_library(self):
++        page = self.run_filter("html").stdout
++        self.assertIn('href="' + self.URL + '"', page)
++        self.assertIn('href="#local"', page)
++
++    def test_word_link_points_at_the_library(self):
++        with tempfile.TemporaryDirectory() as d:
++            out = Path(d) / "links.docx"
++            self.assertEqual(self.run_filter("docx", out).returncode, 0)
++            with zipfile.ZipFile(out) as z:
++                rels = z.read("word/_rels/document.xml.rels").decode("utf-8")
++        self.assertIn('Target="' + self.URL + '"', rels)
++
++    def test_every_document_link_resolves(self):
++        self.assertEqual(bad_links(converted_sources()), [])
++
++    def test_bad_links_are_found(self):
++        with tempfile.TemporaryDirectory() as d:
++            root = Path(d)
++            (root / "curriculum").mkdir()
++            head = '---\nid: {}\nsource_file: "o.docx"\n---\n\n'
++            (root / "curriculum" / "a.md").write_text(
++                head.format("a") + "## Heading {#x}\n", encoding="utf-8")
++            (root / "curriculum" / "b.md").write_text(
++                head.format("b") + "[ok](a#x) [no](a#y) [none](c#x)\n", encoding="utf-8")
++            self.assertEqual(sorted(bad_links(converted_sources(root))),
++                             [("b", "a#y"), ("b", "c#x")])
+diff --git a/tools/filters/media.lua b/tools/filters/media.lua
+index 0e642a3..feabc4e 100644
+--- a/tools/filters/media.lua
++++ b/tools/filters/media.lua
+@@ -29,6 +29,11 @@
+ -- file's published address under `library-url` in every output, page and
+ -- download alike, so a saved Word, HTML or PDF file still reaches it.
+ --
++-- A link to another converted document's section, `<id>#<identifier>`
++-- (D-0190), points at that page under `library-url` the same way. Its
++-- identifier is written on the target's heading; tests/test_lab_handbook.py
++-- fails on a link to an unknown document or identifier.
++--
+ -- Metadata: `media-dir`, the folder holding the lab's built media (needed
+ -- for a figure), `media-prefix`, put before a picture's path on a page
+ -- that sits below the media folder's parent ("../" on labs/<id>/modern/),
+@@ -128,10 +133,17 @@ return {
+     end,
+     Link = function(el)
+       local id = el.target:match("^([%w%-]+)%-media/[^/]+$")
+-      if not id then return end
+-      if not url then error("media.lua: a link to a lab's file needs library-url: " .. el.target) end
+-      el.target = url .. "labs/" .. id .. "/" .. el.target
+-      return el
++      if id then
++        if not url then error("media.lua: a link to a lab's file needs library-url: " .. el.target) end
++        el.target = url .. "labs/" .. id .. "/" .. el.target
++        return el
++      end
++      local doc, ident = el.target:match("^([%w%-]+)#([%w%-_]+)$")
++      if doc then
++        if not url then error("media.lua: a link to a document needs library-url: " .. el.target) end
++        el.target = url .. "labs/" .. doc .. "/modern/#" .. ident
++        return el
++      end
+     end,
+     Table = function(el)
+       if FORMAT:match("html") then
+-- 
+2.55.0.windows.3
+

@@ -100,8 +100,15 @@ def build(doc, dest, chrome):
     source_dir = os.path.dirname(doc["path"])
     original = os.path.join(render.ROOT, doc["meta"]["source_file"])
     published = []
+    # A picture's bytes are pinned the same way (D-0198 (4)): the word check
+    # that compares pictures skips a ruled-change file.
     for e in media["images"]:
         src = os.path.join(source_dir, e["file"])
+        with open(src, "rb") as fh:
+            digest = hashlib.sha256(fh.read()).hexdigest()
+        if digest != e.get("sha256"):
+            raise SystemExit("{}: {} has sha256 {}, front matter says {}".format(
+                doc["path"], e["file"], digest, e.get("sha256")))
         name = os.path.basename(e["file"])
         shutil.copyfile(src, os.path.join(dest, name))
         published.append(name)

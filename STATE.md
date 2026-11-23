@@ -17,8 +17,15 @@ Volatile handoff, capped at one screen. Updated 2026-11-07.
 problem-solving strategy (D-0158 to D-0160), #70 PH 212 GA sentences
 (D-0161 to D-0164), #71 a lab's own file (D-0165), #72 PH 212 Lab 6's
 data file, #73 screen-reader fixes (D-0166, plus a test fix for #71's
-`library-url`). Entries still proposed. D-0167 (PH 212 equations) has a
-branch, no PR. #61 waits on the owner's Word check and conflicts with main.
+`library-url`). Entries still proposed. #61 waits on the owner's Word
+check and conflicts with main.
+
+**PH 212 equations for screen readers (2026-11-13): D-0167 and D-0178,
+both ruled.** Tool #80 (`ruled_equations` in the word check); Labs 1, 2,
+5 and 3 are #78, #79, #81 and #82, and Lab 6 follows them; Lab 4 needed
+none. Each lab's built MathML was read for bold, spelled words and broken
+groupings. NVDA again only on the owner's word. PH 211 and PH 213 next,
+each under its own entry.
 - Open from #69: the truncated example, "breaks", the license ask
   (`docs/owner-tasks.md`).
 

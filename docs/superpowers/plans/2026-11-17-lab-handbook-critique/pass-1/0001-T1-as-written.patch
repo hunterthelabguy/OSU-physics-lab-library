@@ -1,0 +1,345 @@
+From f5cde59a0e9cd90167c368c762d23f92971aa185 Mon Sep 17 00:00:00 2001
+From: hunterthelabguy <301055645+hunterthelabguy@users.noreply.github.com>
+Date: Tue, 17 Nov 2026 11:18:03 -0800
+Subject: [PATCH 1/7] T1 as written
+
+Red step: tests.test_check_unchanged.Spans, 11 tests, FAILED (errors=11),
+each "KeyError: 'text'" at check_unchanged.py line 963 (the omissions loop
+reads item["text"]); the stop cases raise KeyError, not SystemExit.
+Green: tests.test_check_unchanged 63 tests OK; check_unchanged.py ok on all
+19 converted files. conversion-spec.md section written from the plan's
+description (the plan gives no verbatim text).
+---
+ docs/conversion-spec.md       |  28 ++++++++
+ tests/test_check_unchanged.py |  85 ++++++++++++++++++++++++
+ tools/check_unchanged.py      | 117 ++++++++++++++++++++++++++++------
+ 3 files changed, 211 insertions(+), 19 deletions(-)
+
+diff --git a/docs/conversion-spec.md b/docs/conversion-spec.md
+index dbc1b28..96b4a48 100644
+--- a/docs/conversion-spec.md
++++ b/docs/conversion-spec.md
+@@ -217,6 +217,34 @@ and the converted text as the check prints them, with a ledger reference;
+ the check excuses that one position's text and structure, never its kind
+ or the count.
+ 
++## Span omission (D-0189)
++
++A converted file may leave out a whole stretch of its Word original under a
++ruling, declared under `ruled_omissions`:
++
++```yaml
++ruled_omissions:
++  - span:
++      from: "Paragraph text"     # inside the span; omitted: the start
++      from_occurrence: 2         # when the text matches more than once
++      to: "Paragraph text"       # not inside; omitted: the end
++      labels: {first: "o1", last: "o11.2"}   # Word's labels in the span
++    ledger: "D-0189"
++```
++
++Each edge is the whole text of one paragraph at the top level of the Word
++body, whitespace normalised. The `from` paragraph is inside the span, the
++`to` paragraph is not; `from_occurrence` or `to_occurrence` (1-based)
++names one paragraph when the text repeats. The span leaves out everything
++the original holds in it: words, bold, equations, pictures, drawn figures,
++tables and text-box text. The check stops on an edge that matches no
++paragraph, on an edge that matches more than one without an occurrence, on
++edges out of order, on overlapping spans, on a span with no characters, and
++on a span declared for an original that is not Word. The number check
++excuses the run of Word's labels the span names under `labels: {first,
++last}`, and no others. "How this site works" stays true: a span is a listed
++passage.
++
+ ## Rubrics (instructor repo)
+ 
+ One file per lab, one `::: {.rubric-item question="<question id>"}` per
+diff --git a/tests/test_check_unchanged.py b/tests/test_check_unchanged.py
+index 02387fc..46e602b 100644
+--- a/tests/test_check_unchanged.py
++++ b/tests/test_check_unchanged.py
+@@ -305,6 +305,91 @@ class TableWidths(unittest.TestCase):
+             [{"t": "Table", "c": [None, None, [[{"t": "AlignDefault"}, {"t": "ColWidthDefault"}]]]}]), [])
+ 
+ 
++KEEP = "Kept words before.\n\n"
++CUT = ("# Cut Heading\n\nCut words with $x = 1$ inside.\n\n![Cut dot](dot.png)\n\n"
++       + table([10, 45, 45]) + "\n1. First cut item\n2. Second cut item\n\n")
++TAIL = "# Next Heading\n\nKept words after.\n"
++REPEATED = "Repeated\n\nFirst words.\n\nRepeated\n\nSecond words.\n"
++
++
++def span_front(*spans, ledger=True):
++    """Front matter declaring span omissions; each span a dict of strings."""
++    out = "ruled_omissions:\n"
++    for s in spans:
++        out += "  - span:\n" + "".join('      {}: "{}"\n'.format(k, v) for k, v in s.items())
++        if ledger:
++            out += '    ledger: "D-0189"\n'
++    return out
++
++
++class Spans(unittest.TestCase):
++    """D-0189: a declared span of the original is left out of every comparison."""
++
++    setUp, tearDown = WordCheck.setUp, WordCheck.tearDown
++    original, check, assertFails = WordCheck.original, WordCheck.check, WordCheck.assertFails
++
++    def test_span_left_out_passes(self):
++        front = span_front({"from": "Cut Heading", "to": "Next Heading"})
++        n, problems = self.check(KEEP + CUT + TAIL, KEEP + TAIL, front=front)
++        self.assertEqual(problems, [])
++        self.assertEqual((n["equations"], n["pictures"]), (0, 0))
++
++    def test_span_kept_fails(self):
++        # The Markdown still holds the declared span's words.
++        _, problems = self.check(KEEP + "Cut words.\n\n" + TAIL, KEEP + "Cut words.\n\n" + TAIL,
++                                 front=span_front({"from": "Cut words.", "to": "Next Heading"}))
++        self.assertTrue(any("insert" in p for p in problems), problems)
++
++    def test_span_partly_kept_fails(self):
++        front = span_front({"from": "Cut Heading", "to": "Next Heading"})
++        _, problems = self.check(KEEP + CUT + TAIL,
++                                 KEEP + "Cut words with $x = 1$ inside.\n\n" + TAIL, front=front)
++        self.assertTrue(problems)
++
++    def test_from_the_start_passes(self):
++        _, problems = self.check(KEEP + CUT + TAIL, TAIL,
++                                 front=span_front({"to": "Next Heading"}))
++        self.assertEqual(problems, [])
++
++    def test_to_the_end_passes(self):
++        _, problems = self.check(KEEP + TAIL, KEEP,
++                                 front=span_front({"from": "Next Heading"}))
++        self.assertEqual(problems, [])
++
++    def test_unmatched_edge_stops(self):
++        with self.assertRaises(SystemExit) as stop:
++            self.check(KEEP + TAIL, KEEP, front=span_front({"from": "No Such Paragraph"}))
++        self.assertIn("matches no paragraph", str(stop.exception))
++
++    def test_ambiguous_edge_stops(self):
++        with self.assertRaises(SystemExit) as stop:
++            self.check(REPEATED, "Repeated\n\nFirst words.\n", front=span_front({"from": "Repeated"}))
++        self.assertIn("matches 2 paragraphs", str(stop.exception))
++
++    def test_occurrence_names_the_edge(self):
++        _, problems = self.check(REPEATED, "Repeated\n\nFirst words.\n",
++                                 front=span_front({"from": "Repeated", "from_occurrence": "2"}))
++        self.assertEqual(problems, [])
++
++    def test_overlapping_spans_stop(self):
++        with self.assertRaises(SystemExit) as stop:
++            self.check(KEEP + CUT + TAIL, KEEP,
++                       front=span_front({"from": "Cut Heading"}, {"from": "Next Heading"}))
++        self.assertIn("overlap", str(stop.exception))
++
++    def test_reversed_span_stops(self):
++        with self.assertRaises(SystemExit) as stop:
++            self.check(KEEP + CUT + TAIL, KEEP + TAIL,
++                       front=span_front({"from": "Next Heading", "to": "Cut Heading"}))
++        self.assertIn("no paragraph before", str(stop.exception))
++
++    def test_a_span_needs_a_ledger(self):
++        _, problems = self.check(KEEP + CUT + TAIL, KEEP + TAIL,
++                                 front=span_front({"from": "Cut Heading", "to": "Next Heading"},
++                                                  ledger=False))
++        self.assertTrue(any("lacks a ledger reference" in p for p in problems), problems)
++
++
+ class FiguresAndFiles(unittest.TestCase):
+     """D-0117 and D-0118 on a made-up original (tests/figure_fixture.py):
+     a drawn figure read from its SVG, a picture's file, size and crop, an
+diff --git a/tools/check_unchanged.py b/tools/check_unchanged.py
+index 35b9c90..0c77613 100644
+--- a/tools/check_unchanged.py
++++ b/tools/check_unchanged.py
+@@ -75,6 +75,15 @@ ledger:
+       - original: "x2=x*x"      # Word's text, as the check prints it
+         converted: "x2=x×x"     # the converted text, as it prints it
+         ledger: "D-0167"
++      - span:                   # a stretch of the original (D-0189)
++          from: "Paragraph text"     # inside the span; omitted: the start
++          from_occurrence: 2         # when the text matches more than once
++          to: "Paragraph text"       # not inside; omitted: the end
++        ledger: "D-0189"
++
++A span leaves out everything the original holds in it: words, bold,
++equations, pictures, drawn figures, tables and text-box text. Its edges are
++whole paragraphs at the top level of the Word body.
+ 
+ A declared equation is excused its text and structure at one position; its
+ kind and the equation count are still compared, and a needless one fails.
+@@ -241,6 +250,56 @@ def without_fallbacks(xml_bytes):
+     return root
+ 
+ 
++def paragraph_text(p):
++    """A paragraph's characters, whitespace normalised (span edges, D-0189)."""
++    return " ".join("".join(t.text or "" for t in p.iter(W + "t")).split())
++
++
++def body_spans(body, spans, path):
++    """Each declared span (D-0189) as a half-open range of the Word body's
++    child indexes, sorted. An edge is the whole text of one paragraph at the
++    body's top level; `from` is inside, `to` is not."""
++    texts = [(i, paragraph_text(ch)) for i, ch in enumerate(body) if ch.tag == W + "p"]
++
++    def edge(span, key, default):
++        text = span.get(key)
++        if text is None:
++            return default
++        want = " ".join(str(text).split())
++        hits = [i for i, t in texts if t == want]
++        if not hits:
++            raise SystemExit(f"{path}: span {key} {want!r} matches no paragraph at the"
++                             " body's top level (an edge inside a table or text box is"
++                             " not supported; D-0189)")
++        n = span.get(key + "_occurrence")
++        if n is None:
++            if len(hits) > 1:
++                raise SystemExit(f"{path}: span {key} {want!r} matches {len(hits)} paragraphs"
++                                 f" (body children {hits}); name one with {key}_occurrence"
++                                 " (D-0189)")
++            return hits[0]
++        k = int(str(n))
++        if not 1 <= k <= len(hits):
++            raise SystemExit(f"{path}: span {key}_occurrence {k}, but {want!r} matches"
++                             f" {len(hits)} paragraphs (D-0189)")
++        return hits[k - 1]
++
++    out = []
++    for span in spans:
++        first, stop = edge(span, "from", 0), edge(span, "to", len(body))
++        if first >= stop:
++            raise SystemExit(f"{path}: span from {span.get('from')!r} has no paragraph"
++                             f" before its end {span.get('to')!r} (D-0189)")
++        if not any(t.text for k in range(first, stop) for t in body[k].iter(W + "t")):
++            raise SystemExit(f"{path}: span from {span.get('from')!r} holds no characters (D-0189)")
++        out.append((first, stop))
++    out.sort()
++    for (_, a_stop), (b_first, _) in zip(out, out[1:]):
++        if b_first < a_stop:
++            raise SystemExit(f"{path}: spans overlap (D-0189)")
++    return out
++
++
+ def omml_equations(xml_bytes):
+     """Every top-level m:oMath of a document part, in order (for Pandoc's docx)."""
+     root = without_fallbacks(xml_bytes)
+@@ -256,7 +315,7 @@ def omml_equations(xml_bytes):
+     return out
+ 
+ 
+-def docx_content(path):
++def docx_content(path, spans=()):
+     """The original's (char, bold) pairs, equations, pictures and drawings.
+ 
+     Each picture is {"descr", "part", "extent", "crop", "in_figure"}; each
+@@ -452,7 +511,15 @@ def docx_content(path):
+             drawing(d)
+             sink["out"].append((" ", False))
+ 
+-    blocks(root)
++    body = root.find(W + "body")
++    ranges = body_spans(body, spans, path) if spans else []
++    for i, ch in enumerate(body):
++        if any(a <= i < b for a, b in ranges):
++            continue  # a ruled span (D-0189): nothing in it is compared
++        if ch.tag == W + "p":
++            paragraph(ch)
++        else:
++            blocks(ch)
+     return sink["out"], sink["equations"], sink["pictures"], drawings
+ 
+ 
+@@ -830,24 +897,29 @@ def grid_shares(tbl):
+     return [100 * c / sum(cols) for c in cols] if len(cols) > 1 and sum(cols) else None
+ 
+ 
+-def word_tables(path):
++def word_tables(path, spans=()):
+     """Word's tables of more than one column, in document order, each as
+     (column shares, printed landscape). A table's section ends at the next
+-    w:sectPr after it, a paragraph's or the body's own."""
++    w:sectPr after it, a paragraph's or the body's own. A table inside a
++    declared span (D-0189) is left out; its section breaks still count."""
+     with zipfile.ZipFile(path) as z:
+-        root = ET.fromstring(z.read("word/document.xml"))
++        data = z.read("word/document.xml")
++    body = ET.fromstring(data).find(W + "body")
++    ranges = body_spans(without_fallbacks(data).find(W + "body"), spans, path) if spans else []
+     out, pending = [], []
+-    for el in root.iter():
+-        if el.tag == W + "tbl":
+-            shares = grid_shares(el)
+-            if shares:
+-                pending.append(shares)
+-        elif el.tag == W + "sectPr":
+-            size = el.find(W + "pgSz")
+-            wide = size is not None and (size.get(W + "orient") == "landscape"
+-                                         or int(size.get(W + "w", "0")) > int(size.get(W + "h", "0")))
+-            out += [(s, wide) for s in pending]
+-            pending = []
++    for i, child in enumerate(body):
++        inside = any(a <= i < b for a, b in ranges)
++        for el in child.iter():
++            if el.tag == W + "tbl":
++                shares = grid_shares(el)
++                if shares and not inside:
++                    pending.append(shares)
++            elif el.tag == W + "sectPr":
++                size = el.find(W + "pgSz")
++                wide = size is not None and (size.get(W + "orient") == "landscape"
++                                             or int(size.get(W + "w", "0")) > int(size.get(W + "h", "0")))
++                out += [(s, wide) for s in pending]
++                pending = []
+     return out + [(s, False) for s in pending]
+ 
+ 
+@@ -921,16 +993,20 @@ def check(md_path, repo_root):
+         [PANDOC, "-f", FROM, "-t", "json", md_path],
+         capture_output=True, check=True, encoding="utf-8").stdout)
+     meta = {k: meta_value(v) for k, v in doc["meta"].items()}
++    spans = [item["span"] for item in meta.get("ruled_omissions", []) or []
++             if isinstance(item, dict) and "span" in item]
+     problems = []
+ 
+     src = os.path.join(repo_root, meta["source_file"])
++    if spans and not src.lower().endswith(".docx"):
++        raise SystemExit(f"{md_path}: a span omission needs a Word original (D-0189)")
+     digest = hashlib.sha256(open(src, "rb").read()).hexdigest()
+     if digest != meta.get("source_sha256"):
+         problems.append(f"source_sha256 mismatch: file is {digest}")
+ 
+     o_eqs, o_pics, o_drawings = [], [], []
+     if src.lower().endswith(".docx"):
+-        chars, o_eqs, o_pics, o_drawings = docx_content(src)
++        chars, o_eqs, o_pics, o_drawings = docx_content(src, spans)
+         original = tokens(chars)
+     elif src.lower().endswith(".xlsx"):
+         original = tokens(xlsx_chars(src, meta["source_sheet"]))
+@@ -959,7 +1035,10 @@ def check(md_path, repo_root):
+     for key, side in (("ruled_omissions", "original"), ("ruled_additions", "converted")):
+         for item in meta.get(key, []) or []:
+             if not item.get("ledger"):
+-                problems.append(f"{key} entry lacks a ledger reference: {item.get('text')!r}")
++                problems.append(f"{key} entry lacks a ledger reference:"
++                                f" {item.get('text', item.get('span'))!r}")
++            if "span" in item:
++                continue  # left out of the original's content already (D-0189)
+             passage = [w for w, _ in tokens([(ch, False) for ch in item["text"]])]
+             if side == "original":
+                 original, found_ = remove_passage(original, passage)
+@@ -1007,7 +1086,7 @@ def check(md_path, repo_root):
+                                          os.path.dirname(os.path.abspath(md_path)), package,
+                                          found["figures"])
+         problems += compare_figures(o_drawings, found["figures"], descrs)
+-        o_tables, c_tables = word_tables(src), markdown_tables(doc["blocks"])
++        o_tables, c_tables = word_tables(src, spans), markdown_tables(doc["blocks"])
+         problems += compare_table_shares([s for s, _ in o_tables], [s for s, _ in c_tables])
+         problems += compare_table_pages([w for _, w in o_tables], [w for _, w in c_tables])
+     words = sum(1 for w in a if w not in SHOWN)
+-- 
+2.55.0.windows.3
+

@@ -138,15 +138,18 @@ Quarto internals.
   Windows command-line limit). Open Sans in `site/fonts/` is rebuilt only by
   `tools/subset_fonts.py`.
 - One Markdown source feeds one presentation, `themes/modern.css`, and the
-  downloads; never copy content into a second file. D-0108 retired the
+  downloads; never copy content into a second file (one exception, until
+  PH 211 Labs 3 to 7's appendix copies are cut: the Lab Handbook's sections,
+  D-0191, which change only after those cuts, D-0201). D-0108 retired the
   faithful page (amending ledger 28): each `labs/<id>/faithful/` address is
   a redirect stub to `../modern/`, and `render.THEMES` is `("modern",)`.
-  `render.pandoc_meta` returns plain text, so
-  every caller escapes what it writes, once (D-0099).
-  Question numbers come from `tools/filters/questions.lua` at render time;
-  none is stored in the source. The "How this site works" page is
-  `site/how-this-site-works.md` (D-0072; its old address redirects). No page or download carries a draft banner
-  (D-0156); every page keeps its `noindex` meta. Output stays host-agnostic static files (ledger 39).
+  `render.pandoc_meta` returns plain text, so every caller escapes what it
+  writes, once (D-0099). Question numbers come from
+  `tools/filters/questions.lua` at render time; none is stored in the
+  source. The "How this site works" page is `site/how-this-site-works.md`
+  (D-0072; its old address redirects). No page or download carries a draft
+  banner (D-0156); every page keeps its `noindex` meta. Output stays
+  host-agnostic static files (ledger 39).
 - Tools not on PATH: Python 3.12 at
   `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`; the GitHub CLI at
   `C:\Program Files\GitHub CLI\gh.exe`. Node 24 is on PATH; the sim tests
@@ -159,13 +162,16 @@ Quarto internals.
   never here, because git history is permanent. Nothing that carries an
   answer key belongs here: the Electric Force instructor guide and build
   prompt stay out.
-- Conversion first, then ruled changes (D-0168). A handout's conversion is
-  format only, proven by the content-unchanged check
+- Conversion first, then ruled changes (D-0168, D-0195). A handout's
+  conversion is format only, proven by the content-unchanged check
   (docs/conversion-spec.md), and lands on its own. A wording change comes
-  after, never folded into a conversion: each changed passage declared in
-  the source's front matter (`ruled_omissions`, `ruled_additions`) with its
-  ledger entry, `status: ruled-change`, and the entry records who drafted
-  the words and who approved them. Never loosen the check for a change.
+  after, never folded into a conversion. The first ruled change sets
+  `status: ruled-change`; from then on the handout's own Markdown is the
+  baseline, and both Word checks skip it and print why. Each change is
+  reviewed in its PR's diff, its commit cites the ruling, and the ruling,
+  in the instructor repo's ledger, records who drafted the words and who
+  approved them. A ruled change keeps no front-matter list of changed
+  passages. Never loosen a check for a change to a `converted` file.
 - Roles, not names. No invented record data.
 - Original source files are in `../Old Reference Material/` and are
   unvetted: read one in full for student data before planning around it.

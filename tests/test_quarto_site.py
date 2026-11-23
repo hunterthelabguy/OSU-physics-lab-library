@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 sys.path.insert(0, str(ROOT / "tools"))
 import test_site_chrome as chrome         # noqa: E402  (for SimBar.BAR only)
 import render                             # noqa: E402
+import test_lab_handbook                  # noqa: E402  (ADDRESSES)
 
 
 def setUpModule():
@@ -106,6 +107,25 @@ class Pages(unittest.TestCase):
             with self.subTest(page=rel):
                 self.assertTrue((QSITE / rel).is_file())
 
+
+    def test_functions_grouped_with_their_brackets(self):
+        # D-0181: no function's name sits in an mrow of its own before a
+        # bracket, on a lab page or its HTML download; the two that had one
+        # (PH 212 Lab 6's cosine, PH 213 Data Analysis's sine) are grouped.
+        apply = "(?:\u2061|&#8289;|&#x2061;)"
+        apart = re.compile(r'<mrow><mi[^>]*>[^<]+</mi><mo>' + apply + r'</mo></mrow>'
+                           r'(?:<mrow>)?<mo[^>]*>\(</mo>')
+        for doc_id, _ in converted():
+            for rel in (f"labs/{doc_id}/modern/index.html", f"labs/{doc_id}/{doc_id}.html"):
+                with self.subTest(page=rel):
+                    self.assertIsNone(apart.search((QSITE / rel).read_text(encoding="utf-8")))
+        for doc_id, name in (("ph212-capstone-handout", "cos"), ("ph213-data-analysis-handout", "sin")):
+            for rel in (f"labs/{doc_id}/modern/index.html", f"labs/{doc_id}/{doc_id}.html"):
+                with self.subTest(grouped=rel):
+                    self.assertRegex((QSITE / rel).read_text(encoding="utf-8"),
+                                     '<mi mathvariant="normal">' + name + '</mi><mo>' + apply
+                                     + '</mo><mrow><mo')
+
     def test_course_index_links_course_wide_documents(self):
         # D-0160: under their own heading, each to its modern page.
         shared = render.course_wide(render.converted_documents())
@@ -170,6 +190,31 @@ class Pages(unittest.TestCase):
                 base = QSITE if href.startswith("/") else path.parent
                 with self.subTest(page=rel, href=href):
                     self.assertTrue((base / href.split("?")[0].lstrip("/")).resolve().is_file())
+
+
+class LabHandbook(unittest.TestCase):
+    """D-0188, D-0190: the handbook page and its fixed addresses."""
+
+    ADDRESSES = test_lab_handbook.ADDRESSES   # one list (spec 4.3)
+
+    def page(self):
+        return (QSITE / "labs" / "ph21x-lab-handbook" / "modern" / "index.html").read_text(encoding="utf-8")
+
+    def test_addresses_on_its_sections(self):
+        found = re.findall(r'<h2[^>]*\bid="([^"]+)"', self.page())
+        self.assertEqual(found, self.ADDRESSES)
+
+    def test_titled_lab_handbook_with_contents_links(self):
+        page = self.page()
+        self.assertRegex(page, r"<h1[^>]*>Lab Handbook</h1>")
+        for address in self.ADDRESSES:
+            self.assertIn('href="#' + address + '"', page)
+
+    def test_lab3_links_to_the_handbook(self):
+        page = (QSITE / "labs" / "ph211-uncertainty-handout" / "modern" / "index.html").read_text(encoding="utf-8")
+        for address in ("plot-elements", "linearization"):
+            self.assertIn('href="' + render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
+                          + address + '"', page)
 
 
 class NoThirdParty(unittest.TestCase):

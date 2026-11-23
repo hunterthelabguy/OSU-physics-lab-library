@@ -14,7 +14,21 @@ ruled_omissions:
     ledger: "D-0164"
   - text: "(You must be logged into google drive with your ONID)."
     ledger: "D-0164"
-ruled_additions: []
+  - text: ". One"
+    ledger: "D-0167"
+ruled_additions:
+  - text: "). One"
+    ledger: "D-0167"
+ruled_equations:
+  - original: "FD=b1v)"
+    converted: "FD=b1v"
+    ledger: "D-0167"
+  - original: "Δw=w*α(Δxx)2+β(Δyy)2+γ(Δzz)2"
+    converted: "Δw=w×α(Δxx)2+β(Δyy)2+γ(Δzz)2"
+    ledger: "D-0167"
+  - original: "x2=x*x"
+    converted: "x2=x×x"
+    ledger: "D-0167"
 files:
   - file: "ph212-capstone-handout-media/ga-custom-fit-practice-data.gambl"
     sha256: "c17cea4946bccfacb9baafa92da45e3fff2adcaec731d39a064d4567a942ff89"
@@ -144,12 +158,12 @@ Drag refers to air resistance on a moving object. There are different models for
 
 We start with equations for the speed of the cart as a function of time for each model. These equations assume the cart starts at rest at time *t~0~, [so it’s important that you only fit to data taken after the cart is released / starts moving.]{.underline}*
 
-The first case, for constant drag, you may have covered in lecture. The drag is simply a constant, $\mathbf{F}_{\mathbf{D}}\mathbf{=}\mathbf{b}_{\mathbf{0}}$, and the speed is given by
-$$\mathbf{v}\left( \mathbf{t} \right)\mathbf{=}\left( \mathbf{g}\mathbf{sin\theta - \ }\frac{\mathbf{b}_{\mathbf{0}}}{\mathbf{m}} \right)\left( \mathbf{t -}\mathbf{t}_{\mathbf{0}} \right)$$
+The first case, for constant drag, you may have covered in lecture. The drag is simply a constant, $F_{D} = b_{0}$, and the speed is given by
+$$v\left( t \right) = \left( g\sin\theta - \ \frac{b_{0}}{m} \right)\left( t - t_{0} \right)$$
 
-For the second case we will assume the drag increases linearly with speed, that is, $\mathbf{F}_{\mathbf{D}}\mathbf{=}\mathbf{b}_{\mathbf{1}}\mathbf{v}$. In this case the equation for speed is
+For the second case we will assume the drag increases linearly with speed, that is, $F_{D} = b_{1}v$. In this case the equation for speed is
 
-$$\mathbf{v}\left( \mathbf{t} \right)\mathbf{=}\frac{\mathbf{mg}\mathbf{sin\theta}}{\mathbf{b}_{\mathbf{1}}}\mathbf{\times}\left( \mathbf{1 -}\mathbf{e}^{\mathbf{-}\frac{\mathbf{b}_{\mathbf{1}}}{\mathbf{m}}\left( \mathbf{t -}\mathbf{t}_{\mathbf{0}} \right)} \right)$$
+$$v\left( t \right) = \frac{mg\sin\theta}{b_{1}} \times \left( 1 - e^{- \frac{b_{1}}{m}\left( t - t_{0} \right)} \right)$$
 
 [A few important notes about these equations:]{.underline}
 
@@ -161,7 +175,7 @@ $$\mathbf{v}\left( \mathbf{t} \right)\mathbf{=}\frac{\mathbf{mg}\mathbf{sin\thet
 
 *If you choose to investigate this model:*
 
-1)  You need to determine which model better describes a cart rolling down a track – constant drag ($\mathbf{F}_{\mathbf{D}}\mathbf{=}\mathbf{b}_{\mathbf{0}}$), or drag that increases linearly with speed ($\mathbf{F}_{\mathbf{D}}\mathbf{=}\mathbf{b}_{\mathbf{1}}\mathbf{v)}$. One way to do this is to compare measured velocity with the equations given above for ***v(t)***.
+1)  You need to determine which model better describes a cart rolling down a track – constant drag ($F_{D} = b_{0}$), or drag that increases linearly with speed ($F_{D} = b_{1}v$). One way to do this is to compare measured velocity with the equations given above for ***v(t)***.
 2)  You will repeat your experiment for either different masses or cross-sectional areas, determining in each case which model works better.
 3)  In each case you should find the value of ***b*** from a fit of your data. You’ll look for a trend in ***b*** and interpret what that may mean physically.
 
@@ -169,7 +183,7 @@ $$\mathbf{v}\left( \mathbf{t} \right)\mathbf{=}\frac{\mathbf{mg}\mathbf{sin\thet
 
 An equation describing the position of a damped oscillator over time is
 
-$$\mathbf{x}\left( \mathbf{t} \right)\mathbf{= A}\mathbf{e}^{\mathbf{- Bt}}\mathbf{\cos}{\left( \mathbf{Ct + D} \right)\mathbf{+ E}}$$
+$$x\left( t \right) = Ae^{- Bt}\cos\left( Ct + D \right) + E$$
 
 *A, B, C, D,* & *E* are factors specific to the system & oscillation being studied.
 
@@ -476,11 +490,11 @@ There is an equation that we can use to calculate the total uncertainty in a qua
 
 Suppose we have a quantity $w$ that depends on three other quantities $x,\ y,\ z$, such that $w = \frac{x^{\alpha}y^{\beta}}{z^{\gamma}}$. Each measured quantity has its own uncertainty, $\Delta x,\ \Delta y,\ \Delta z$. Then the uncertainty in $w$ is given by the equation:
 
-$$\Delta w = w*\sqrt{{\alpha\left( \frac{\Delta x}{x} \right)}^{2} + {\beta\left( \frac{\Delta y}{y} \right)}^{2} + {\gamma\left( \frac{\Delta z}{z} \right)}^{2}\ }$$
+$$\Delta w = w \times \sqrt{{\alpha\left( \frac{\Delta x}{x} \right)}^{2} + {\beta\left( \frac{\Delta y}{y} \right)}^{2} + {\gamma\left( \frac{\Delta z}{z} \right)}^{2}\ }$$
 
 You might notice that this looks similar to the equation you have been using to find total uncertainty from multiple sources, with a few important changes.
 
 ::: hint
 - Each quantity likely has different units, so by dividing each uncertainty by the measured value, everything in the square root is unitless. You can also think of this as adding the percent uncertainties together (also called relative uncertainty), instead of the uncertainties themselves.
-- Exponents are just repeated multiplication – for example, $x^{2} = x*x$. In this case, the uncertainty in $x$ would come up twice in the square root, so we would add $\left( \frac{\Delta x}{x} \right)^{2} + \left( \frac{\Delta x}{x} \right)^{2} = 2\left( \frac{\Delta x}{x} \right)^{2}$, which is why exponents become multiplication factors.
+- Exponents are just repeated multiplication – for example, $x^{2} = x \times x$. In this case, the uncertainty in $x$ would come up twice in the square root, so we would add $\left( \frac{\Delta x}{x} \right)^{2} + \left( \frac{\Delta x}{x} \right)^{2} = 2\left( \frac{\Delta x}{x} \right)^{2}$, which is why exponents become multiplication factors.
 :::

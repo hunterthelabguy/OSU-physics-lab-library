@@ -22,6 +22,5 @@ Each handout downloads from its page as Word, PDF, HTML or Markdown.
   Small tools students use during a lab, each one a single
   page that runs in the browser, keeps nothing, and sends nothing.
 - [How this site works](how-this-site-works/)
-  How a page is built, how it is checked against the original, and who
-  did the work.
+  How a page is built and who did the work.
 :::
