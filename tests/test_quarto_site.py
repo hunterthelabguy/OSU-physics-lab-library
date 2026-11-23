@@ -210,6 +210,12 @@ class LabHandbook(unittest.TestCase):
         for address in self.ADDRESSES:
             self.assertIn('href="#' + address + '"', page)
 
+    def test_lab3_links_to_the_handbook(self):
+        page = (QSITE / "labs" / "ph211-uncertainty-handout" / "modern" / "index.html").read_text(encoding="utf-8")
+        for address in ("plot-elements", "linearization"):
+            self.assertIn('href="' + render.LIBRARY_URL + "labs/ph21x-lab-handbook/modern/#"
+                          + address + '"', page)
+
 
 class NoThirdParty(unittest.TestCase):
     """D-0033: no theme or setting that loads a third-party resource."""
