@@ -38,7 +38,12 @@ local TEXT_WIDTH = 10080
 -- .question { padding: .9rem 1.1rem .1rem; border-left: 4px; margin: 1.5rem 0 }:
 -- the padding as cell margins, the rule as a 3 pt left border on the text
 -- column's edge, and an empty paragraph after it for the bottom margin,
--- which also keeps two boxes in a row from joining into one table.
+-- which also keeps two boxes in a row from joining into one table. The same
+-- gap goes before a box that follows a table: Word joins two tables that
+-- touch, and Pandoc separates its own tables but cannot see the box (D-0179).
+local GAP = '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="' .. twips(1.5)
+  .. '" w:lineRule="exact"/></w:pPr></w:p>'
+
 local function word_box(blocks, rule, fill, kind)
   if not rule or not fill then
     error("the Word " .. kind .. " box needs its colours; tools/downloads.py passes them")
@@ -55,12 +60,10 @@ local function word_box(blocks, rule, fill, kind)
     .. '<w:tblGrid><w:gridCol w:w="' .. TEXT_WIDTH .. '"/></w:tblGrid>'
     .. '<w:tr><w:trPr><w:cantSplit/></w:trPr><w:tc><w:tcPr><w:tcW w:w="' .. TEXT_WIDTH .. '" w:type="dxa"/>'
     .. '<w:shd w:val="clear" w:color="auto" w:fill="' .. fill .. '"/></w:tcPr>'
-  local gap = '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="' .. twips(1.5)
-    .. '" w:lineRule="exact"/></w:pPr></w:p>'
   local out = { pandoc.RawBlock("openxml", open) }
   for _, b in ipairs(blocks) do table.insert(out, b) end
   table.insert(out, pandoc.RawBlock("openxml", "</w:tc></w:tr></w:tbl>"))
-  table.insert(out, pandoc.RawBlock("openxml", gap))
+  table.insert(out, pandoc.RawBlock("openxml", GAP))
   return out
 end
 
@@ -110,6 +113,25 @@ return {
         return word_box(el.content, colours[prefix .. "-rule"], colours[prefix .. "-fill"], kind)
       end
       return el
+    end,
+  },
+  {
+    -- After the boxes are written: a box (raw, opening "<w:tbl>") right
+    -- after a Pandoc table gets the gap before it too (D-0179).
+    Blocks = function(blocks)
+      if FORMAT ~= "docx" then return nil end
+      local out, inserted = {}, false
+      for i, b in ipairs(blocks) do
+        local prev = blocks[i - 1]
+        if prev and prev.t == "Table" and b.t == "RawBlock" and b.format == "openxml"
+            and b.text:sub(1, 7) == "<w:tbl>" then
+          table.insert(out, pandoc.RawBlock("openxml", GAP))
+          inserted = true
+        end
+        table.insert(out, b)
+      end
+      if inserted then return out end
+      return nil
     end,
   },
 }
