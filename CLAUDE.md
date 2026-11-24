@@ -34,7 +34,12 @@ Quarto internals.
 - **Shared checkout:** two sessions may work in this folder at once (one
   appended D-0062 to D-0066 mid-session, 2026-10-02). Just before appending
   to `DECISIONS.md` or editing `STATE.md`, run `git fetch` and `git log -3
-  origin/main`, and number a new entry from the file's last one.
+  origin/main`, and number a new entry from the file's last one. A PR
+  branch is often checked out in another session's worktree
+  (`.superpowers/sdd/<name>`): update it from a fresh local branch pushed to
+  the PR's branch, never by switching that worktree. Merging main into a PR
+  branch that appended to `DECISIONS.md`: keep main's entries as they are and
+  put the branch's after them, so its ledger diff stays one append.
 - **Living plan:** `DECISIONS.md` from 2026-09-21, under the decision
   ledger spec (`../OSU-lab-ops/docs/decision-ledger-spec.md`); this repo is
   its pilot. Agents append `proposed` entries only; the owner promotes in
