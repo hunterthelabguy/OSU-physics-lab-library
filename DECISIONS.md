@@ -2100,3 +2100,24 @@ sandbox, supplied by the owner 2026-09-21, PNG only.
 - alternatives: Pandoc's bare `<w:p/>` as the separator (Normal style, a height unlike every other box gap); a post-pass in `tools/downloads.py` separating any two touching tables in the finished XML (covers any raw table, but a second layer editing XML by pattern after Pandoc, for a case only the box makes); also looking inside a Div that ends in a table (no lab has one; the all-downloads test fails if one appears); only the all-downloads test (passes again if Lab 3's table moves, leaving the filter's rule untested).
 - binds: D-0082; D-0057; tools/filters/questions.lua; tests/test_downloads.py
 - test: tests/test_downloads.py::MarkdownAndWord::test_word_box_after_a_table_keeps_its_own_table and test_word_tables_never_touch
+
+### D-0208  PH 211 Lab 3's trial cut passes; the Labs 4 to 7 cuts may be planned
+- status: proposed
+- proposed-by: owner
+- date: 2026-11-24
+- decision: (1) The Lab 3 trial passes under D-0192 (3): verify is green on main, both handbook links open their sections on production, and the owner has checked Lab 3's Word download in Word and Google Docs. (2) The cuts of PH 211 Labs 4 to 6, with Lab 7's rows (D-0201 (2)), may now be planned, together. (3) Not settled here: whether each handbook link moves to its point of need (asked, never ruled), Lab 3's page-10 PDF page (D-0198 (6)), and the cuts' order against D-0206 and D-0207.
+- rationale: The owner's Word check of Lab 3, 2026-11-23, found three faults, none made by the cut: the stopwatch table crushed (D-0179, merged by #84 as a32815b, 2026-11-24, main's run green), the table split across pages in Word only (D-0206, proposed), and Part 1 on page 1 (D-0207, proposed; the conversion drops all 33 hard page breaks in 15 originals). Google Docs was fine; links are blocked in Word's Protected View; the Defender notice was tabled by the owner. Asked 2026-11-24, "Did the Lab 3 trial pass, so the Labs 4 to 7 cuts can be planned?": "Trial passes".
+  Claude's context: its lean, given before the question, was that the trial passes on its own terms, since the two remaining Word faults are pipeline-wide and have their own entries.
+- alternatives: hold the trial until D-0206 and D-0207 land (ties the cuts to pagination faults the cut did not cause)
+- binds: D-0192; D-0198; D-0201; D-0206; D-0207
+- test: none; the gate was the owner's check
+
+### D-0209  Four converted handouts send students to Excel Skills, not three
+- status: proposed
+- proposed-by: claude
+- date: 2026-11-24
+- decision: Corrects the rationales of D-0203 and D-0205, whose decisions stand. Four converted handouts name Excel Skills: PH 211 Labs 2 and 3, PH 212 Lab 1 and PH 213 Lab 1. D-0205's "Three converted handouts" and its correction of a first count of four were wrong; D-0203's "five documents" is six with PH 212 Lab 1.
+- rationale: `grep -c 'Excel Skills'` over `curriculum/` at 29d05ac: `ph211-data-analysis-handout.md` 4 lines, `ph211-uncertainty-handout.md` 1, `ph212-data-analysis-handout.md` 1 (line 232, there since 2026-10-09), `ph213-data-analysis-handout.md` 2; no other file. Found while drafting the student-resources question round (spec section 3a).
+- alternatives: edit D-0203 and D-0205 in place (the ledger is append-only)
+- binds: D-0203; D-0205; docs/superpowers/specs/2026-11-23-student-resources-and-skills-matrix.md
+- test: none
