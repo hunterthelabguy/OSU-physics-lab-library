@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!-- Made-up page for tests/test_a11y.py: passes every rule of
+     tools/a11y_audit.mjs in both themes and at both widths, so a rule that
+     fires here is a false finding. No real content. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clean fixture</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 16px/1.4 sans-serif; margin: 0; padding: 0 1rem; background: #fff; color: #222; }
+  @media (prefers-color-scheme: dark) { body { background: #121212; color: #eee; } a { color: #9cf; } }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .scroller { overflow-x: auto; }
+  .scroller table { width: 900px; }
+  button { min-width: 44px; min-height: 44px; }
+  .big { font-size: 24px; color: #767676; }
+  @media (prefers-color-scheme: dark) { .big { color: #949494; } }
+</style>
+</head>
+<body>
+<a class="sr-only" href="#main">Skip to content</a>
+<header><a href="#main">Back to top</a></header>
+<main id="main">
+<h1>Heading</h1>
+<h2>Section</h2>
+<p>Body text with an <a href="#in-line">inline link</a> in it.</p>
+<p class="big">Large grey text at 3 to 1.</p>
+<span class="sr-only">Hidden for screen readers only, faint is fine</span>
+<img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="">
+<label for="name">Name</label> <input id="name" type="text">
+<button type="button">Go</button>
+<details><summary>More</summary><p>Inside.</p></details>
+<div class="scroller"><table><tr><th>a</th><th>b</th></tr><tr><td>1</td><td>2</td></tr></table></div>
+</main>
+</body>
+</html>

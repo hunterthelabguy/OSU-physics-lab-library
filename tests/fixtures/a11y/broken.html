@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- Made-up page for tests/test_a11y.py: each block breaks one rule of
+     tools/a11y_audit.mjs, marked by its class. No real content. -->
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title></title>
+<style>
+  body { font: 16px/1.4 sans-serif; margin: 0; background: #fff; color: #222; }
+  .low-contrast { color: #aaa; }
+  .on-image { background-image: linear-gradient(#000, #333); color: #fff; }
+  .tiny a { display: inline-block; width: 12px; height: 12px; background: #036; color: #fff; font-size: 8px; }
+  .wide { width: 900px; }
+  .no-ring:focus { outline: none; }
+  .clip { height: 1.2em; line-height: 1.2; overflow: hidden; }
+</style>
+</head>
+<body>
+<main>
+<h1>One</h1>
+<h1 class="second-h1">Two</h1>
+<h4 class="skip">Skipped two levels</h4>
+<p class="low-contrast">Grey on white, about 2.3 to 1.</p>
+<p class="on-image">White on a gradient.</p>
+<img class="no-alt" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=">
+<div class="no-name-img" role="img"></div>
+<a class="empty-link" href="#x"></a>
+<button class="empty-button"></button>
+<input class="unlabelled" type="text">
+<span class="dangling" aria-labelledby="nowhere">label points nowhere</span>
+<span id="twice">a</span><span id="twice">b</span>
+<span class="doubled" aria-describedby="twice">doubled reference</span>
+<table class="no-th"><tr><td>a</td><td>b</td></tr><tr><td>1</td><td>2</td></tr></table>
+<div class="tiny"><a href="#1">1</a><a href="#2">2</a></div>
+<div class="wide">Nine hundred pixels wide.</div>
+<a class="no-ring" href="#ring">No focus ring</a>
+<div class="clip">One short line.</div>
+</main>
+<main class="second-main"><p>Two mains.</p></main>
+</body>
+</html>
